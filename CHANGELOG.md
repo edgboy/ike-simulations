@@ -5,6 +5,13 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v1.7.0 — 2026-07-04
+
+- **Thème sombre** 🌙 : bouton clair/sombre dans l'en-tête de la simulation, choix mémorisé sur l'appareil.
+  Au premier lancement, le thème suit la préférence du téléphone/PC (`prefers-color-scheme`).
+  Tout est adapté : interface **et** rendu du circuit (grille, composants, symboles normalisés).
+- Page d'accueil : thème sombre automatique selon la préférence du système.
+
 ## v1.6.0 — 2026-07-04
 
 Améliorations issues des **premiers retours utilisateurs** :

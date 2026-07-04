@@ -61,6 +61,20 @@
     text-align:center; font-size:12px; color:#90a4ae; padding:18px;
     border-top:1px solid #e0e6ed; background:#fff; line-height:1.7;
   }
+
+  /* Thème sombre automatique (préférence du système) */
+  @media (prefers-color-scheme: dark) {
+    body { background:#10181f; color:#eceff1; }
+    h2 { color:#78909c; }
+    .carte { background:#1c262e; border-color:#2c3a45; }
+    .carte h3 { color:#eceff1; }
+    .carte p { color:#b0bec5; }
+    .carte .niveau { color:#64b5f6; }
+    .carte.bientot .lancer { background:#3a4a56; color:#b0bec5; }
+    a.carte:hover { box-shadow:0 8px 24px rgba(0,0,0,.5); }
+    .note { background:#0d2c4f; border-color:#1a4a7a; color:#bbdefb; }
+    footer { background:#1c262e; border-color:#2c3a45; color:#78909c; }
+  }
 </style>
 </head>
 <body>
@@ -111,7 +125,7 @@
 
 <footer>
   IKE Simulations · Sciences au collège (Bénin)<br>
-  Gratuit et hors-ligne · Inspiré des simulations PhET · v1.6.0
+  Gratuit et hors-ligne · Inspiré des simulations PhET · v1.7.0
 </footer>
 
 </body>

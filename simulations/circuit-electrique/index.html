@@ -238,6 +238,41 @@
   .mrow.faite .n { color:#2e7d32; }
   .mrow.courante { outline:2px solid #1565c0; background:#e3f2fd; }
   .mrow .t { flex:1; }
+
+  /* ==================== THÈME SOMBRE ==================== */
+  body.sombre { background:#10181f; color:#eceff1; }
+  body.sombre header,
+  body.sombre #mbar,
+  body.sombre nav#palette { background:#1c262e; border-color:#2c3a45; }
+  body.sombre header h1 { color:#64b5f6; }
+  body.sombre .btn { background:#22303a; border-color:#3a4a56; color:#cfd8dc; }
+  body.sombre .btn:active { background:#0d2c4f; }
+  body.sombre .btn.danger:active { background:#3a1f22; }
+  body.sombre #mtitre { color:#eceff1; }
+  body.sombre #metape { color:#cfd8dc; }
+  body.sombre #mbar .mbtn { background:#22303a; border-color:#3a4a56; color:#cfd8dc; }
+  body.sombre #btn-indice { background:#3a3220 !important; border-color:#8d6e63 !important; color:#ffd54f; }
+  body.sombre #mindice { background:#2b2618; border-color:#5d4d1a; color:#ffe082; }
+  body.sombre #mpoints .pt { background:#3a4a56; }
+  body.sombre #mpoints .pt.faite { background:#66bb6a; }
+  body.sombre #mpoints .pt.courante { background:#64b5f6; }
+  body.sombre #mbar.flash { animation-name:flashvert-sombre; }
+  @keyframes flashvert-sombre { 0% { background:#1b3a22; } 100% { background:#1c262e; } }
+  body.sombre nav#palette button { background:#22303a; }
+  body.sombre nav#palette button span { color:#cfd8dc; }
+  body.sombre nav#palette button.actif { background:#0d2c4f; border-color:#64b5f6; }
+  body.sombre #selbar { background:#1c262e; border-color:#3a4a56; }
+  body.sombre #btn-inverser { background:#0d2c4f; color:#90caf9; }
+  body.sombre #btn-supprimer { background:#3a1f22; color:#ef9a9a; }
+  body.sombre .voile .carte, body.sombre #visite-carte { background:#1c262e; }
+  body.sombre .voile .carte h2, body.sombre .vtitre { color:#64b5f6; }
+  body.sombre .vtexte { color:#cfd8dc; }
+  body.sombre .voile .btn2 { background:#22303a; border-color:#3a4a56; color:#cfd8dc; }
+  body.sombre #mfin-titre { color:#eceff1; }
+  body.sombre .retenir-label { color:#81c784; }
+  body.sombre #mfin-retenir { background:#16281a; color:#a5d6a7; }
+  body.sombre .mrow { background:#26313a; color:#eceff1; }
+  body.sombre .mrow.courante { background:#0d2c4f; outline-color:#64b5f6; }
 </style>
 </head>
 <body>
@@ -247,12 +282,13 @@
   <div class="nom">IKE <span>Simulations</span></div>
   <div class="sub">Sciences au collège</div>
   <div class="barre"><div class="rempl"></div></div>
-  <div class="ver">v1.6.0</div>
+  <div class="ver">v1.7.0</div>
 </div>
 
 <header>
   <h1>⚡ Circuit électrique</h1>
   <div class="spacer"></div>
+  <button class="btn" id="btn-theme">🌙<span class="lbl"> Sombre</span></button>
   <button class="btn" id="btn-vue">👁 <span class="lbl" id="lbl-vue">Symboles</span></button>
   <button class="btn" id="btn-aide">❓<span class="lbl"> Aide</span></button>
   <button class="btn danger" id="btn-effacer">🗑<span class="lbl"> Effacer</span></button>
@@ -347,10 +383,34 @@ const etat = {
   comps: [],          // { id, type, a:{c,r}, b:{c,r}, ferme?, I }
   outil: 'fil',       // outil sélectionné dans la palette
   vue: 'realiste',    // 'realiste' | 'symboles'
+  theme: 'clair',     // 'clair' | 'sombre'
   selection: null,    // id du composant sélectionné
   drag: null,         // { depart:{c,r}, dernier:{c,r}, aretes:[{a,b}] }
   courtCircuit: false,
 };
+
+// Couleurs du canvas selon le thème (l'interface est gérée par le CSS)
+const PALETTES = {
+  clair: {
+    grille: '#c9d4e0',        // points de la grille
+    fil: '#455a64',           // conducteurs
+    trait: '#37474f',         // contours, croix, lettre A, bornes
+    compFond: '#ffffff',      // fond des lampes / ampèremètres
+    masque: '#f4f7fb',        // cache derrière le symbole de pile (= fond de page)
+    symbole: '#263238',       // traits du symbole de pile
+    filamentEteint: '#90a4ae',
+  },
+  sombre: {
+    grille: '#3d4c59',
+    fil: '#b0bec5',
+    trait: '#cfd8dc',
+    compFond: '#22303a',
+    masque: '#10181f',
+    symbole: '#eceff1',
+    filamentEteint: '#78909c',
+  },
+};
+const T = () => PALETTES[etat.theme];
 let prochainId = 1;
 
 /* =====================================================================
@@ -545,7 +605,7 @@ function dessiner() {
   ctx.clearRect(0, 0, largeur, hauteur);
 
   // Points de la grille
-  ctx.fillStyle = '#c9d4e0';
+  ctx.fillStyle = T().grille;
   for (let r = 0; r < ROWS; r++)
     for (let c = 0; c < COLS; c++) {
       const p = pxDeNoeud({ c, r });
@@ -608,7 +668,7 @@ function dessinerComp(c2d, comp, icone) {
     c2d.strokeStyle = coul; c2d.lineWidth = larg; c2d.lineCap = 'round';
     c2d.beginPath(); c2d.moveTo(x1, y1); c2d.lineTo(x2, y2); c2d.stroke();
   };
-  const filCoul = '#455a64';
+  const filCoul = T().fil;
 
   switch (comp.type) {
 
@@ -620,15 +680,15 @@ function dessinerComp(c2d, comp, icone) {
       trait(pa.x, pa.y, pb.x, pb.y, 4 * s, filCoul); // conducteur support
       if (etat.vue === 'symboles' && !icone) {
         // Symbole normalisé : trait long fin (+, côté b), trait court épais (−, côté a)
-        c2d.fillStyle = '#f4f7fb';
+        c2d.fillStyle = T().masque;
         c2d.fillRect(mx - ux * 8 * s - Math.abs(nx) * 14 * s, my - uy * 8 * s - Math.abs(ny) * 14 * s,
                      Math.abs(ux) * 16 * s + Math.abs(nx) * 28 * s, Math.abs(uy) * 16 * s + Math.abs(ny) * 28 * s);
         const oL = 5 * s;
         trait(mx + ux * oL - nx * 13 * s, my + uy * oL - ny * 13 * s,
-              mx + ux * oL + nx * 13 * s, my + uy * oL + ny * 13 * s, 2.2 * s, '#263238');
+              mx + ux * oL + nx * 13 * s, my + uy * oL + ny * 13 * s, 2.2 * s, T().symbole);
         trait(mx - ux * oL - nx * 6 * s, my - uy * oL - ny * 6 * s,
-              mx - ux * oL + nx * 6 * s, my - uy * oL + ny * 6 * s, 5.5 * s, '#263238');
-        c2d.fillStyle = '#263238'; c2d.font = `bold ${11 * s}px sans-serif`;
+              mx - ux * oL + nx * 6 * s, my - uy * oL + ny * 6 * s, 5.5 * s, T().symbole);
+        c2d.fillStyle = T().symbole; c2d.font = `bold ${11 * s}px sans-serif`;
         c2d.textAlign = 'center'; c2d.textBaseline = 'middle';
         c2d.fillText('+', mx + ux * 14 * s + nx * 14 * s, my + uy * 14 * s + ny * 14 * s);
       } else {
@@ -667,18 +727,19 @@ function dessinerComp(c2d, comp, icone) {
         c2d.fillStyle = g;
         c2d.beginPath(); c2d.arc(mx, my, R * 3.6, 0, 7); c2d.fill();
       }
-      c2d.fillStyle = eclat > 0.02 ? `rgba(255,236,160,${0.55 + 0.45 * eclat})` : '#fff';
+      c2d.fillStyle = eclat > 0.02 ? `rgba(255,236,160,${0.55 + 0.45 * eclat})` : T().compFond;
       c2d.beginPath(); c2d.arc(mx, my, R, 0, 7); c2d.fill();
-      c2d.strokeStyle = '#37474f'; c2d.lineWidth = 2.2 * s;
+      c2d.strokeStyle = T().trait; c2d.lineWidth = 2.2 * s;
       c2d.beginPath(); c2d.arc(mx, my, R, 0, 7); c2d.stroke();
       if (etat.vue === 'symboles' && !icone) {
         // Symbole normalisé : croix inscrite dans le cercle
         const d = R * 0.7071;
-        trait(mx - d, my - d, mx + d, my + d, 2.2 * s, '#37474f');
-        trait(mx - d, my + d, mx + d, my - d, 2.2 * s, '#37474f');
+        const cx2 = eclat > 0.02 ? '#37474f' : T().trait;   // croix lisible sur fond allumé
+        trait(mx - d, my - d, mx + d, my + d, 2.2 * s, cx2);
+        trait(mx - d, my + d, mx + d, my - d, 2.2 * s, cx2);
       } else {
         // Filament
-        c2d.strokeStyle = eclat > 0.02 ? '#ff8f00' : '#90a4ae';
+        c2d.strokeStyle = eclat > 0.02 ? '#ff8f00' : T().filamentEteint;
         c2d.lineWidth = 1.8 * s;
         c2d.beginPath();
         c2d.moveTo(mx - R * 0.55, my + R * 0.25);
@@ -708,11 +769,11 @@ function dessinerComp(c2d, comp, icone) {
     case 'amperemetre': {
       trait(pa.x, pa.y, pb.x, pb.y, 4 * s, filCoul);
       const R = 13 * s;
-      c2d.fillStyle = '#fff';
+      c2d.fillStyle = T().compFond;
       c2d.beginPath(); c2d.arc(mx, my, R, 0, 7); c2d.fill();
-      c2d.strokeStyle = '#37474f'; c2d.lineWidth = 2.2 * s;
+      c2d.strokeStyle = T().trait; c2d.lineWidth = 2.2 * s;
       c2d.beginPath(); c2d.arc(mx, my, R, 0, 7); c2d.stroke();
-      c2d.fillStyle = '#37474f'; c2d.font = `bold ${13 * s}px sans-serif`;
+      c2d.fillStyle = T().trait; c2d.font = `bold ${13 * s}px sans-serif`;
       c2d.textAlign = 'center'; c2d.textBaseline = 'middle';
       c2d.fillText('A', mx, my + 0.5);
       if (!icone) {
@@ -740,7 +801,7 @@ function dessinerComp(c2d, comp, icone) {
 
   // Bornes de connexion
   if (!icone) {
-    c2d.fillStyle = '#37474f';
+    c2d.fillStyle = T().trait;
     for (const p of [pa, pb]) {
       c2d.beginPath(); c2d.arc(p.x, p.y, 4 * s, 0, 7); c2d.fill();
     }
@@ -917,6 +978,28 @@ function majPalette() {
 }
 
 // ---- Boutons d'en-tête ----
+// Thème clair/sombre : préférence système au premier lancement, puis choix mémorisé
+function appliquerTheme() {
+  document.body.classList.toggle('sombre', etat.theme === 'sombre');
+  document.getElementById('btn-theme').innerHTML =
+    etat.theme === 'sombre' ? '☀️<span class="lbl"> Clair</span>' : '🌙<span class="lbl"> Sombre</span>';
+  majPalette();      // les icônes de la palette sont redessinées aux couleurs du thème
+  demanderRendu();
+}
+
+document.getElementById('btn-theme').addEventListener('click', () => {
+  etat.theme = etat.theme === 'sombre' ? 'clair' : 'sombre';
+  try { localStorage.setItem('ike-circuit-theme', etat.theme); } catch (e) {}
+  appliquerTheme();
+});
+
+try {
+  const memo = localStorage.getItem('ike-circuit-theme');
+  if (memo === 'sombre' || memo === 'clair') etat.theme = memo;
+  else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
+    etat.theme = 'sombre';
+} catch (e) {}
+
 document.getElementById('btn-vue').addEventListener('click', () => {
   etat.vue = etat.vue === 'realiste' ? 'symboles' : 'realiste';
   document.getElementById('lbl-vue').textContent =
@@ -1429,7 +1512,7 @@ function toast(msg) {
 chargerProgression();
 window.addEventListener('resize', redimensionner);
 redimensionner();
-majPalette();
+appliquerTheme();     // applique thème + palette d'outils
 majMissionBar();
 resoudre();
 requestAnimationFrame(boucle);
