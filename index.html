@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0d47a1">
+<title>IKE Simulations — Sciences au collège</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background:#f4f7fb; color:#263238; min-height:100vh;
+    display:flex; flex-direction:column;
+  }
+
+  header {
+    background:linear-gradient(160deg,#0d47a1 0%,#1565c0 55%,#1e88e5 100%);
+    color:#fff; text-align:center; padding:52px 20px 44px;
+  }
+  header .logo { font-size:52px; line-height:1; filter:drop-shadow(0 4px 14px rgba(255,202,40,.45)); }
+  header h1 { margin-top:12px; font-size:32px; font-weight:800; letter-spacing:.5px; }
+  header h1 span { font-weight:300; opacity:.9; }
+  header p.tagline {
+    margin:12px auto 0; max-width:520px; font-size:15px; line-height:1.6;
+    color:rgba(255,255,255,.88);
+  }
+  .badge {
+    display:inline-block; margin-top:16px; background:#ffca28; color:#5d4037;
+    font-size:12px; font-weight:800; letter-spacing:1px; text-transform:uppercase;
+    padding:5px 14px; border-radius:14px;
+  }
+
+  main { flex:1; max-width:760px; width:100%; margin:0 auto; padding:28px 16px 40px; }
+  h2 { font-size:15px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase;
+       color:#90a4ae; margin:8px 0 14px; }
+
+  .grille { display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:14px; }
+  .carte {
+    background:#fff; border:1px solid #e0e6ed; border-radius:16px; padding:18px;
+    display:flex; flex-direction:column; gap:8px; text-decoration:none; color:inherit;
+    transition:transform .15s, box-shadow .15s;
+  }
+  a.carte:hover { transform:translateY(-3px); box-shadow:0 8px 24px rgba(13,71,161,.14); }
+  .carte .ico { font-size:34px; line-height:1; }
+  .carte h3 { font-size:16px; font-weight:700; }
+  .carte p { font-size:13px; color:#546e7a; line-height:1.5; flex:1; }
+  .carte .niveau { font-size:11px; font-weight:700; color:#1565c0; }
+  .carte .lancer {
+    margin-top:6px; align-self:flex-start; background:#1565c0; color:#fff;
+    font-size:13px; font-weight:700; padding:8px 18px; border-radius:9px;
+  }
+  .carte.bientot { opacity:.62; }
+  .carte.bientot .lancer { background:#cfd8dc; color:#546e7a; }
+
+  .note {
+    margin-top:26px; background:#e3f2fd; border:1px solid #bbdefb; border-radius:14px;
+    padding:14px 16px; font-size:13.5px; line-height:1.6; color:#0d47a1;
+  }
+
+  footer {
+    text-align:center; font-size:12px; color:#90a4ae; padding:18px;
+    border-top:1px solid #e0e6ed; background:#fff; line-height:1.7;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">⚡</div>
+  <h1>IKE <span>Simulations</span></h1>
+  <p class="tagline">
+    Des simulations scientifiques interactives pour le collège —
+    légères, en français, utilisables sur téléphone et hors-ligne.
+  </p>
+  <div class="badge">Version de test</div>
+</header>
+
+<main>
+  <h2>Simulations disponibles</h2>
+  <div class="grille">
+    <a class="carte" href="simulations/circuit-electrique/index.html">
+      <div class="ico">💡</div>
+      <h3>Circuit électrique</h3>
+      <p>Construis des circuits, mesure l'intensité, découvre la série, le parallèle
+         et le court-circuit — guidé par 10 missions progressives.</p>
+      <div class="niveau">PCT · 6ᵉ → 3ᵉ</div>
+      <div class="lancer">Lancer ▶</div>
+    </a>
+    <div class="carte bientot">
+      <div class="ico">🔍</div>
+      <h3>Optique — lentilles</h3>
+      <p>Propagation de la lumière, lentilles convergentes, formation des images.</p>
+      <div class="niveau">PCT</div>
+      <div class="lancer">Bientôt</div>
+    </div>
+    <div class="carte bientot">
+      <div class="ico">🧊</div>
+      <h3>États de la matière</h3>
+      <p>Particules, agitation thermique et changements d'état.</p>
+      <div class="niveau">PCT · Chimie</div>
+      <div class="lancer">Bientôt</div>
+    </div>
+  </div>
+
+  <div class="note">
+    🙏 <b>Vos retours sont précieux !</b> Cette version de test sert à recueillir vos impressions :
+    clarté des consignes, facilité des gestes (surtout sur téléphone), vocabulaire, idées de missions…
+    Notez tout ce qui vous gêne ou vous manque, même un détail.
+  </div>
+</main>
+
+<footer>
+  IKE Simulations · Sciences au collège (Bénin)<br>
+  Gratuit et hors-ligne · Inspiré des simulations PhET
+</footer>
+
+</body>
+</html>

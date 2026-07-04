@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#1565c0">
+<title>Circuit électrique · IKE Simulations</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html, body { height:100%; overflow:hidden; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background:#f4f7fb; color:#263238;
+    display:flex; flex-direction:column;
+    user-select:none; -webkit-user-select:none; touch-action:manipulation;
+  }
+
+  /* ---------- En-tête ---------- */
+  header {
+    display:flex; align-items:center; gap:8px;
+    padding:8px 12px; background:#fff; border-bottom:1px solid #e0e6ed;
+    flex:none; z-index:5;
+  }
+  header h1 { font-size:16px; font-weight:700; color:#1565c0; white-space:nowrap; }
+  header .spacer { flex:1; }
+  .btn {
+    border:1px solid #cfd8dc; background:#fff; color:#37474f;
+    border-radius:8px; padding:8px 10px; font-size:13px; font-weight:600;
+    cursor:pointer; white-space:nowrap; min-height:40px;
+  }
+  .btn:active { background:#e3f2fd; }
+  .btn.danger:active { background:#ffebee; }
+  @media (max-width:480px) { .btn .lbl { display:none; } header h1 { font-size:14px; } }
+
+  /* ---------- Scène ---------- */
+  #wrap { flex:1; position:relative; overflow:hidden; }
+  canvas#scene { position:absolute; inset:0; width:100%; height:100%; touch-action:none; display:block; }
+
+  /* Bannière court-circuit */
+  #banniere {
+    position:absolute; top:10px; left:50%; transform:translateX(-50%);
+    background:#e53935; color:#fff; font-weight:700; font-size:14px;
+    padding:8px 16px; border-radius:20px; box-shadow:0 3px 10px rgba(229,57,53,.4);
+    display:none; z-index:6; white-space:nowrap;
+  }
+  #banniere.visible { display:block; animation:pulse 1s infinite; }
+  @keyframes pulse { 50% { transform:translateX(-50%) scale(1.06); } }
+
+  /* Mini-barre du composant sélectionné */
+  #selbar {
+    position:absolute; display:none; gap:6px; z-index:7;
+    background:#fff; border:1px solid #cfd8dc; border-radius:10px;
+    padding:5px; box-shadow:0 4px 14px rgba(0,0,0,.18);
+  }
+  #selbar.visible { display:flex; }
+  #selbar button {
+    border:none; border-radius:7px; padding:8px 12px; font-size:14px; font-weight:600;
+    cursor:pointer; min-height:42px;
+  }
+  #btn-inverser { background:#e3f2fd; color:#1565c0; }
+  #btn-supprimer { background:#ffebee; color:#c62828; }
+
+  /* ---------- Palette ---------- */
+  nav#palette {
+    flex:none; display:flex; justify-content:center; gap:6px;
+    padding:6px 8px calc(6px + env(safe-area-inset-bottom));
+    background:#fff; border-top:1px solid #e0e6ed; overflow-x:auto; z-index:5;
+  }
+  nav#palette button {
+    display:flex; flex-direction:column; align-items:center; gap:2px;
+    border:2px solid transparent; border-radius:10px; background:#f4f7fb;
+    padding:6px 8px 4px; min-width:64px; min-height:56px; cursor:pointer;
+  }
+  nav#palette button.actif { border-color:#1565c0; background:#e3f2fd; }
+  nav#palette button span { font-size:10px; font-weight:600; color:#37474f; white-space:nowrap; }
+  nav#palette button canvas { pointer-events:none; }
+
+  /* ---------- Écran de démarrage IKE ---------- */
+  #splash {
+    position:fixed; inset:0; z-index:100;
+    background:linear-gradient(160deg,#0d47a1 0%,#1565c0 55%,#1e88e5 100%);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    transition:opacity .5s ease;
+  }
+  #splash.fini { opacity:0; pointer-events:none; }
+  #splash .logo {
+    font-size:56px; line-height:1;
+    animation:battement 1.1s ease-in-out infinite;
+    filter:drop-shadow(0 4px 14px rgba(255,202,40,.45));
+  }
+  @keyframes battement { 50% { transform:scale(1.18); } }
+  #splash .nom {
+    margin-top:14px; color:#fff; font-size:30px; font-weight:800; letter-spacing:.5px;
+  }
+  #splash .nom span { font-weight:300; opacity:.9; }
+  #splash .sub {
+    margin-top:4px; color:rgba(255,255,255,.75); font-size:13px; letter-spacing:2px;
+    text-transform:uppercase;
+  }
+  #splash .barre {
+    margin-top:22px; width:150px; height:4px; border-radius:2px;
+    background:rgba(255,255,255,.25); overflow:hidden;
+  }
+  #splash .rempl {
+    height:100%; background:#ffca28; border-radius:2px;
+    transform-origin:left; transform:scaleX(0);
+    animation:charge 1.3s ease-out forwards;
+  }
+  @keyframes charge { to { transform:scaleX(1); } }
+
+  /* ---------- Barre de mission ---------- */
+  #mbar { flex:none; background:#fff; border-bottom:1px solid #e0e6ed; padding:6px 10px; z-index:4; }
+  #mbar .l1 { display:flex; align-items:center; gap:8px; }
+  #mchip {
+    background:#1565c0; color:#fff; font-size:11px; font-weight:700;
+    border-radius:12px; padding:3px 9px; white-space:nowrap;
+  }
+  #mtitre {
+    font-size:13.5px; font-weight:700; color:#263238; flex:1;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  #mbar .mbtn {
+    border:1px solid #cfd8dc; background:#fff; border-radius:8px;
+    font-size:14px; padding:4px 10px; cursor:pointer; min-height:34px;
+  }
+  #mbar .l2 { display:flex; align-items:center; gap:8px; margin-top:5px; }
+  #metape { flex:1; font-size:12.5px; color:#37474f; line-height:1.4; }
+  #mcompteur { font-size:11px; color:#90a4ae; font-weight:700; white-space:nowrap; }
+  #mindice {
+    display:none; margin-top:6px; background:#fff8e1; border:1px solid #ffe082;
+    color:#795548; font-size:12.5px; border-radius:8px; padding:7px 10px; line-height:1.45;
+  }
+  #mindice.visible { display:block; }
+
+  /* Toast de progression */
+  #toast {
+    position:absolute; bottom:14px; left:50%;
+    transform:translateX(-50%) translateY(8px);
+    background:#2e7d32; color:#fff; font-size:13px; font-weight:700;
+    padding:8px 16px; border-radius:18px; opacity:0; pointer-events:none;
+    transition:opacity .25s, transform .25s; z-index:6; white-space:nowrap;
+  }
+  #toast.visible { opacity:1; transform:translateX(-50%) translateY(0); }
+
+  /* ---------- Voiles (aide, fin de mission, liste) ---------- */
+  .voile {
+    position:fixed; inset:0; background:rgba(38,50,56,.55);
+    display:none; align-items:center; justify-content:center; z-index:20; padding:16px;
+  }
+  .voile.visible { display:flex; }
+  .voile .carte {
+    background:#fff; border-radius:16px; padding:22px; max-width:400px; width:100%;
+    max-height:86vh; overflow-y:auto;
+    box-shadow:0 10px 40px rgba(0,0,0,.3);
+  }
+  .voile .carte h2 { font-size:18px; color:#1565c0; margin-bottom:12px; }
+  .voile.visible .carte h2 { animation:pop .4s ease-out; }
+  @keyframes pop { 0% { transform:scale(.5); opacity:0; } 80% { transform:scale(1.08); } 100% { transform:scale(1); } }
+  .voile ol { margin:0 0 10px 20px; font-size:14px; line-height:1.9; }
+  .voile p.astuce { font-size:13px; color:#546e7a; line-height:1.5; margin-bottom:14px; }
+  .voile .go {
+    width:100%; border:none; background:#1565c0; color:#fff; font-size:15px; font-weight:700;
+    padding:12px; border-radius:10px; cursor:pointer;
+  }
+  .voile .btn2 {
+    width:100%; border:1px solid #cfd8dc; background:#fff; color:#37474f;
+    font-size:13px; font-weight:600; padding:10px; border-radius:10px;
+    cursor:pointer; margin-top:8px;
+  }
+  .voile .lien {
+    display:block; width:100%; text-align:center; margin-top:10px;
+    background:none; border:none; color:#90a4ae; font-size:11.5px;
+    text-decoration:underline; cursor:pointer;
+  }
+  .voile .marque { text-align:center; font-size:11px; color:#90a4ae; margin-top:10px; }
+
+  /* Fin de mission */
+  #mfin-titre { font-weight:700; font-size:15px; color:#263238; margin-bottom:10px; }
+  .retenir-label { font-size:12px; font-weight:800; color:#2e7d32; margin-bottom:4px; }
+  #mfin-retenir {
+    background:#e8f5e9; border-radius:10px; padding:10px 12px;
+    font-size:13.5px; line-height:1.55; color:#1b5e20; margin:0 0 14px;
+  }
+
+  /* Liste des missions */
+  .mrow {
+    display:flex; align-items:center; gap:8px; width:100%;
+    border:none; background:#f4f7fb; border-radius:8px; padding:10px;
+    margin-bottom:5px; font-size:13px; cursor:pointer; text-align:left; color:#263238;
+  }
+  .mrow .n { font-weight:700; color:#90a4ae; min-width:22px; }
+  .mrow.faite .n { color:#2e7d32; }
+  .mrow.courante { outline:2px solid #1565c0; background:#e3f2fd; }
+  .mrow .t { flex:1; }
+</style>
+</head>
+<body>
+
+<div id="splash">
+  <div class="logo">⚡</div>
+  <div class="nom">IKE <span>Simulations</span></div>
+  <div class="sub">Sciences au collège</div>
+  <div class="barre"><div class="rempl"></div></div>
+</div>
+
+<header>
+  <h1>⚡ Circuit électrique</h1>
+  <div class="spacer"></div>
+  <button class="btn" id="btn-vue">👁 <span class="lbl" id="lbl-vue">Symboles</span></button>
+  <button class="btn" id="btn-aide">❓<span class="lbl"> Aide</span></button>
+  <button class="btn danger" id="btn-effacer">🗑<span class="lbl"> Effacer</span></button>
+</header>
+
+<div id="mbar">
+  <div class="l1">
+    <span id="mchip"></span>
+    <span id="mtitre"></span>
+    <button class="mbtn" id="btn-missions" title="Toutes les missions">📋</button>
+  </div>
+  <div class="l2">
+    <span id="metape"></span>
+    <span id="mcompteur"></span>
+    <button class="mbtn" id="btn-indice" title="Indice">💡</button>
+  </div>
+  <div id="mindice"></div>
+</div>
+
+<div id="wrap">
+  <canvas id="scene"></canvas>
+  <div id="banniere">⚠️ Court-circuit ! La pile chauffe.</div>
+  <div id="toast"></div>
+  <div id="selbar">
+    <button id="btn-inverser">↔ Inverser</button>
+    <button id="btn-supprimer">🗑 Supprimer</button>
+  </div>
+</div>
+
+<nav id="palette"></nav>
+
+<div id="mfin" class="voile">
+  <div class="carte">
+    <h2>🎉 Mission réussie !</h2>
+    <div id="mfin-titre"></div>
+    <div class="retenir-label">💡 À retenir</div>
+    <p id="mfin-retenir"></p>
+    <button class="go" id="btn-suivante">Mission suivante ▶</button>
+    <button class="btn2" id="btn-liste2">📋 Toutes les missions</button>
+  </div>
+</div>
+
+<div id="mliste" class="voile">
+  <div class="carte">
+    <h2>📋 Parcours d'apprentissage</h2>
+    <div id="mliste-items"></div>
+    <button class="btn2" id="btn-libre">🧪 Mode libre — construis ce que tu veux</button>
+    <button class="go" id="btn-fermer-liste">Fermer</button>
+    <button class="lien" id="btn-reset-prog">↺ Réinitialiser tout le parcours</button>
+  </div>
+</div>
+
+<div id="aide" class="voile">
+  <div class="carte">
+    <h2>⚡ Construis ton circuit !</h2>
+    <ol>
+      <li>👇 Choisis un composant en bas.</li>
+      <li>✏️ Fais-le glisser entre deux points de la grille.</li>
+      <li>💡 Ferme la boucle pour allumer la lampe !</li>
+    </ol>
+    <p class="astuce">
+      Suis les <b>missions</b> en haut de l'écran pour apprendre pas à pas,
+      du premier fil jusqu'aux circuits en parallèle.
+      Astuce : touche un <b>interrupteur</b> pour l'ouvrir ou le fermer ;
+      touche un autre composant pour le sélectionner.
+    </p>
+    <button class="go" id="btn-go">C'est parti !</button>
+    <div class="marque">IKE Simulations · collège (PCT)</div>
+  </div>
+</div>
+
+<script>
+'use strict';
+/* =====================================================================
+   1. CONSTANTES & ÉTAT
+   ===================================================================== */
+
+// Caractéristiques électriques (unités SI)
+const EMF_PILE   = 4.5;    // f.é.m. d'une pile plate (V)
+const R_PILE     = 0.5;    // résistance interne de la pile (Ω)
+const R_LAMPE    = 10;     // résistance d'une lampe (Ω)
+const R_FAIBLE   = 0.01;   // fil, interrupteur fermé, ampèremètre (Ω)
+const G_MIN      = 1e-9;   // conductance de fuite (stabilité numérique)
+const I_COURT    = 2.5;    // seuil de détection du court-circuit (A)
+const P_LAMPE_MAX= 1.9;    // puissance (W) donnant l'éclat maximal
+
+const OUTILS = [
+  { id:'fil',          nom:'Fil' },
+  { id:'pile',         nom:'Pile' },
+  { id:'lampe',        nom:'Lampe' },
+  { id:'interrupteur', nom:'Interrupteur' },
+  { id:'amperemetre',  nom:'Ampèremètre' },
+];
+
+const etat = {
+  comps: [],          // { id, type, a:{c,r}, b:{c,r}, ferme?, I }
+  outil: 'fil',       // outil sélectionné dans la palette
+  vue: 'realiste',    // 'realiste' | 'symboles'
+  selection: null,    // id du composant sélectionné
+  drag: null,         // { depart:{c,r}, dernier:{c,r}, aretes:[{a,b}] }
+  courtCircuit: false,
+};
+let prochainId = 1;
+
+/* =====================================================================
+   2. GRILLE & GÉOMÉTRIE
+   ===================================================================== */
+
+const canvas = document.getElementById('scene');
+const ctx = canvas.getContext('2d');
+let COLS = 12, ROWS = 8;      // nombre de nœuds (ajusté selon l'orientation)
+let cell = 48;                // pas de la grille en px CSS
+let origX = 0, origY = 0;     // origine de la grille (px CSS)
+let largeur = 0, hauteur = 0; // taille du canvas (px CSS)
+
+function redimensionner() {
+  const wrap = document.getElementById('wrap');
+  largeur = wrap.clientWidth; hauteur = wrap.clientHeight;
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  canvas.width = Math.round(largeur * dpr);
+  canvas.height = Math.round(hauteur * dpr);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  // Orientation : grille 12×8 en paysage, 8×12 en portrait.
+  const portrait = hauteur > largeur;
+  const nCols = portrait ? 8 : 12, nRows = portrait ? 12 : 8;
+  if (nCols !== COLS) {
+    // Transposer les composants existants pour préserver le montage.
+    for (const c of etat.comps) {
+      [c.a.c, c.a.r] = [c.a.r, c.a.c];
+      [c.b.c, c.b.r] = [c.b.r, c.b.c];
+    }
+    COLS = nCols; ROWS = nRows;
+  }
+  cell = Math.min((largeur - 28) / (COLS - 1), (hauteur - 28) / (ROWS - 1));
+  origX = (largeur - cell * (COLS - 1)) / 2;
+  origY = (hauteur - cell * (ROWS - 1)) / 2;
+  demanderRendu();
+}
+
+function pxDeNoeud(n) { return { x: origX + n.c * cell, y: origY + n.r * cell }; }
+
+function noeudLePlusProche(x, y) {
+  const c = Math.max(0, Math.min(COLS - 1, Math.round((x - origX) / cell)));
+  const r = Math.max(0, Math.min(ROWS - 1, Math.round((y - origY) / cell)));
+  return { c, r };
+}
+
+function memeNoeud(a, b) { return a.c === b.c && a.r === b.r; }
+
+// Clé canonique d'une arête (indépendante du sens a→b)
+function cleArete(a, b) {
+  return (a.c < b.c || (a.c === b.c && a.r < b.r))
+    ? `${a.c},${a.r}|${b.c},${b.r}` : `${b.c},${b.r}|${a.c},${a.r}`;
+}
+
+function compSurArete(a, b) {
+  const k = cleArete(a, b);
+  return etat.comps.find(c => cleArete(c.a, c.b) === k) || null;
+}
+
+// Composant le plus proche d'un point (pour la sélection au doigt)
+function compSousPoint(x, y, rayon = 22) {
+  let meilleur = null, dMin = rayon;
+  for (const comp of etat.comps) {
+    const pa = pxDeNoeud(comp.a), pb = pxDeNoeud(comp.b);
+    const d = distSegment(x, y, pa.x, pa.y, pb.x, pb.y);
+    if (d < dMin) { dMin = d; meilleur = comp; }
+  }
+  return meilleur;
+}
+
+function distSegment(px, py, ax, ay, bx, by) {
+  const dx = bx - ax, dy = by - ay;
+  const L2 = dx * dx + dy * dy;
+  const t = L2 ? Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / L2)) : 0;
+  return Math.hypot(px - (ax + t * dx), py - (ay + t * dy));
+}
+
+/* =====================================================================
+   3. SOLVEUR ÉLECTRIQUE — analyse nodale
+   ---------------------------------------------------------------------
+   Chaque composant est une conductance entre deux nœuds ; la pile est
+   modélisée par son équivalent de Norton (source de courant E/r en
+   parallèle avec r). On résout G·v = i (loi des nœuds), puis on en
+   déduit le courant dans chaque branche. C'est la méthode des
+   simulateurs professionnels (SPICE), ici en ~60 lignes.
+   ===================================================================== */
+
+function resistanceDe(comp) {
+  switch (comp.type) {
+    case 'pile':  return R_PILE;
+    case 'lampe': return R_LAMPE;
+    default:      return R_FAIBLE; // fil, interrupteur fermé, ampèremètre
+  }
+}
+
+function resoudre() {
+  // Indexer les nœuds réellement utilisés
+  const index = new Map();
+  for (const comp of etat.comps) {
+    for (const n of [comp.a, comp.b]) {
+      const k = n.c + ',' + n.r;
+      if (!index.has(k)) index.set(k, index.size);
+    }
+  }
+  const n = index.size;
+  if (n === 0) { etat.courtCircuit = false; majBanniere(); return; }
+
+  const G = Array.from({ length: n }, () => new Float64Array(n));
+  const I = new Float64Array(n);
+
+  for (const comp of etat.comps) {
+    if (comp.type === 'interrupteur' && !comp.ferme) continue; // circuit ouvert
+    const ia = index.get(comp.a.c + ',' + comp.a.r);
+    const ib = index.get(comp.b.c + ',' + comp.b.r);
+    const g = 1 / resistanceDe(comp);
+    G[ia][ia] += g; G[ib][ib] += g;
+    G[ia][ib] -= g; G[ib][ia] -= g;
+    if (comp.type === 'pile') {
+      const J = EMF_PILE / R_PILE;   // source de Norton : − en a, + en b
+      I[ia] -= J; I[ib] += J;
+    }
+  }
+  for (let i = 0; i < n; i++) G[i][i] += G_MIN;
+
+  const v = gauss(G, I);
+
+  // Courant de chaque composant, orienté de a vers b
+  etat.courtCircuit = false;
+  for (const comp of etat.comps) {
+    if (comp.type === 'interrupteur' && !comp.ferme) { comp.I = 0; continue; }
+    const va = v[index.get(comp.a.c + ',' + comp.a.r)];
+    const vb = v[index.get(comp.b.c + ',' + comp.b.r)];
+    if (comp.type === 'pile') {
+      comp.I = (EMF_PILE - (vb - va)) / R_PILE; // courant débité par la borne +
+      if (Math.abs(comp.I) > I_COURT) etat.courtCircuit = true;
+    } else {
+      comp.I = (va - vb) / resistanceDe(comp);
+    }
+  }
+  majBanniere();
+  demanderRendu();
+  evaluerMission();   // le parcours pédagogique observe chaque action de l'élève
+}
+
+// Élimination de Gauss avec pivot partiel
+function gauss(A, b) {
+  const n = b.length;
+  b = Float64Array.from(b);
+  for (let col = 0; col < n; col++) {
+    let p = col;
+    for (let r = col + 1; r < n; r++)
+      if (Math.abs(A[r][col]) > Math.abs(A[p][col])) p = r;
+    if (p !== col) { [A[col], A[p]] = [A[p], A[col]]; const t = b[col]; b[col] = b[p]; b[p] = t; }
+    const piv = A[col][col];
+    if (Math.abs(piv) < 1e-15) continue;
+    for (let r = col + 1; r < n; r++) {
+      const f = A[r][col] / piv;
+      if (f === 0) continue;
+      for (let c2 = col; c2 < n; c2++) A[r][c2] -= f * A[col][c2];
+      b[r] -= f * b[col];
+    }
+  }
+  const x = new Float64Array(n);
+  for (let r = n - 1; r >= 0; r--) {
+    let s = b[r];
+    for (let c2 = r + 1; c2 < n; c2++) s -= A[r][c2] * x[c2];
+    x[r] = Math.abs(A[r][r]) < 1e-15 ? 0 : s / A[r][r];
+  }
+  return x;
+}
+
+/* =====================================================================
+   4. RENDU
+   ===================================================================== */
+
+let renduDemande = true;
+let animT = 0, tPrec = 0;
+function demanderRendu() { renduDemande = true; }
+
+function boucle(t) {
+  const dt = Math.min(0.05, (t - tPrec) / 1000 || 0); tPrec = t;
+  const courantVisible = etat.comps.some(c => Math.abs(c.I || 0) > 0.002);
+  if (courantVisible) animT += dt;
+  if (renduDemande || courantVisible || etat.courtCircuit || etat.drag) {
+    renduDemande = false;
+    dessiner();
+  }
+  requestAnimationFrame(boucle);
+}
+
+function dessiner() {
+  ctx.clearRect(0, 0, largeur, hauteur);
+
+  // Points de la grille
+  ctx.fillStyle = '#c9d4e0';
+  for (let r = 0; r < ROWS; r++)
+    for (let c = 0; c < COLS; c++) {
+      const p = pxDeNoeud({ c, r });
+      ctx.beginPath(); ctx.arc(p.x, p.y, 2.4, 0, 7); ctx.fill();
+    }
+
+  // Halo de sélection
+  const sel = etat.comps.find(c => c.id === etat.selection);
+  if (sel) {
+    const pa = pxDeNoeud(sel.a), pb = pxDeNoeud(sel.b);
+    ctx.strokeStyle = 'rgba(33,150,243,.3)'; ctx.lineWidth = 16; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(pa.x, pa.y); ctx.lineTo(pb.x, pb.y); ctx.stroke();
+  }
+
+  // Composants
+  for (const comp of etat.comps) dessinerComp(ctx, comp, false);
+
+  // Points de courant animés (sur les fils uniquement)
+  for (const comp of etat.comps) {
+    if (comp.type !== 'fil' || Math.abs(comp.I) < 0.002) continue;
+    const pa = pxDeNoeud(comp.a), pb = pxDeNoeud(comp.b);
+    const L = Math.hypot(pb.x - pa.x, pb.y - pa.y);
+    const vit = 60 * Math.min(Math.abs(comp.I), 1.5);          // px/s
+    const sens = comp.I > 0 ? 1 : -1;
+    ctx.fillStyle = '#ffb300';
+    const pas = 22;
+    for (let k = 0; k < L / pas; k++) {
+      let d = (k * pas + sens * animT * vit) % L;
+      if (d < 0) d += L;
+      const t = d / L;
+      ctx.beginPath();
+      ctx.arc(pa.x + (pb.x - pa.x) * t, pa.y + (pb.y - pa.y) * t, 3.2, 0, 7);
+      ctx.fill();
+    }
+  }
+
+  // Prévisualisation pendant le glisser
+  if (etat.drag) {
+    ctx.strokeStyle = '#1e88e5'; ctx.lineWidth = 4; ctx.lineCap = 'round';
+    ctx.setLineDash([7, 7]);
+    for (const ar of etat.drag.aretes) {
+      const pa = pxDeNoeud(ar.a), pb = pxDeNoeud(ar.b);
+      ctx.beginPath(); ctx.moveTo(pa.x, pa.y); ctx.lineTo(pb.x, pb.y); ctx.stroke();
+    }
+    ctx.setLineDash([]);
+  }
+}
+
+// ---- Dessin d'un composant (les deux vues) ----
+function dessinerComp(c2d, comp, icone) {
+  const pa = icone ? comp._pa : pxDeNoeud(comp.a);
+  const pb = icone ? comp._pb : pxDeNoeud(comp.b);
+  const mx = (pa.x + pb.x) / 2, my = (pa.y + pb.y) / 2;
+  const L = Math.hypot(pb.x - pa.x, pb.y - pa.y);
+  const ux = (pb.x - pa.x) / L, uy = (pb.y - pa.y) / L;   // direction a→b
+  const nx = -uy, ny = ux;                                 // normale
+  const s = icone ? 0.8 : Math.min(1, cell / 48);          // échelle
+
+  const trait = (x1, y1, x2, y2, larg, coul) => {
+    c2d.strokeStyle = coul; c2d.lineWidth = larg; c2d.lineCap = 'round';
+    c2d.beginPath(); c2d.moveTo(x1, y1); c2d.lineTo(x2, y2); c2d.stroke();
+  };
+  const filCoul = '#455a64';
+
+  switch (comp.type) {
+
+    case 'fil':
+      trait(pa.x, pa.y, pb.x, pb.y, 4 * s, filCoul);
+      break;
+
+    case 'pile': {
+      trait(pa.x, pa.y, pb.x, pb.y, 4 * s, filCoul); // conducteur support
+      if (etat.vue === 'symboles' && !icone) {
+        // Symbole normalisé : trait long fin (+, côté b), trait court épais (−, côté a)
+        c2d.fillStyle = '#f4f7fb';
+        c2d.fillRect(mx - ux * 8 * s - Math.abs(nx) * 14 * s, my - uy * 8 * s - Math.abs(ny) * 14 * s,
+                     Math.abs(ux) * 16 * s + Math.abs(nx) * 28 * s, Math.abs(uy) * 16 * s + Math.abs(ny) * 28 * s);
+        const oL = 5 * s;
+        trait(mx + ux * oL - nx * 13 * s, my + uy * oL - ny * 13 * s,
+              mx + ux * oL + nx * 13 * s, my + uy * oL + ny * 13 * s, 2.2 * s, '#263238');
+        trait(mx - ux * oL - nx * 6 * s, my - uy * oL - ny * 6 * s,
+              mx - ux * oL + nx * 6 * s, my - uy * oL + ny * 6 * s, 5.5 * s, '#263238');
+        c2d.fillStyle = '#263238'; c2d.font = `bold ${11 * s}px sans-serif`;
+        c2d.textAlign = 'center'; c2d.textBaseline = 'middle';
+        c2d.fillText('+', mx + ux * 14 * s + nx * 14 * s, my + uy * 14 * s + ny * 14 * s);
+      } else {
+        // Vue réaliste : corps de pile, − en a, + en b
+        const lc = Math.min(30 * s, L * 0.55), hc = 9 * s;
+        if (etat.courtCircuit && Math.abs(comp.I) > I_COURT) {
+          c2d.fillStyle = `rgba(229,57,53,${0.35 + 0.25 * Math.sin(animT * 8)})`;
+          c2d.beginPath(); c2d.arc(mx, my, 26 * s, 0, 7); c2d.fill();
+        }
+        c2d.save();
+        c2d.translate(mx, my); c2d.rotate(Math.atan2(uy, ux));
+        c2d.fillStyle = '#66bb6a';
+        c2d.beginPath(); c2d.roundRect(-lc, -hc, 2 * lc, 2 * hc, 3 * s); c2d.fill();
+        c2d.fillStyle = '#37474f';                       // extrémité − (côté a)
+        c2d.fillRect(-lc, -hc, 7 * s, 2 * hc);
+        c2d.fillStyle = '#ffca28';                       // borne + (côté b)
+        c2d.fillRect(lc - 2 * s, -4 * s, 5 * s, 8 * s);
+        c2d.fillStyle = '#fff'; c2d.font = `bold ${11 * s}px sans-serif`;
+        c2d.textAlign = 'center'; c2d.textBaseline = 'middle';
+        c2d.fillText('+', lc - 11 * s, 0);
+        c2d.fillText('−', -lc + 14 * s, 0);
+        c2d.restore();
+      }
+      break;
+    }
+
+    case 'lampe': {
+      trait(pa.x, pa.y, pb.x, pb.y, 4 * s, filCoul);
+      const R = 12 * s;
+      const P = (comp.I || 0) ** 2 * R_LAMPE;            // puissance dissipée
+      const eclat = Math.min(1, P / P_LAMPE_MAX);
+      if (eclat > 0.02 && !icone) {                      // halo lumineux
+        const g = c2d.createRadialGradient(mx, my, R * 0.4, mx, my, R * (1.8 + 1.6 * eclat));
+        g.addColorStop(0, `rgba(255,213,79,${0.85 * eclat})`);
+        g.addColorStop(1, 'rgba(255,213,79,0)');
+        c2d.fillStyle = g;
+        c2d.beginPath(); c2d.arc(mx, my, R * 3.6, 0, 7); c2d.fill();
+      }
+      c2d.fillStyle = eclat > 0.02 ? `rgba(255,236,160,${0.55 + 0.45 * eclat})` : '#fff';
+      c2d.beginPath(); c2d.arc(mx, my, R, 0, 7); c2d.fill();
+      c2d.strokeStyle = '#37474f'; c2d.lineWidth = 2.2 * s;
+      c2d.beginPath(); c2d.arc(mx, my, R, 0, 7); c2d.stroke();
+      if (etat.vue === 'symboles' && !icone) {
+        // Symbole normalisé : croix inscrite dans le cercle
+        const d = R * 0.7071;
+        trait(mx - d, my - d, mx + d, my + d, 2.2 * s, '#37474f');
+        trait(mx - d, my + d, mx + d, my - d, 2.2 * s, '#37474f');
+      } else {
+        // Filament
+        c2d.strokeStyle = eclat > 0.02 ? '#ff8f00' : '#90a4ae';
+        c2d.lineWidth = 1.8 * s;
+        c2d.beginPath();
+        c2d.moveTo(mx - R * 0.55, my + R * 0.25);
+        for (let i = 0; i <= 4; i++)
+          c2d.lineTo(mx - R * 0.55 + (i + 0.5) * R * 0.22, my + R * 0.25 - (i % 2 ? 0 : R * 0.5));
+        c2d.stroke();
+      }
+      break;
+    }
+
+    case 'interrupteur': {
+      const c1x = pa.x + ux * L * 0.3, c1y = pa.y + uy * L * 0.3;
+      const c2x = pa.x + ux * L * 0.7, c2y = pa.y + uy * L * 0.7;
+      trait(pa.x, pa.y, c1x, c1y, 4 * s, filCoul);
+      trait(c2x, c2y, pb.x, pb.y, 4 * s, filCoul);
+      // Levier : à plat si fermé, relevé si ouvert
+      const ang = comp.ferme ? 0 : -0.62;
+      const lx = Math.cos(ang) * (ux * L * 0.4) - Math.sin(ang) * (uy * L * 0.4);
+      const ly = Math.sin(ang) * (ux * L * 0.4) + Math.cos(ang) * (uy * L * 0.4);
+      trait(c1x, c1y, c1x + lx, c1y + ly, 4 * s, comp.ferme ? filCoul : '#e65100');
+      c2d.fillStyle = '#1565c0';
+      c2d.beginPath(); c2d.arc(c1x, c1y, 4.5 * s, 0, 7); c2d.fill();
+      c2d.beginPath(); c2d.arc(c2x, c2y, 4.5 * s, 0, 7); c2d.fill();
+      break;
+    }
+
+    case 'amperemetre': {
+      trait(pa.x, pa.y, pb.x, pb.y, 4 * s, filCoul);
+      const R = 13 * s;
+      c2d.fillStyle = '#fff';
+      c2d.beginPath(); c2d.arc(mx, my, R, 0, 7); c2d.fill();
+      c2d.strokeStyle = '#37474f'; c2d.lineWidth = 2.2 * s;
+      c2d.beginPath(); c2d.arc(mx, my, R, 0, 7); c2d.stroke();
+      c2d.fillStyle = '#37474f'; c2d.font = `bold ${13 * s}px sans-serif`;
+      c2d.textAlign = 'center'; c2d.textBaseline = 'middle';
+      c2d.fillText('A', mx, my + 0.5);
+      if (!icone) {
+        const txt = formatA(comp.I || 0);
+        c2d.font = `bold ${11 * s}px sans-serif`;
+        const ty = my + R + 11 * s;
+        const tw = c2d.measureText(txt).width;
+        c2d.fillStyle = 'rgba(255,255,255,.85)';
+        c2d.fillRect(mx - tw / 2 - 3, ty - 7 * s, tw + 6, 14 * s);
+        c2d.fillStyle = '#1565c0';
+        c2d.fillText(txt, mx, ty);
+      }
+      break;
+    }
+  }
+
+  // Bornes de connexion
+  if (!icone) {
+    c2d.fillStyle = '#37474f';
+    for (const p of [pa, pb]) {
+      c2d.beginPath(); c2d.arc(p.x, p.y, 4 * s, 0, 7); c2d.fill();
+    }
+  }
+}
+
+// Intensité au format français : « 0,43 A »
+function formatA(I) {
+  const a = Math.abs(I);
+  const val = a < 0.005 ? 0 : a;
+  return val.toFixed(2).replace('.', ',') + ' A';
+}
+
+function majBanniere() {
+  document.getElementById('banniere').classList.toggle('visible', etat.courtCircuit);
+}
+
+/* =====================================================================
+   5. INTERACTIONS (Pointer Events : doigt, souris, stylet)
+   ===================================================================== */
+
+let pointerDepart = null; // {x, y} pour distinguer un appui d'un glisser
+
+canvas.addEventListener('pointerdown', e => {
+  e.preventDefault();
+  canvas.setPointerCapture(e.pointerId);
+  const { x, y } = coordsCanvas(e);
+  pointerDepart = { x, y };
+  etat.drag = { depart: noeudLePlusProche(x, y), dernier: noeudLePlusProche(x, y), aretes: [] };
+});
+
+canvas.addEventListener('pointermove', e => {
+  if (!etat.drag) return;
+  const { x, y } = coordsCanvas(e);
+  const n = noeudLePlusProche(x, y);
+  const d = etat.drag;
+  if (memeNoeud(n, d.dernier)) return;
+
+  if (etat.outil === 'fil') {
+    // Le fil suit le doigt : trajet en L (horizontal puis vertical) nœud par nœud
+    let cur = { ...d.dernier };
+    while (cur.c !== n.c) {
+      const nx = { c: cur.c + Math.sign(n.c - cur.c), r: cur.r };
+      d.aretes.push({ a: cur, b: nx }); cur = nx;
+    }
+    while (cur.r !== n.r) {
+      const nx = { c: cur.c, r: cur.r + Math.sign(n.r - cur.r) };
+      d.aretes.push({ a: cur, b: nx }); cur = nx;
+    }
+    d.dernier = n;
+  } else {
+    // Composant simple : une seule arête, dans la direction dominante du geste
+    const dc = n.c - d.depart.c, dr = n.r - d.depart.r;
+    let b;
+    if (Math.abs(dc) >= Math.abs(dr) && dc !== 0)
+      b = { c: d.depart.c + Math.sign(dc), r: d.depart.r };
+    else if (dr !== 0)
+      b = { c: d.depart.c, r: d.depart.r + Math.sign(dr) };
+    if (b) d.aretes = [{ a: { ...d.depart }, b }];
+    d.dernier = n;
+  }
+  demanderRendu();
+});
+
+canvas.addEventListener('pointerup', e => {
+  const { x, y } = coordsCanvas(e);
+  const d = etat.drag;
+  etat.drag = null;
+  const distance = pointerDepart ? Math.hypot(x - pointerDepart.x, y - pointerDepart.y) : 0;
+
+  if (distance < 9) {           // ---- Appui simple : interaction avec l'existant
+    const comp = compSousPoint(x, y);
+    if (comp && comp.type === 'interrupteur') {
+      comp.ferme = !comp.ferme;
+      deselectionner(); resoudre();
+    } else if (comp) {
+      selectionner(comp, x, y);
+    } else {
+      deselectionner();
+    }
+  } else if (d && d.aretes.length) {  // ---- Glisser : poser le(s) composant(s)
+    deselectionner();
+    for (const ar of d.aretes) {
+      const existant = compSurArete(ar.a, ar.b);
+      if (existant) etat.comps.splice(etat.comps.indexOf(existant), 1);
+      const comp = { id: prochainId++, type: etat.outil, a: ar.a, b: ar.b, I: 0 };
+      if (comp.type === 'interrupteur') comp.ferme = false;
+      etat.comps.push(comp);
+    }
+    resoudre();
+  }
+  demanderRendu();
+});
+
+canvas.addEventListener('pointercancel', () => { etat.drag = null; demanderRendu(); });
+canvas.addEventListener('contextmenu', e => e.preventDefault());
+
+function coordsCanvas(e) {
+  const r = canvas.getBoundingClientRect();
+  return { x: e.clientX - r.left, y: e.clientY - r.top };
+}
+
+// ---- Sélection & mini-barre d'actions ----
+const selbar = document.getElementById('selbar');
+
+function selectionner(comp, x, y) {
+  etat.selection = comp.id;
+  document.getElementById('btn-inverser').style.display =
+    comp.type === 'pile' ? '' : 'none';
+  selbar.classList.add('visible');
+  const pa = pxDeNoeud(comp.a), pb = pxDeNoeud(comp.b);
+  const mx = (pa.x + pb.x) / 2, my = (pa.y + pb.y) / 2;
+  requestAnimationFrame(() => {
+    const bw = selbar.offsetWidth, bh = selbar.offsetHeight;
+    selbar.style.left = Math.max(4, Math.min(largeur - bw - 4, mx - bw / 2)) + 'px';
+    selbar.style.top = Math.max(4, my - bh - 26) + 'px';
+  });
+  demanderRendu();
+}
+
+function deselectionner() {
+  etat.selection = null;
+  selbar.classList.remove('visible');
+  demanderRendu();
+}
+
+document.getElementById('btn-supprimer').addEventListener('click', () => {
+  etat.comps = etat.comps.filter(c => c.id !== etat.selection);
+  deselectionner(); resoudre();
+});
+
+document.getElementById('btn-inverser').addEventListener('click', () => {
+  const comp = etat.comps.find(c => c.id === etat.selection);
+  if (comp) { [comp.a, comp.b] = [comp.b, comp.a]; resoudre(); }
+});
+
+/* =====================================================================
+   6. UI — palette, boutons, aide
+   ===================================================================== */
+
+const palette = document.getElementById('palette');
+for (const outil of OUTILS) {
+  const btn = document.createElement('button');
+  const ic = document.createElement('canvas');
+  ic.width = 96; ic.height = 56;
+  ic.style.width = '48px'; ic.style.height = '28px';
+  const span = document.createElement('span');
+  span.textContent = outil.nom;
+  btn.append(ic, span);
+  btn.addEventListener('click', () => {
+    etat.outil = outil.id;
+    majPalette();
+  });
+  btn.dataset.outil = outil.id;
+  palette.appendChild(btn);
+}
+
+function majPalette() {
+  // La mission en cours limite les outils disponibles (déblocage progressif)
+  const autorises = outilsAutorises();
+  if (!autorises.includes(etat.outil)) etat.outil = autorises[0];
+  for (const btn of palette.children) {
+    btn.style.display = autorises.includes(btn.dataset.outil) ? '' : 'none';
+    btn.classList.toggle('actif', btn.dataset.outil === etat.outil);
+    const ic = btn.firstChild, c2d = ic.getContext('2d');
+    c2d.setTransform(2, 0, 0, 2, 0, 0);           // dessin net (×2)
+    c2d.clearRect(0, 0, 48, 28);
+    const faux = {
+      type: btn.dataset.outil, I: 0, ferme: false,
+      _pa: { x: 4, y: 14 }, _pb: { x: 44, y: 14 },
+    };
+    dessinerComp(c2d, faux, true);
+  }
+}
+
+// ---- Boutons d'en-tête ----
+document.getElementById('btn-vue').addEventListener('click', () => {
+  etat.vue = etat.vue === 'realiste' ? 'symboles' : 'realiste';
+  document.getElementById('lbl-vue').textContent =
+    etat.vue === 'realiste' ? 'Symboles' : 'Réaliste';
+  majPalette(); demanderRendu();
+});
+
+const btnEffacer = document.getElementById('btn-effacer');
+let confirmEffacer = null;
+btnEffacer.addEventListener('click', () => {
+  if (confirmEffacer) {                 // deuxième appui : on efface
+    clearTimeout(confirmEffacer); confirmEffacer = null;
+    btnEffacer.innerHTML = '🗑<span class="lbl"> Effacer</span>';
+    etat.comps = []; deselectionner(); resoudre();
+  } else {                              // premier appui : demander confirmation
+    btnEffacer.textContent = 'Sûr ?';
+    confirmEffacer = setTimeout(() => {
+      confirmEffacer = null;
+      btnEffacer.innerHTML = '🗑<span class="lbl"> Effacer</span>';
+    }, 2500);
+  }
+});
+
+// ---- Aide ----
+const aide = document.getElementById('aide');
+document.getElementById('btn-aide').addEventListener('click', () => aide.classList.add('visible'));
+document.getElementById('btn-go').addEventListener('click', () => {
+  aide.classList.remove('visible');
+  try { localStorage.setItem('ike-circuit-aide-vue', '1'); } catch (e) {}
+});
+try {
+  if (!localStorage.getItem('ike-circuit-aide-vue')) aide.classList.add('visible');
+} catch (e) { aide.classList.add('visible'); }
+
+/* =====================================================================
+   7. PARCOURS PÉDAGOGIQUE — missions progressives
+   ---------------------------------------------------------------------
+   Chaque mission = liste d'étapes ordonnées. Une étape est un prédicat
+   sur l'état électrique résolu : c'est CE QUE L'ÉLÈVE CONSTRUIT qui
+   valide, pas un questionnaire. Les outils se débloquent mission
+   après mission.
+   ===================================================================== */
+
+// Petits utilitaires d'analyse de l'état
+const nb = t => etat.comps.filter(c => c.type === t).length;
+const lampes = () => etat.comps.filter(c => c.type === 'lampe');
+const lampesAllumees = () => lampes().filter(c => Math.abs(c.I) >= 0.1);
+const piles = () => etat.comps.filter(c => c.type === 'pile');
+const amperemetres = () => etat.comps.filter(c => c.type === 'amperemetre');
+// |x| ≈ |ref| à tol près (comparaison d'intensités)
+const memeIntensite = (x, ref, tol) =>
+  Math.abs(Math.abs(x) - Math.abs(ref)) <= tol * Math.max(Math.abs(ref), 1e-9);
+
+const MISSIONS = [
+  {
+    titre: 'Le premier fil',
+    outils: ['fil'],
+    etapes: [
+      { texte: "Choisis l'outil Fil, puis fais glisser ton doigt entre deux points voisins de la grille.",
+        test: () => nb('fil') >= 1 },
+      { texte: "Bien joué ! Entraîne-toi : pose 4 fils au total.",
+        test: () => nb('fil') >= 4 },
+    ],
+    retenir: "Les fils sont des conducteurs : ils laissent passer le courant électrique. Mis bout à bout, ils forment le chemin du circuit.",
+    indice: "Pose ton doigt (ou clique) sur un point de la grille, puis glisse vers un point voisin sans lever.",
+  },
+  {
+    titre: 'Allume la lampe !',
+    outils: ['fil', 'pile', 'lampe'],
+    etapes: [
+      { texte: "Pose une pile sur la grille.", test: () => nb('pile') >= 1 },
+      { texte: "Pose une lampe.", test: () => nb('lampe') >= 1 },
+      { texte: "Relie tout avec des fils pour former une boucle complète : la lampe doit s'allumer !",
+        test: () => lampesAllumees().length >= 1 },
+    ],
+    retenir: "Un circuit doit être fermé (une boucle complète) pour que le courant circule : il sort par la borne + de la pile, traverse la lampe et revient à la borne −.",
+    indice: "Fais une boucle : pile → fil → lampe → fil → retour à la pile. S'il manque un seul morceau, le courant ne passe pas !",
+  },
+  {
+    titre: "L'interrupteur commande",
+    outils: ['fil', 'pile', 'lampe', 'interrupteur'],
+    etapes: [
+      { texte: "Ajoute un interrupteur sur le chemin du courant, puis touche-le pour le fermer : la lampe doit briller.",
+        test: () => lampesAllumees().length >= 1 &&
+                    etat.comps.some(c => c.type === 'interrupteur' && c.ferme && Math.abs(c.I) >= 0.1) },
+      { texte: "Touche l'interrupteur pour l'ouvrir : la lampe s'éteint.",
+        test: () => lampesAllumees().length === 0 && nb('lampe') >= 1 && nb('pile') >= 1 &&
+                    etat.comps.some(c => c.type === 'interrupteur' && !c.ferme) },
+      { texte: "Referme-le : la lumière revient !",
+        test: () => lampesAllumees().length >= 1 &&
+                    etat.comps.some(c => c.type === 'interrupteur' && c.ferme && Math.abs(c.I) >= 0.1) },
+    ],
+    retenir: "L'interrupteur ouvre ou ferme le circuit sans le démonter. Circuit ouvert = le courant ne passe plus, tout s'éteint. Circuit fermé = le courant circule.",
+    indice: "L'interrupteur doit être DANS la boucle, comme un maillon de la chaîne. Un appui bref dessus l'ouvre ou le ferme.",
+  },
+  {
+    titre: 'Mesure le courant',
+    outils: ['fil', 'pile', 'lampe', 'interrupteur', 'amperemetre'],
+    etapes: [
+      { texte: "Nouvel outil débloqué : l'ampèremètre ! Place-le dans un circuit qui fonctionne (lampe allumée) et lis la valeur affichée.",
+        test: () => lampesAllumees().length >= 1 &&
+                    amperemetres().some(c => Math.abs(c.I) >= 0.1) },
+    ],
+    retenir: "L'intensité du courant se mesure en ampères (A) avec un ampèremètre, toujours branché en série (sur le chemin du courant). Ici, environ 0,43 A avec une pile et une lampe.",
+    indice: "L'ampèremètre se pose dans la boucle, comme un maillon — pas à côté du circuit.",
+  },
+  {
+    titre: "Le courant ne s'use pas",
+    outils: ['fil', 'pile', 'lampe', 'interrupteur', 'amperemetre'],
+    etapes: [
+      { texte: "Place DEUX ampèremètres dans la même boucle : un avant la lampe, un après. Compare leurs valeurs !",
+        test: () => {
+          if (piles().length !== 1 || lampesAllumees().length < 1) return false;
+          const Ip = piles()[0].I;
+          return amperemetres().filter(c =>
+            Math.abs(c.I) >= 0.1 && memeIntensite(c.I, Ip, 0.05)).length >= 2;
+        } },
+    ],
+    retenir: "Les deux ampèremètres affichent la même valeur : dans une boucle simple, l'intensité est la même partout. Le courant ne s'use pas en traversant la lampe — c'est l'énergie de la pile qui se transforme en lumière et en chaleur.",
+    indice: "Les deux ampèremètres doivent être sur le même chemin que la lampe, dans la même boucle, avec une seule pile.",
+  },
+  {
+    titre: 'Deux lampes à la file (série)',
+    outils: ['fil', 'pile', 'lampe', 'interrupteur', 'amperemetre'],
+    etapes: [
+      { texte: "Avec UNE seule pile, allume DEUX lampes posées l'une après l'autre sur le même chemin (en série). Observe leur éclat !",
+        test: () => {
+          if (piles().length !== 1) return false;
+          const Ip = piles()[0].I, all = lampesAllumees();
+          return all.length >= 2 && all.every(c => memeIntensite(c.I, Ip, 0.08));
+        } },
+    ],
+    retenir: "En série, le même courant traverse les lampes l'une après l'autre : elles brillent moins que si elles étaient seules. Et si on en retire une, tout s'éteint !",
+    indice: "Une seule boucle : pile → lampe → lampe → retour à la pile.",
+  },
+  {
+    titre: 'Chacune son chemin (parallèle)',
+    outils: ['fil', 'pile', 'lampe', 'interrupteur', 'amperemetre'],
+    etapes: [
+      { texte: "Avec UNE seule pile, branche DEUX lampes en parallèle : chacune sur sa propre branche. Elles doivent briller fort !",
+        test: () => {
+          if (piles().length !== 1) return false;
+          const fortes = lampes().filter(c => Math.abs(c.I) >= 0.3);
+          if (fortes.length < 2) return false;
+          const iMax = Math.max(...fortes.map(c => Math.abs(c.I)));
+          return Math.abs(piles()[0].I) >= 1.5 * iMax;
+        } },
+    ],
+    retenir: "En parallèle (en dérivation), chaque lampe a sa propre boucle : chacune brille fort, comme si elle était seule. C'est le branchement des maisons ! En échange, la pile débite plus de courant et s'use plus vite.",
+    indice: "Fais deux boucles qui partagent la même pile : le courant se sépare en deux chemins, puis se retrouve.",
+  },
+  {
+    titre: 'La panne maligne',
+    outils: ['fil', 'pile', 'lampe', 'interrupteur', 'amperemetre'],
+    etapes: [
+      { texte: "Construis un montage où DEUX lampes brillent, avec un interrupteur fermé sur la branche d'UNE seule des deux.",
+        test: () => lampesAllumees().length >= 2 &&
+                    etat.comps.some(c => c.type === 'interrupteur' && c.ferme && Math.abs(c.I) >= 0.1) },
+      { texte: "Ouvre l'interrupteur : UNE lampe doit s'éteindre… et l'autre rester allumée !",
+        test: () => lampesAllumees().length === 1 && nb('lampe') >= 2 &&
+                    etat.comps.some(c => c.type === 'interrupteur' && !c.ferme) },
+    ],
+    retenir: "En parallèle, chaque branche est indépendante : couper l'une n'éteint pas l'autre. C'est pour ça qu'éteindre la lampe de la cuisine n'éteint pas celle du salon !",
+    indice: "Deux lampes en parallèle, et l'interrupteur sur le chemin d'UNE seule lampe (pas sur le chemin commun, sinon tout s'éteint).",
+  },
+  {
+    titre: 'Danger : court-circuit !',
+    outils: ['fil', 'pile', 'lampe', 'interrupteur', 'amperemetre'],
+    etapes: [
+      { texte: "Provoque un court-circuit : relie directement les deux bornes de la pile par un simple fil. (Ici, c'est sans danger !)",
+        test: () => etat.courtCircuit },
+    ],
+    retenir: "Sans lampe ni appareil pour limiter le courant, l'intensité devient énorme (presque 9 A ici !) : la pile chauffe très fort. En vrai : risque de brûlure et d'incendie. On ne relie JAMAIS les deux bornes d'une pile directement.",
+    indice: "Un seul fil, directement d'une borne à l'autre de la pile…",
+  },
+  {
+    titre: 'Double énergie',
+    outils: ['fil', 'pile', 'lampe', 'interrupteur', 'amperemetre'],
+    etapes: [
+      { texte: "Place DEUX piles dans le même sens dans ta boucle, avec une lampe : elle doit briller plus fort que jamais (plus de 0,60 A) !",
+        test: () => nb('pile') >= 2 && lampes().some(c => Math.abs(c.I) >= 0.6) },
+    ],
+    retenir: "Deux piles en série dans le même sens additionnent leurs tensions : 4,5 V + 4,5 V = 9 V → la lampe brille plus fort. Dans des sens opposés, elles s'annulent et rien ne s'allume ! Bravo, parcours terminé 💪 — explore maintenant le Mode libre.",
+    indice: "Le + d'une pile doit pointer vers le − de la suivante. Si rien ne s'allume, sélectionne une pile et touche « ↔ Inverser ».",
+  },
+];
+
+// ---- Progression (persistée) ----
+const progression = { m: 0, etape: 0, faites: [] };
+
+function chargerProgression() {
+  try {
+    const d = JSON.parse(localStorage.getItem('ike-circuit-progression'));
+    if (d) {
+      if (d.m === 'libre' || (Number.isInteger(d.m) && d.m >= 0 && d.m < MISSIONS.length))
+        progression.m = d.m;
+      if (Array.isArray(d.faites)) progression.faites = d.faites.filter(Number.isInteger);
+    }
+  } catch (e) {}
+}
+function sauverProgression() {
+  try {
+    localStorage.setItem('ike-circuit-progression',
+      JSON.stringify({ m: progression.m, faites: progression.faites }));
+  } catch (e) {}
+}
+
+function missionCourante() {
+  return progression.m === 'libre' ? null : MISSIONS[progression.m];
+}
+function outilsAutorises() {
+  const m = missionCourante();
+  return m ? m.outils : OUTILS.map(o => o.id);
+}
+
+// Appelé après chaque résolution du circuit : fait avancer les étapes
+function evaluerMission() {
+  const m = missionCourante();
+  if (!m || progression.etape >= m.etapes.length) return;
+  if (document.querySelector('.voile.visible')) return; // un panneau est ouvert
+  let avance = false;
+  while (progression.etape < m.etapes.length && m.etapes[progression.etape].test()) {
+    progression.etape++;
+    avance = true;
+  }
+  if (!avance) return;
+  if (progression.etape >= m.etapes.length) {
+    if (!progression.faites.includes(progression.m)) {
+      progression.faites.push(progression.m);
+      sauverProgression();
+    }
+    ouvrirFin(m);
+  } else {
+    toast('✅ Étape réussie !');
+  }
+  majMissionBar();
+}
+
+function allerMission(m) {
+  progression.m = m;
+  progression.etape = 0;
+  sauverProgression();
+  deselectionner();
+  fermerVoiles();
+  document.getElementById('mindice').classList.remove('visible');
+  majPalette();
+  majMissionBar();
+}
+
+// ---- Barre de mission ----
+function majMissionBar() {
+  const m = missionCourante();
+  const l2 = document.querySelector('#mbar .l2');
+  if (!m) {
+    document.getElementById('mchip').textContent = '🧪';
+    document.getElementById('mtitre').textContent = 'Mode libre — construis ce que tu veux !';
+    l2.style.display = 'none';
+  } else {
+    const n = progression.m + 1;
+    document.getElementById('mchip').textContent = `Mission ${n}/${MISSIONS.length}`;
+    document.getElementById('mtitre').textContent = m.titre;
+    l2.style.display = '';
+    const fini = progression.etape >= m.etapes.length;
+    document.getElementById('metape').textContent =
+      fini ? '🎉 Mission terminée ! Passe à la suivante.' : '⬜ ' + m.etapes[progression.etape].texte;
+    document.getElementById('mcompteur').textContent =
+      m.etapes.length > 1 && !fini ? `étape ${progression.etape + 1}/${m.etapes.length}` : '';
+    document.getElementById('mindice').textContent = '💡 ' + m.indice;
+  }
+  redimensionner(); // la hauteur de la barre peut changer → recaler la grille
+}
+
+// ---- Panneaux ----
+function fermerVoiles() {
+  for (const v of document.querySelectorAll('.voile')) v.classList.remove('visible');
+}
+
+function ouvrirFin(m) {
+  const derniere = progression.m === MISSIONS.length - 1;
+  document.getElementById('mfin-titre').textContent =
+    `Mission ${progression.m + 1} — ${m.titre}`;
+  document.getElementById('mfin-retenir').textContent = m.retenir;
+  document.getElementById('btn-suivante').textContent =
+    derniere ? '🧪 Continuer en Mode libre' : 'Mission suivante ▶';
+  document.getElementById('mfin').classList.add('visible');
+}
+
+document.getElementById('btn-suivante').addEventListener('click', () => {
+  const derniere = progression.m === MISSIONS.length - 1;
+  allerMission(derniere ? 'libre' : progression.m + 1);
+});
+document.getElementById('btn-liste2').addEventListener('click', () => {
+  fermerVoiles(); ouvrirListe();
+});
+
+function ouvrirListe() {
+  const cont = document.getElementById('mliste-items');
+  cont.innerHTML = '';
+  MISSIONS.forEach((m, i) => {
+    const row = document.createElement('button');
+    row.className = 'mrow'
+      + (progression.faites.includes(i) ? ' faite' : '')
+      + (progression.m === i ? ' courante' : '');
+    const n = document.createElement('span');
+    n.className = 'n';
+    n.textContent = progression.faites.includes(i) ? '✓' : (i + 1) + '.';
+    const t = document.createElement('span');
+    t.className = 't';
+    t.textContent = m.titre;
+    row.append(n, t);
+    row.addEventListener('click', () => allerMission(i)); // relancer = repartir à l'étape 1
+    cont.appendChild(row);
+  });
+  document.getElementById('mliste').classList.add('visible');
+}
+
+document.getElementById('btn-missions').addEventListener('click', ouvrirListe);
+document.getElementById('btn-libre').addEventListener('click', () => allerMission('libre'));
+document.getElementById('btn-fermer-liste').addEventListener('click', fermerVoiles);
+
+const btnResetProg = document.getElementById('btn-reset-prog');
+let confirmReset = null;
+btnResetProg.addEventListener('click', () => {
+  if (confirmReset) {
+    clearTimeout(confirmReset); confirmReset = null;
+    btnResetProg.textContent = '↺ Réinitialiser tout le parcours';
+    progression.faites = [];
+    etat.comps = [];
+    allerMission(0);
+    resoudre();
+    toast('↺ Parcours réinitialisé');
+  } else {
+    btnResetProg.textContent = 'Sûr ? Touche encore une fois';
+    confirmReset = setTimeout(() => {
+      confirmReset = null;
+      btnResetProg.textContent = '↺ Réinitialiser tout le parcours';
+    }, 2500);
+  }
+});
+
+// Toucher le fond sombre ferme le panneau
+for (const v of document.querySelectorAll('.voile'))
+  v.addEventListener('click', e => { if (e.target === v) v.classList.remove('visible'); });
+
+// ---- Indice ----
+document.getElementById('btn-indice').addEventListener('click', () => {
+  document.getElementById('mindice').classList.toggle('visible');
+  redimensionner();
+});
+
+// ---- Toast ----
+let toastTimer = null;
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('visible');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('visible'), 1700);
+}
+
+/* =====================================================================
+   Démarrage
+   ===================================================================== */
+chargerProgression();
+window.addEventListener('resize', redimensionner);
+redimensionner();
+majPalette();
+majMissionBar();
+resoudre();
+requestAnimationFrame(boucle);
+
+// Écran de démarrage : la marque s'affiche ~1,4 s puis s'efface en fondu
+setTimeout(() => {
+  const s = document.getElementById('splash');
+  s.classList.add('fini');
+  setTimeout(() => s.remove(), 600);
+}, 1400);
+</script>
+</body>
+</html>
