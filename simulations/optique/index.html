@@ -1,0 +1,1482 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#1565c0">
+<title>Banc d'optique · IKE Simulations</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html, body { height:100%; overflow:hidden; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background:#f4f7fb; color:#263238;
+    display:flex; flex-direction:column;
+    user-select:none; -webkit-user-select:none; touch-action:manipulation;
+  }
+
+  /* ---------- Écran de démarrage IKE ---------- */
+  #splash {
+    position:fixed; inset:0; z-index:100;
+    background:linear-gradient(160deg,#0d47a1 0%,#1565c0 55%,#1e88e5 100%);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    transition:opacity .5s ease;
+  }
+  #splash.fini { opacity:0; pointer-events:none; }
+  #splash .logo {
+    font-size:56px; line-height:1;
+    animation:battement 1.1s ease-in-out infinite;
+    filter:drop-shadow(0 4px 14px rgba(255,202,40,.45));
+  }
+  @keyframes battement { 50% { transform:scale(1.18); } }
+  #splash .nom { margin-top:14px; color:#fff; font-size:30px; font-weight:800; letter-spacing:.5px; }
+  #splash .nom span { font-weight:300; opacity:.9; }
+  #splash .sub {
+    margin-top:4px; color:rgba(255,255,255,.75); font-size:13px;
+    letter-spacing:2px; text-transform:uppercase;
+  }
+  #splash .barre {
+    margin-top:22px; width:150px; height:4px; border-radius:2px;
+    background:rgba(255,255,255,.25); overflow:hidden;
+  }
+  #splash .rempl {
+    height:100%; background:#ffca28; border-radius:2px;
+    transform-origin:left; transform:scaleX(0); animation:charge 1.3s ease-out forwards;
+  }
+  @keyframes charge { to { transform:scaleX(1); } }
+  #splash .ver { position:absolute; bottom:14px; color:rgba(255,255,255,.5); font-size:11px; }
+
+  /* ---------- En-tête ---------- */
+  header {
+    display:flex; align-items:center; gap:8px;
+    padding:8px 12px; background:#fff; border-bottom:1px solid #e0e6ed;
+    flex:none; z-index:5;
+  }
+  header h1 { font-size:16px; font-weight:700; color:#1565c0; white-space:nowrap; }
+  header .spacer { flex:1; }
+  .btn {
+    border:1px solid #cfd8dc; background:#fff; color:#37474f;
+    border-radius:8px; padding:8px 10px; font-size:13px; font-weight:600;
+    cursor:pointer; white-space:nowrap; min-height:40px;
+  }
+  .btn:active { background:#e3f2fd; }
+  .btn.danger:active { background:#ffebee; }
+  @media (max-width:480px) { .btn .lbl { display:none; } header h1 { font-size:14px; } }
+
+  /* ---------- Barre de mission ---------- */
+  #mbar { flex:none; background:#fff; border-bottom:1px solid #e0e6ed; padding:6px 10px; z-index:4; }
+  #mbar .l1 { display:flex; align-items:center; gap:8px; }
+  #mchip {
+    background:#1565c0; color:#fff; font-size:11px; font-weight:700;
+    border-radius:12px; padding:3px 9px; white-space:nowrap;
+  }
+  #mtitre {
+    font-size:13.5px; font-weight:700; color:#263238; flex:1;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  #mbar .mbtn {
+    border:1px solid #cfd8dc; background:#fff; border-radius:8px;
+    font-size:14px; padding:4px 10px; cursor:pointer; min-height:34px;
+  }
+  #mbar .l2 { display:flex; align-items:center; gap:8px; margin-top:5px; }
+  #mbar.flash { animation:flashvert .9s ease; }
+  @keyframes flashvert { 0% { background:#c8e6c9; } 100% { background:#fff; } }
+  #mpoints { display:flex; gap:5px; align-items:center; flex:none; }
+  #mpoints .pt { width:9px; height:9px; border-radius:50%; background:#cfd8dc; }
+  #mpoints .pt.faite { background:#2e7d32; }
+  #mpoints .pt.courante { background:#1565c0; animation:ptpulse 1.6s infinite; }
+  @keyframes ptpulse { 50% { transform:scale(1.4); } }
+  #metape { flex:1; font-size:12.5px; color:#37474f; line-height:1.4; }
+  #metape.glisse { animation:glisse .4s ease; }
+  @keyframes glisse { from { opacity:0; transform:translateX(12px); } }
+  #mcompteur { font-size:11px; color:#90a4ae; font-weight:700; white-space:nowrap; }
+  #btn-indice {
+    background:#fff8e1 !important; border-color:#ffca28 !important;
+    color:#795548; font-weight:700; white-space:nowrap;
+  }
+  #btn-indice.pulse { animation:indicepulse 1.2s infinite; }
+  @keyframes indicepulse {
+    50% { transform:scale(1.08); box-shadow:0 0 0 7px rgba(255,202,40,.3); }
+  }
+  #mindice {
+    display:none; margin-top:6px; background:#fff8e1; border:1px solid #ffe082;
+    color:#795548; font-size:12.5px; border-radius:8px; padding:7px 10px; line-height:1.45;
+  }
+  #mindice.visible { display:block; }
+  #mdiag {
+    display:none; margin-top:6px; background:#fff3e0; border:1px solid #ffcc80;
+    color:#bf360c; font-size:12.5px; border-radius:8px; padding:7px 10px; line-height:1.45;
+  }
+  #mdiag.visible { display:block; animation:glisse .4s ease; }
+
+  /* ---------- Scène ---------- */
+  #wrap { flex:1; position:relative; overflow:hidden; }
+  canvas#scene { position:absolute; inset:0; width:100%; height:100%; touch-action:none; display:block; }
+
+  #toast {
+    position:absolute; bottom:16px; left:50%;
+    transform:translateX(-50%) translateY(10px) scale(.9);
+    background:#2e7d32; color:#fff; font-size:14.5px; font-weight:800;
+    padding:11px 22px; border-radius:22px; opacity:0; pointer-events:none;
+    transition:opacity .25s, transform .3s cubic-bezier(.34,1.56,.64,1);
+    box-shadow:0 6px 20px rgba(46,125,50,.4); z-index:6; white-space:nowrap;
+  }
+  #toast.visible { opacity:1; transform:translateX(-50%) translateY(0) scale(1); }
+
+  /* Barre de réglage de l'élément sélectionné */
+  #regbar {
+    position:absolute; left:50%; bottom:12px; transform:translateX(-50%);
+    display:none; align-items:center; gap:10px; z-index:7;
+    background:#fff; border:1px solid #cfd8dc; border-radius:12px;
+    padding:8px 12px; box-shadow:0 4px 14px rgba(0,0,0,.18); max-width:calc(100% - 16px);
+  }
+  #regbar.visible { display:flex; }
+  #regbar .nom { font-size:13px; font-weight:700; color:#1565c0; white-space:nowrap; }
+  #regbar .valeur { font-size:12px; font-weight:700; color:#37474f; min-width:56px; text-align:right; }
+  #regbar input[type=range] { width:130px; accent-color:#1565c0; }
+  #regbar button {
+    border:none; border-radius:7px; padding:8px 10px; font-size:13px; font-weight:600;
+    cursor:pointer; background:#ffebee; color:#c62828; white-space:nowrap;
+  }
+
+  /* ---------- Palette ---------- */
+  nav#palette {
+    flex:none; display:flex; justify-content:center; gap:6px;
+    padding:6px 8px calc(6px + env(safe-area-inset-bottom));
+    background:#fff; border-top:1px solid #e0e6ed; overflow-x:auto; z-index:5;
+  }
+  nav#palette button {
+    display:flex; flex-direction:column; align-items:center; gap:2px;
+    border:2px solid transparent; border-radius:10px; background:#f4f7fb;
+    padding:6px 8px 4px; min-width:58px; min-height:56px; cursor:pointer;
+  }
+  nav#palette button.actif { border-color:#1565c0; background:#e3f2fd; }
+  nav#palette button span { font-size:10px; font-weight:600; color:#37474f; white-space:nowrap; }
+  nav#palette button canvas { pointer-events:none; }
+
+  /* ---------- Voiles ---------- */
+  .voile {
+    position:fixed; inset:0; background:rgba(38,50,56,.55);
+    display:none; align-items:center; justify-content:center; z-index:20; padding:16px;
+  }
+  .voile.visible { display:flex; }
+  .voile .carte {
+    background:#fff; border-radius:16px; padding:22px; max-width:400px; width:100%;
+    max-height:86vh; overflow-y:auto; box-shadow:0 10px 40px rgba(0,0,0,.3);
+  }
+  .voile .carte h2 { font-size:18px; color:#1565c0; margin-bottom:12px; }
+  .voile.visible .carte h2 { animation:pop .4s ease-out; }
+  @keyframes pop { 0% { transform:scale(.5); opacity:0; } 80% { transform:scale(1.08); } 100% { transform:scale(1); } }
+  .voile .go {
+    width:100%; border:none; background:#1565c0; color:#fff; font-size:15px; font-weight:700;
+    padding:12px; border-radius:10px; cursor:pointer;
+  }
+  .voile .btn2 {
+    width:100%; border:1px solid #cfd8dc; background:#fff; color:#37474f;
+    font-size:13px; font-weight:600; padding:10px; border-radius:10px;
+    cursor:pointer; margin-top:8px;
+  }
+  .voile .lien {
+    display:block; width:100%; text-align:center; margin-top:10px;
+    background:none; border:none; color:#90a4ae; font-size:11.5px;
+    text-decoration:underline; cursor:pointer;
+  }
+  #mfin-titre { font-weight:700; font-size:15px; color:#263238; margin-bottom:10px; }
+  .retenir-label { font-size:12px; font-weight:800; color:#2e7d32; margin-bottom:4px; }
+  #mfin-retenir {
+    background:#e8f5e9; border-radius:10px; padding:10px 12px;
+    font-size:13.5px; line-height:1.55; color:#1b5e20; margin:0 0 14px;
+  }
+  .mrow {
+    display:flex; align-items:center; gap:8px; width:100%;
+    border:none; background:#f4f7fb; border-radius:8px; padding:10px;
+    margin-bottom:5px; font-size:13px; cursor:pointer; text-align:left; color:#263238;
+  }
+  .mrow .n { font-weight:700; color:#90a4ae; min-width:22px; }
+  .mrow.faite .n { color:#2e7d32; }
+  .mrow.courante { outline:2px solid #1565c0; background:#e3f2fd; }
+  .mrow .t { flex:1; }
+
+  /* ---------- Visite guidée ---------- */
+  #visite { position:fixed; inset:0; z-index:30; display:none; }
+  #visite.sombre { background:rgba(38,50,56,.62); }
+  #visite-halo {
+    position:absolute; border-radius:12px; border:2px solid #ffca28;
+    box-shadow:0 0 0 9999px rgba(38,50,56,.62);
+    transition:all .3s ease; pointer-events:none;
+  }
+  #visite-carte {
+    position:absolute; background:#fff; border-radius:14px; padding:16px;
+    width:min(310px, calc(100vw - 24px)); box-shadow:0 10px 40px rgba(0,0,0,.35);
+  }
+  .vtitre { font-size:15px; font-weight:800; color:#1565c0; margin-bottom:6px; }
+  .vtexte { font-size:13px; line-height:1.55; color:#37474f; white-space:pre-line; }
+  .vbas { display:flex; align-items:center; gap:10px; margin-top:12px; }
+  .vprog { flex:1; font-size:11px; font-weight:700; color:#90a4ae; }
+  #visite-passer {
+    background:none; border:none; color:#90a4ae; font-size:12px;
+    text-decoration:underline; cursor:pointer; padding:6px;
+  }
+  #visite-suivant {
+    border:none; background:#1565c0; color:#fff; font-weight:700;
+    font-size:13px; padding:9px 18px; border-radius:9px; cursor:pointer;
+  }
+  .vmarque { margin-top:10px; text-align:center; font-size:10px; color:#b0bec5; }
+
+  /* ==================== THÈME SOMBRE ==================== */
+  body.sombre { background:#10181f; color:#eceff1; }
+  body.sombre header,
+  body.sombre #mbar,
+  body.sombre nav#palette { background:#1c262e; border-color:#2c3a45; }
+  body.sombre header h1 { color:#64b5f6; }
+  body.sombre .btn { background:#22303a; border-color:#3a4a56; color:#cfd8dc; }
+  body.sombre .btn:active { background:#0d2c4f; }
+  body.sombre .btn.danger:active { background:#3a1f22; }
+  body.sombre #mtitre { color:#eceff1; }
+  body.sombre #metape { color:#cfd8dc; }
+  body.sombre #mbar .mbtn { background:#22303a; border-color:#3a4a56; color:#cfd8dc; }
+  body.sombre #btn-indice { background:#3a3220 !important; border-color:#8d6e63 !important; color:#ffd54f; }
+  body.sombre #mindice { background:#2b2618; border-color:#5d4d1a; color:#ffe082; }
+  body.sombre #mdiag { background:#33261a; border-color:#7a5c3d; color:#ffcc80; }
+  body.sombre #mpoints .pt { background:#3a4a56; }
+  body.sombre #mpoints .pt.faite { background:#66bb6a; }
+  body.sombre #mpoints .pt.courante { background:#64b5f6; }
+  body.sombre #mbar.flash { animation-name:flashvert-sombre; }
+  @keyframes flashvert-sombre { 0% { background:#1b3a22; } 100% { background:#1c262e; } }
+  body.sombre nav#palette button { background:#22303a; }
+  body.sombre nav#palette button span { color:#cfd8dc; }
+  body.sombre nav#palette button.actif { background:#0d2c4f; border-color:#64b5f6; }
+  body.sombre #regbar { background:#1c262e; border-color:#3a4a56; }
+  body.sombre #regbar .valeur { color:#cfd8dc; }
+  body.sombre #regbar .nom { color:#64b5f6; }
+  body.sombre #regbar button { background:#3a1f22; color:#ef9a9a; }
+  body.sombre .voile .carte, body.sombre #visite-carte { background:#1c262e; }
+  body.sombre .voile .carte h2, body.sombre .vtitre { color:#64b5f6; }
+  body.sombre .vtexte { color:#cfd8dc; }
+  body.sombre .voile .btn2 { background:#22303a; border-color:#3a4a56; color:#cfd8dc; }
+  body.sombre #mfin-titre { color:#eceff1; }
+  body.sombre .retenir-label { color:#81c784; }
+  body.sombre #mfin-retenir { background:#16281a; color:#a5d6a7; }
+  body.sombre .mrow { background:#26313a; color:#eceff1; }
+  body.sombre .mrow.courante { background:#0d2c4f; outline-color:#64b5f6; }
+</style>
+</head>
+<body>
+
+<div id="splash">
+  <div class="logo">⚡</div>
+  <div class="nom">IKE <span>Simulations</span></div>
+  <div class="sub">Sciences au collège</div>
+  <div class="barre"><div class="rempl"></div></div>
+  <div class="ver">v2.0.0</div>
+</div>
+
+<header>
+  <h1>🔍 Banc d'optique</h1>
+  <div class="spacer"></div>
+  <button class="btn" id="btn-theme">🌙<span class="lbl"> Sombre</span></button>
+  <button class="btn" id="btn-aide">❓<span class="lbl"> Aide</span></button>
+  <button class="btn danger" id="btn-effacer">🗑<span class="lbl"> Effacer</span></button>
+</header>
+
+<div id="mbar">
+  <div class="l1">
+    <span id="mchip"></span>
+    <span id="mtitre"></span>
+    <button class="mbtn" id="btn-missions" title="Toutes les missions">📋</button>
+  </div>
+  <div class="l2">
+    <span id="mpoints"></span>
+    <span id="metape"></span>
+    <span id="mcompteur"></span>
+    <button class="mbtn" id="btn-indice" title="Indice">💡 Indice</button>
+  </div>
+  <div id="mindice"></div>
+  <div id="mdiag"></div>
+</div>
+
+<div id="wrap">
+  <canvas id="scene"></canvas>
+  <div id="toast"></div>
+  <div id="regbar">
+    <span class="nom" id="reg-nom"></span>
+    <input type="range" id="reg-curseur">
+    <span class="valeur" id="reg-valeur"></span>
+    <button id="btn-retirer">🗑 Retirer</button>
+  </div>
+</div>
+
+<nav id="palette"></nav>
+
+<div id="mfin" class="voile">
+  <div class="carte">
+    <h2>🎉 Mission réussie !</h2>
+    <div id="mfin-titre"></div>
+    <div class="retenir-label">💡 À retenir</div>
+    <p id="mfin-retenir"></p>
+    <button class="go" id="btn-suivante">Mission suivante ▶</button>
+    <button class="btn2" id="btn-liste2">📋 Toutes les missions</button>
+  </div>
+</div>
+
+<div id="mliste" class="voile">
+  <div class="carte">
+    <h2>📋 Parcours d'apprentissage</h2>
+    <div id="mliste-items"></div>
+    <button class="btn2" id="btn-libre">🧪 Mode libre — expérimente librement</button>
+    <button class="go" id="btn-fermer-liste">Fermer</button>
+    <button class="lien" id="btn-reset-prog">↺ Réinitialiser tout le parcours</button>
+  </div>
+</div>
+
+<div id="visite">
+  <div id="visite-halo"></div>
+  <div id="visite-carte">
+    <div class="vtitre"></div>
+    <div class="vtexte"></div>
+    <div class="vbas">
+      <span class="vprog"></span>
+      <button id="visite-passer">Passer</button>
+      <button id="visite-suivant">Suivant</button>
+    </div>
+    <div class="vmarque">IKE Simulations · collège (PCT)</div>
+  </div>
+</div>
+
+<script>
+'use strict';
+/* =====================================================================
+   1. CONSTANTES & ÉTAT — banc d'optique gradué de 0 à 100 cm
+   ===================================================================== */
+
+const BANC_MAX = 100;      // longueur du banc (cm)
+const OUVERTURE = 5;       // demi-ouverture de la lentille (cm) → calcul du flou
+const FLOU_NET = 0.6;      // rayon de flou (cm) en dessous duquel l'image est « nette »
+
+// Un seul élément par famille : source (lampe OU objet), central (balle OU
+// sténopé OU lentille), récepteur (écran). Simplicité du banc réel.
+const FAMILLES = {
+  lampe: 'source', objet: 'source',
+  balle: 'central', stenope: 'central', lentille: 'central',
+  ecran: 'recepteur',
+};
+
+const OUTILS = [
+  { id: 'lampe',    nom: 'Lampe' },
+  { id: 'objet',    nom: 'Objet' },
+  { id: 'balle',    nom: 'Balle' },
+  { id: 'stenope',  nom: 'Sténopé' },
+  { id: 'lentille', nom: 'Lentille' },
+  { id: 'ecran',    nom: 'Écran' },
+];
+const DEFAUTS = {
+  lampe:    { x: 12 },
+  objet:    { x: 15, h: 4 },
+  balle:    { x: 45, d: 4 },
+  stenope:  { x: 50 },
+  lentille: { x: 50, f: 10 },
+  ecran:    { x: 88 },
+};
+// Paramètre réglable de chaque élément (curseur)
+const REGLAGES = {
+  objet:    { cle: 'h', nom: 'Hauteur',  min: 2, max: 8,  unite: 'cm' },
+  balle:    { cle: 'd', nom: 'Diamètre', min: 2, max: 8,  unite: 'cm' },
+  lentille: { cle: 'f', nom: 'Focale',   min: 6, max: 20, unite: 'cm' },
+};
+
+const etat = {
+  elems: { lampe: null, objet: null, balle: null, stenope: null, lentille: null, ecran: null },
+  theme: 'clair',
+  selection: null,   // type de l'élément sélectionné
+  drag: null,        // { type, decalage }
+};
+
+// Couleurs du canvas selon le thème
+const PALETTES = {
+  clair: {
+    banc: '#78909c', gradu: '#90a4ae', texte: '#37474f', doux: '#90a4ae',
+    rayon: '#f9a825', ombre: 'rgba(38,50,56,.28)', ecran: '#ffffff',
+    ecranBord: '#546e7a', support: '#78909c', axe: '#b0bec5',
+  },
+  sombre: {
+    banc: '#78909c', gradu: '#546e7a', texte: '#cfd8dc', doux: '#78909c',
+    rayon: '#ffca28', ombre: 'rgba(0,0,0,.45)', ecran: '#eceff1',
+    ecranBord: '#b0bec5', support: '#546e7a', axe: '#3d4c59',
+  },
+};
+const T = () => PALETTES[etat.theme];
+
+// Rayons de construction de la lentille (convention des manuels)
+const C_RAYON1 = '#ef5350';   // parallèle à l'axe puis passe par F'
+const C_RAYON2 = '#66bb6a';   // passe par le centre optique, non dévié
+const C_RAYON3 = '#42a5f5';   // passe par F puis ressort parallèle
+
+/* =====================================================================
+   2. GÉOMÉTRIE — cm du banc ↔ pixels du canvas
+   ===================================================================== */
+
+const canvas = document.getElementById('scene');
+const ctx = canvas.getContext('2d');
+let largeur = 0, hauteur = 0;   // taille CSS du canvas
+let ech = 5;                    // pixels par cm
+let origX = 30, axeY = 0;       // origine du banc, hauteur de l'axe optique
+
+function redimensionner() {
+  const wrap = document.getElementById('wrap');
+  largeur = wrap.clientWidth; hauteur = wrap.clientHeight;
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  canvas.width = Math.round(largeur * dpr);
+  canvas.height = Math.round(hauteur * dpr);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ech = (largeur - 56) / BANC_MAX;
+  origX = 28;
+  axeY = hauteur * 0.58;
+  demanderRendu();
+}
+
+const px = x => origX + x * ech;            // cm → px (horizontal)
+const py = y => axeY - y * ech;             // cm → px (vertical, y vers le haut)
+const cmDeX = xpx => (xpx - origX) / ech;   // px → cm
+
+function fmt(v, dec = 1) { return v.toFixed(dec).replace('.', ','); }
+
+/* =====================================================================
+   3. PHYSIQUE — tracé de rayons analytique
+   ---------------------------------------------------------------------
+   Ombre : triangles semblables depuis la source ponctuelle.
+   Sténopé : chaque point de l'objet s'imprime en ligne droite à travers
+   le trou → image renversée, taille ∝ distances.
+   Lentille mince : 1/di = 1/f − (−1/do) → di = f·do/(do−f) ;
+   grandissement m = −di/do. Flou à l'écran : ouverture × écart/distance.
+   ===================================================================== */
+
+let scn = { config: 'vide', rayons: [], ombre: null, image: null, nette: false, flou: 0 };
+
+function recalculer() {
+  const E = etat.elems;
+  scn = { config: 'vide', rayons: [], ombre: null, image: null, nette: false, flou: 0 };
+  const xe = E.ecran ? E.ecran.x : null;
+  const finBanc = xe !== null ? xe : BANC_MAX + 4;
+
+  // --- Source ponctuelle : lampe ---
+  if (E.lampe) {
+    const xL = E.lampe.x;
+    const balleUtile = E.balle && E.balle.x > xL + 1 && (xe === null || E.balle.x < xe - 1);
+    if (balleUtile) {
+      scn.config = 'ombre';
+      const xb = E.balle.x, r = E.balle.d / 2;
+      const t = (finBanc - xL) / (xb - xL);
+      scn.ombre = { x: finBanc, demi: r * t, xb, r, xL };
+      // Rayons tangents (limites de l'ombre) + rayons libres + rayon bloqué
+      scn.rayons.push({ pts: [{ x: xL, y: 0 }, { x: finBanc, y: r * t }], c: 'rayon' });
+      scn.rayons.push({ pts: [{ x: xL, y: 0 }, { x: finBanc, y: -r * t }], c: 'rayon' });
+      scn.rayons.push({ pts: [{ x: xL, y: 0 }, { x: xb - r, y: 0 }], c: 'rayon' }); // absorbé
+      for (const s of [1.7, -1.7, 2.6, -2.6]) {
+        const yFin = s * r * t;
+        if (Math.abs(yFin) < 16) scn.rayons.push({ pts: [{ x: xL, y: 0 }, { x: finBanc, y: yFin }], c: 'rayon' });
+      }
+    } else {
+      scn.config = 'faisceau';
+      for (let s = -3; s <= 3; s++) {
+        const pente = s * 0.11;
+        let xf = finBanc, yf = pente * (xf - xL);
+        if (Math.abs(yf) > 15) { yf = Math.sign(yf) * 15; xf = xL + yf / pente; }
+        scn.rayons.push({ pts: [{ x: xL, y: 0 }, { x: xf, y: yf }], c: 'rayon' });
+      }
+    }
+    return;
+  }
+
+  if (!E.objet) return;
+  const xo = E.objet.x, h = E.objet.h;
+  scn.config = 'objet';
+
+  // --- Chambre noire (sténopé) ---
+  if (E.stenope && E.stenope.x > xo + 2) {
+    const xs = E.stenope.x;
+    scn.config = 'stenope';
+    const xfin = (xe !== null && xe > xs + 1) ? xe : BANC_MAX + 4;
+    for (const yDep of [h, h / 2]) {
+      const pente = (0 - yDep) / (xs - xo);
+      scn.rayons.push({ pts: [{ x: xo, y: yDep }, { x: xs, y: 0 }, { x: xfin, y: pente * (xfin - xs) }], c: 'rayon' });
+    }
+    scn.rayons.push({ pts: [{ x: xo, y: 0 }, { x: xfin, y: 0 }], c: 'rayon' });
+    if (xe !== null && xe > xs + 1) {
+      scn.image = { x: xe, h: -h * (xe - xs) / (xs - xo), reelle: true, surEcran: true };
+      scn.nette = true;
+    }
+    return;
+  }
+
+  // --- Lentille convergente ---
+  if (E.lentille && E.lentille.x > xo + 1) {
+    const xl = E.lentille.x, f = E.lentille.f, dO = xl - xo;
+    scn.config = 'lentille';
+    const finR = (xe !== null && xe > xl) ? xe : BANC_MAX + 4;
+
+    if (Math.abs(dO - f) < 0.4) {
+      // Objet au foyer : rayons émergents parallèles, pas d'image
+      const penteC = -h / dO;
+      scn.rayons.push({ pts: [{ x: xo, y: h }, { x: xl, y: h }, { x: finR, y: h + penteC * (finR - xl) }], c: 'r1' });
+      scn.rayons.push({ pts: [{ x: xo, y: h }, { x: finR, y: h + penteC * (finR - xo) }], c: 'r2' });
+      return;
+    }
+    const dI = f * dO / (dO - f);          // >0 : image réelle à droite
+    const m = -dI / dO;
+    const xi = xl + dI, hi = m * h;
+    scn.image = { x: xi, h: hi, reelle: dI > 0, surEcran: false };
+
+    // Trois rayons de construction depuis le sommet de l'objet
+    const versImage = (yLent) => {
+      // après la lentille, le rayon va du point (xl, yLent) vers (xi, hi)
+      const pente = (hi - yLent) / (xi - xl);
+      return { x: finR, y: yLent + pente * (finR - xl) };
+    };
+    if (dI > 0) {
+      scn.rayons.push({ pts: [{ x: xo, y: h }, { x: xl, y: h }, versImage(h)], c: 'r1' });
+      scn.rayons.push({ pts: [{ x: xo, y: h }, versImage(0)], c: 'r2' });
+      const y3 = h + (0 - h) / (xl - f - xo) * (xl - xo);   // hauteur au plan de la lentille (rayon passant par F)
+      scn.rayons.push({ pts: [{ x: xo, y: h }, { x: xl, y: y3 }, versImage(y3)], c: 'r3' });
+      // Netteté sur l'écran
+      if (xe !== null && xe > xl) {
+        scn.flou = OUVERTURE * Math.abs(xe - xi) / Math.max(Math.abs(xi - xl), 0.5);
+        scn.nette = scn.flou < FLOU_NET;
+        scn.image.surEcran = true;
+        scn.image.hEcran = hi;   // hauteur dessinée sur l'écran (avec flou)
+      }
+    } else {
+      // Image virtuelle : rayons réels divergents + prolongements en pointillés
+      const pR1 = (hi - h) / (xi - xl);
+      scn.rayons.push({ pts: [{ x: xo, y: h }, { x: xl, y: h }, { x: finR, y: h + pR1 * (finR - xl) }], c: 'r1' });
+      const pR2 = h / (xo - xl);   // droite (xl,0)-(xo,h) prolongée
+      scn.rayons.push({ pts: [{ x: xo, y: h }, { x: finR, y: -pR2 * (xl - finR) }], c: 'r2' });
+      scn.rayons.push({ pts: [{ x: xl, y: h }, { x: xi, y: hi }], c: 'r1', pointille: true });
+      scn.rayons.push({ pts: [{ x: xl, y: 0 }, { x: xi, y: hi }], c: 'r2', pointille: true });
+    }
+    return;
+  }
+}
+
+/* =====================================================================
+   4. RENDU
+   ===================================================================== */
+
+let renduDemande = true;
+function demanderRendu() { renduDemande = true; }
+
+function boucle() {
+  if (renduDemande) { renduDemande = false; dessiner(); }
+  requestAnimationFrame(boucle);
+}
+
+function trait(x1, y1, x2, y2, larg, coul, pointille) {
+  ctx.strokeStyle = coul; ctx.lineWidth = larg; ctx.lineCap = 'round';
+  if (pointille) ctx.setLineDash([6, 6]);
+  ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+function fleche(x1, y1, x2, y2, coul) {
+  // petite pointe de flèche au milieu d'un rayon (sens de propagation)
+  const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
+  const a = Math.atan2(y2 - y1, x2 - x1);
+  ctx.fillStyle = coul;
+  ctx.beginPath();
+  ctx.moveTo(mx + 6 * Math.cos(a), my + 6 * Math.sin(a));
+  ctx.lineTo(mx + 6 * Math.cos(a + 2.6), my + 6 * Math.sin(a + 2.6));
+  ctx.lineTo(mx + 6 * Math.cos(a - 2.6), my + 6 * Math.sin(a - 2.6));
+  ctx.fill();
+}
+
+function dessinerFlecheObjet(x, hCm, coul, alpha, pointille) {
+  // flèche verticale posée sur l'axe (l'« objet lumineux » des manuels)
+  const bx = px(x), by = py(0), ty = py(hCm);
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.strokeStyle = coul; ctx.lineWidth = 3.5; ctx.lineCap = 'round';
+  if (pointille) ctx.setLineDash([5, 5]);
+  ctx.beginPath(); ctx.moveTo(bx, by); ctx.lineTo(bx, ty); ctx.stroke();
+  ctx.setLineDash([]);
+  const s = Math.sign(hCm) || 1;
+  ctx.fillStyle = coul;
+  ctx.beginPath();
+  ctx.moveTo(bx, ty);
+  ctx.lineTo(bx - 6, ty + s * 10);
+  ctx.lineTo(bx + 6, ty + s * 10);
+  ctx.fill();
+  ctx.restore();
+}
+
+function dessiner() {
+  ctx.clearRect(0, 0, largeur, hauteur);
+  const E = etat.elems;
+
+  // Axe optique + banc gradué
+  trait(px(-2), py(0), px(BANC_MAX + 3), py(0), 1, T().axe, true);
+  const yBanc = axeY + 12 * ech > hauteur - 30 ? hauteur - 30 : py(-12);
+  trait(px(0), yBanc, px(BANC_MAX), yBanc, 4, T().banc);
+  ctx.fillStyle = T().gradu; ctx.font = '10px sans-serif';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  for (let g = 0; g <= BANC_MAX; g += 10) {
+    trait(px(g), yBanc - 4, px(g), yBanc + 4, 1.5, T().gradu);
+    ctx.fillText(g, px(g), yBanc + 7);
+  }
+
+  // Rayons lumineux
+  for (const r of scn.rayons) {
+    const coul = r.c === 'rayon' ? T().rayon : r.c === 'r1' ? C_RAYON1 : r.c === 'r2' ? C_RAYON2 : C_RAYON3;
+    for (let i = 0; i < r.pts.length - 1; i++) {
+      const a = r.pts[i], b = r.pts[i + 1];
+      trait(px(a.x), py(a.y), px(b.x), py(b.y), 2, coul, r.pointille);
+      if (!r.pointille && i === r.pts.length - 2)
+        fleche(px(a.x), py(a.y), px(b.x), py(b.y), coul);
+    }
+  }
+
+  // Sélection : halo sous l'élément
+  if (etat.selection && E[etat.selection]) {
+    const xs = px(E[etat.selection].x);
+    ctx.fillStyle = 'rgba(33,150,243,.16)';
+    ctx.beginPath(); ctx.roundRect(xs - 20, py(13), 40, py(-12.5) - py(13), 10); ctx.fill();
+  }
+
+  // Éléments (dessinés après les rayons pour rester lisibles)
+  if (E.lampe) dessinerLampe(E.lampe.x);
+  if (E.balle) dessinerBalle(E.balle.x, E.balle.d);
+  if (E.stenope) dessinerStenope(E.stenope.x);
+  if (E.lentille) dessinerLentille(E.lentille.x, E.lentille.f);
+  if (E.objet) {
+    dessinerFlecheObjet(E.objet.x, E.objet.h, '#e53935', 1, false);
+    etiquette(E.objet.x, -1.6, `objet ${fmt(E.objet.h, 0)} cm`);
+  }
+  if (E.ecran) dessinerEcran(E.ecran.x);
+
+  // Image virtuelle (lentille) : flèche en pointillés côté objet
+  if (scn.image && !scn.image.reelle) {
+    dessinerFlecheObjet(scn.image.x, scn.image.h, '#ab47bc', 0.9, true);
+    etiquette(scn.image.x, scn.image.h + 1.8, `image virtuelle ${fmt(Math.abs(scn.image.h))} cm`, '#ab47bc');
+  }
+  // Position de l'image réelle (petit repère si pas d'écran pour la capter)
+  if (scn.image && scn.image.reelle && !scn.image.surEcran && scn.image.x < BANC_MAX + 2) {
+    dessinerFlecheObjet(scn.image.x, scn.image.h, '#ab47bc', 0.45, true);
+    etiquette(scn.image.x, scn.image.h - 1.8, 'image (place l’écran ici !)', '#ab47bc');
+  }
+}
+
+function etiquette(xCm, yCm, txt, coul) {
+  ctx.font = 'bold 11px sans-serif';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  const x = Math.max(40, Math.min(largeur - 40, px(xCm)));
+  const y = py(yCm);
+  const w = ctx.measureText(txt).width;
+  ctx.fillStyle = etat.theme === 'sombre' ? 'rgba(16,24,31,.8)' : 'rgba(244,247,251,.85)';
+  ctx.fillRect(x - w / 2 - 4, y - 8, w + 8, 16);
+  ctx.fillStyle = coul || T().texte;
+  ctx.fillText(txt, x, y);
+}
+
+function dessinerLampe(x) {
+  const cx = px(x), cy = py(0);
+  ctx.fillStyle = '#ffd54f';
+  ctx.beginPath(); ctx.arc(cx, cy, 9, 0, 7); ctx.fill();
+  ctx.strokeStyle = '#f9a825'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(cx, cy, 9, 0, 7); ctx.stroke();
+  trait(cx, cy + 9, cx, py(-9), 3, T().support);
+  etiquette(x, -10.8, 'lampe');
+}
+
+function dessinerBalle(x, d) {
+  const cx = px(x), cy = py(0), r = d / 2 * ech;
+  trait(cx, cy, cx, py(-9), 3, T().support);
+  ctx.fillStyle = '#8d6e63';
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, 7); ctx.fill();
+  ctx.strokeStyle = '#5d4037'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, 7); ctx.stroke();
+  etiquette(x, -10.8, `balle ${fmt(d, 0)} cm`);
+}
+
+function dessinerStenope(x) {
+  const cx = px(x);
+  const coul = etat.theme === 'sombre' ? '#546e7a' : '#37474f';
+  trait(cx, py(11), cx, py(0.5), 5, coul);
+  trait(cx, py(-0.5), cx, py(-9), 5, coul);
+  ctx.fillStyle = T().doux; ctx.font = 'bold 10px sans-serif';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  etiquette(x, 12.4, 'sténopé (petit trou)');
+}
+
+function dessinerLentille(x, f) {
+  const cx = px(x), demiH = 8 * ech;
+  ctx.strokeStyle = '#42a5f5'; ctx.lineWidth = 3; ctx.lineCap = 'round';
+  ctx.fillStyle = 'rgba(66,165,245,.12)';
+  ctx.beginPath();
+  ctx.ellipse(cx, py(0), 7, demiH, 0, 0, 7);
+  ctx.fill(); ctx.stroke();
+  // flèches de convergence aux extrémités
+  for (const s of [1, -1]) {
+    ctx.beginPath();
+    ctx.moveTo(cx - 6, py(0) - s * demiH + s * 8);
+    ctx.lineTo(cx, py(0) - s * demiH);
+    ctx.lineTo(cx + 6, py(0) - s * demiH + s * 8);
+    ctx.stroke();
+  }
+  // foyers F (avant) et F' (après)
+  for (const [xf, nom] of [[x - f, 'F'], [x + f, 'F’']]) {
+    if (xf < 1 || xf > BANC_MAX - 1) continue;
+    ctx.fillStyle = '#1565c0';
+    ctx.beginPath(); ctx.arc(px(xf), py(0), 3.2, 0, 7); ctx.fill();
+    ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(nom, px(xf), py(0) + 14);
+  }
+  etiquette(x, 10.4, `lentille f = ${fmt(f, 0)} cm`);
+}
+
+function dessinerEcran(x) {
+  const cx = px(x);
+  const hHaut = py(10), hBas = py(-10);
+  trait(cx, hBas, cx, py(-11.5), 3, T().support);
+  ctx.fillStyle = T().ecran;
+  ctx.strokeStyle = T().ecranBord; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.roundRect(cx - 3, hHaut, 7, hBas - hHaut, 3);
+  ctx.fill(); ctx.stroke();
+
+  // Ombre portée sur l'écran
+  if (scn.ombre && scn.ombre.x === x) {
+    const demi = Math.min(scn.ombre.demi, 10);
+    ctx.fillStyle = T().ombre;
+    ctx.fillRect(cx - 3, py(demi), 7, py(-demi) - py(demi));
+    etiquette(x, -11.8, `ombre : ${fmt(2 * scn.ombre.demi)} cm`);
+  }
+
+  // Image sur l'écran (sténopé ou lentille)
+  if (scn.image && scn.image.surEcran) {
+    const hI = scn.image.h;
+    if (scn.config === 'stenope') {
+      dessinerFlecheObjet(x, hI, '#e53935', 0.9, false);
+      etiquette(x, hI - 1.8, `image renversée : ${fmt(Math.abs(hI))} cm`);
+    } else {
+      const alpha = scn.nette ? 0.95 : Math.max(0.25, 0.95 - scn.flou * 0.22);
+      const etal = scn.nette ? 0 : Math.min(scn.flou, 5);
+      // image floue : plusieurs copies décalées
+      for (const dx of etal ? [-etal, 0, etal] : [0])
+        dessinerFlecheObjet(x + dx * 0.35, hI, '#e53935', alpha / (etal ? 2 : 1), false);
+      etiquette(x, hI + (hI > 0 ? 1.8 : -1.8),
+        scn.nette ? `image NETTE : ${fmt(Math.abs(hI))} cm, renversée` : 'image floue… déplace l’écran !',
+        scn.nette ? '#2e7d32' : '#e65100');
+    }
+  }
+}
+
+/* =====================================================================
+   5. INTERACTIONS — glisser les éléments le long du banc
+   ===================================================================== */
+
+let pointerDepart = null;
+
+canvas.addEventListener('pointerdown', e => {
+  e.preventDefault();
+  canvas.setPointerCapture(e.pointerId);
+  const r = canvas.getBoundingClientRect();
+  const xCm = cmDeX(e.clientX - r.left);
+  pointerDepart = { x: e.clientX, y: e.clientY };
+  // élément le plus proche horizontalement (zone de prise généreuse : tactile)
+  let type = null, dMin = 5;
+  for (const t of Object.keys(etat.elems)) {
+    if (!etat.elems[t]) continue;
+    const d = Math.abs(etat.elems[t].x - xCm);
+    if (d < dMin) { dMin = d; type = t; }
+  }
+  etat.drag = type ? { type, decalage: etat.elems[type].x - xCm } : null;
+});
+
+canvas.addEventListener('pointermove', e => {
+  if (!etat.drag) return;
+  const r = canvas.getBoundingClientRect();
+  const xCm = cmDeX(e.clientX - r.left) + etat.drag.decalage;
+  etat.elems[etat.drag.type].x = Math.max(2, Math.min(BANC_MAX - 2, Math.round(xCm * 2) / 2));
+  if (etat.selection === etat.drag.type) majRegbar();
+  recalculer(); demanderRendu(); evaluerMission();
+});
+
+canvas.addEventListener('pointerup', e => {
+  const d = etat.drag; etat.drag = null;
+  const dist = pointerDepart ? Math.hypot(e.clientX - pointerDepart.x, e.clientY - pointerDepart.y) : 99;
+  if (dist < 9) {           // appui simple : sélection / désélection
+    if (d) selectionner(d.type); else deselectionner();
+  }
+  demanderRendu();
+});
+canvas.addEventListener('pointercancel', () => { etat.drag = null; });
+canvas.addEventListener('contextmenu', e => e.preventDefault());
+
+// ---- Sélection & réglages ----
+const regbar = document.getElementById('regbar');
+const regCurseur = document.getElementById('reg-curseur');
+
+function selectionner(type) {
+  etat.selection = type;
+  majRegbar();
+  regbar.classList.add('visible');
+  demanderRendu();
+}
+function deselectionner() {
+  etat.selection = null;
+  regbar.classList.remove('visible');
+  demanderRendu();
+}
+function majRegbar() {
+  const type = etat.selection;
+  if (!type || !etat.elems[type]) return;
+  const outil = OUTILS.find(o => o.id === type);
+  const reg = REGLAGES[type];
+  document.getElementById('reg-nom').textContent = outil.nom;
+  if (reg) {
+    regCurseur.style.display = '';
+    regCurseur.min = reg.min; regCurseur.max = reg.max; regCurseur.step = 0.5;
+    regCurseur.value = etat.elems[type][reg.cle];
+    document.getElementById('reg-valeur').textContent =
+      `${reg.nom} ${fmt(etat.elems[type][reg.cle])} ${reg.unite}`;
+  } else {
+    regCurseur.style.display = 'none';
+    document.getElementById('reg-valeur').textContent = `x = ${fmt(etat.elems[type].x, 0)} cm`;
+  }
+}
+regCurseur.addEventListener('input', () => {
+  const type = etat.selection, reg = REGLAGES[type];
+  if (!type || !reg || !etat.elems[type]) return;
+  etat.elems[type][reg.cle] = parseFloat(regCurseur.value);
+  majRegbar();
+  recalculer(); demanderRendu(); evaluerMission();
+});
+document.getElementById('btn-retirer').addEventListener('click', () => {
+  if (etat.selection) etat.elems[etat.selection] = null;
+  deselectionner();
+  majPalette();
+  recalculer(); demanderRendu(); evaluerMission();
+});
+
+/* =====================================================================
+   6. PALETTE — un exemplaire par élément, familles exclusives
+   ===================================================================== */
+
+const palette = document.getElementById('palette');
+for (const outil of OUTILS) {
+  const btn = document.createElement('button');
+  const ic = document.createElement('canvas');
+  ic.width = 88; ic.height = 56;
+  ic.style.width = '44px'; ic.style.height = '28px';
+  const span = document.createElement('span');
+  span.textContent = outil.nom;
+  btn.append(ic, span);
+  btn.dataset.outil = outil.id;
+  btn.addEventListener('click', () => poserElement(outil.id));
+  palette.appendChild(btn);
+}
+
+function poserElement(type) {
+  if (etat.elems[type]) { selectionner(type); majPalette(); return; }
+  // familles exclusives : une seule source, un seul élément central
+  for (const t of Object.keys(etat.elems)) {
+    if (t !== type && etat.elems[t] && FAMILLES[t] === FAMILLES[type]) {
+      etat.elems[t] = null;
+      toast(`🔁 ${OUTILS.find(o => o.id === t).nom} retiré·e : un seul élément « ${FAMILLES[type]} » à la fois.`);
+    }
+  }
+  etat.elems[type] = JSON.parse(JSON.stringify(DEFAUTS[type]));
+  selectionner(type);
+  majPalette();
+  recalculer(); demanderRendu(); evaluerMission();
+}
+
+function majPalette() {
+  const autorises = outilsAutorises();
+  for (const btn of palette.children) {
+    const id = btn.dataset.outil;
+    btn.style.display = autorises.includes(id) ? '' : 'none';
+    btn.classList.toggle('actif', !!etat.elems[id]);
+    const c2d = btn.firstChild.getContext('2d');
+    c2d.setTransform(2, 0, 0, 2, 0, 0);
+    c2d.clearRect(0, 0, 44, 28);
+    dessinerIcone(c2d, id);
+  }
+}
+
+function dessinerIcone(c, id) {
+  const t = T();
+  c.lineWidth = 2; c.lineCap = 'round';
+  if (id === 'lampe') {
+    c.fillStyle = '#ffd54f'; c.beginPath(); c.arc(22, 13, 6, 0, 7); c.fill();
+    c.strokeStyle = '#f9a825';
+    for (const a of [0, 1, 2, 3, 4, 5]) {
+      const an = a * Math.PI / 3;
+      c.beginPath(); c.moveTo(22 + 8 * Math.cos(an), 13 + 8 * Math.sin(an));
+      c.lineTo(22 + 12 * Math.cos(an), 13 + 12 * Math.sin(an)); c.stroke();
+    }
+  } else if (id === 'objet') {
+    c.strokeStyle = '#e53935'; c.fillStyle = '#e53935';
+    c.beginPath(); c.moveTo(22, 25); c.lineTo(22, 8); c.stroke();
+    c.beginPath(); c.moveTo(22, 3); c.lineTo(17, 11); c.lineTo(27, 11); c.fill();
+  } else if (id === 'balle') {
+    c.fillStyle = '#8d6e63'; c.beginPath(); c.arc(22, 13, 8, 0, 7); c.fill();
+  } else if (id === 'stenope') {
+    c.strokeStyle = t.texte; c.lineWidth = 4;
+    c.beginPath(); c.moveTo(22, 2); c.lineTo(22, 11); c.stroke();
+    c.beginPath(); c.moveTo(22, 16); c.lineTo(22, 26); c.stroke();
+  } else if (id === 'lentille') {
+    c.strokeStyle = '#42a5f5'; c.fillStyle = 'rgba(66,165,245,.15)';
+    c.beginPath(); c.ellipse(22, 13, 4, 11, 0, 0, 7); c.fill(); c.stroke();
+  } else if (id === 'ecran') {
+    c.fillStyle = t.ecran; c.strokeStyle = t.ecranBord;
+    c.beginPath(); c.roundRect(19, 2, 6, 24, 2); c.fill(); c.stroke();
+  }
+}
+
+/* =====================================================================
+   7. PARCOURS PÉDAGOGIQUE — aligné sur les SA du programme PCT
+   (5ème SA4 → 4ème SA5-6 → 3ème SA6)
+   ===================================================================== */
+
+const El = () => etat.elems;
+const ordre = (...types) => {
+  const xs = types.map(t => El()[t] && El()[t].x);
+  return xs.every(x => x !== null && x !== undefined) && xs.every((x, i) => i === 0 || x > xs[i - 1]);
+};
+
+const MISSIONS = [
+  {
+    titre: 'La lampe',
+    outils: ['lampe'],
+    etapes: [
+      { texte: "Touche « Lampe » en bas pour la poser sur le banc, puis fais-la glisser avec ton doigt.",
+        test: () => !!El().lampe },
+    ],
+    retenir: "La lampe est une source de lumière : elle produit la lumière qu'elle envoie dans toutes les directions. Le Soleil, une bougie ou une torche sont aussi des sources.",
+    indice: "Touche le bouton « Lampe » dans la barre du bas, puis glisse la lampe le long du banc.",
+  },
+  {
+    titre: 'La lumière va tout droit',
+    outils: ['lampe', 'ecran'],
+    etapes: [
+      { texte: "Ajoute l'écran à droite de la lampe et observe les rayons.",
+        test: () => !!El().lampe && !!El().ecran && El().ecran.x > El().lampe.x + 5 },
+    ],
+    retenir: "Dans un milieu transparent et homogène (l'air), la lumière se propage en ligne droite. On la représente par des rayons : des droites fléchées qui partent de la source. (5ème — propagation rectiligne)",
+    indice: "Touche « Écran » puis place-le vers la droite du banc, après la lampe.",
+  },
+  {
+    titre: "L'ombre",
+    outils: ['lampe', 'balle', 'ecran'],
+    etapes: [
+      { texte: "Place la balle ENTRE la lampe et l'écran : une ombre apparaît sur l'écran !",
+        test: () => scn.config === 'ombre' && !!El().ecran },
+    ],
+    retenir: "La balle est opaque : elle bloque la lumière. Derrière elle, la lumière ne passe plus → c'est l'ombre. Sa forme prouve que la lumière va en ligne droite : les rayons qui frôlent la balle dessinent le contour de l'ombre.",
+    indice: "Touche « Balle », puis fais-la glisser entre la lampe et l'écran.",
+    diags: [
+      { si: () => !!El().balle && !!El().lampe && El().balle.x <= El().lampe.x + 1,
+        msg: "Ta balle est derrière la lampe ! Place-la ENTRE la lampe et l'écran." },
+      { si: () => !!El().balle && !!El().ecran && El().balle.x >= El().ecran.x - 1,
+        msg: "Ta balle est derrière l'écran : la lumière l'atteint sans être bloquée. Place-la avant l'écran." },
+    ],
+  },
+  {
+    titre: "Joue avec l'ombre",
+    outils: ['lampe', 'balle', 'ecran'],
+    etapes: [
+      { texte: "Rapproche la balle de la lampe : l'ombre doit devenir au moins 3 fois plus grande que la balle.",
+        test: () => scn.ombre && El().balle && (2 * scn.ombre.demi) >= 3 * El().balle.d && !!El().ecran },
+    ],
+    retenir: "Plus l'obstacle est près de la source, plus son ombre est grande — les rayons s'écartent en ligne droite depuis la lampe. C'est le principe du théâtre d'ombres et des ombres géantes au coucher du soleil !",
+    indice: "Fais glisser la balle vers la lampe et regarde l'étiquette « ombre : … cm » sur l'écran.",
+    diags: [
+      { si: () => scn.config !== 'ombre',
+        msg: "Il faut d'abord l'ombre : lampe, puis balle, puis écran, dans cet ordre." },
+    ],
+  },
+  {
+    titre: 'La chambre noire',
+    outils: ['objet', 'stenope', 'ecran'],
+    etapes: [
+      { texte: "Nouveau matériel ! Place l'objet lumineux (la flèche), puis le sténopé (plaque percée d'un petit trou), puis l'écran.",
+        test: () => scn.config === 'stenope' && scn.image && scn.image.surEcran },
+      { texte: "Regarde l'image sur l'écran : elle est à l'envers ! Sais-tu pourquoi ?",
+        test: () => scn.config === 'stenope' && scn.image && scn.image.surEcran &&
+                    !!El().objet && Math.abs(scn.image.h) > 0.3 },
+    ],
+    retenir: "C'est la chambre noire (4ème) : chaque point de l'objet envoie un rayon qui passe par le trou en ligne droite. Le haut de l'objet arrive en BAS de l'écran → l'image est renversée. C'est l'ancêtre de l'appareil photo !",
+    indice: "Ordre sur le banc : objet à gauche, sténopé au milieu, écran à droite. Suis le rayon rouge qui part de la pointe.",
+    diags: [
+      { si: () => !!El().objet && !!El().stenope && El().stenope.x <= El().objet.x + 2,
+        msg: "Le sténopé doit être APRÈS l'objet (à sa droite)." },
+      { si: () => !!El().stenope && !!El().ecran && El().ecran.x <= El().stenope.x + 1,
+        msg: "L'écran doit être APRÈS le sténopé pour recevoir l'image." },
+    ],
+  },
+  {
+    titre: 'Grande ou petite ?',
+    outils: ['objet', 'stenope', 'ecran'],
+    etapes: [
+      { texte: "Éloigne l'objet du trou : l'image doit devenir au moins 2 fois plus PETITE que l'objet.",
+        test: () => scn.config === 'stenope' && scn.image && scn.image.surEcran && !!El().objet &&
+                    Math.abs(scn.image.h) <= El().objet.h / 2 },
+      { texte: "Maintenant l'inverse : rapproche l'objet (ou éloigne l'écran) pour une image plus GRANDE que l'objet.",
+        test: () => scn.config === 'stenope' && scn.image && scn.image.surEcran && !!El().objet &&
+                    Math.abs(scn.image.h) >= El().objet.h * 1.2 },
+    ],
+    retenir: "La taille de l'image dépend des distances : image = objet × (distance trou-écran) ÷ (distance objet-trou). Les proportions (triangles semblables) sont partout en optique !",
+    indice: "Tout se joue avec les distances : objet loin du trou → image petite ; écran loin du trou → image grande.",
+  },
+  {
+    titre: 'La lentille convergente',
+    outils: ['objet', 'lentille', 'ecran'],
+    etapes: [
+      { texte: "Nouveau matériel : la lentille ! Place l'objet à gauche, la lentille au milieu. Observe les trois rayons colorés.",
+        test: () => scn.config === 'lentille' && !!El().objet && !!El().lentille &&
+                    El().lentille.x - El().objet.x > El().lentille.f + 1 },
+    ],
+    retenir: "Une lentille convergente fait converger les rayons. Trois rayons suffisent pour construire l'image : rouge (parallèle → passe par F'), vert (par le centre, non dévié), bleu (par F → ressort parallèle). F et F' sont les foyers. (3ème — l'optique au service de l'homme)",
+    indice: "Touche « Lentille » puis glisse-la pour que l'objet soit AVANT le foyer F (plus loin que F de la lentille).",
+    diags: [
+      { si: () => !!El().objet && !!El().lentille && El().lentille.x <= El().objet.x + 1,
+        msg: "La lentille doit être à droite de l'objet." },
+      { si: () => scn.config === 'lentille' && scn.image && !scn.image.reelle,
+        msg: "Ton objet est trop près de la lentille (entre F et la lentille). Éloigne-le au-delà de F." },
+    ],
+  },
+  {
+    titre: "Attrape l'image !",
+    outils: ['objet', 'lentille', 'ecran'],
+    etapes: [
+      { texte: "Déplace l'écran jusqu'à ce que l'image soit NETTE. (Suis le repère violet !)",
+        test: () => scn.config === 'lentille' && scn.nette },
+    ],
+    retenir: "L'image réelle se forme à un endroit précis : là où les rayons se croisent. L'écran placé exactement là capte une image nette ; trop près ou trop loin, elle est floue. C'est la mise au point d'un appareil photo !",
+    indice: "L'image nette se trouve là où les trois rayons colorés se croisent. Le repère violet t'indique l'endroit exact.",
+    diags: [
+      { si: () => scn.config === 'lentille' && scn.image && scn.image.reelle && scn.image.x > BANC_MAX,
+        msg: "L'image se forme au-delà du banc ! Rapproche la lentille de l'écran ou éloigne l'objet." },
+      { si: () => scn.config === 'lentille' && !!El().ecran && !!El().lentille && El().ecran.x <= El().lentille.x,
+        msg: "Ton écran est avant la lentille : place-le après, du côté où sortent les rayons." },
+    ],
+  },
+  {
+    titre: 'Plus grand que nature',
+    outils: ['objet', 'lentille', 'ecran'],
+    etapes: [
+      { texte: "Obtiens une image NETTE plus GRANDE que l'objet. Astuce : rapproche l'objet de la lentille (mais reste au-delà de F).",
+        test: () => scn.config === 'lentille' && scn.nette && scn.image && !!El().objet &&
+                    Math.abs(scn.image.h) >= El().objet.h * 1.3 },
+    ],
+    retenir: "Quand l'objet est entre F et 2F, l'image est plus grande que l'objet : c'est le principe du projecteur de cinéma et du vidéoprojecteur !",
+    indice: "Objet entre 1 et 2 focales de la lentille → grande image (mais loin !). N'oublie pas de replacer l'écran pour la netteté.",
+    diags: [
+      { si: () => scn.config === 'lentille' && scn.nette && scn.image && !!El().objet &&
+                  Math.abs(scn.image.h) < El().objet.h,
+        msg: "Ton image nette est plus petite que l'objet : rapproche l'objet de la lentille (juste au-delà de F)." },
+      { si: () => scn.config === 'lentille' && scn.image && scn.image.reelle && scn.image.x > BANC_MAX,
+        msg: "L'image sort du banc ! Réduis un peu la focale (sélectionne la lentille) ou ajuste les positions." },
+    ],
+  },
+  {
+    titre: 'Tout petit',
+    outils: ['objet', 'lentille', 'ecran'],
+    etapes: [
+      { texte: "Cette fois, obtiens une image NETTE plus PETITE que l'objet : éloigne bien l'objet de la lentille.",
+        test: () => scn.config === 'lentille' && scn.nette && scn.image && !!El().objet &&
+                    Math.abs(scn.image.h) <= El().objet.h * 0.75 },
+    ],
+    retenir: "Quand l'objet est loin (au-delà de 2F), l'image est petite et proche du foyer : c'est ce que font l'appareil photo et… ton œil ! Sa lentille (le cristallin) forme une petite image renversée sur la rétine.",
+    indice: "Objet très à gauche, lentille au milieu : l'image se forme juste après F', petite. Replace l'écran !",
+  },
+  {
+    titre: 'La loupe',
+    outils: ['objet', 'lentille', 'ecran'],
+    etapes: [
+      { texte: "Approche l'objet TOUT près de la lentille (entre F et la lentille). Que devient l'image ?",
+        test: () => scn.config === 'lentille' && scn.image && !scn.image.reelle },
+    ],
+    retenir: "Objet plus près que le foyer F → les rayons ne se croisent plus ! Ils semblent venir d'une image virtuelle : droite, agrandie, du même côté que l'objet. Impossible à capter sur un écran, mais visible à l'œil : c'est la loupe !",
+    indice: "Glisse l'objet entre le point F et la lentille. L'image apparaît en pointillés violets, côté objet.",
+    diags: [
+      { si: () => scn.config === 'lentille' && scn.image && scn.image.reelle,
+        msg: "L'objet est encore trop loin : approche-le encore, jusqu'à passer plus près que le foyer F." },
+    ],
+  },
+  {
+    titre: 'Défi : le projecteur',
+    outils: ['objet', 'lentille', 'ecran'],
+    etapes: [
+      { texte: "Défi final : projette une image NETTE d'au moins 8 cm sur l'écran. À toi de tout régler (positions, focale, hauteur) !",
+        test: () => scn.config === 'lentille' && scn.nette && scn.image && Math.abs(scn.image.h) >= 8 },
+    ],
+    retenir: "Bravo, parcours terminé 💪 Tu sais construire une ombre, une chambre noire et une image par lentille — tout le programme d'optique du collège. Explore maintenant le Mode libre !",
+    indice: "Grande image = objet juste au-delà de F. Essaie : lentille f = 10 cm vers x = 35, objet vers x = 22, et cherche la netteté avec l'écran.",
+    diags: [
+      { si: () => scn.config === 'lentille' && scn.image && scn.image.reelle && scn.image.x > BANC_MAX,
+        msg: "L'image sort du banc ! Diminue la focale ou avance un peu l'objet." },
+    ],
+  },
+];
+
+/* ---- Moteur de progression (même architecture que le circuit) ---- */
+const progression = { m: 0, etape: 0, faites: [] };
+
+function chargerProgression() {
+  try {
+    const d = JSON.parse(localStorage.getItem('ike-optique-progression'));
+    if (d) {
+      if (d.m === 'libre' || (Number.isInteger(d.m) && d.m >= 0 && d.m < MISSIONS.length))
+        progression.m = d.m;
+      if (Array.isArray(d.faites)) progression.faites = d.faites.filter(Number.isInteger);
+    }
+  } catch (e) {}
+}
+function sauverProgression() {
+  try {
+    localStorage.setItem('ike-optique-progression',
+      JSON.stringify({ m: progression.m, faites: progression.faites }));
+  } catch (e) {}
+}
+function missionCourante() { return progression.m === 'libre' ? null : MISSIONS[progression.m]; }
+function outilsAutorises() {
+  const m = missionCourante();
+  return m ? m.outils : OUTILS.map(o => o.id);
+}
+
+function evaluerMission() {
+  const m = missionCourante();
+  if (!m || progression.etape >= m.etapes.length) return;
+  if (document.querySelector('.voile.visible')) return;
+  let avance = false;
+  while (progression.etape < m.etapes.length && m.etapes[progression.etape].test()) {
+    progression.etape++;
+    avance = true;
+  }
+  if (!avance) { majDiagnostic(m); return; }
+  masquerDiagnostic();
+  resetEtapeTimer();
+  if (progression.etape >= m.etapes.length) {
+    if (!progression.faites.includes(progression.m)) {
+      progression.faites.push(progression.m);
+      sauverProgression();
+    }
+    ouvrirFin(m);
+  } else {
+    toast(`✅ Étape ${progression.etape} réussie ! Lis la suite ⬆`);
+    const bar = document.getElementById('mbar');
+    bar.classList.remove('flash'); void bar.offsetWidth; bar.classList.add('flash');
+  }
+  majMissionBar();
+}
+
+function majDiagnostic(m) {
+  const d = document.getElementById('mdiag');
+  const hit = (m.diags || []).find(x => x.si());
+  if (!hit) { masquerDiagnostic(); return; }
+  const msg = '🤔 ' + hit.msg;
+  if (d.textContent !== msg || !d.classList.contains('visible')) {
+    d.textContent = msg;
+    d.classList.add('visible');
+    redimensionner();
+  }
+}
+function masquerDiagnostic() {
+  const d = document.getElementById('mdiag');
+  if (d.classList.contains('visible')) { d.classList.remove('visible'); redimensionner(); }
+}
+
+function allerMission(m) {
+  progression.m = m;
+  progression.etape = 0;
+  sauverProgression();
+  resetEtapeTimer();
+  masquerDiagnostic();
+  deselectionner();
+  fermerVoiles();
+  document.getElementById('mindice').classList.remove('visible');
+  majPalette();
+  majMissionBar();
+  recalculer(); demanderRendu();
+}
+
+function majMissionBar() {
+  const m = missionCourante();
+  const l2 = document.querySelector('#mbar .l2');
+  if (!m) {
+    document.getElementById('mchip').textContent = '🧪';
+    document.getElementById('mtitre').textContent = 'Mode libre — expérimente !';
+    l2.style.display = 'none';
+  } else {
+    document.getElementById('mchip').textContent = `Mission ${progression.m + 1}/${MISSIONS.length}`;
+    document.getElementById('mtitre').textContent = m.titre;
+    l2.style.display = '';
+    const fini = progression.etape >= m.etapes.length;
+    const pts = document.getElementById('mpoints');
+    pts.innerHTML = '';
+    if (m.etapes.length > 1) {
+      m.etapes.forEach((e2, i) => {
+        const p = document.createElement('span');
+        p.className = 'pt' + (i < progression.etape ? ' faite' : i === progression.etape ? ' courante' : '');
+        pts.appendChild(p);
+      });
+    }
+    const metape = document.getElementById('metape');
+    metape.textContent = fini ? '🎉 Mission terminée ! Passe à la suivante.' : m.etapes[progression.etape].texte;
+    metape.classList.remove('glisse'); void metape.offsetWidth; metape.classList.add('glisse');
+    document.getElementById('mcompteur').textContent =
+      m.etapes.length > 1 && !fini ? `étape ${progression.etape + 1}/${m.etapes.length}` : '';
+    document.getElementById('mindice').textContent = '💡 ' + m.indice;
+  }
+  redimensionner();
+}
+
+function fermerVoiles() {
+  for (const v of document.querySelectorAll('.voile')) v.classList.remove('visible');
+}
+
+function ouvrirFin(m) {
+  const derniere = progression.m === MISSIONS.length - 1;
+  document.getElementById('mfin-titre').textContent = `Mission ${progression.m + 1} — ${m.titre}`;
+  document.getElementById('mfin-retenir').textContent = m.retenir;
+  document.getElementById('btn-suivante').textContent =
+    derniere ? '🧪 Continuer en Mode libre' : 'Mission suivante ▶';
+  document.getElementById('mfin').classList.add('visible');
+}
+
+document.getElementById('btn-suivante').addEventListener('click', () => {
+  const derniere = progression.m === MISSIONS.length - 1;
+  allerMission(derniere ? 'libre' : progression.m + 1);
+});
+document.getElementById('btn-liste2').addEventListener('click', () => { fermerVoiles(); ouvrirListe(); });
+
+function ouvrirListe() {
+  const cont = document.getElementById('mliste-items');
+  cont.innerHTML = '';
+  MISSIONS.forEach((m, i) => {
+    const row = document.createElement('button');
+    row.className = 'mrow'
+      + (progression.faites.includes(i) ? ' faite' : '')
+      + (progression.m === i ? ' courante' : '');
+    const n = document.createElement('span');
+    n.className = 'n';
+    n.textContent = progression.faites.includes(i) ? '✓' : (i + 1) + '.';
+    const t = document.createElement('span');
+    t.className = 't';
+    t.textContent = m.titre;
+    row.append(n, t);
+    row.addEventListener('click', () => allerMission(i));
+    cont.appendChild(row);
+  });
+  document.getElementById('mliste').classList.add('visible');
+}
+
+document.getElementById('btn-missions').addEventListener('click', ouvrirListe);
+document.getElementById('btn-libre').addEventListener('click', () => allerMission('libre'));
+document.getElementById('btn-fermer-liste').addEventListener('click', fermerVoiles);
+
+const btnResetProg = document.getElementById('btn-reset-prog');
+let confirmReset = null;
+btnResetProg.addEventListener('click', () => {
+  if (confirmReset) {
+    clearTimeout(confirmReset); confirmReset = null;
+    btnResetProg.textContent = '↺ Réinitialiser tout le parcours';
+    progression.faites = [];
+    for (const t of Object.keys(etat.elems)) etat.elems[t] = null;
+    allerMission(0);
+    try { localStorage.removeItem('ike-optique-visite'); } catch (e) {}
+    lancerVisite();
+  } else {
+    btnResetProg.textContent = 'Sûr ? Touche encore une fois';
+    confirmReset = setTimeout(() => {
+      confirmReset = null;
+      btnResetProg.textContent = '↺ Réinitialiser tout le parcours';
+    }, 2500);
+  }
+});
+
+for (const v of document.querySelectorAll('.voile'))
+  v.addEventListener('click', e => { if (e.target === v) v.classList.remove('visible'); });
+
+document.getElementById('btn-indice').addEventListener('click', () => {
+  document.getElementById('btn-indice').classList.remove('pulse');
+  document.getElementById('mindice').classList.toggle('visible');
+  redimensionner();
+});
+
+let toastTimer = null;
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('visible');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('visible'), 1900);
+}
+
+/* ---- Coup de pouce après 45 s de blocage ---- */
+let etapeDebut = Date.now();
+let coupDePouceFait = false;
+function resetEtapeTimer() {
+  etapeDebut = Date.now();
+  coupDePouceFait = false;
+  document.getElementById('btn-indice').classList.remove('pulse');
+}
+setInterval(() => {
+  const m = missionCourante();
+  if (!m || progression.etape >= m.etapes.length || visiteIdx >= 0) return;
+  if (document.querySelector('.voile.visible')) return;
+  if (!coupDePouceFait && Date.now() - etapeDebut > 45000) {
+    coupDePouceFait = true;
+    document.getElementById('btn-indice').classList.add('pulse');
+    toast('💡 Besoin d\'aide ? Touche le bouton Indice !');
+  }
+}, 5000);
+
+/* =====================================================================
+   8. VISITE GUIDÉE
+   ===================================================================== */
+
+const VISITE = [
+  { cible: '#mbar', titre: '🎯 Ta mission',
+    texte: "Ta mission s'affiche ici : lis l'étape en cours et réalise-la sur le banc d'optique. Les points colorés montrent ta progression." },
+  { cible: '#palette', titre: '🧰 Le matériel',
+    texte: "Touche un élément pour le poser sur le banc : lampe, objet, lentille… De nouveaux éléments se débloquent au fil des missions !" },
+  { cible: '#scene', titre: '📏 Le banc d’optique',
+    texte: "Fais GLISSER les éléments le long du banc gradué (en cm) avec ton doigt. Les rayons lumineux se tracent tout seuls, en temps réel." },
+  { cible: null, titre: '🎛 Régler un élément',
+    texte: "👆 Touche un élément posé pour le sélectionner : un curseur apparaît en bas pour régler sa hauteur, son diamètre ou sa focale — et un bouton pour le retirer." },
+  { cible: '#btn-indice', titre: '💡 Bloqué ? Un indice !',
+    texte: "Ce bouton te donne un coup de pouce pour l'étape en cours. N'hésite jamais à l'utiliser !" },
+  { cible: '#btn-theme', titre: '🌙 Confort visuel',
+    texte: "Bascule entre thème clair et sombre. Ton choix est mémorisé sur l'appareil." },
+];
+let visiteIdx = -1;
+const visiteEl = document.getElementById('visite');
+
+function lancerVisite() {
+  fermerVoiles();
+  visiteIdx = 0;
+  visiteEl.style.display = 'block';
+  montrerEtapeVisite();
+}
+function fermerVisite() {
+  visiteIdx = -1;
+  visiteEl.style.display = 'none';
+  try { localStorage.setItem('ike-optique-visite', '1'); } catch (e) {}
+}
+function montrerEtapeVisite() {
+  const et = VISITE[visiteIdx];
+  const halo = document.getElementById('visite-halo');
+  const carte = document.getElementById('visite-carte');
+  let rc = null;
+  if (et.cible) {
+    const el = document.querySelector(et.cible);
+    const r = el && el.getBoundingClientRect();
+    if (r && r.width > 0) rc = r;
+  }
+  if (rc) {
+    visiteEl.classList.remove('sombre');
+    halo.style.display = 'block';
+    halo.style.left = (rc.left - 6) + 'px';
+    halo.style.top = (rc.top - 6) + 'px';
+    halo.style.width = (rc.width + 12) + 'px';
+    halo.style.height = (rc.height + 12) + 'px';
+  } else {
+    visiteEl.classList.add('sombre');
+    halo.style.display = 'none';
+  }
+  carte.querySelector('.vtitre').textContent = et.titre;
+  carte.querySelector('.vtexte').textContent = et.texte;
+  carte.querySelector('.vprog').textContent = `${visiteIdx + 1}/${VISITE.length}`;
+  document.getElementById('visite-suivant').textContent =
+    visiteIdx === VISITE.length - 1 ? "C'est parti !" : 'Suivant';
+  requestAnimationFrame(() => {
+    const cw = carte.offsetWidth, ch = carte.offsetHeight;
+    let x, y;
+    if (rc) {
+      y = rc.bottom + 14;
+      if (y + ch > window.innerHeight - 10) y = rc.top - ch - 14;
+      if (y < 10) y = Math.max(10, (window.innerHeight - ch) / 2);
+      x = Math.max(10, Math.min(window.innerWidth - cw - 10, rc.left + rc.width / 2 - cw / 2));
+    } else {
+      x = (window.innerWidth - cw) / 2;
+      y = (window.innerHeight - ch) / 2;
+    }
+    carte.style.left = x + 'px';
+    carte.style.top = y + 'px';
+  });
+}
+document.getElementById('visite-suivant').addEventListener('click', () => {
+  visiteIdx++;
+  if (visiteIdx >= VISITE.length) fermerVisite(); else montrerEtapeVisite();
+});
+document.getElementById('visite-passer').addEventListener('click', fermerVisite);
+visiteEl.addEventListener('click', e => {
+  if (e.target === visiteEl || e.target.id === 'visite-halo')
+    document.getElementById('visite-suivant').click();
+});
+window.addEventListener('resize', () => { if (visiteIdx >= 0) montrerEtapeVisite(); });
+document.getElementById('btn-aide').addEventListener('click', lancerVisite);
+
+/* =====================================================================
+   9. THÈME & EN-TÊTE
+   ===================================================================== */
+
+function appliquerTheme() {
+  document.body.classList.toggle('sombre', etat.theme === 'sombre');
+  document.getElementById('btn-theme').innerHTML =
+    etat.theme === 'sombre' ? '☀️<span class="lbl"> Clair</span>' : '🌙<span class="lbl"> Sombre</span>';
+  majPalette();
+  demanderRendu();
+}
+document.getElementById('btn-theme').addEventListener('click', () => {
+  etat.theme = etat.theme === 'sombre' ? 'clair' : 'sombre';
+  try { localStorage.setItem('ike-theme', etat.theme); } catch (e) {}
+  appliquerTheme();
+});
+try {
+  const memo = localStorage.getItem('ike-theme') || localStorage.getItem('ike-circuit-theme');
+  if (memo === 'sombre' || memo === 'clair') etat.theme = memo;
+  else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
+    etat.theme = 'sombre';
+} catch (e) {}
+
+const btnEffacer = document.getElementById('btn-effacer');
+let confirmEffacer = null;
+btnEffacer.addEventListener('click', () => {
+  if (confirmEffacer) {
+    clearTimeout(confirmEffacer); confirmEffacer = null;
+    btnEffacer.innerHTML = '🗑<span class="lbl"> Effacer</span>';
+    for (const t of Object.keys(etat.elems)) etat.elems[t] = null;
+    deselectionner(); majPalette();
+    recalculer(); demanderRendu(); evaluerMission();
+  } else {
+    btnEffacer.textContent = 'Sûr ?';
+    confirmEffacer = setTimeout(() => {
+      confirmEffacer = null;
+      btnEffacer.innerHTML = '🗑<span class="lbl"> Effacer</span>';
+    }, 2500);
+  }
+});
+
+/* =====================================================================
+   Démarrage
+   ===================================================================== */
+chargerProgression();
+window.addEventListener('resize', redimensionner);
+redimensionner();
+appliquerTheme();
+majMissionBar();
+recalculer();
+requestAnimationFrame(boucle);
+
+setTimeout(() => {
+  const s = document.getElementById('splash');
+  s.classList.add('fini');
+  setTimeout(() => s.remove(), 600);
+  try {
+    if (!localStorage.getItem('ike-optique-visite')) lancerVisite();
+  } catch (e) { lancerVisite(); }
+}, 1400);
+</script>
+</body>
+</html>

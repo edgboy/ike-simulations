@@ -101,6 +101,40 @@ sont des mécaniques réutilisables dans toutes les futures simulations.
 
 ---
 
+## Simulation 2 : Banc d'optique (2026-07, v2.0.0)
+
+### Décision : un banc continu (et non une grille)
+- **Choix** : les éléments glissent librement le long d'un banc gradué de 0 à 100 cm
+  (position arrondie au demi-cm) ; un seul élément par famille (source / central / récepteur).
+- **Pourquoi** : l'optique est une physique de **distances continues** — la grille du circuit
+  n'a pas de sens ici. La règle « une seule famille à la fois » reflète le vrai banc d'optique
+  du laboratoire et garde la physique lisible. Le modèle d'interaction change, mais tout le
+  **socle pédagogique est identique** (voir ci-dessous).
+- **Réglages** : l'élément sélectionné affiche un curseur (hauteur de l'objet, diamètre de la
+  balle, focale de la lentille) — le geste « sélectionner → régler » remplace « inverser » du circuit.
+
+### Décision : physique analytique (pas de moteur générique)
+- Ombre : triangles semblables depuis la source ponctuelle. Sténopé : chaque rayon passe
+  en ligne droite par le trou. Lentille mince : `di = f·do/(do−f)`, grandissement `m = −di/do` ;
+  image virtuelle si `do < f`. **Netteté** : rayon de flou = ouverture × |écart écran-image| / distance image-lentille.
+- **Pourquoi** : trois configurations exactes suffisent au programme du collège ; les formules
+  sont celles des manuels, donc les valeurs affichées sont irréprochables. 12 tests Node valident tout.
+- Les trois **rayons de construction** (parallèle→F', centre, F→parallèle) sont colorés selon
+  la convention des manuels — l'élève retrouve exactement la figure du cours.
+
+### Le socle commun émerge (→ futur guide)
+Réutilisés à l'identique du circuit, sans modification de logique : écran de démarrage,
+moteur de missions (étapes-prédicats, diagnostics, indices, coup de pouce 45 s), visite guidée
+par projecteur, thème clair/sombre (clé partagée `ike-theme`), toasts, persistance localStorage.
+**C'est la « recette IKE »** : seuls changent le modèle physique, le rendu et le geste d'interaction.
+
+### Alignement programme
+Missions 1-4 : 5ᵉ SA4 (propagation rectiligne, ombres) · missions 5-6 : 4ᵉ SA5-6 (chambre noire)
+· missions 7-12 : 3ᵉ SA6 (lentilles : mise au point, projecteur, appareil photo/œil, loupe).
+Référence : `docs/programme-sa-pct.md`.
+
+---
+
 ## Intégration plateforme (à compléter quand la plateforme sera choisie)
 
 Options gardées ouvertes par le format « un fichier autonome » :

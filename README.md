@@ -26,11 +26,16 @@ Inspiration : [PhET Interactive Simulations](https://phet.colorado.edu) (Univers
 ```
 IKE Simulations/
 ├── README.md
+├── CHANGELOG.md                ← journal des versions (tags git + releases GitHub)
+├── index.html                  ← page d'accueil / catalogue des simulations
 ├── docs/
-│   └── journal-technique.md    ← décisions techniques (matière première du futur guide)
+│   ├── journal-technique.md    ← décisions techniques (matière première du futur guide)
+│   └── programme-sa-pct.md     ← programme officiel PCT (SA par promotion)
 └── simulations/
-    └── circuit-electrique/
-        └── index.html          ← simulation autonome : double-cliquer pour lancer
+    ├── circuit-electrique/
+    │   └── index.html          ← simulation autonome : double-cliquer pour lancer
+    └── optique/
+        └── index.html          ← banc d'optique (ombres, chambre noire, lentilles)
 ```
 
 ## Tester une simulation
@@ -52,8 +57,8 @@ L'historique complet est dans [CHANGELOG.md](CHANGELOG.md). Chaque version est u
 
 1. ✅ **Circuit électrique** (v1) : fils, piles, lampes, interrupteurs, ampèremètre — série/parallèle, court-circuit
 2. ✅ Circuit électrique v1.5 : **parcours de 10 missions progressives** (validation par le montage réel, outils débloqués au fur et à mesure, « À retenir » du programme, progression sauvegardée) + mode libre
-3. ⬜ Circuit électrique v2 : voltmètre, résistances, sauvegarde/chargement de montages
-4. ⬜ Deuxième simulation 2D (optique ou états de la matière) → faire émerger les patterns communs
+3. ✅ Deuxième simulation 2D : **Banc d'optique** (5ᵉ→3ᵉ, alignée sur les SA du programme) — les patterns communs sont identifiés (socle : missions, visite, diagnostics, thèmes)
+4. ⬜ Circuit électrique v2 : voltmètre, résistances, sauvegarde/chargement de montages
 5. ⬜ Prototype **labo 3D léger** (Three.js embarqué, low-poly) → valider la faisabilité sur Android bas de gamme
 6. ⬜ Choix de la plateforme e-learning → couche d'intégration (iframe + postMessage, ou SCORM/H5P si Moodle)
 7. ⬜ **Guide de création et d'intégration** rédigé à partir du journal technique et des simulations existantes

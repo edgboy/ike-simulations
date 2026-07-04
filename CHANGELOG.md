@@ -5,6 +5,24 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v2.0.0 — 2026-07-04
+
+🔍 **Deuxième simulation : le Banc d'optique** — le catalogue devient multi-simulations.
+
+- **Banc d'optique virtuel** (fichier autonome ~52 Ko) : lampe, objet lumineux, balle opaque,
+  sténopé, lentille convergente et écran, à faire glisser le long d'un banc gradué de 100 cm
+- Physique par **tracé de rayons analytique** : ombres (triangles semblables), chambre noire,
+  lentille mince (position d'image, grandissement, image virtuelle) et **netteté** selon la
+  position de l'écran — formules validées par 12 tests
+- **12 missions alignées sur le programme officiel** (voir `docs/programme-sa-pct.md`) :
+  propagation rectiligne et ombres (5ᵉ SA4) → chambre noire (4ᵉ SA5-6) → lentilles, projecteur,
+  appareil photo, loupe (3ᵉ SA6 « l'optique au service de l'homme »)
+- Trois rayons de construction colorés (convention des manuels), foyers F/F' affichés,
+  curseurs de réglage (hauteur, diamètre, focale), étiquettes de mesure en cm
+- Tout le socle pédagogique éprouvé du circuit : visite guidée, diagnostics, indices,
+  coup de pouce, thème sombre, progression sauvegardée
+- Page d'accueil : carte Optique activée ; programme PCT archivé dans `docs/`
+
 ## v1.8.1 — 2026-07-04
 
 - « ↺ Réinitialiser tout le parcours » relance aussi la **visite guidée** (pensé pour les
