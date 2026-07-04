@@ -113,6 +113,36 @@
   #wrap { flex:1; position:relative; overflow:hidden; }
   canvas#scene { position:absolute; inset:0; width:100%; height:100%; touch-action:none; display:block; }
 
+  /* Panneau formule en direct */
+  #formule {
+    position:absolute; top:10px; right:10px; z-index:5;
+    background:rgba(255,255,255,.94); border:1px solid #cfd8dc; border-radius:12px;
+    padding:10px 12px; max-width:min(280px, 56vw);
+    font-size:12px; line-height:1.65; color:#37474f;
+    box-shadow:0 3px 12px rgba(0,0,0,.12);
+  }
+  #formule .ftitre {
+    font-size:11px; font-weight:800; letter-spacing:.5px; color:#1565c0;
+    text-transform:uppercase; margin-bottom:4px;
+  }
+  #formule .fmath {
+    font-family:Consolas, "Courier New", monospace; font-size:11.5px;
+    background:#f4f7fb; border-radius:6px; padding:2px 6px; margin:2px 0;
+    white-space:nowrap; overflow-x:auto; display:block;
+  }
+  #formule .fres { font-weight:800; color:#2e7d32; }
+  #formule .fnote { font-size:11px; color:#90a4ae; font-style:italic; }
+  #formule .flex {
+    display:block; margin-top:6px; font-size:11px; font-weight:700;
+    color:#1565c0; text-decoration:underline; cursor:pointer;
+    background:none; border:none; padding:0;
+  }
+
+  /* Lexique */
+  .lex { margin-bottom:10px; }
+  .lex dt { font-size:13px; font-weight:800; color:#1565c0; margin-top:10px; }
+  .lex dd { font-size:12.5px; line-height:1.5; color:#37474f; margin:2px 0 0; }
+
   #toast {
     position:absolute; bottom:16px; left:50%;
     transform:translateX(-50%) translateY(10px) scale(.9);
@@ -250,6 +280,13 @@
   body.sombre #regbar .valeur { color:#cfd8dc; }
   body.sombre #regbar .nom { color:#64b5f6; }
   body.sombre #regbar button { background:#3a1f22; color:#ef9a9a; }
+  body.sombre #formule { background:rgba(28,38,46,.95); border-color:#3a4a56; color:#cfd8dc; }
+  body.sombre #formule .ftitre { color:#64b5f6; }
+  body.sombre #formule .fmath { background:#10181f; }
+  body.sombre #formule .fres { color:#81c784; }
+  body.sombre #formule .flex { color:#64b5f6; }
+  body.sombre .lex dt { color:#64b5f6; }
+  body.sombre .lex dd { color:#cfd8dc; }
   body.sombre .voile .carte, body.sombre #visite-carte { background:#1c262e; }
   body.sombre .voile .carte h2, body.sombre .vtitre { color:#64b5f6; }
   body.sombre .vtexte { color:#cfd8dc; }
@@ -268,12 +305,13 @@
   <div class="nom">IKE <span>Simulations</span></div>
   <div class="sub">Sciences au collège</div>
   <div class="barre"><div class="rempl"></div></div>
-  <div class="ver">v2.0.0</div>
+  <div class="ver">v2.1.0</div>
 </div>
 
 <header>
   <h1>🔍 Banc d'optique</h1>
   <div class="spacer"></div>
+  <button class="btn" id="btn-formule">📐<span class="lbl"> Formule</span></button>
   <button class="btn" id="btn-theme">🌙<span class="lbl"> Sombre</span></button>
   <button class="btn" id="btn-aide">❓<span class="lbl"> Aide</span></button>
   <button class="btn danger" id="btn-effacer">🗑<span class="lbl"> Effacer</span></button>
@@ -297,6 +335,7 @@
 
 <div id="wrap">
   <canvas id="scene"></canvas>
+  <div id="formule"></div>
   <div id="toast"></div>
   <div id="regbar">
     <span class="nom" id="reg-nom"></span>
@@ -326,6 +365,14 @@
     <button class="btn2" id="btn-libre">🧪 Mode libre — expérimente librement</button>
     <button class="go" id="btn-fermer-liste">Fermer</button>
     <button class="lien" id="btn-reset-prog">↺ Réinitialiser tout le parcours</button>
+  </div>
+</div>
+
+<div id="mlexique" class="voile">
+  <div class="carte">
+    <h2>📖 Lexique de l'optique</h2>
+    <dl class="lex" id="lex-items"></dl>
+    <button class="go" id="btn-fermer-lexique">Fermer</button>
   </div>
 </div>
 
@@ -608,6 +655,7 @@ function dessinerFlecheObjet(x, hCm, coul, alpha, pointille) {
 }
 
 function dessiner() {
+  majFormule();   // le panneau 📐 suit chaque changement du montage
   ctx.clearRect(0, 0, largeur, hauteur);
   const E = etat.elems;
 
@@ -1346,6 +1394,8 @@ const VISITE = [
     texte: "👆 Touche un élément posé pour le sélectionner : un curseur apparaît en bas pour régler sa hauteur, son diamètre ou sa focale — et un bouton pour le retirer." },
   { cible: '#btn-indice', titre: '💡 Bloqué ? Un indice !',
     texte: "Ce bouton te donne un coup de pouce pour l'étape en cours. N'hésite jamais à l'utiliser !" },
+  { cible: '#formule', titre: '📐 La formule en direct',
+    texte: "Ce panneau montre la formule de TON montage, avec tes valeurs dedans et le calcul déroulé. Déplace un élément : le calcul se refait sous tes yeux ! Le lien « Lexique » explique tous les termes techniques. (Le bouton 📐 en haut le masque ou l'affiche.)" },
   { cible: '#btn-theme', titre: '🌙 Confort visuel',
     texte: "Bascule entre thème clair et sombre. Ton choix est mémorisé sur l'appareil." },
 ];
@@ -1416,6 +1466,122 @@ visiteEl.addEventListener('click', e => {
 });
 window.addEventListener('resize', () => { if (visiteIdx >= 0) montrerEtapeVisite(); });
 document.getElementById('btn-aide').addEventListener('click', lancerVisite);
+
+/* =====================================================================
+   8bis. FORMULES EN DIRECT & LEXIQUE
+   ---------------------------------------------------------------------
+   Le panneau 📐 affiche la formule du montage EN COURS, avec les valeurs
+   de l'élève substituées et le calcul déroulé : on apprend à utiliser
+   une formule en la voyant travailler sur SON expérience.
+   ===================================================================== */
+
+let formuleVisible = true;
+try { formuleVisible = localStorage.getItem('ike-optique-formule') !== 'non'; } catch (e) {}
+
+function majFormule() {
+  const f = document.getElementById('formule');
+  if (!formuleVisible) { f.style.display = 'none'; return; }
+  f.style.display = '';
+  const E = etat.elems;
+  const l = [];
+  const math = t => l.push(`<span class="fmath">${t}</span>`);
+  const res = t => l.push(`<span class="fmath fres">${t}</span>`);
+  const note = t => l.push(`<span class="fnote">${t}</span>`);
+  const titre = t => l.push(`<div class="ftitre">📐 ${t}</div>`);
+
+  if (scn.config === 'ombre' && scn.ombre) {
+    titre('Formule de l\'ombre');
+    if (E.ecran) {
+      const dLE = E.ecran.x - E.lampe.x, dLB = scn.ombre.xb - E.lampe.x;
+      math('ombre = Ø × (lampe→écran) ÷ (lampe→balle)');
+      math(`ombre = ${fmt(E.balle.d, 0)} × ${fmt(dLE, 0)} ÷ ${fmt(dLB, 0)}`);
+      res(`ombre = ${fmt(2 * scn.ombre.demi)} cm`);
+      note('Triangles semblables : les rayons partent de la lampe en ligne droite.');
+    } else {
+      math('ombre = Ø × (lampe→écran) ÷ (lampe→balle)');
+      note('Ajoute l\'écran pour mesurer ton ombre !');
+    }
+  } else if (scn.config === 'stenope') {
+    titre('Formule de la chambre noire');
+    if (scn.image && scn.image.surEcran) {
+      const dTE = E.ecran.x - E.stenope.x, dOT = E.stenope.x - E.objet.x;
+      math('image = objet × (trou→écran) ÷ (objet→trou)');
+      math(`image = ${fmt(E.objet.h, 0)} × ${fmt(dTE, 0)} ÷ ${fmt(dOT, 0)}`);
+      res(`image = ${fmt(Math.abs(scn.image.h))} cm, renversée`);
+      note('Chaque rayon passe tout droit par le trou : haut et bas s\'échangent.');
+    } else {
+      math('image = objet × (trou→écran) ÷ (objet→trou)');
+      note('Ajoute l\'écran derrière le sténopé pour capter l\'image !');
+    }
+  } else if (scn.config === 'lentille' && E.lentille && E.objet) {
+    const dO = E.lentille.x - E.objet.x, fc = E.lentille.f;
+    titre('Formules de la lentille');
+    note(`d<sub>o</sub> : objet→lentille = ${fmt(dO)} cm · f : focale = ${fmt(fc, 0)} cm`);
+    if (Math.abs(dO - fc) < 0.4) {
+      math('d<sub>o</sub> = f → rayons parallèles');
+      note('Objet au foyer : les rayons ne se croisent jamais, pas d\'image !');
+    } else if (scn.image) {
+      math('d<sub>i</sub> = (f × d<sub>o</sub>) ÷ (d<sub>o</sub> − f)');
+      math(`d<sub>i</sub> = (${fmt(fc, 0)} × ${fmt(dO)}) ÷ (${fmt(dO)} − ${fmt(fc, 0)})`);
+      if (scn.image.reelle) {
+        res(`d<sub>i</sub> = ${fmt(scn.image.x - E.lentille.x)} cm → image à ${fmt(scn.image.x)} cm`);
+        math(`γ = d<sub>i</sub> ÷ d<sub>o</sub> = ${fmt(Math.abs(scn.image.h) / E.objet.h)}`);
+        res(`image = ${fmt(Math.abs(scn.image.h))} cm, renversée`);
+      } else {
+        res(`d<sub>i</sub> = ${fmt(scn.image.x - E.lentille.x)} cm (négatif !)`);
+        note('d<sub>o</sub> < f → image VIRTUELLE : droite, agrandie, côté objet. C\'est la loupe !');
+        math(`γ = ${fmt(Math.abs(scn.image.h) / E.objet.h)} → image ${fmt(Math.abs(scn.image.h))} cm`);
+      }
+    }
+  } else if (scn.config === 'faisceau') {
+    titre('Propagation rectiligne');
+    note('La lumière avance en ligne droite. Ajoute une balle pour calculer une ombre !');
+  } else {
+    titre('Formule du montage');
+    note('Pose des éléments sur le banc : la formule s\'affichera ici, calculée avec TES valeurs.');
+  }
+  l.push('<button class="flex" id="btn-lexique">📖 Lexique des termes</button>');
+  f.innerHTML = l.join('');
+  document.getElementById('btn-lexique').addEventListener('click', ouvrirLexique);
+}
+
+document.getElementById('btn-formule').addEventListener('click', () => {
+  formuleVisible = !formuleVisible;
+  try { localStorage.setItem('ike-optique-formule', formuleVisible ? 'oui' : 'non'); } catch (e) {}
+  majFormule();
+});
+
+/* ---- Lexique (langage collège, exemples pris dans la simulation) ---- */
+const LEXIQUE = [
+  ['Source de lumière', 'Objet qui produit sa propre lumière : la lampe du banc, le Soleil, une bougie.'],
+  ['Rayon lumineux', 'Trait droit fléché qui représente le trajet de la lumière. La flèche indique le sens de propagation.'],
+  ['Propagation rectiligne', 'Dans un milieu transparent et homogène (l\'air), la lumière avance en ligne droite. C\'est ce que montrent tous les rayons du banc.'],
+  ['Opaque / transparent', 'Un objet opaque (la balle) bloque la lumière ; un objet transparent (l\'air, le verre) la laisse passer.'],
+  ['Ombre', 'Zone sombre derrière un objet opaque : la lumière, bloquée, ne peut pas y arriver.'],
+  ['Sténopé (chambre noire)', 'Plaque (ou boîte) percée d\'un tout petit trou. Chaque rayon y passe tout droit → l\'image se forme renversée. Ancêtre de l\'appareil photo.'],
+  ['Lentille convergente', 'Verre bombé qui fait converger (se rejoindre) les rayons lumineux. Loupe, appareil photo, œil…'],
+  ['Axe optique', 'Droite horizontale qui passe par le centre de la lentille (les pointillés du banc).'],
+  ['Centre optique (O)', 'Centre de la lentille. Un rayon qui passe par O n\'est pas dévié (le rayon vert).'],
+  ['Foyers F et F′', 'Points particuliers de l\'axe : les rayons parallèles convergent en F′ (après la lentille) ; un rayon passant par F ressort parallèle.'],
+  ['Distance focale (f)', 'Distance entre le centre O et un foyer. Petite focale = lentille très bombée, très puissante.'],
+  ['Image réelle', 'Image que l\'on peut capter sur un écran : les rayons s\'y croisent vraiment. Elle est renversée.'],
+  ['Image virtuelle', 'Image que l\'œil voit mais qu\'aucun écran ne peut capter (les rayons ne s\'y croisent pas vraiment). Celle de la loupe : droite et agrandie.'],
+  ['Grandissement (γ)', 'Hauteur de l\'image ÷ hauteur de l\'objet. γ = 2 : image deux fois plus grande ; γ = 0,5 : deux fois plus petite.'],
+  ['Mise au point', 'Placer l\'écran exactement là où l\'image est nette (là où les rayons se croisent).'],
+];
+
+function ouvrirLexique() {
+  const dl = document.getElementById('lex-items');
+  if (!dl.childElementCount) {
+    for (const [terme, def] of LEXIQUE) {
+      const dt = document.createElement('dt'); dt.textContent = terme;
+      const dd = document.createElement('dd'); dd.textContent = def;
+      dl.append(dt, dd);
+    }
+  }
+  document.getElementById('mlexique').classList.add('visible');
+}
+document.getElementById('btn-fermer-lexique').addEventListener('click', fermerVoiles);
 
 /* =====================================================================
    9. THÈME & EN-TÊTE

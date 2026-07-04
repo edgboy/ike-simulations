@@ -5,6 +5,19 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v2.1.0 — 2026-07-04
+
+Banc d'optique : **comprendre les termes et les formules**.
+
+- **📐 Panneau « Formule » en direct** : la formule du montage en cours s'affiche avec les
+  valeurs réelles de l'élève substituées et le calcul déroulé (ombre, chambre noire, relation
+  de conjugaison et grandissement de la lentille). Déplacer un élément recalcule tout sous
+  les yeux de l'élève. Masquable avec le bouton 📐, choix mémorisé. Cas particuliers expliqués
+  (objet au foyer → pas d'image ; dₒ < f → image virtuelle : la loupe).
+- **📖 Lexique** : 15 termes techniques définis en langage collège avec des exemples pris
+  dans la simulation (foyers, focale, image réelle/virtuelle, grandissement, mise au point…).
+- Nouvelle étape dans la visite guidée présentant le panneau formule et le lexique.
+
 ## v2.0.0 — 2026-07-04
 
 🔍 **Deuxième simulation : le Banc d'optique** — le catalogue devient multi-simulations.
