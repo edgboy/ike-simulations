@@ -98,6 +98,10 @@
   @keyframes indicepulse {
     50% { transform:scale(1.08); box-shadow:0 0 0 7px rgba(255,202,40,.3); }
   }
+  #btn-suiv2 {
+    background:#1565c0 !important; border-color:#1565c0 !important;
+    color:#fff !important; font-weight:700; white-space:nowrap;
+  }
   #mindice {
     display:none; margin-top:6px; background:#fff8e1; border:1px solid #ffe082;
     color:#795548; font-size:12.5px; border-radius:8px; padding:7px 10px; line-height:1.45;
@@ -305,7 +309,7 @@
   <div class="nom">IKE <span>Simulations</span></div>
   <div class="sub">Sciences au collège</div>
   <div class="barre"><div class="rempl"></div></div>
-  <div class="ver">v2.1.0</div>
+  <div class="ver">v2.2.0</div>
 </div>
 
 <header>
@@ -328,6 +332,7 @@
     <span id="metape"></span>
     <span id="mcompteur"></span>
     <button class="mbtn" id="btn-indice" title="Indice">💡 Indice</button>
+    <button class="mbtn" id="btn-suiv2" style="display:none">Suivante ▶</button>
   </div>
   <div id="mindice"></div>
   <div id="mdiag"></div>
@@ -365,6 +370,15 @@
     <button class="btn2" id="btn-libre">🧪 Mode libre — expérimente librement</button>
     <button class="go" id="btn-fermer-liste">Fermer</button>
     <button class="lien" id="btn-reset-prog">↺ Réinitialiser tout le parcours</button>
+  </div>
+</div>
+
+<div id="mlecon" class="voile">
+  <div class="carte">
+    <h2>📖 Avant de commencer…</h2>
+    <div id="mlecon-titre" style="font-weight:700; font-size:15px; margin-bottom:10px;"></div>
+    <p id="mlecon-texte" style="font-size:14px; line-height:1.65; margin-bottom:14px;"></p>
+    <button class="go" id="btn-go-lecon">C'est parti !</button>
   </div>
 </div>
 
@@ -1166,6 +1180,33 @@ const MISSIONS = [
   },
 ];
 
+// Mini-leçon d'introduction de chaque mission : elle pose le vocabulaire et
+// le contexte AVANT de manipuler — pour l'élève qui n'a pas encore fait le cours.
+const LECONS = [
+  "La lumière est partout, mais pour l'étudier il faut une source : un objet qui produit de la lumière, comme une lampe, le Soleil ou une bougie. Sur ton banc d'optique, ce sera la lampe.",
+  "On ne voit pas la lumière voyager : on la représente par des rayons, des droites fléchées qui partent de la source. Tu vas vérifier la grande règle de l'optique : la lumière se propage en ligne droite.",
+  "Un objet opaque, comme une balle, bloque la lumière. Derrière lui se cache une zone que la lumière ne peut pas atteindre : l'ombre. Tu vas en fabriquer une.",
+  "La taille d'une ombre n'est pas fixe ! Elle dépend des distances entre la lampe, l'obstacle et l'écran. Le panneau 📐 te montre le calcul pendant que tu manipules.",
+  "Nouvelle expérience : la chambre noire. Une simple plaque percée d'un tout petit trou (le sténopé) suffit à former une image sur un écran. Prépare-toi à une surprise…",
+  "L'image de la chambre noire change de taille selon les distances : c'est une histoire de proportions. Observe le panneau 📐 pendant que tu déplaces les éléments.",
+  "Voici la lentille convergente : un verre bombé qui fait converger les rayons. Repère ses deux foyers F et F′ sur l'axe : toute la suite se joue autour d'eux.",
+  "Une image réelle se forme à un endroit précis : là où les rayons se croisent. Pour la voir nette, l'écran doit être exactement à cet endroit. C'est ce qu'on appelle la mise au point !",
+  "La position de l'objet change tout. Quand il est entre F et 2F (entre une et deux focales), l'image devient plus grande que l'objet : c'est le secret du projecteur de cinéma.",
+  "Quand l'objet est loin de la lentille (au-delà de 2F), l'image est petite et se forme près du foyer. C'est exactement ainsi que fonctionnent l'appareil photo… et ton œil !",
+  "Et si l'objet est plus près que le foyer F ? Les rayons ne se croisent plus du tout… Prépare-toi à découvrir un nouveau type d'image : l'image virtuelle.",
+  "Défi final ! Utilise tout ce que tu as appris : positions, focale, mise au point. Le panneau 📐 et le lexique sont tes alliés. Bonne chance !",
+];
+
+function ouvrirLecon() {
+  const m = missionCourante();
+  if (!m || !LECONS[progression.m]) return;
+  document.getElementById('mlecon-titre').textContent =
+    `Mission ${progression.m + 1} — ${m.titre}`;
+  document.getElementById('mlecon-texte').textContent = LECONS[progression.m];
+  document.getElementById('mlecon').classList.add('visible');
+}
+document.getElementById('btn-go-lecon').addEventListener('click', fermerVoiles);
+
 /* ---- Moteur de progression (même architecture que le circuit) ---- */
 const progression = { m: 0, etape: 0, faites: [] };
 
@@ -1208,7 +1249,13 @@ function evaluerMission() {
       progression.faites.push(progression.m);
       sauverProgression();
     }
-    ouvrirFin(m);
+    // Laisser l'élève ADMIRER son résultat avant d'ouvrir le panneau
+    toast('🎉 Mission réussie ! Regarde ton banc…');
+    const mACeMoment = progression.m;
+    setTimeout(() => {
+      if (progression.m === mACeMoment && !document.querySelector('.voile.visible'))
+        ouvrirFin(m);
+    }, 2100);
   } else {
     toast(`✅ Étape ${progression.etape} réussie ! Lis la suite ⬆`);
     const bar = document.getElementById('mbar');
@@ -1242,9 +1289,14 @@ function allerMission(m) {
   deselectionner();
   fermerVoiles();
   document.getElementById('mindice').classList.remove('visible');
+  // Nettoyer le banc des éléments hors mission (ils embrouillent l'élève)
+  const autorises = outilsAutorises();
+  for (const t of Object.keys(etat.elems))
+    if (etat.elems[t] && !autorises.includes(t)) etat.elems[t] = null;
   majPalette();
   majMissionBar();
   recalculer(); demanderRendu();
+  if (m !== 'libre') ouvrirLecon();   // la mini-leçon pose le contexte
 }
 
 function majMissionBar() {
@@ -1274,6 +1326,8 @@ function majMissionBar() {
     document.getElementById('mcompteur').textContent =
       m.etapes.length > 1 && !fini ? `étape ${progression.etape + 1}/${m.etapes.length}` : '';
     document.getElementById('mindice').textContent = '💡 ' + m.indice;
+    document.getElementById('btn-indice').style.display = fini ? 'none' : '';
+    document.getElementById('btn-suiv2').style.display = fini ? '' : 'none';
   }
   redimensionner();
 }
@@ -1292,6 +1346,10 @@ function ouvrirFin(m) {
 }
 
 document.getElementById('btn-suivante').addEventListener('click', () => {
+  const derniere = progression.m === MISSIONS.length - 1;
+  allerMission(derniere ? 'libre' : progression.m + 1);
+});
+document.getElementById('btn-suiv2').addEventListener('click', () => {
   const derniere = progression.m === MISSIONS.length - 1;
   allerMission(derniere ? 'libre' : progression.m + 1);
 });
@@ -1412,6 +1470,8 @@ function fermerVisite() {
   visiteIdx = -1;
   visiteEl.style.display = 'none';
   try { localStorage.setItem('ike-optique-visite', '1'); } catch (e) {}
+  // Enchaîner sur la mini-leçon si la mission n'a pas encore commencé
+  if (missionCourante() && progression.etape === 0) ouvrirLecon();
 }
 function montrerEtapeVisite() {
   const et = VISITE[visiteIdx];

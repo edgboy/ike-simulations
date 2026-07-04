@@ -12,9 +12,9 @@ Inspiration : [PhET Interactive Simulations](https://phet.colorado.edu) (Univers
 
 | # | Principe | Pourquoi |
 |---|----------|----------|
-| 1 | **Un fichier HTML autonome par simulation** | Marche hors-ligne (double-clic), se distribue par clé USB, s'intègre partout (iframe, Moodle, PWA) |
-| 2 | **Zéro dépendance externe** (pas de CDN, pas de framework) | Pas d'internet requis, pas de version qui casse, taille minimale |
-| 3 | **Budget : < 500 Ko par simulation 2D** | Chargement rapide même en 2G/3G |
+| 1 | **Une simulation = un livrable autonome** (idéalement un seul fichier) | Marche hors-ligne (double-clic), se distribue par clé USB, s'intègre partout (iframe, Moodle, PWA) |
+| 2 | **Zéro dépendance réseau à l'exécution** — la techno est libre (bibliothèques type Three.js autorisées) tant qu'elle est **embarquée** dans le livrable et légère | Pas d'internet requis, pas de CDN qui casse ; on choisit l'outil adapté au besoin (3D incluse) |
+| 3 | **Budget : < 500 Ko par simulation 2D, < 1,5 Mo si 3D** | Chargement rapide même en 2G/3G |
 | 4 | **Tactile d'abord** (Pointer Events, cibles ≥ 48 px) | La majorité des élèves utiliseront un téléphone |
 | 5 | **60 fps sur bas de gamme** — Canvas 2D, redessin seulement si nécessaire | Fluidité = crédibilité pédagogique |
 | 6 | **Physique correcte** (vrais solveurs, pas d'animations truquées) | Les valeurs affichées doivent être justes ; l'élève peut expérimenter librement |

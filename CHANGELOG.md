@@ -5,6 +5,22 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v2.2.0 — 2026-07-04
+
+Retours utilisateurs (3ᵉ vague) :
+
+- **Savourer le succès** (les deux simulations) : à la réussite d'une mission, le panneau attend
+  ~2 secondes — l'élève voit d'abord ce qui a déclenché son succès (la lampe qui s'allume,
+  l'image nette…) avec un grand toast 🎉. Un bouton « Suivante ▶ » apparaît aussi dans la barre
+  de mission, pour ceux qui referment le panneau afin d'admirer leur montage.
+- **Optique : mini-leçons** — chaque mission s'ouvre sur 3-4 phrases qui posent le vocabulaire
+  et le contexte AVANT de manipuler, pour l'élève qui n'a pas encore fait le cours.
+  Le banc est nettoyé des éléments hors mission à chaque changement (moins de confusion).
+- **Charte technique assouplie** : plus de contrainte « HTML pur » — la règle devient
+  « zéro dépendance réseau à l'exécution et rester léger » (bibliothèques embarquées autorisées,
+  budget 3D < 1,5 Mo). La porte est officiellement ouverte au labo 3D.
+- Numéro de version unifié : les deux simulations affichent désormais la version du projet.
+
 ## v2.1.0 — 2026-07-04
 
 Banc d'optique : **comprendre les termes et les formules**.

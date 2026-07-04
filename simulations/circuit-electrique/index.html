@@ -144,6 +144,10 @@
   @keyframes indicepulse {
     50% { transform:scale(1.08); box-shadow:0 0 0 7px rgba(255,202,40,.3); }
   }
+  #btn-suiv2 {
+    background:#1565c0 !important; border-color:#1565c0 !important;
+    color:#fff !important; font-weight:700; white-space:nowrap;
+  }
   #mindice {
     display:none; margin-top:6px; background:#fff8e1; border:1px solid #ffe082;
     color:#795548; font-size:12.5px; border-radius:8px; padding:7px 10px; line-height:1.45;
@@ -288,7 +292,7 @@
   <div class="nom">IKE <span>Simulations</span></div>
   <div class="sub">Sciences au collège</div>
   <div class="barre"><div class="rempl"></div></div>
-  <div class="ver">v1.8.1</div>
+  <div class="ver">v2.2.0</div>
 </div>
 
 <header>
@@ -311,6 +315,7 @@
     <span id="metape"></span>
     <span id="mcompteur"></span>
     <button class="mbtn" id="btn-indice" title="Indice">💡 Indice</button>
+    <button class="mbtn" id="btn-suiv2" style="display:none">Suivante ▶</button>
   </div>
   <div id="mindice"></div>
   <div id="mdiag"></div>
@@ -1421,7 +1426,13 @@ function evaluerMission() {
       progression.faites.push(progression.m);
       sauverProgression();
     }
-    ouvrirFin(m);
+    // Laisser l'élève ADMIRER son résultat avant d'ouvrir le panneau
+    toast('🎉 Mission réussie ! Regarde ton montage…');
+    const mACeMoment = progression.m;
+    setTimeout(() => {
+      if (progression.m === mACeMoment && !document.querySelector('.voile.visible'))
+        ouvrirFin(m);
+    }, 2100);
   } else {
     toast(`✅ Étape ${progression.etape} réussie ! Lis la suite ⬆`);
     const bar = document.getElementById('mbar');
@@ -1500,6 +1511,8 @@ function majMissionBar() {
     document.getElementById('mcompteur').textContent =
       m.etapes.length > 1 && !fini ? `étape ${progression.etape + 1}/${m.etapes.length}` : '';
     document.getElementById('mindice').textContent = '💡 ' + m.indice;
+    document.getElementById('btn-indice').style.display = fini ? 'none' : '';
+    document.getElementById('btn-suiv2').style.display = fini ? '' : 'none';
   }
   redimensionner(); // la hauteur de la barre peut changer → recaler la grille
 }
@@ -1520,6 +1533,10 @@ function ouvrirFin(m) {
 }
 
 document.getElementById('btn-suivante').addEventListener('click', () => {
+  const derniere = progression.m === MISSIONS.length - 1;
+  allerMission(derniere ? 'libre' : progression.m + 1);
+});
+document.getElementById('btn-suiv2').addEventListener('click', () => {
   const derniere = progression.m === MISSIONS.length - 1;
   allerMission(derniere ? 'libre' : progression.m + 1);
 });
