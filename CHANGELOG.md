@@ -5,6 +5,17 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v1.8.0 — 2026-07-04
+
+Deuxième vague de retours utilisateurs :
+
+- **Diagnostic pédagogique** 🤔 : quand les actions de l'élève ne valident pas l'étape, la simulation
+  reconnaît les erreurs classiques et lui explique ce qui bloque — « il y a plus de deux lampes »,
+  « tes piles se combattent, inverse l'une des deux », « ton interrupteur coupe tout le circuit »,
+  « ton ampèremètre n'est pas dans la boucle »… (12 diagnostics couvrant 6 missions, validés par tests)
+- **Écran de mesure de l'ampèremètre** : dessiné au premier plan (jamais recouvert par le circuit)
+  et décalé perpendiculairement au fil (jamais superposé au conducteur), quel que soit le sens de pose
+
 ## v1.7.0 — 2026-07-04
 
 - **Thème sombre** 🌙 : bouton clair/sombre dans l'en-tête de la simulation, choix mémorisé sur l'appareil.

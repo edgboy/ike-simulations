@@ -149,6 +149,11 @@
     color:#795548; font-size:12.5px; border-radius:8px; padding:7px 10px; line-height:1.45;
   }
   #mindice.visible { display:block; }
+  #mdiag {
+    display:none; margin-top:6px; background:#fff3e0; border:1px solid #ffcc80;
+    color:#bf360c; font-size:12.5px; border-radius:8px; padding:7px 10px; line-height:1.45;
+  }
+  #mdiag.visible { display:block; animation:glisse .4s ease; }
 
   /* Toast de progression */
   #toast {
@@ -253,6 +258,7 @@
   body.sombre #mbar .mbtn { background:#22303a; border-color:#3a4a56; color:#cfd8dc; }
   body.sombre #btn-indice { background:#3a3220 !important; border-color:#8d6e63 !important; color:#ffd54f; }
   body.sombre #mindice { background:#2b2618; border-color:#5d4d1a; color:#ffe082; }
+  body.sombre #mdiag { background:#33261a; border-color:#7a5c3d; color:#ffcc80; }
   body.sombre #mpoints .pt { background:#3a4a56; }
   body.sombre #mpoints .pt.faite { background:#66bb6a; }
   body.sombre #mpoints .pt.courante { background:#64b5f6; }
@@ -282,7 +288,7 @@
   <div class="nom">IKE <span>Simulations</span></div>
   <div class="sub">Sciences au collège</div>
   <div class="barre"><div class="rempl"></div></div>
-  <div class="ver">v1.7.0</div>
+  <div class="ver">v1.8.0</div>
 </div>
 
 <header>
@@ -307,6 +313,7 @@
     <button class="mbtn" id="btn-indice" title="Indice">💡 Indice</button>
   </div>
   <div id="mindice"></div>
+  <div id="mdiag"></div>
 </div>
 
 <div id="wrap">
@@ -652,6 +659,36 @@ function dessiner() {
     }
     ctx.setLineDash([]);
   }
+
+  dessinerMesures();   // écrans de mesure toujours au premier plan
+}
+
+// Écrans des ampèremètres : dessinés en dernier (jamais recouverts) et
+// décalés perpendiculairement au fil (jamais superposés au conducteur).
+function dessinerMesures() {
+  for (const comp of etat.comps) {
+    if (comp.type !== 'amperemetre') continue;
+    const pa = pxDeNoeud(comp.a), pb = pxDeNoeud(comp.b);
+    const mx = (pa.x + pb.x) / 2, my = (pa.y + pb.y) / 2;
+    const L = Math.hypot(pb.x - pa.x, pb.y - pa.y) || 1;
+    let nx = -(pb.y - pa.y) / L, ny = (pb.x - pa.x) / L;   // normale à l'arête
+    if (ny < 0 || (ny === 0 && nx < 0)) { nx = -nx; ny = -ny; } // côté bas/droite
+    const s = Math.min(1, cell / 48);
+    const txt = formatA(comp.I || 0);
+    ctx.font = `bold ${11 * s}px Consolas, monospace`;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    const tw = ctx.measureText(txt).width;
+    const eh = 17 * s, el = tw + 14;
+    let ex = mx + nx * 27 * s, ey = my + ny * 27 * s;      // centre de l'écran
+    ex = Math.max(el / 2 + 4, Math.min(largeur - el / 2 - 4, ex));
+    ey = Math.max(eh / 2 + 4, Math.min(hauteur - eh / 2 - 4, ey));
+    ctx.fillStyle = '#263238';
+    ctx.beginPath(); ctx.roundRect(ex - el / 2, ey - eh / 2, el, eh, 4 * s); ctx.fill();
+    ctx.strokeStyle = '#78909c'; ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.roundRect(ex - el / 2, ey - eh / 2, el, eh, 4 * s); ctx.stroke();
+    ctx.fillStyle = '#69f0ae';
+    ctx.fillText(txt, ex, ey + 0.5);
+  }
 }
 
 // ---- Dessin d'un composant (les deux vues) ----
@@ -776,25 +813,7 @@ function dessinerComp(c2d, comp, icone) {
       c2d.fillStyle = T().trait; c2d.font = `bold ${13 * s}px sans-serif`;
       c2d.textAlign = 'center'; c2d.textBaseline = 'middle';
       c2d.fillText('A', mx, my + 0.5);
-      if (!icone) {
-        // Écran de mesure façon appareil : fond sombre, chiffres verts.
-        // Impossible à confondre avec un fil (retour utilisateurs v1.5).
-        const txt = formatA(comp.I || 0);
-        c2d.font = `bold ${11 * s}px Consolas, monospace`;
-        const tw = c2d.measureText(txt).width;
-        const eh = 17 * s;                       // hauteur de l'écran
-        const ey = my + R + 4 * s;               // haut de l'écran
-        c2d.fillStyle = '#263238';
-        c2d.beginPath();
-        c2d.roundRect(mx - tw / 2 - 7, ey, tw + 14, eh, 4 * s);
-        c2d.fill();
-        c2d.strokeStyle = '#78909c'; c2d.lineWidth = 1.2;
-        c2d.beginPath();
-        c2d.roundRect(mx - tw / 2 - 7, ey, tw + 14, eh, 4 * s);
-        c2d.stroke();
-        c2d.fillStyle = '#69f0ae';
-        c2d.fillText(txt, mx, ey + eh / 2 + 0.5);
-      }
+      // (l'écran de mesure est dessiné au premier plan, voir dessinerMesures)
       break;
     }
   }
@@ -1157,6 +1176,19 @@ const amperemetres = () => etat.comps.filter(c => c.type === 'amperemetre');
 const memeIntensite = (x, ref, tol) =>
   Math.abs(Math.abs(x) - Math.abs(ref)) <= tol * Math.max(Math.abs(ref), 1e-9);
 
+// Signatures de montage (une seule pile requise) — servent à valider ET à diagnostiquer
+const signatureSerie = () => {
+  if (piles().length !== 1) return false;
+  const all = lampesAllumees();
+  return all.length >= 2 && all.every(c => memeIntensite(c.I, piles()[0].I, 0.08));
+};
+const signatureParallele = () => {
+  if (piles().length !== 1) return false;
+  const fortes = lampes().filter(c => Math.abs(c.I) >= 0.3);
+  if (fortes.length < 2) return false;
+  return Math.abs(piles()[0].I) >= 1.5 * Math.max(...fortes.map(c => Math.abs(c.I)));
+};
+
 const MISSIONS = [
   {
     titre: 'Le premier fil',
@@ -1230,6 +1262,11 @@ const MISSIONS = [
     ],
     retenir: "L'intensité du courant se mesure en ampères (A) avec un ampèremètre, toujours branché en série (sur le chemin du courant). Son écran affiche la mesure en temps réel : ici, environ 0,43 A.",
     indice: "L'ampèremètre se pose dans la boucle, comme un maillon — pas à côté du circuit.",
+    diags: [
+      { si: () => lampesAllumees().length >= 1 && amperemetres().length >= 1 &&
+                  amperemetres().every(c => Math.abs(c.I) < 0.1),
+        msg: "Ton ampèremètre n'est pas sur le chemin du courant : place-le dans la boucle, comme un maillon." },
+    ],
   },
   {
     titre: "Le courant ne s'use pas",
@@ -1245,36 +1282,50 @@ const MISSIONS = [
     ],
     retenir: "Les deux ampèremètres affichent la même valeur : dans une boucle simple, l'intensité est la même partout. Le courant ne s'use pas en traversant la lampe — c'est l'énergie de la pile qui se transforme en lumière et en chaleur.",
     indice: "Les deux ampèremètres doivent être sur le même chemin que la lampe, dans la même boucle, avec une seule pile.",
+    diags: [
+      { si: () => piles().length >= 2,
+        msg: "Il y a plusieurs piles sur la grille : garde une seule pile pour cette mission." },
+      { si: () => amperemetres().filter(c => Math.abs(c.I) >= 0.05).length >= 2,
+        msg: "Tes deux ampèremètres ne sont pas dans la même boucle simple que la lampe : mets tout sur un seul chemin." },
+    ],
   },
   {
     titre: 'Deux lampes à la file (série)',
     outils: ['fil', 'pile', 'lampe', 'interrupteur', 'amperemetre'],
     etapes: [
       { texte: "Avec UNE seule pile, allume DEUX lampes posées l'une après l'autre sur le même chemin (en série). Observe leur éclat !",
-        test: () => {
-          if (piles().length !== 1) return false;
-          const Ip = piles()[0].I, all = lampesAllumees();
-          return all.length >= 2 && all.every(c => memeIntensite(c.I, Ip, 0.08));
-        } },
+        test: signatureSerie },
     ],
     retenir: "En série, le même courant traverse les lampes l'une après l'autre : elles brillent moins que si elles étaient seules. Et si on en retire une, tout s'éteint !",
     indice: "Une seule boucle : pile → lampe → lampe → retour à la pile.",
+    diags: [
+      { si: () => piles().length >= 2,
+        msg: "Il y a plusieurs piles sur la grille : garde une seule pile pour cette mission." },
+      { si: () => signatureParallele(),
+        msg: "Tes lampes sont en parallèle ! Place-les plutôt l'une APRÈS l'autre, sur le même chemin." },
+      { si: () => lampesAllumees().length === 1 && nb('lampe') >= 2,
+        msg: "Une de tes lampes n'est pas traversée par le courant : les deux doivent être sur la boucle." },
+    ],
   },
   {
     titre: 'Chacune son chemin (parallèle)',
     outils: ['fil', 'pile', 'lampe', 'interrupteur', 'amperemetre'],
     etapes: [
       { texte: "Avec UNE seule pile, branche DEUX lampes en parallèle : chacune sur sa propre branche. Elles doivent briller fort !",
-        test: () => {
-          if (piles().length !== 1) return false;
-          const fortes = lampes().filter(c => Math.abs(c.I) >= 0.3);
-          if (fortes.length < 2) return false;
-          const iMax = Math.max(...fortes.map(c => Math.abs(c.I)));
-          return Math.abs(piles()[0].I) >= 1.5 * iMax;
-        } },
+        test: signatureParallele },
     ],
     retenir: "En parallèle (en dérivation), chaque lampe a sa propre boucle : chacune brille fort, comme si elle était seule. C'est le branchement des maisons ! En échange, la pile débite plus de courant et s'use plus vite.",
     indice: "Fais deux boucles qui partagent la même pile : le courant se sépare en deux chemins, puis se retrouve.",
+    diags: [
+      { si: () => piles().length >= 2,
+        msg: "Il y a plusieurs piles sur la grille : garde une seule pile pour cette mission." },
+      { si: () => nb('lampe') > 2,
+        msg: "Il y a plus de deux lampes sur la grille : supprime celles en trop, elles faussent l'expérience !" },
+      { si: () => signatureSerie(),
+        msg: "Tes lampes sont en série ! Donne à chacune sa propre branche : deux boucles qui partagent la même pile." },
+      { si: () => lampes().some(c => Math.abs(c.I) >= 0.1 && Math.abs(c.I) < 0.3),
+        msg: "Tes lampes brillent trop faiblement : il reste sûrement un obstacle sur le chemin commun du courant." },
+    ],
   },
   {
     titre: 'La panne maligne',
@@ -1289,6 +1340,11 @@ const MISSIONS = [
     ],
     retenir: "En parallèle, chaque branche est indépendante : couper l'une n'éteint pas l'autre. C'est pour ça qu'éteindre la lampe de la cuisine n'éteint pas celle du salon !",
     indice: "Deux lampes en parallèle, et l'interrupteur sur le chemin d'UNE seule lampe (pas sur le chemin commun, sinon tout s'éteint).",
+    diags: [
+      { si: () => nb('lampe') >= 2 && lampesAllumees().length === 0 &&
+                  etat.comps.some(c => c.type === 'interrupteur' && !c.ferme),
+        msg: "Ton interrupteur coupe TOUT le circuit ! Place-le sur la branche d'UNE seule lampe, pas sur le chemin commun." },
+    ],
   },
   {
     titre: 'Danger : court-circuit !',
@@ -1309,6 +1365,13 @@ const MISSIONS = [
     ],
     retenir: "Deux piles en série dans le même sens additionnent leurs tensions : 4,5 V + 4,5 V = 9 V → la lampe brille plus fort. Dans des sens opposés, elles s'annulent et rien ne s'allume ! Bravo, parcours terminé 💪 — explore maintenant le Mode libre.",
     indice: "Le + d'une pile doit pointer vers le − de la suivante. Si rien ne s'allume, sélectionne une pile et touche « ↔ Inverser ».",
+    diags: [
+      { si: () => nb('pile') >= 2 && nb('lampe') >= 1 &&
+                  etat.comps.every(c => Math.abs(c.I) < 0.05),
+        msg: "Tes piles se combattent (sens opposés) ! Sélectionne l'une des deux et touche « ↔ Inverser »." },
+      { si: () => nb('pile') >= 2 && lampes().some(c => Math.abs(c.I) >= 0.3 && Math.abs(c.I) < 0.6),
+        msg: "Tes piles ne s'additionnent pas : place-les l'une APRÈS l'autre dans la même boucle (en série)." },
+    ],
   },
 ];
 
@@ -1350,7 +1413,8 @@ function evaluerMission() {
     progression.etape++;
     avance = true;
   }
-  if (!avance) return;
+  if (!avance) { majDiagnostic(m); return; }   // pas de progrès : expliquer ce qui bloque
+  masquerDiagnostic();
   resetEtapeTimer();
   if (progression.etape >= m.etapes.length) {
     if (!progression.faites.includes(progression.m)) {
@@ -1368,11 +1432,34 @@ function evaluerMission() {
   majMissionBar();
 }
 
+// Diagnostic pédagogique : quand l'action de l'élève ne valide pas l'étape,
+// on cherche une erreur classique reconnaissable et on la lui explique.
+function majDiagnostic(m) {
+  const d = document.getElementById('mdiag');
+  const hit = (m.diags || []).find(x => x.si());
+  if (!hit) { masquerDiagnostic(); return; }
+  const msg = '🤔 ' + hit.msg;
+  if (d.textContent !== msg || !d.classList.contains('visible')) {
+    d.textContent = msg;
+    d.classList.add('visible');
+    redimensionner();
+  }
+}
+
+function masquerDiagnostic() {
+  const d = document.getElementById('mdiag');
+  if (d.classList.contains('visible')) {
+    d.classList.remove('visible');
+    redimensionner();
+  }
+}
+
 function allerMission(m) {
   progression.m = m;
   progression.etape = 0;
   sauverProgression();
   resetEtapeTimer();
+  masquerDiagnostic();
   deselectionner();
   fermerVoiles();
   document.getElementById('mindice').classList.remove('visible');
