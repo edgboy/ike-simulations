@@ -1,0 +1,1299 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#1565c0">
+<title>États de la matière · IKE Simulations</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html, body { height:100%; overflow:hidden; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background:#f4f7fb; color:#263238;
+    display:flex; flex-direction:column;
+    user-select:none; -webkit-user-select:none; touch-action:manipulation;
+  }
+
+  /* ---------- Écran de démarrage IKE ---------- */
+  #splash {
+    position:fixed; inset:0; z-index:100;
+    background:linear-gradient(160deg,#0d47a1 0%,#1565c0 55%,#1e88e5 100%);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    transition:opacity .5s ease;
+  }
+  #splash.fini { opacity:0; pointer-events:none; }
+  #splash .logo {
+    font-size:56px; line-height:1;
+    animation:battement 1.1s ease-in-out infinite;
+    filter:drop-shadow(0 4px 14px rgba(255,202,40,.45));
+  }
+  @keyframes battement { 50% { transform:scale(1.18); } }
+  #splash .nom { margin-top:14px; color:#fff; font-size:30px; font-weight:800; letter-spacing:.5px; }
+  #splash .nom span { font-weight:300; opacity:.9; }
+  #splash .sub {
+    margin-top:4px; color:rgba(255,255,255,.75); font-size:13px;
+    letter-spacing:2px; text-transform:uppercase;
+  }
+  #splash .barre {
+    margin-top:22px; width:150px; height:4px; border-radius:2px;
+    background:rgba(255,255,255,.25); overflow:hidden;
+  }
+  #splash .rempl {
+    height:100%; background:#ffca28; border-radius:2px;
+    transform-origin:left; transform:scaleX(0); animation:charge 1.3s ease-out forwards;
+  }
+  @keyframes charge { to { transform:scaleX(1); } }
+  #splash .ver { position:absolute; bottom:14px; color:rgba(255,255,255,.5); font-size:11px; }
+
+  /* ---------- En-tête ---------- */
+  header {
+    display:flex; align-items:center; gap:8px;
+    padding:8px 12px; background:#fff; border-bottom:1px solid #e0e6ed;
+    flex:none; z-index:5;
+  }
+  header h1 { font-size:16px; font-weight:700; color:#1565c0; white-space:nowrap; }
+  header .spacer { flex:1; }
+  .btn {
+    border:1px solid #cfd8dc; background:#fff; color:#37474f;
+    border-radius:8px; padding:8px 10px; font-size:13px; font-weight:600;
+    cursor:pointer; white-space:nowrap; min-height:40px;
+  }
+  .btn:active { background:#e3f2fd; }
+  @media (max-width:480px) { .btn .lbl { display:none; } header h1 { font-size:14px; } }
+
+  /* ---------- Barre de mission ---------- */
+  #mbar { flex:none; background:#fff; border-bottom:1px solid #e0e6ed; padding:6px 10px; z-index:4; }
+  #mbar .l1 { display:flex; align-items:center; gap:8px; }
+  #mchip {
+    background:#1565c0; color:#fff; font-size:11px; font-weight:700;
+    border-radius:12px; padding:3px 9px; white-space:nowrap;
+  }
+  #mtitre {
+    font-size:13.5px; font-weight:700; color:#263238; flex:1;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  #mbar .mbtn {
+    border:1px solid #cfd8dc; background:#fff; border-radius:8px;
+    font-size:14px; padding:4px 10px; cursor:pointer; min-height:34px;
+  }
+  #mbar .l2 { display:flex; align-items:center; gap:8px; margin-top:5px; }
+  #mbar.flash { animation:flashvert .9s ease; }
+  @keyframes flashvert { 0% { background:#c8e6c9; } 100% { background:#fff; } }
+  #mpoints { display:flex; gap:5px; align-items:center; flex:none; }
+  #mpoints .pt { width:9px; height:9px; border-radius:50%; background:#cfd8dc; }
+  #mpoints .pt.faite { background:#2e7d32; }
+  #mpoints .pt.courante { background:#1565c0; animation:ptpulse 1.6s infinite; }
+  @keyframes ptpulse { 50% { transform:scale(1.4); } }
+  #metape { flex:1; font-size:12.5px; color:#37474f; line-height:1.4; }
+  #metape.glisse { animation:glisse .4s ease; }
+  @keyframes glisse { from { opacity:0; transform:translateX(12px); } }
+  #mcompteur { font-size:11px; color:#90a4ae; font-weight:700; white-space:nowrap; }
+  #btn-indice {
+    background:#fff8e1 !important; border-color:#ffca28 !important;
+    color:#795548; font-weight:700; white-space:nowrap;
+  }
+  #btn-indice.pulse { animation:indicepulse 1.2s infinite; }
+  @keyframes indicepulse {
+    50% { transform:scale(1.08); box-shadow:0 0 0 7px rgba(255,202,40,.3); }
+  }
+  #btn-suiv2 {
+    background:#1565c0 !important; border-color:#1565c0 !important;
+    color:#fff !important; font-weight:700; white-space:nowrap;
+  }
+  #mindice {
+    display:none; margin-top:6px; background:#fff8e1; border:1px solid #ffe082;
+    color:#795548; font-size:12.5px; border-radius:8px; padding:7px 10px; line-height:1.45;
+  }
+  #mindice.visible { display:block; }
+  #mdiag {
+    display:none; margin-top:6px; background:#fff3e0; border:1px solid #ffcc80;
+    color:#bf360c; font-size:12.5px; border-radius:8px; padding:7px 10px; line-height:1.45;
+  }
+  #mdiag.visible { display:block; animation:glisse .4s ease; }
+
+  /* ---------- Scène ---------- */
+  #wrap { flex:1; position:relative; overflow:hidden; }
+  canvas#scene { position:absolute; inset:0; width:100%; height:100%; touch-action:none; display:block; }
+
+  /* Panneau infos/formule en direct */
+  #formule {
+    position:absolute; top:10px; left:10px; z-index:5;
+    background:rgba(255,255,255,.94); border:1px solid #cfd8dc; border-radius:12px;
+    padding:10px 12px; max-width:min(270px, 58vw);
+    font-size:12px; line-height:1.6; color:#37474f;
+    box-shadow:0 3px 12px rgba(0,0,0,.12);
+  }
+  #formule .ftitre {
+    font-size:11px; font-weight:800; letter-spacing:.5px; color:#1565c0;
+    text-transform:uppercase; margin-bottom:4px;
+  }
+  #formule .fmath {
+    font-family:Consolas, "Courier New", monospace; font-size:11.5px;
+    background:#f4f7fb; border-radius:6px; padding:2px 6px; margin:2px 0;
+    white-space:nowrap; overflow-x:auto; display:block;
+  }
+  #formule .fres { font-weight:800; color:#2e7d32; }
+  #formule .fpalier { font-weight:800; color:#e65100; }
+  #formule .fnote { font-size:11px; color:#90a4ae; font-style:italic; }
+  #formule .flex {
+    display:block; margin-top:6px; font-size:11px; font-weight:700;
+    color:#1565c0; text-decoration:underline; cursor:pointer;
+    background:none; border:none; padding:0;
+  }
+
+  .lex { margin-bottom:10px; }
+  .lex dt { font-size:13px; font-weight:800; color:#1565c0; margin-top:10px; }
+  .lex dd { font-size:12.5px; line-height:1.5; color:#37474f; margin:2px 0 0; }
+
+  #toast {
+    position:absolute; bottom:16px; left:50%;
+    transform:translateX(-50%) translateY(10px) scale(.9);
+    background:#2e7d32; color:#fff; font-size:14.5px; font-weight:800;
+    padding:11px 22px; border-radius:22px; opacity:0; pointer-events:none;
+    transition:opacity .25s, transform .3s cubic-bezier(.34,1.56,.64,1);
+    box-shadow:0 6px 20px rgba(46,125,50,.4); z-index:6; white-space:nowrap;
+  }
+  #toast.visible { opacity:1; transform:translateX(-50%) translateY(0) scale(1); }
+
+  /* ---------- Commandes (chauffer / refroidir / piston) ---------- */
+  nav#palette {
+    flex:none; display:flex; justify-content:center; align-items:center; gap:10px;
+    padding:8px 10px calc(8px + env(safe-area-inset-bottom));
+    background:#fff; border-top:1px solid #e0e6ed; z-index:5; flex-wrap:wrap;
+  }
+  .cmd {
+    display:flex; align-items:center; gap:6px;
+    border:2px solid #cfd8dc; border-radius:12px; background:#f4f7fb;
+    padding:12px 18px; font-size:14px; font-weight:800; color:#37474f;
+    cursor:pointer; min-height:52px; touch-action:none;
+  }
+  #btn-chauffer.tenu { background:#fff3e0; border-color:#ff9800; color:#e65100; }
+  #btn-refroidir.tenu { background:#e1f5fe; border-color:#29b6f6; color:#0277bd; }
+  #piston-bloc { display:none; align-items:center; gap:8px; font-size:12px; font-weight:700; color:#37474f; }
+  #piston-bloc.visible { display:flex; }
+  #piston-bloc input { width:120px; accent-color:#1565c0; }
+
+  /* ---------- Voiles ---------- */
+  .voile {
+    position:fixed; inset:0; background:rgba(38,50,56,.55);
+    display:none; align-items:center; justify-content:center; z-index:20; padding:16px;
+  }
+  .voile.visible { display:flex; }
+  .voile .carte {
+    background:#fff; border-radius:16px; padding:22px; max-width:400px; width:100%;
+    max-height:86vh; overflow-y:auto; box-shadow:0 10px 40px rgba(0,0,0,.3);
+  }
+  .voile .carte h2 { font-size:18px; color:#1565c0; margin-bottom:12px; }
+  .voile.visible .carte h2 { animation:pop .4s ease-out; }
+  @keyframes pop { 0% { transform:scale(.5); opacity:0; } 80% { transform:scale(1.08); } 100% { transform:scale(1); } }
+  .voile .go {
+    width:100%; border:none; background:#1565c0; color:#fff; font-size:15px; font-weight:700;
+    padding:12px; border-radius:10px; cursor:pointer;
+  }
+  .voile .btn2 {
+    width:100%; border:1px solid #cfd8dc; background:#fff; color:#37474f;
+    font-size:13px; font-weight:600; padding:10px; border-radius:10px;
+    cursor:pointer; margin-top:8px;
+  }
+  .voile .lien {
+    display:block; width:100%; text-align:center; margin-top:10px;
+    background:none; border:none; color:#90a4ae; font-size:11.5px;
+    text-decoration:underline; cursor:pointer;
+  }
+  #mfin-titre { font-weight:700; font-size:15px; color:#263238; margin-bottom:10px; }
+  .retenir-label { font-size:12px; font-weight:800; color:#2e7d32; margin-bottom:4px; }
+  #mfin-retenir {
+    background:#e8f5e9; border-radius:10px; padding:10px 12px;
+    font-size:13.5px; line-height:1.55; color:#1b5e20; margin:0 0 14px;
+  }
+  .mrow {
+    display:flex; align-items:center; gap:8px; width:100%;
+    border:none; background:#f4f7fb; border-radius:8px; padding:10px;
+    margin-bottom:5px; font-size:13px; cursor:pointer; text-align:left; color:#263238;
+  }
+  .mrow .n { font-weight:700; color:#90a4ae; min-width:22px; }
+  .mrow.faite .n { color:#2e7d32; }
+  .mrow.courante { outline:2px solid #1565c0; background:#e3f2fd; }
+  .mrow .t { flex:1; }
+
+  /* ---------- Visite guidée ---------- */
+  #visite { position:fixed; inset:0; z-index:30; display:none; }
+  #visite.sombre { background:rgba(38,50,56,.62); }
+  #visite-halo {
+    position:absolute; border-radius:12px; border:2px solid #ffca28;
+    box-shadow:0 0 0 9999px rgba(38,50,56,.62);
+    transition:all .3s ease; pointer-events:none;
+  }
+  #visite-carte {
+    position:absolute; background:#fff; border-radius:14px; padding:16px;
+    width:min(310px, calc(100vw - 24px)); box-shadow:0 10px 40px rgba(0,0,0,.35);
+  }
+  .vtitre { font-size:15px; font-weight:800; color:#1565c0; margin-bottom:6px; }
+  .vtexte { font-size:13px; line-height:1.55; color:#37474f; white-space:pre-line; }
+  .vbas { display:flex; align-items:center; gap:10px; margin-top:12px; }
+  .vprog { flex:1; font-size:11px; font-weight:700; color:#90a4ae; }
+  #visite-passer {
+    background:none; border:none; color:#90a4ae; font-size:12px;
+    text-decoration:underline; cursor:pointer; padding:6px;
+  }
+  #visite-suivant {
+    border:none; background:#1565c0; color:#fff; font-weight:700;
+    font-size:13px; padding:9px 18px; border-radius:9px; cursor:pointer;
+  }
+  .vmarque { margin-top:10px; text-align:center; font-size:10px; color:#b0bec5; }
+
+  /* ==================== THÈME SOMBRE ==================== */
+  body.sombre { background:#10181f; color:#eceff1; }
+  body.sombre header,
+  body.sombre #mbar,
+  body.sombre nav#palette { background:#1c262e; border-color:#2c3a45; }
+  body.sombre header h1 { color:#64b5f6; }
+  body.sombre .btn { background:#22303a; border-color:#3a4a56; color:#cfd8dc; }
+  body.sombre .btn:active { background:#0d2c4f; }
+  body.sombre #mtitre { color:#eceff1; }
+  body.sombre #metape { color:#cfd8dc; }
+  body.sombre #mbar .mbtn { background:#22303a; border-color:#3a4a56; color:#cfd8dc; }
+  body.sombre #btn-indice { background:#3a3220 !important; border-color:#8d6e63 !important; color:#ffd54f; }
+  body.sombre #mindice { background:#2b2618; border-color:#5d4d1a; color:#ffe082; }
+  body.sombre #mdiag { background:#33261a; border-color:#7a5c3d; color:#ffcc80; }
+  body.sombre #mpoints .pt { background:#3a4a56; }
+  body.sombre #mpoints .pt.faite { background:#66bb6a; }
+  body.sombre #mpoints .pt.courante { background:#64b5f6; }
+  body.sombre #mbar.flash { animation-name:flashvert-sombre; }
+  @keyframes flashvert-sombre { 0% { background:#1b3a22; } 100% { background:#1c262e; } }
+  body.sombre .cmd { background:#22303a; border-color:#3a4a56; color:#cfd8dc; }
+  body.sombre #btn-chauffer.tenu { background:#3a2a18; border-color:#ff9800; color:#ffb74d; }
+  body.sombre #btn-refroidir.tenu { background:#12303f; border-color:#29b6f6; color:#81d4fa; }
+  body.sombre #piston-bloc { color:#cfd8dc; }
+  body.sombre #formule { background:rgba(28,38,46,.95); border-color:#3a4a56; color:#cfd8dc; }
+  body.sombre #formule .ftitre { color:#64b5f6; }
+  body.sombre #formule .fmath { background:#10181f; }
+  body.sombre #formule .fres { color:#81c784; }
+  body.sombre #formule .fpalier { color:#ffb74d; }
+  body.sombre #formule .flex { color:#64b5f6; }
+  body.sombre .lex dt { color:#64b5f6; }
+  body.sombre .lex dd { color:#cfd8dc; }
+  body.sombre .voile .carte, body.sombre #visite-carte { background:#1c262e; }
+  body.sombre .voile .carte h2, body.sombre .vtitre { color:#64b5f6; }
+  body.sombre .vtexte { color:#cfd8dc; }
+  body.sombre .voile .btn2 { background:#22303a; border-color:#3a4a56; color:#cfd8dc; }
+  body.sombre #mfin-titre { color:#eceff1; }
+  body.sombre .retenir-label { color:#81c784; }
+  body.sombre #mfin-retenir { background:#16281a; color:#a5d6a7; }
+  body.sombre .mrow { background:#26313a; color:#eceff1; }
+  body.sombre .mrow.courante { background:#0d2c4f; outline-color:#64b5f6; }
+</style>
+</head>
+<body>
+
+<div id="splash">
+  <div class="logo">⚡</div>
+  <div class="nom">IKE <span>Simulations</span></div>
+  <div class="sub">Sciences au collège</div>
+  <div class="barre"><div class="rempl"></div></div>
+  <div class="ver">v2.3.0</div>
+</div>
+
+<header>
+  <h1>🧊 États de la matière</h1>
+  <div class="spacer"></div>
+  <button class="btn" id="btn-formule">📐<span class="lbl"> Infos</span></button>
+  <button class="btn" id="btn-theme">🌙<span class="lbl"> Sombre</span></button>
+  <button class="btn" id="btn-aide">❓<span class="lbl"> Aide</span></button>
+</header>
+
+<div id="mbar">
+  <div class="l1">
+    <span id="mchip"></span>
+    <span id="mtitre"></span>
+    <button class="mbtn" id="btn-missions" title="Toutes les missions">📋</button>
+  </div>
+  <div class="l2">
+    <span id="mpoints"></span>
+    <span id="metape"></span>
+    <span id="mcompteur"></span>
+    <button class="mbtn" id="btn-indice" title="Indice">💡 Indice</button>
+    <button class="mbtn" id="btn-suiv2" style="display:none">Suivante ▶</button>
+  </div>
+  <div id="mindice"></div>
+  <div id="mdiag"></div>
+</div>
+
+<div id="wrap">
+  <canvas id="scene"></canvas>
+  <div id="formule"></div>
+  <div id="toast"></div>
+</div>
+
+<nav id="palette">
+  <button class="cmd" id="btn-refroidir">❄️ Refroidir</button>
+  <button class="cmd" id="btn-chauffer">🔥 Chauffer</button>
+  <div id="piston-bloc">
+    <span>Piston</span>
+    <input type="range" id="piston" min="40" max="100" value="100" step="1">
+    <span id="piston-val">100 %</span>
+  </div>
+</nav>
+
+<div id="mlecon" class="voile">
+  <div class="carte">
+    <h2>📖 Avant de commencer…</h2>
+    <div id="mlecon-titre" style="font-weight:700; font-size:15px; margin-bottom:10px;"></div>
+    <p id="mlecon-texte" style="font-size:14px; line-height:1.65; margin-bottom:14px;"></p>
+    <button class="go" id="btn-go-lecon">C'est parti !</button>
+  </div>
+</div>
+
+<div id="mlexique" class="voile">
+  <div class="carte">
+    <h2>📖 Lexique de la matière</h2>
+    <dl class="lex" id="lex-items"></dl>
+    <button class="go" id="btn-fermer-lexique">Fermer</button>
+  </div>
+</div>
+
+<div id="mfin" class="voile">
+  <div class="carte">
+    <h2>🎉 Mission réussie !</h2>
+    <div id="mfin-titre"></div>
+    <div class="retenir-label">💡 À retenir</div>
+    <p id="mfin-retenir"></p>
+    <button class="go" id="btn-suivante">Mission suivante ▶</button>
+    <button class="btn2" id="btn-liste2">📋 Toutes les missions</button>
+  </div>
+</div>
+
+<div id="mliste" class="voile">
+  <div class="carte">
+    <h2>📋 Parcours d'apprentissage</h2>
+    <div id="mliste-items"></div>
+    <button class="btn2" id="btn-libre">🧪 Mode libre — expérimente librement</button>
+    <button class="go" id="btn-fermer-liste">Fermer</button>
+    <button class="lien" id="btn-reset-prog">↺ Réinitialiser tout le parcours</button>
+  </div>
+</div>
+
+<div id="visite">
+  <div id="visite-halo"></div>
+  <div id="visite-carte">
+    <div class="vtitre"></div>
+    <div class="vtexte"></div>
+    <div class="vbas">
+      <span class="vprog"></span>
+      <button id="visite-passer">Passer</button>
+      <button id="visite-suivant">Suivant</button>
+    </div>
+    <div class="vmarque">IKE Simulations · collège (PCT)</div>
+  </div>
+</div>
+
+<script>
+'use strict';
+/* =====================================================================
+   1. MODÈLE THERMIQUE — énergie, température et paliers
+   ---------------------------------------------------------------------
+   L'énergie E (unités arbitraires) monte quand on chauffe. La courbe
+   T(E) reproduit celle du cours : pendant un changement d'état, T reste
+   CONSTANTE (palier) car l'énergie sert à séparer les molécules.
+   ===================================================================== */
+
+const SEGMENTS = [
+  { e0: 0,   e1: 20,  T0: -20, T1: 0,   nom: 'solide' },      // glace qui chauffe
+  { e0: 20,  e1: 50,  T0: 0,   T1: 0,   nom: 'fusion' },      // PALIER fusion
+  { e0: 50,  e1: 150, T0: 0,   T1: 100, nom: 'liquide' },     // eau qui chauffe
+  { e0: 150, e1: 210, T0: 100, T1: 100, nom: 'ebullition' },  // PALIER ébullition
+  { e0: 210, e1: 240, T0: 100, T1: 130, nom: 'gaz' },         // vapeur qui chauffe
+];
+const E_MAX = 240;
+const TAUX = 14;   // énergie gagnée/perdue par seconde de chauffe
+
+// Retourne { T, fondu (0-1), vap (0-1), seg } pour une énergie donnée
+function thermo(E) {
+  E = Math.max(0, Math.min(E_MAX, E));
+  let seg = SEGMENTS[SEGMENTS.length - 1];
+  for (const s of SEGMENTS) if (E >= s.e0 && E <= s.e1) { seg = s; break; }
+  const t = (E - seg.e0) / (seg.e1 - seg.e0);
+  const T = seg.T0 + t * (seg.T1 - seg.T0);
+  const fondu = E <= 20 ? 0 : E >= 50 ? 1 : (E - 20) / 30;
+  const vap = E <= 150 ? 0 : E >= 210 ? 1 : (E - 150) / 60;
+  return { T, fondu, vap, seg: seg.nom };
+}
+
+// Pression du gaz enfermé (unités d'affichage ; 100 ≈ pression normale)
+function pression(vap, T, volFrac) {
+  return 100 * vap * ((T + 273) / 293) / volFrac;
+}
+
+const etat = {
+  E: 70,                 // départ : eau liquide à 20 °C
+  chauffe: false,
+  refroidit: false,
+  volFrac: 1,            // position du piston (1 = tout en haut)
+  theme: 'clair',
+};
+let th = thermo(etat.E); // état thermique courant (recalculé chaque image)
+
+// Compteurs pour les missions
+const suivi = {
+  chauffeMs: 0,          // temps total passé à chauffer
+  palierChauffeMs: 0,    // temps passé à chauffer PENDANT un palier
+  aEteGaz: false,
+  cycleGlace1: false, cycleVapeur: false, cycleRetour: false,
+};
+function resetSuivi() {
+  suivi.chauffeMs = 0; suivi.palierChauffeMs = 0; suivi.aEteGaz = false;
+  suivi.cycleGlace1 = false; suivi.cycleVapeur = false; suivi.cycleRetour = false;
+}
+
+/* =====================================================================
+   2. PARTICULES — 70 molécules, trois comportements
+   ===================================================================== */
+
+const N = 70, COLS = 10;
+const parts = [];
+for (let i = 0; i < N; i++)
+  parts.push({ x: 0, y: 0, vx: 0, vy: 0, mode: 'liquide', ph: Math.random() * 7 });
+
+const canvas = document.getElementById('scene');
+const ctx = canvas.getContext('2d');
+let largeur = 0, hauteur = 0;
+let boxX = 0, boxY = 0, boxW = 0, boxH = 0, pas = 18;  // enceinte + pas du réseau
+
+function redimensionner() {
+  const wrap = document.getElementById('wrap');
+  largeur = wrap.clientWidth; hauteur = wrap.clientHeight;
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  canvas.width = Math.round(largeur * dpr);
+  canvas.height = Math.round(hauteur * dpr);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  // Enceinte à gauche, thermomètre à droite
+  const margeD = Math.min(90, largeur * 0.2);
+  boxW = Math.min(largeur - margeD - 30, 520);
+  boxX = Math.max(14, (largeur - margeD - boxW) / 2);
+  boxY = Math.max(56, hauteur * 0.09);
+  boxH = hauteur - boxY - 46;
+  pas = Math.min(22, (boxW - 24) / COLS);
+}
+
+const latX = c => boxX + (boxW - COLS * pas) / 2 + pas / 2 + c * pas;
+const latY = r => boxY + boxH - 10 - pas / 2 - r * pas;
+const pistonY = () => boxY + (1 - etat.volFrac) * (boxH - 60);
+
+/* =====================================================================
+   3. SIMULATION — une image à la fois
+   ===================================================================== */
+
+let tPrec = 0, tAnim = 0, cadreEval = 0;
+
+function boucle(t) {
+  const dt = Math.min(0.05, (t - tPrec) / 1000 || 0.016);
+  tPrec = t; tAnim += dt;
+
+  // Énergie
+  if (etat.chauffe) {
+    etat.E = Math.min(E_MAX, etat.E + TAUX * dt);
+    suivi.chauffeMs += dt * 1000;
+    if (th.seg === 'fusion' || th.seg === 'ebullition') suivi.palierChauffeMs += dt * 1000;
+  }
+  if (etat.refroidit) etat.E = Math.max(0, etat.E - TAUX * dt);
+  th = thermo(etat.E);
+
+  // Suivi missions
+  if (th.vap >= 0.9) suivi.aEteGaz = true;
+  if (th.T <= -5) suivi.cycleGlace1 = true;
+  if (suivi.cycleGlace1 && th.vap >= 1) suivi.cycleVapeur = true;
+  if (suivi.cycleVapeur && th.T <= -5 && th.fondu <= 0.02) suivi.cycleRetour = true;
+
+  // Répartition des modes
+  const nGaz = Math.round(N * th.vap);
+  const nSol = Math.round((N - nGaz) * (1 - th.fondu));
+  const nLiq = N - nGaz - nSol;
+  const rangLiq = Math.ceil(Math.max(1, nLiq) / COLS);
+  const surfaceLiqY = latY(rangLiq - 1) - pas / 2;
+
+  for (let i = 0; i < N; i++) {
+    const p = parts[i];
+    const nouveauMode = i < nSol ? 'solide' : i < nSol + nLiq ? 'liquide' : 'gaz';
+    if (nouveauMode !== p.mode) {
+      p.mode = nouveauMode;
+      if (nouveauMode === 'gaz') {
+        const a = Math.random() * 7;
+        p.vx = Math.cos(a); p.vy = Math.sin(a);
+      }
+    }
+    if (p.mode === 'solide') {
+      const c = i % COLS, r = Math.floor(i / COLS);
+      const amp = 0.8 + Math.max(0, th.T + 20) / 22;
+      p.x = latX(c) + Math.sin(tAnim * 9 + p.ph) * amp;
+      p.y = latY(r) + Math.cos(tAnim * 8 + p.ph * 1.3) * amp;
+    } else if (p.mode === 'liquide') {
+      const j = i - nSol;
+      const c = j % COLS, r = Math.floor(j / COLS);
+      const agit = 2 + Math.max(0, th.T) / 9;
+      const cibleX = latX(c) + Math.sin(tAnim * 1.1 + p.ph * 2) * pas * 0.8;
+      const cibleY = latY(r);
+      p.x += (cibleX - p.x) * 2.2 * dt + (Math.random() - 0.5) * agit;
+      p.y += (cibleY - p.y) * 3.0 * dt + (Math.random() - 0.5) * agit * 0.7;
+      p.x = Math.max(boxX + 8, Math.min(boxX + boxW - 8, p.x));
+      p.y = Math.max(surfaceLiqY + 4, Math.min(boxY + boxH - 8, p.y));
+    } else {
+      const vitesse = 55 + Math.max(0, th.T + 30) * 1.5;
+      p.x += p.vx * vitesse * dt;
+      p.y += p.vy * vitesse * dt;
+      const haut = pistonY() + 8;
+      const bas = (nLiq + nSol > 0 ? surfaceLiqY : boxY + boxH) - 6;
+      if (p.x < boxX + 8) { p.x = boxX + 8; p.vx = Math.abs(p.vx); }
+      if (p.x > boxX + boxW - 8) { p.x = boxX + boxW - 8; p.vx = -Math.abs(p.vx); }
+      if (p.y < haut) { p.y = haut; p.vy = Math.abs(p.vy); }
+      if (p.y > bas) { p.y = bas; p.vy = -Math.abs(p.vy); }
+    }
+  }
+
+  dessiner();
+  majFormule();
+  if (++cadreEval % 10 === 0) evaluerMission();   // ~6 fois/s suffit
+  requestAnimationFrame(boucle);
+}
+
+/* =====================================================================
+   4. RENDU
+   ===================================================================== */
+
+const PALETTES = {
+  clair: {
+    paroi: '#546e7a', fond: 'rgba(236,239,241,.5)', texte: '#37474f', doux: '#90a4ae',
+    solide: '#90caf9', liquide: '#42a5f5', gaz: '#b3e5fc', gazBord: '#4fc3f7',
+    thermo: '#eceff1', mercure: '#e53935', piston: '#78909c',
+  },
+  sombre: {
+    paroi: '#78909c', fond: 'rgba(34,48,58,.5)', texte: '#cfd8dc', doux: '#78909c',
+    solide: '#64b5f6', liquide: '#2196f3', gaz: '#4fc3f7', gazBord: '#81d4fa',
+    thermo: '#22303a', mercure: '#ef5350', piston: '#90a4ae',
+  },
+};
+const T_ = () => PALETTES[etat.theme];
+
+function dessiner() {
+  ctx.clearRect(0, 0, largeur, hauteur);
+  const t = T_();
+  const pY = pistonY();
+
+  // Enceinte
+  ctx.fillStyle = t.fond;
+  ctx.fillRect(boxX, boxY, boxW, boxH);
+  ctx.strokeStyle = t.paroi; ctx.lineWidth = 4; ctx.lineJoin = 'round';
+  ctx.strokeRect(boxX, boxY, boxW, boxH);
+
+  // Piston (visible dès qu'il est débloqué ou abaissé)
+  if (pistonDebloque() || etat.volFrac < 1) {
+    ctx.fillStyle = t.piston;
+    ctx.fillRect(boxX + 3, pY - 10, boxW - 6, 12);
+    ctx.fillRect(boxX + boxW / 2 - 4, boxY - 14, 8, pY - boxY + 4);
+    ctx.fillStyle = t.texte; ctx.font = 'bold 10px sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+    ctx.fillText('piston', boxX + boxW / 2, pY - 13);
+  }
+
+  // Molécules
+  for (const p of parts) {
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 5, 0, 7);
+    ctx.fillStyle = p.mode === 'solide' ? t.solide : p.mode === 'liquide' ? t.liquide : t.gaz;
+    ctx.fill();
+    if (p.mode === 'gaz') { ctx.strokeStyle = t.gazBord; ctx.lineWidth = 1.4; ctx.stroke(); }
+  }
+
+  // Plaque chauffante / refroidissante
+  const plaqueY = boxY + boxH + 6;
+  ctx.fillStyle = etat.chauffe ? '#ff7043' : etat.refroidit ? '#4fc3f7' : t.doux;
+  ctx.fillRect(boxX + 10, plaqueY, boxW - 20, 8);
+  if (etat.chauffe) {
+    ctx.fillStyle = 'rgba(255,112,67,.8)';
+    for (let i = 0; i < 7; i++) {
+      const fx = boxX + 30 + i * (boxW - 60) / 6;
+      const fh = 10 + Math.sin(tAnim * 11 + i * 2.1) * 5;
+      ctx.beginPath();
+      ctx.moveTo(fx - 5, plaqueY); ctx.lineTo(fx, plaqueY - fh); ctx.lineTo(fx + 5, plaqueY);
+      ctx.fill();
+    }
+  }
+  if (etat.refroidit) {
+    ctx.fillStyle = '#4fc3f7'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
+    for (let i = 0; i < 5; i++)
+      ctx.fillText('❄', boxX + 40 + i * (boxW - 80) / 4, plaqueY - 4 - Math.abs(Math.sin(tAnim * 3 + i)) * 8);
+  }
+
+  // Étiquette d'état au-dessus de l'enceinte
+  const nomEtat = th.seg === 'fusion' ? 'FUSION EN COURS'
+    : th.seg === 'ebullition' ? 'ÉBULLITION EN COURS'
+    : th.seg === 'solide' ? 'SOLIDE' : th.seg === 'liquide' ? 'LIQUIDE' : 'GAZ';
+  ctx.fillStyle = (th.seg === 'fusion' || th.seg === 'ebullition') ? '#e65100' : t.texte;
+  ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+  ctx.fillText(nomEtat, boxX + boxW / 2, boxY - 6);
+
+  // Pression (quand le piston est débloqué et qu'il y a du gaz)
+  if (pistonDebloque() && th.vap > 0.02) {
+    const P = pression(th.vap, th.T, etat.volFrac);
+    ctx.fillStyle = P >= 220 ? '#e53935' : P >= 150 ? '#e65100' : '#2e7d32';
+    ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+    ctx.fillText(`P = ${P.toFixed(0)}`, boxX + 10, pY + 8);
+  }
+
+  // Thermomètre
+  const tx = boxX + boxW + Math.min(46, (largeur - boxX - boxW) / 2);
+  const tTop = boxY + 8, tBas = boxY + boxH - 18;
+  ctx.strokeStyle = t.paroi; ctx.lineWidth = 3;
+  ctx.fillStyle = t.thermo;
+  ctx.beginPath(); ctx.roundRect(tx - 7, tTop, 14, tBas - tTop, 7); ctx.fill(); ctx.stroke();
+  ctx.beginPath(); ctx.arc(tx, tBas + 8, 12, 0, 7); ctx.fillStyle = t.mercure; ctx.fill();
+  ctx.strokeStyle = t.paroi; ctx.stroke();
+  const yDeT = temp => tBas - (temp + 20) / 150 * (tBas - tTop);
+  ctx.fillStyle = t.mercure;
+  ctx.fillRect(tx - 4, yDeT(th.T), 8, tBas + 8 - yDeT(th.T));
+  ctx.font = '9px sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  for (const g of [-20, 0, 20, 40, 60, 80, 100, 120]) {
+    const gy = yDeT(g);
+    ctx.strokeStyle = t.doux; ctx.lineWidth = g === 0 || g === 100 ? 2 : 1;
+    ctx.beginPath(); ctx.moveTo(tx + 7, gy); ctx.lineTo(tx + (g % 40 === 0 || g === 100 ? 13 : 10), gy); ctx.stroke();
+    if (g === 0 || g === 100) {
+      ctx.fillStyle = '#e65100'; ctx.font = 'bold 9px sans-serif';
+      ctx.fillText(g, tx + 15, gy);
+      ctx.font = '9px sans-serif'; ctx.fillStyle = t.mercure;
+    }
+  }
+  ctx.fillStyle = t.texte; ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText(`${th.T.toFixed(0).replace('-', '−')} °C`, tx, tTop - 12);
+  // Badge PALIER
+  if ((th.seg === 'fusion' || th.seg === 'ebullition') && (etat.chauffe || etat.refroidit)) {
+    ctx.fillStyle = '#e65100'; ctx.font = 'bold 11px sans-serif';
+    const puls = 1 + Math.sin(tAnim * 6) * 0.08;
+    ctx.save(); ctx.translate(tx, yDeT(th.T) - 14); ctx.scale(puls, puls);
+    ctx.fillText('PALIER !', 0, 0);
+    ctx.restore();
+  }
+}
+
+function fmt(v, dec = 0) { return v.toFixed(dec).replace('.', ',').replace('-', '−'); }
+
+/* =====================================================================
+   5. COMMANDES — chauffer / refroidir (maintenir) + piston
+   ===================================================================== */
+
+function tenirBouton(id, prop) {
+  const el = document.getElementById(id);
+  const debut = e => { e.preventDefault(); etat[prop] = true; el.classList.add('tenu'); };
+  const fin = () => { etat[prop] = false; el.classList.remove('tenu'); };
+  el.addEventListener('pointerdown', debut);
+  for (const ev of ['pointerup', 'pointerleave', 'pointercancel']) el.addEventListener(ev, fin);
+}
+tenirBouton('btn-chauffer', 'chauffe');
+tenirBouton('btn-refroidir', 'refroidit');
+
+const piston = document.getElementById('piston');
+piston.addEventListener('input', () => {
+  etat.volFrac = parseInt(piston.value, 10) / 100;
+  document.getElementById('piston-val').textContent = piston.value + ' %';
+});
+
+function pistonDebloque() {
+  const m = missionCourante();
+  return m ? (m.outils || []).includes('piston') : true;
+}
+function majCommandes() {
+  document.getElementById('piston-bloc').classList.toggle('visible', pistonDebloque());
+  if (!pistonDebloque()) { etat.volFrac = 1; piston.value = 100; document.getElementById('piston-val').textContent = '100 %'; }
+}
+
+/* =====================================================================
+   6. PARCOURS PÉDAGOGIQUE — 6ᵉ SA4 (états de l'eau), 5ᵉ SA3 (structure
+   de la matière), 5ᵉ SA5 (propriétés des gaz)
+   ===================================================================== */
+
+const MISSIONS = [
+  {
+    titre: 'Les molécules',
+    etapes: [
+      { texte: "Maintiens 🔥 Chauffer enfoncé quelques secondes et observe les molécules s'agiter de plus en plus.",
+        test: () => suivi.chauffeMs > 1600 },
+    ],
+    retenir: "Toute la matière est faite de molécules, des grains minuscules et invisibles. Plus la température monte, plus elles s'agitent : c'est l'agitation thermique. La température mesure cette agitation !",
+    indice: "Garde le doigt appuyé sur le bouton 🔥 Chauffer, en bas de l'écran.",
+  },
+  {
+    titre: 'Le solide',
+    etapes: [
+      { texte: "Maintiens ❄️ Refroidir jusqu'à −10 °C : regarde les molécules se ranger !",
+        test: () => th.T <= -8 },
+    ],
+    retenir: "Dans un solide, les molécules sont rangées, serrées et liées : elles vibrent sur place sans se déplacer. C'est pour ça qu'un solide a une forme propre — un glaçon ne s'étale pas !",
+    indice: "Garde ❄️ Refroidir enfoncé et surveille le thermomètre à droite.",
+    diags: [
+      { si: () => th.T >= 40, msg: "Tu vas dans le mauvais sens : c'est ❄️ Refroidir qu'il faut maintenir !" },
+    ],
+  },
+  {
+    titre: 'La fusion',
+    etapes: [
+      { texte: "Chauffe la glace. À 0 °C exactement, elle commence à fondre : c'est la fusion.",
+        test: () => th.seg === 'fusion' && th.fondu > 0.08 },
+    ],
+    retenir: "La fusion est le passage solide → liquide. Pour l'eau pure, elle se produit toujours à 0 °C. Chaque corps pur a SA température de fusion (le fer fond à 1 538 °C !).",
+    indice: "Chauffe jusqu'à 0 °C et continue : les molécules du haut se libèrent une à une.",
+  },
+  {
+    titre: 'Le palier de température',
+    etapes: [
+      { texte: "Continue de chauffer PENDANT la fusion et regarde bien le thermomètre : il reste bloqué à 0 °C !",
+        test: () => suivi.palierChauffeMs > 2500 && th.fondu >= 0.7 },
+    ],
+    retenir: "Pendant TOUT le changement d'état, la température ne bouge plus : c'est le palier. L'énergie apportée ne sert pas à chauffer, mais à casser les liaisons entre molécules. Le palier est LA preuve qu'un corps est pur — question favorite des évaluations !",
+    indice: "Garde 🔥 enfoncé sans t'arrêter pendant que ça fond, et fixe le thermomètre : il ne monte pas.",
+    diags: [
+      { si: () => th.fondu >= 1 && th.T > 3,
+        msg: "Tout est fondu, le palier est derrière toi ! Refroidis sous 0 °C, puis re-chauffe doucement en observant le thermomètre." },
+    ],
+  },
+  {
+    titre: 'Le liquide',
+    etapes: [
+      { texte: "Fais fondre toute la glace et dépasse 10 °C : observe comme les molécules glissent les unes sur les autres.",
+        test: () => th.fondu >= 1 && th.T >= 10 && th.vap === 0 },
+    ],
+    retenir: "Dans un liquide, les molécules restent serrées mais désordonnées : elles glissent les unes sur les autres. Un liquide n'a pas de forme propre — il prend celle du récipient et sa surface reste horizontale.",
+    indice: "Chauffe jusqu'à ce qu'il ne reste plus un seul grain rangé, puis un peu au-delà.",
+  },
+  {
+    titre: "L'ébullition",
+    etapes: [
+      { texte: "Chauffe jusqu'à 100 °C : les molécules s'échappent du liquide, c'est l'ébullition !",
+        test: () => th.seg === 'ebullition' && th.vap > 0.08 },
+    ],
+    retenir: "La vaporisation est le passage liquide → gaz. À 100 °C, l'eau pure bout : deuxième palier ! Les molécules gagnent assez d'énergie pour se libérer complètement les unes des autres.",
+    indice: "Monte à 100 °C et continue de chauffer : regarde les premières molécules s'envoler.",
+  },
+  {
+    titre: 'Le gaz',
+    etapes: [
+      { texte: "Vaporise TOUTE l'eau : les molécules remplissent alors tout l'espace disponible.",
+        test: () => th.vap >= 1 && th.T >= 104 },
+    ],
+    retenir: "Dans un gaz, les molécules sont libres, très espacées et très rapides : elles occupent TOUT le volume offert. Un gaz n'a ni forme propre ni volume propre — il est expansible.",
+    indice: "Maintiens 🔥 jusqu'au bout du palier de 100 °C, puis encore un peu.",
+  },
+  {
+    titre: 'Marche arrière : la liquéfaction',
+    etapes: [
+      { texte: "Refroidis la vapeur : les molécules se rassemblent à nouveau en liquide. C'est la liquéfaction.",
+        test: () => suivi.aEteGaz && th.vap <= 0.15 },
+    ],
+    retenir: "La liquéfaction (gaz → liquide) est l'inverse de la vaporisation. C'est elle qui forme les nuages, la rosée du matin et la buée sur un verre froid : de la vapeur d'eau qui se refroidit !",
+    indice: "Maintiens ❄️ Refroidir : les molécules rapides ralentissent et retombent.",
+  },
+  {
+    titre: 'La solidification',
+    etapes: [
+      { texte: "Continue de refroidir jusqu'à ce que TOUT redevienne solide, sous 0 °C.",
+        test: () => th.fondu <= 0.02 && th.T <= -5 },
+    ],
+    retenir: "La solidification (liquide → solide) se fait à 0 °C pour l'eau — même température que la fusion, avec son palier ! Tu connais maintenant les changements d'état : fusion ⇄ solidification, vaporisation ⇄ liquéfaction.",
+    indice: "❄️ Refroidir sans lâcher : traverse le palier de 0 °C jusqu'à −5 °C.",
+  },
+  {
+    titre: 'Comprime le gaz',
+    outils: ['piston'],
+    etapes: [
+      { texte: "Nouvel outil : le piston ! Vaporise toute l'eau, puis descends le piston à 60 % ou moins. Regarde la pression P monter !",
+        test: () => th.vap >= 0.95 && etat.volFrac <= 0.6 && pression(th.vap, th.T, etat.volFrac) >= 200 },
+    ],
+    retenir: "Un gaz est compressible : on peut réduire son volume. Mais ses molécules frappent alors les parois plus souvent → la pression augmente. Moins de volume = plus de pression (à température égale).",
+    indice: "D'abord tout vaporiser (au-delà de 100 °C), puis glisser le curseur Piston vers la gauche.",
+    diags: [
+      { si: () => th.vap < 0.9,
+        msg: "Il faut d'abord un gaz ! Chauffe jusqu'à vaporiser toute l'eau (au-delà du palier de 100 °C)." },
+    ],
+  },
+  {
+    titre: 'Pression et température',
+    outils: ['piston'],
+    etapes: [
+      { texte: "Garde le piston à 80 % ou moins et chauffe le gaz enfermé jusqu'à 120 °C : la pression grimpe encore !",
+        test: () => th.vap >= 0.95 && etat.volFrac <= 0.8 && th.T >= 118 &&
+                    pression(th.vap, th.T, etat.volFrac) >= 160 },
+    ],
+    retenir: "Chauffer un gaz enfermé augmente sa pression : les molécules, plus rapides, frappent plus fort les parois. C'est pour ça qu'une bombe aérosol au soleil ou une cocotte-minute mal fermée sont dangereuses !",
+    indice: "Piston vers 70-80 %, puis 🔥 Chauffer jusqu'à 120 °C en surveillant P.",
+    diags: [
+      { si: () => etat.volFrac > 0.85, msg: "Descends d'abord le piston (80 % ou moins) pour bien enfermer le gaz." },
+      { si: () => th.vap < 0.9, msg: "Il faut du gaz : vaporise toute l'eau d'abord !" },
+    ],
+  },
+  {
+    titre: 'Défi : le cycle complet',
+    outils: ['piston'],
+    etapes: [
+      { texte: "Défi final : réalise le cycle complet ! Pars de la glace (−5 °C), vaporise tout, puis reviens à la glace. Traverse les 4 paliers !",
+        test: () => suivi.cycleRetour },
+    ],
+    retenir: "Bravo, parcours terminé 💪 Tu viens de faire ce que fait l'eau dans la nature : glace → eau → vapeur → nuages → pluie → glace. Le cycle de l'eau, c'est de la physique-chimie à l'échelle de la planète !",
+    indice: "Refroidis jusqu'à −5 °C, puis chauffe sans t'arrêter jusqu'au gaz complet, puis refroidis jusqu'au solide. Patience !",
+  },
+];
+
+// Mini-leçons : le contexte AVANT de manipuler
+const LECONS = [
+  "Regarde bien l'enceinte : ces petites billes bleues représentent les molécules d'eau. Elles sont réelles mais des milliards de fois trop petites pour être vues. Ici, on a zoomé pour toi !",
+  "La matière existe sous trois états : solide, liquide et gaz. Tout dépend de la façon dont les molécules se tiennent. Commençons par le plus ordonné : le solide.",
+  "Quand on chauffe un solide, ses molécules vibrent de plus en plus fort… jusqu'à se libérer. Ce passage a un nom : la fusion. Et il se produit à une température bien précise.",
+  "Voici LE concept le plus important du chapitre (et des évaluations !) : pendant qu'un corps pur change d'état, sa température reste constante. On appelle ça un palier. Tu vas le voir de tes yeux.",
+  "Entre 0 °C et 100 °C, l'eau est liquide. Ses molécules restent en contact, mais elles glissent librement les unes sur les autres — c'est pour ça que l'eau coule !",
+  "Que se passe-t-il à 100 °C ? Les molécules gagnent tellement d'énergie qu'elles s'arrachent du liquide. C'est l'ébullition — et un deuxième palier t'attend.",
+  "Un gaz, c'est de la matière dont les molécules sont devenues libres : rapides, espacées, invisibles. La vapeur d'eau est invisible — la « fumée » au-dessus d'une marmite, c'est déjà de la liquéfaction !",
+  "Tous les changements d'état marchent dans les deux sens. En refroidissant un gaz, ses molécules ralentissent et se rassemblent : c'est la liquéfaction, celle qui fabrique les nuages et la rosée.",
+  "Dernier retour : du liquide au solide. En refroidissant, les molécules ralentissent tellement qu'elles se rangent et se figent. Et devine quoi : ça se passe encore à 0 °C, avec un palier.",
+  "Nouvelle propriété étonnante des gaz : on peut les comprimer, c'est-à-dire réduire leur volume ! Impossible avec un liquide ou un solide. Le piston va te le prouver — surveille la pression P.",
+  "La pression, ce sont les chocs des molécules sur les parois. Deux façons de l'augmenter : réduire le volume… ou chauffer ! Attention, c'est exactement le danger des bouteilles de gaz au soleil.",
+  "À toi de jouer : le grand cycle complet, comme l'eau dans la nature. Glace, eau, vapeur, et retour. Tu vas traverser les quatre paliers — un vrai tour de maître !",
+];
+
+/* ---- Moteur de progression (socle IKE, identique aux autres sims) ---- */
+const progression = { m: 0, etape: 0, faites: [] };
+
+function chargerProgression() {
+  try {
+    const d = JSON.parse(localStorage.getItem('ike-matiere-progression'));
+    if (d) {
+      if (d.m === 'libre' || (Number.isInteger(d.m) && d.m >= 0 && d.m < MISSIONS.length))
+        progression.m = d.m;
+      if (Array.isArray(d.faites)) progression.faites = d.faites.filter(Number.isInteger);
+    }
+  } catch (e) {}
+}
+function sauverProgression() {
+  try {
+    localStorage.setItem('ike-matiere-progression',
+      JSON.stringify({ m: progression.m, faites: progression.faites }));
+  } catch (e) {}
+}
+function missionCourante() { return progression.m === 'libre' ? null : MISSIONS[progression.m]; }
+
+function ouvrirLecon() {
+  const m = missionCourante();
+  if (!m || !LECONS[progression.m]) return;
+  document.getElementById('mlecon-titre').textContent =
+    `Mission ${progression.m + 1} — ${m.titre}`;
+  document.getElementById('mlecon-texte').textContent = LECONS[progression.m];
+  document.getElementById('mlecon').classList.add('visible');
+}
+document.getElementById('btn-go-lecon').addEventListener('click', fermerVoiles);
+
+function evaluerMission() {
+  const m = missionCourante();
+  if (!m || progression.etape >= m.etapes.length) return;
+  if (document.querySelector('.voile.visible')) return;
+  let avance = false;
+  while (progression.etape < m.etapes.length && m.etapes[progression.etape].test()) {
+    progression.etape++;
+    avance = true;
+  }
+  if (!avance) { majDiagnostic(m); return; }
+  masquerDiagnostic();
+  resetEtapeTimer();
+  if (progression.etape >= m.etapes.length) {
+    if (!progression.faites.includes(progression.m)) {
+      progression.faites.push(progression.m);
+      sauverProgression();
+    }
+    toast('🎉 Mission réussie ! Regarde tes molécules…');
+    const mACeMoment = progression.m;
+    setTimeout(() => {
+      if (progression.m === mACeMoment && !document.querySelector('.voile.visible'))
+        ouvrirFin(m);
+    }, 2100);
+  } else {
+    toast(`✅ Étape ${progression.etape} réussie !`);
+    const bar = document.getElementById('mbar');
+    bar.classList.remove('flash'); void bar.offsetWidth; bar.classList.add('flash');
+  }
+  majMissionBar();
+}
+
+function majDiagnostic(m) {
+  const d = document.getElementById('mdiag');
+  const hit = (m.diags || []).find(x => x.si());
+  if (!hit) { masquerDiagnostic(); return; }
+  const msg = '🤔 ' + hit.msg;
+  if (d.textContent !== msg || !d.classList.contains('visible')) {
+    d.textContent = msg;
+    d.classList.add('visible');
+    redimensionner();
+  }
+}
+function masquerDiagnostic() {
+  const d = document.getElementById('mdiag');
+  if (d.classList.contains('visible')) { d.classList.remove('visible'); redimensionner(); }
+}
+
+function allerMission(m) {
+  progression.m = m;
+  progression.etape = 0;
+  sauverProgression();
+  resetEtapeTimer();
+  resetSuivi();
+  masquerDiagnostic();
+  fermerVoiles();
+  document.getElementById('mindice').classList.remove('visible');
+  majCommandes();
+  majMissionBar();
+  if (m !== 'libre') ouvrirLecon();
+}
+
+function majMissionBar() {
+  const m = missionCourante();
+  const l2 = document.querySelector('#mbar .l2');
+  if (!m) {
+    document.getElementById('mchip').textContent = '🧪';
+    document.getElementById('mtitre').textContent = 'Mode libre — expérimente !';
+    l2.style.display = 'none';
+  } else {
+    document.getElementById('mchip').textContent = `Mission ${progression.m + 1}/${MISSIONS.length}`;
+    document.getElementById('mtitre').textContent = m.titre;
+    l2.style.display = '';
+    const fini = progression.etape >= m.etapes.length;
+    const pts = document.getElementById('mpoints');
+    pts.innerHTML = '';
+    if (m.etapes.length > 1) {
+      m.etapes.forEach((e2, i) => {
+        const p = document.createElement('span');
+        p.className = 'pt' + (i < progression.etape ? ' faite' : i === progression.etape ? ' courante' : '');
+        pts.appendChild(p);
+      });
+    }
+    const metape = document.getElementById('metape');
+    metape.textContent = fini ? '🎉 Mission terminée ! Passe à la suivante.' : m.etapes[progression.etape].texte;
+    metape.classList.remove('glisse'); void metape.offsetWidth; metape.classList.add('glisse');
+    document.getElementById('mcompteur').textContent =
+      m.etapes.length > 1 && !fini ? `étape ${progression.etape + 1}/${m.etapes.length}` : '';
+    document.getElementById('mindice').textContent = '💡 ' + m.indice;
+    document.getElementById('btn-indice').style.display = fini ? 'none' : '';
+    document.getElementById('btn-suiv2').style.display = fini ? '' : 'none';
+  }
+  redimensionner();
+}
+
+function fermerVoiles() {
+  for (const v of document.querySelectorAll('.voile')) v.classList.remove('visible');
+}
+
+function ouvrirFin(m) {
+  const derniere = progression.m === MISSIONS.length - 1;
+  document.getElementById('mfin-titre').textContent = `Mission ${progression.m + 1} — ${m.titre}`;
+  document.getElementById('mfin-retenir').textContent = m.retenir;
+  document.getElementById('btn-suivante').textContent =
+    derniere ? '🧪 Continuer en Mode libre' : 'Mission suivante ▶';
+  document.getElementById('mfin').classList.add('visible');
+}
+
+document.getElementById('btn-suivante').addEventListener('click', () => {
+  const derniere = progression.m === MISSIONS.length - 1;
+  allerMission(derniere ? 'libre' : progression.m + 1);
+});
+document.getElementById('btn-suiv2').addEventListener('click', () => {
+  const derniere = progression.m === MISSIONS.length - 1;
+  allerMission(derniere ? 'libre' : progression.m + 1);
+});
+document.getElementById('btn-liste2').addEventListener('click', () => { fermerVoiles(); ouvrirListe(); });
+
+function ouvrirListe() {
+  const cont = document.getElementById('mliste-items');
+  cont.innerHTML = '';
+  MISSIONS.forEach((m, i) => {
+    const row = document.createElement('button');
+    row.className = 'mrow'
+      + (progression.faites.includes(i) ? ' faite' : '')
+      + (progression.m === i ? ' courante' : '');
+    const n = document.createElement('span');
+    n.className = 'n';
+    n.textContent = progression.faites.includes(i) ? '✓' : (i + 1) + '.';
+    const t = document.createElement('span');
+    t.className = 't';
+    t.textContent = m.titre;
+    row.append(n, t);
+    row.addEventListener('click', () => allerMission(i));
+    cont.appendChild(row);
+  });
+  document.getElementById('mliste').classList.add('visible');
+}
+
+document.getElementById('btn-missions').addEventListener('click', ouvrirListe);
+document.getElementById('btn-libre').addEventListener('click', () => allerMission('libre'));
+document.getElementById('btn-fermer-liste').addEventListener('click', fermerVoiles);
+
+const btnResetProg = document.getElementById('btn-reset-prog');
+let confirmReset = null;
+btnResetProg.addEventListener('click', () => {
+  if (confirmReset) {
+    clearTimeout(confirmReset); confirmReset = null;
+    btnResetProg.textContent = '↺ Réinitialiser tout le parcours';
+    progression.faites = [];
+    etat.E = 70; etat.volFrac = 1;
+    allerMission(0);
+    try { localStorage.removeItem('ike-matiere-visite'); } catch (e) {}
+    lancerVisite();
+  } else {
+    btnResetProg.textContent = 'Sûr ? Touche encore une fois';
+    confirmReset = setTimeout(() => {
+      confirmReset = null;
+      btnResetProg.textContent = '↺ Réinitialiser tout le parcours';
+    }, 2500);
+  }
+});
+
+for (const v of document.querySelectorAll('.voile'))
+  v.addEventListener('click', e => { if (e.target === v) v.classList.remove('visible'); });
+
+document.getElementById('btn-indice').addEventListener('click', () => {
+  document.getElementById('btn-indice').classList.remove('pulse');
+  document.getElementById('mindice').classList.toggle('visible');
+  redimensionner();
+});
+
+let toastTimer = null;
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('visible');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('visible'), 1900);
+}
+
+let etapeDebut = Date.now();
+let coupDePouceFait = false;
+function resetEtapeTimer() {
+  etapeDebut = Date.now();
+  coupDePouceFait = false;
+  document.getElementById('btn-indice').classList.remove('pulse');
+}
+setInterval(() => {
+  const m = missionCourante();
+  if (!m || progression.etape >= m.etapes.length || visiteIdx >= 0) return;
+  if (document.querySelector('.voile.visible')) return;
+  if (!coupDePouceFait && Date.now() - etapeDebut > 45000) {
+    coupDePouceFait = true;
+    document.getElementById('btn-indice').classList.add('pulse');
+    toast('💡 Besoin d\'aide ? Touche le bouton Indice !');
+  }
+}, 5000);
+
+/* =====================================================================
+   7. INFOS EN DIRECT & LEXIQUE
+   ===================================================================== */
+
+let formuleVisible = true;
+try { formuleVisible = localStorage.getItem('ike-matiere-formule') !== 'non'; } catch (e) {}
+
+function majFormule() {
+  const f = document.getElementById('formule');
+  if (!formuleVisible) { f.style.display = 'none'; return; }
+  f.style.display = '';
+  const l = [];
+  const math = t => l.push(`<span class="fmath">${t}</span>`);
+  const res = t => l.push(`<span class="fmath fres">${t}</span>`);
+  const palier = t => l.push(`<span class="fmath fpalier">${t}</span>`);
+  const note = t => l.push(`<span class="fnote">${t}</span>`);
+  l.push('<div class="ftitre">📐 En direct</div>');
+
+  math(`T = ${fmt(th.T)} °C`);
+  if (th.seg === 'fusion') {
+    palier(`PALIER DE FUSION : T bloquée à 0 °C`);
+    res(`fondu : ${fmt(th.fondu * 100)} %`);
+    note("L'énergie reçue casse les liaisons entre molécules — elle ne chauffe pas !");
+  } else if (th.seg === 'ebullition') {
+    palier(`PALIER D'ÉBULLITION : T bloquée à 100 °C`);
+    res(`vaporisé : ${fmt(th.vap * 100)} %`);
+    note("L'énergie libère les molécules du liquide — la température attend !");
+  } else {
+    const nom = th.seg === 'solide' ? 'SOLIDE — molécules rangées, qui vibrent'
+      : th.seg === 'liquide' ? 'LIQUIDE — molécules serrées, qui glissent'
+      : 'GAZ — molécules libres et rapides';
+    res(nom);
+  }
+  if (pistonDebloque() && th.vap > 0.02) {
+    const P = pression(th.vap, th.T, etat.volFrac);
+    math(`P ≈ 100 × (T+273)/293 ÷ V`);
+    math(`P ≈ 100 × ${fmt((th.T + 273) / 293, 2)} ÷ ${fmt(etat.volFrac, 2)}`);
+    res(`P ≈ ${fmt(P)} ${P >= 220 ? '⚠ danger !' : ''}`);
+    note('P = chocs des molécules sur les parois. V ↓ ou T ↑ ⇒ P ↑');
+  }
+  l.push('<button class="flex" id="btn-lexique">📖 Lexique des termes</button>');
+  const html = l.join('');
+  if (f.dataset.prec !== html) {   // éviter de reconstruire le DOM à chaque image
+    f.dataset.prec = html;
+    f.innerHTML = html;
+    document.getElementById('btn-lexique').addEventListener('click', ouvrirLexique);
+  }
+}
+
+document.getElementById('btn-formule').addEventListener('click', () => {
+  formuleVisible = !formuleVisible;
+  try { localStorage.setItem('ike-matiere-formule', formuleVisible ? 'oui' : 'non'); } catch (e) {}
+  majFormule();
+});
+
+const LEXIQUE = [
+  ['Molécule', 'Grain de matière minuscule et invisible. Toute la matière en est faite. Dans cette simulation, chaque bille bleue est une molécule d\'eau (très grossie !).'],
+  ['Agitation thermique', 'Mouvement désordonné et permanent des molécules. Plus la température est élevée, plus elles s\'agitent.'],
+  ['État solide', 'Molécules rangées, serrées, liées : elles vibrent sur place. Le solide a une forme propre.'],
+  ['État liquide', 'Molécules serrées mais désordonnées : elles glissent les unes sur les autres. Le liquide prend la forme du récipient, sa surface reste horizontale.'],
+  ['État gazeux', 'Molécules libres, espacées et rapides : elles occupent tout le volume offert. Un gaz n\'a ni forme ni volume propres.'],
+  ['Fusion', 'Passage solide → liquide. Pour l\'eau pure : à 0 °C.'],
+  ['Solidification', 'Passage liquide → solide (l\'inverse de la fusion). Pour l\'eau : à 0 °C aussi.'],
+  ['Vaporisation (ébullition)', 'Passage liquide → gaz. L\'eau pure bout à 100 °C.'],
+  ['Liquéfaction', 'Passage gaz → liquide. C\'est elle qui forme les nuages, la buée et la rosée.'],
+  ['Palier de température', 'Pendant un changement d\'état d\'un corps pur, la température reste constante : l\'énergie sert à transformer, pas à chauffer. C\'est la signature d\'un corps pur.'],
+  ['Corps pur', 'Matière formée d\'une seule sorte de molécules (eau pure, fer…). Ses changements d\'état ont des températures précises, avec paliers.'],
+  ['Compressible', 'Qu\'on peut comprimer (réduire son volume). Les gaz sont compressibles, les liquides et solides non.'],
+  ['Pression', 'Force des chocs des molécules d\'un gaz sur les parois. Elle augmente quand on réduit le volume ou quand on chauffe.'],
+];
+
+function ouvrirLexique() {
+  const dl = document.getElementById('lex-items');
+  if (!dl.childElementCount) {
+    for (const [terme, def] of LEXIQUE) {
+      const dt = document.createElement('dt'); dt.textContent = terme;
+      const dd = document.createElement('dd'); dd.textContent = def;
+      dl.append(dt, dd);
+    }
+  }
+  document.getElementById('mlexique').classList.add('visible');
+}
+document.getElementById('btn-fermer-lexique').addEventListener('click', fermerVoiles);
+
+/* =====================================================================
+   8. VISITE GUIDÉE
+   ===================================================================== */
+
+const VISITE = [
+  { cible: '#mbar', titre: '🎯 Ta mission',
+    texte: "Ta mission s'affiche ici : lis l'étape en cours et réalise-la. Les points colorés montrent ta progression." },
+  { cible: '#scene', titre: '🔬 L\'enceinte à molécules',
+    texte: "Chaque bille bleue est une molécule d'eau (très grossie !). Le thermomètre à droite indique la température en direct. Observe bien comment les molécules se comportent." },
+  { cible: '#palette', titre: '🔥❄️ Chauffer et refroidir',
+    texte: "MAINTIENS le doigt appuyé sur 🔥 Chauffer ou ❄️ Refroidir pour agir sur la matière. Un piston se débloquera plus tard pour comprimer le gaz !" },
+  { cible: '#formule', titre: '📐 Les infos en direct',
+    texte: "Ce panneau suit ton expérience : température, état, pourcentage fondu ou vaporisé, pression… Et il t'alerte pendant les fameux PALIERS. Le lien « Lexique » explique tous les termes." },
+  { cible: '#btn-indice', titre: '💡 Bloqué ? Un indice !',
+    texte: "Ce bouton te donne un coup de pouce pour l'étape en cours. N'hésite jamais à l'utiliser !" },
+  { cible: '#btn-theme', titre: '🌙 Confort visuel',
+    texte: "Bascule entre thème clair et sombre. Ton choix est mémorisé sur l'appareil." },
+];
+let visiteIdx = -1;
+const visiteEl = document.getElementById('visite');
+
+function lancerVisite() {
+  fermerVoiles();
+  visiteIdx = 0;
+  visiteEl.style.display = 'block';
+  montrerEtapeVisite();
+}
+function fermerVisite() {
+  visiteIdx = -1;
+  visiteEl.style.display = 'none';
+  try { localStorage.setItem('ike-matiere-visite', '1'); } catch (e) {}
+  if (missionCourante() && progression.etape === 0) ouvrirLecon();
+}
+function montrerEtapeVisite() {
+  const et = VISITE[visiteIdx];
+  const halo = document.getElementById('visite-halo');
+  const carte = document.getElementById('visite-carte');
+  let rc = null;
+  if (et.cible) {
+    const el = document.querySelector(et.cible);
+    const r = el && el.getBoundingClientRect();
+    if (r && r.width > 0) rc = r;
+  }
+  if (rc) {
+    visiteEl.classList.remove('sombre');
+    halo.style.display = 'block';
+    halo.style.left = (rc.left - 6) + 'px';
+    halo.style.top = (rc.top - 6) + 'px';
+    halo.style.width = (rc.width + 12) + 'px';
+    halo.style.height = (rc.height + 12) + 'px';
+  } else {
+    visiteEl.classList.add('sombre');
+    halo.style.display = 'none';
+  }
+  carte.querySelector('.vtitre').textContent = et.titre;
+  carte.querySelector('.vtexte').textContent = et.texte;
+  carte.querySelector('.vprog').textContent = `${visiteIdx + 1}/${VISITE.length}`;
+  document.getElementById('visite-suivant').textContent =
+    visiteIdx === VISITE.length - 1 ? "C'est parti !" : 'Suivant';
+  requestAnimationFrame(() => {
+    const cw = carte.offsetWidth, ch = carte.offsetHeight;
+    let x, y;
+    if (rc) {
+      y = rc.bottom + 14;
+      if (y + ch > window.innerHeight - 10) y = rc.top - ch - 14;
+      if (y < 10) y = Math.max(10, (window.innerHeight - ch) / 2);
+      x = Math.max(10, Math.min(window.innerWidth - cw - 10, rc.left + rc.width / 2 - cw / 2));
+    } else {
+      x = (window.innerWidth - cw) / 2;
+      y = (window.innerHeight - ch) / 2;
+    }
+    carte.style.left = x + 'px';
+    carte.style.top = y + 'px';
+  });
+}
+document.getElementById('visite-suivant').addEventListener('click', () => {
+  visiteIdx++;
+  if (visiteIdx >= VISITE.length) fermerVisite(); else montrerEtapeVisite();
+});
+document.getElementById('visite-passer').addEventListener('click', fermerVisite);
+visiteEl.addEventListener('click', e => {
+  if (e.target === visiteEl || e.target.id === 'visite-halo')
+    document.getElementById('visite-suivant').click();
+});
+window.addEventListener('resize', () => { if (visiteIdx >= 0) montrerEtapeVisite(); });
+document.getElementById('btn-aide').addEventListener('click', lancerVisite);
+
+/* =====================================================================
+   9. THÈME & DÉMARRAGE
+   ===================================================================== */
+
+function appliquerTheme() {
+  document.body.classList.toggle('sombre', etat.theme === 'sombre');
+  document.getElementById('btn-theme').innerHTML =
+    etat.theme === 'sombre' ? '☀️<span class="lbl"> Clair</span>' : '🌙<span class="lbl"> Sombre</span>';
+}
+document.getElementById('btn-theme').addEventListener('click', () => {
+  etat.theme = etat.theme === 'sombre' ? 'clair' : 'sombre';
+  try { localStorage.setItem('ike-theme', etat.theme); } catch (e) {}
+  appliquerTheme();
+});
+try {
+  const memo = localStorage.getItem('ike-theme') || localStorage.getItem('ike-circuit-theme');
+  if (memo === 'sombre' || memo === 'clair') etat.theme = memo;
+  else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
+    etat.theme = 'sombre';
+} catch (e) {}
+
+chargerProgression();
+window.addEventListener('resize', redimensionner);
+redimensionner();
+appliquerTheme();
+majCommandes();
+majMissionBar();
+requestAnimationFrame(boucle);
+
+setTimeout(() => {
+  const s = document.getElementById('splash');
+  s.classList.add('fini');
+  setTimeout(() => s.remove(), 600);
+  try {
+    if (!localStorage.getItem('ike-matiere-visite')) lancerVisite();
+    else if (missionCourante() && progression.etape === 0) ouvrirLecon();
+  } catch (e) { lancerVisite(); }
+}, 1400);
+</script>
+</body>
+</html>

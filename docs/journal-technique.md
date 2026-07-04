@@ -135,6 +135,31 @@ Référence : `docs/programme-sa-pct.md`.
 
 ---
 
+## Simulation 3 : États de la matière (2026-07, v2.3.0)
+
+### Décision : un modèle énergie → température (et non température directe)
+- **Choix** : les boutons chauffer/refroidir font varier une **énergie E** ; la température
+  est déduite par une courbe T(E) en 5 segments, dont deux **plats** (fusion à 0 °C,
+  ébullition à 100 °C). Les fractions fondue/vaporisée sortent du même modèle.
+- **Pourquoi** : le palier de température — LE concept évalué au collège — émerge
+  naturellement : l'élève chauffe, le thermomètre ne bouge pas. Impossible à obtenir
+  avec un modèle « température directe ». 14 tests Node valident la courbe.
+- **Particules** : 70 molécules, 3 comportements (réseau vibrant / glissement désordonné /
+  vol libre avec rebonds), assignées par les fractions du modèle → la transition est visible
+  molécule par molécule. Pression du gaz : `P ∝ (T+273)/V`, zone de danger colorée.
+
+### Décision : interaction « maintenir pour agir »
+- Les boutons 🔥/❄️ agissent tant qu'on les maintient (pointerdown/up) — geste continu qui
+  matérialise l'apport d'énergie dans la durée, condition pour VIVRE le palier.
+  Troisième modèle d'interaction du catalogue (grille / glisser sur banc / maintenir).
+
+### Le socle IKE tient sa troisième validation
+Missions-prédicats (avec compteurs temporels : « chauffer pendant le palier ≥ 2,5 s »),
+mini-leçons, diagnostics, visite, formules en direct, lexique, thèmes — repris sans
+modification de logique. La « recette » est prête pour le guide.
+
+---
+
 ## Intégration plateforme (à compléter quand la plateforme sera choisie)
 
 Options gardées ouvertes par le format « un fichier autonome » :

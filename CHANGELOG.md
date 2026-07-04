@@ -5,6 +5,22 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v2.3.0 — 2026-07-04
+
+🧊 **Troisième simulation : États de la matière** — première simulation de chimie.
+
+- **Enceinte à molécules** : 70 particules aux comportements réels — solide (réseau qui vibre),
+  liquide (glissement désordonné), gaz (libre et rapide) — pilotées par un modèle
+  énergie/température avec **paliers exacts à 0 °C et 100 °C** (validé par 14 tests)
+- **Le palier de température**, concept-clé des évaluations, vécu en direct : on chauffe,
+  le thermomètre reste bloqué, le panneau 📐 explique pourquoi
+- **Piston et pression** (5ᵉ SA5) : comprimer le gaz ou le chauffer enfermé fait monter P,
+  avec zone de danger — sécurité des bouteilles de gaz au soleil
+- **12 missions** (6ᵉ SA4, 5ᵉ SA3, 5ᵉ SA5) : de « les molécules existent » au cycle complet
+  glace → vapeur → glace, avec mini-leçons, diagnostics, lexique de 13 termes
+- Boutons « maintenir pour agir » (🔥/❄️), thermomètre gradué animé, tout le socle IKE
+- Accueil : carte États de la matière activée, carte « Combustions vives — bientôt »
+
 ## v2.2.0 — 2026-07-04
 
 Retours utilisateurs (3ᵉ vague) :
