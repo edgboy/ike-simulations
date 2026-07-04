@@ -5,6 +5,23 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v2.4.0 — 2026-07-04
+
+⚛️ **La 3D arrive + le guide de création est rédigé.** Les simulations 2D restent intactes.
+
+- **Molécules en 3D** (prototype de validation 3D, 4ᵉ SA2/SA4) : six molécules
+  (H₂O, O₂, N₂, CO₂, CH₄, NH₃) en modèle boules-bâtonnets — rotation au doigt, pincer
+  pour zoomer, toucher un atome pour l'identifier. Le tétraèdre du méthane et la
+  pyramide de l'ammoniac, enfin montrables ! 10 missions, socle IKE complet.
+- **Three.js r128 embarqué** dans le fichier (0,63 Mo, budget 3D < 1,5 Mo respecté),
+  zéro dépendance réseau. **Compteur FPS affiché** dans le panneau infos : chaque
+  testeur peut mesurer la fluidité sur son propre appareil.
+- Nouveau : `vendor/` (bibliothèques), `outils/embarquer.js` (assemblage template + lib
+  → fichier unique), `app.template.html` versionné et lisible.
+- 📖 **`docs/guide-creation-simulations.md`** : le guide complet — philosophie,
+  charte, anatomie d'une simulation, création pas à pas, moteur de missions,
+  conventions françaises, 3D, intégration e-learning, liste de contrôle.
+
 ## v2.3.0 — 2026-07-04
 
 🧊 **Troisième simulation : États de la matière** — première simulation de chimie.

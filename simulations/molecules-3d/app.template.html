@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#1565c0">
+<title>Molécules en 3D · IKE Simulations</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html, body { height:100%; overflow:hidden; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background:#f4f7fb; color:#263238;
+    display:flex; flex-direction:column;
+    user-select:none; -webkit-user-select:none; touch-action:manipulation;
+  }
+
+  /* ---------- Écran de démarrage IKE ---------- */
+  #splash {
+    position:fixed; inset:0; z-index:100;
+    background:linear-gradient(160deg,#0d47a1 0%,#1565c0 55%,#1e88e5 100%);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    transition:opacity .5s ease;
+  }
+  #splash.fini { opacity:0; pointer-events:none; }
+  #splash .logo {
+    font-size:56px; line-height:1;
+    animation:battement 1.1s ease-in-out infinite;
+    filter:drop-shadow(0 4px 14px rgba(255,202,40,.45));
+  }
+  @keyframes battement { 50% { transform:scale(1.18); } }
+  #splash .nom { margin-top:14px; color:#fff; font-size:30px; font-weight:800; letter-spacing:.5px; }
+  #splash .nom span { font-weight:300; opacity:.9; }
+  #splash .sub {
+    margin-top:4px; color:rgba(255,255,255,.75); font-size:13px;
+    letter-spacing:2px; text-transform:uppercase;
+  }
+  #splash .barre {
+    margin-top:22px; width:150px; height:4px; border-radius:2px;
+    background:rgba(255,255,255,.25); overflow:hidden;
+  }
+  #splash .rempl {
+    height:100%; background:#ffca28; border-radius:2px;
+    transform-origin:left; transform:scaleX(0); animation:charge 1.3s ease-out forwards;
+  }
+  @keyframes charge { to { transform:scaleX(1); } }
+  #splash .ver { position:absolute; bottom:14px; color:rgba(255,255,255,.5); font-size:11px; }
+
+  /* ---------- En-tête ---------- */
+  header {
+    display:flex; align-items:center; gap:8px;
+    padding:8px 12px; background:#fff; border-bottom:1px solid #e0e6ed;
+    flex:none; z-index:5;
+  }
+  header h1 { font-size:16px; font-weight:700; color:#1565c0; white-space:nowrap; }
+  header .spacer { flex:1; }
+  .btn {
+    border:1px solid #cfd8dc; background:#fff; color:#37474f;
+    border-radius:8px; padding:8px 10px; font-size:13px; font-weight:600;
+    cursor:pointer; white-space:nowrap; min-height:40px;
+  }
+  .btn:active { background:#e3f2fd; }
+  @media (max-width:480px) { .btn .lbl { display:none; } header h1 { font-size:14px; } }
+
+  /* ---------- Barre de mission ---------- */
+  #mbar { flex:none; background:#fff; border-bottom:1px solid #e0e6ed; padding:6px 10px; z-index:4; }
+  #mbar .l1 { display:flex; align-items:center; gap:8px; }
+  #mchip {
+    background:#1565c0; color:#fff; font-size:11px; font-weight:700;
+    border-radius:12px; padding:3px 9px; white-space:nowrap;
+  }
+  #mtitre {
+    font-size:13.5px; font-weight:700; color:#263238; flex:1;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  #mbar .mbtn {
+    border:1px solid #cfd8dc; background:#fff; border-radius:8px;
+    font-size:14px; padding:4px 10px; cursor:pointer; min-height:34px;
+  }
+  #mbar .l2 { display:flex; align-items:center; gap:8px; margin-top:5px; }
+  #mbar.flash { animation:flashvert .9s ease; }
+  @keyframes flashvert { 0% { background:#c8e6c9; } 100% { background:#fff; } }
+  #mpoints { display:flex; gap:5px; align-items:center; flex:none; }
+  #mpoints .pt { width:9px; height:9px; border-radius:50%; background:#cfd8dc; }
+  #mpoints .pt.faite { background:#2e7d32; }
+  #mpoints .pt.courante { background:#1565c0; animation:ptpulse 1.6s infinite; }
+  @keyframes ptpulse { 50% { transform:scale(1.4); } }
+  #metape { flex:1; font-size:12.5px; color:#37474f; line-height:1.4; }
+  #metape.glisse { animation:glisse .4s ease; }
+  @keyframes glisse { from { opacity:0; transform:translateX(12px); } }
+  #mcompteur { font-size:11px; color:#90a4ae; font-weight:700; white-space:nowrap; }
+  #btn-indice {
+    background:#fff8e1 !important; border-color:#ffca28 !important;
+    color:#795548; font-weight:700; white-space:nowrap;
+  }
+  #btn-indice.pulse { animation:indicepulse 1.2s infinite; }
+  @keyframes indicepulse {
+    50% { transform:scale(1.08); box-shadow:0 0 0 7px rgba(255,202,40,.3); }
+  }
+  #btn-suiv2 {
+    background:#1565c0 !important; border-color:#1565c0 !important;
+    color:#fff !important; font-weight:700; white-space:nowrap;
+  }
+  #mindice {
+    display:none; margin-top:6px; background:#fff8e1; border:1px solid #ffe082;
+    color:#795548; font-size:12.5px; border-radius:8px; padding:7px 10px; line-height:1.45;
+  }
+  #mindice.visible { display:block; }
+  #mdiag {
+    display:none; margin-top:6px; background:#fff3e0; border:1px solid #ffcc80;
+    color:#bf360c; font-size:12.5px; border-radius:8px; padding:7px 10px; line-height:1.45;
+  }
+  #mdiag.visible { display:block; animation:glisse .4s ease; }
+
+  /* ---------- Scène 3D ---------- */
+  #wrap { flex:1; position:relative; overflow:hidden; }
+  canvas#scene { position:absolute; inset:0; width:100%; height:100%; touch-action:none; display:block; }
+
+  /* Étiquette de l'atome touché */
+  #atome-info {
+    position:absolute; top:12px; left:50%; transform:translateX(-50%) scale(.9);
+    display:flex; align-items:center; gap:8px;
+    background:rgba(255,255,255,.95); border:1px solid #cfd8dc; border-radius:20px;
+    padding:7px 16px; font-size:14px; font-weight:800; color:#263238;
+    opacity:0; pointer-events:none; transition:opacity .2s, transform .25s; z-index:6;
+  }
+  #atome-info.visible { opacity:1; transform:translateX(-50%) scale(1); }
+  #atome-info .pastille { width:16px; height:16px; border-radius:50%; border:2px solid rgba(0,0,0,.2); }
+
+  /* Panneau infos en direct */
+  #formule {
+    position:absolute; top:10px; left:10px; z-index:5;
+    background:rgba(255,255,255,.94); border:1px solid #cfd8dc; border-radius:12px;
+    padding:10px 12px; max-width:min(250px, 56vw);
+    font-size:12px; line-height:1.6; color:#37474f;
+    box-shadow:0 3px 12px rgba(0,0,0,.12);
+  }
+  #formule .ftitre {
+    font-size:11px; font-weight:800; letter-spacing:.5px; color:#1565c0;
+    text-transform:uppercase; margin-bottom:4px;
+  }
+  #formule .fformule { font-size:22px; font-weight:800; color:#263238; margin:2px 0; }
+  #formule .fligne { display:flex; align-items:center; gap:6px; margin:2px 0; }
+  #formule .fligne .pastille { width:11px; height:11px; border-radius:50%; border:1.5px solid rgba(0,0,0,.2); flex:none; }
+  #formule .fres { font-weight:800; color:#2e7d32; }
+  #formule .fnote { font-size:11px; color:#90a4ae; font-style:italic; }
+  #formule .flex {
+    display:block; margin-top:6px; font-size:11px; font-weight:700;
+    color:#1565c0; text-decoration:underline; cursor:pointer;
+    background:none; border:none; padding:0;
+  }
+
+  .lex { margin-bottom:10px; }
+  .lex dt { font-size:13px; font-weight:800; color:#1565c0; margin-top:10px; }
+  .lex dd { font-size:12.5px; line-height:1.5; color:#37474f; margin:2px 0 0; }
+
+  #toast {
+    position:absolute; bottom:16px; left:50%;
+    transform:translateX(-50%) translateY(10px) scale(.9);
+    background:#2e7d32; color:#fff; font-size:14.5px; font-weight:800;
+    padding:11px 22px; border-radius:22px; opacity:0; pointer-events:none;
+    transition:opacity .25s, transform .3s cubic-bezier(.34,1.56,.64,1);
+    box-shadow:0 6px 20px rgba(46,125,50,.4); z-index:6; white-space:nowrap;
+  }
+  #toast.visible { opacity:1; transform:translateX(-50%) translateY(0) scale(1); }
+
+  /* ---------- Palette de molécules ---------- */
+  nav#palette {
+    flex:none; display:flex; justify-content:center; gap:6px;
+    padding:6px 8px calc(6px + env(safe-area-inset-bottom));
+    background:#fff; border-top:1px solid #e0e6ed; overflow-x:auto; z-index:5;
+  }
+  nav#palette button {
+    display:flex; flex-direction:column; align-items:center; gap:1px;
+    border:2px solid transparent; border-radius:10px; background:#f4f7fb;
+    padding:7px 10px 5px; min-width:58px; min-height:52px; cursor:pointer;
+  }
+  nav#palette button.actif { border-color:#1565c0; background:#e3f2fd; }
+  nav#palette button .form { font-size:15px; font-weight:800; color:#263238; }
+  nav#palette button .nomm { font-size:9.5px; font-weight:600; color:#90a4ae; white-space:nowrap; }
+
+  /* ---------- Voiles ---------- */
+  .voile {
+    position:fixed; inset:0; background:rgba(38,50,56,.55);
+    display:none; align-items:center; justify-content:center; z-index:20; padding:16px;
+  }
+  .voile.visible { display:flex; }
+  .voile .carte {
+    background:#fff; border-radius:16px; padding:22px; max-width:400px; width:100%;
+    max-height:86vh; overflow-y:auto; box-shadow:0 10px 40px rgba(0,0,0,.3);
+  }
+  .voile .carte h2 { font-size:18px; color:#1565c0; margin-bottom:12px; }
+  .voile.visible .carte h2 { animation:pop .4s ease-out; }
+  @keyframes pop { 0% { transform:scale(.5); opacity:0; } 80% { transform:scale(1.08); } 100% { transform:scale(1); } }
+  .voile .go {
+    width:100%; border:none; background:#1565c0; color:#fff; font-size:15px; font-weight:700;
+    padding:12px; border-radius:10px; cursor:pointer;
+  }
+  .voile .btn2 {
+    width:100%; border:1px solid #cfd8dc; background:#fff; color:#37474f;
+    font-size:13px; font-weight:600; padding:10px; border-radius:10px;
+    cursor:pointer; margin-top:8px;
+  }
+  .voile .lien {
+    display:block; width:100%; text-align:center; margin-top:10px;
+    background:none; border:none; color:#90a4ae; font-size:11.5px;
+    text-decoration:underline; cursor:pointer;
+  }
+  #mfin-titre { font-weight:700; font-size:15px; color:#263238; margin-bottom:10px; }
+  .retenir-label { font-size:12px; font-weight:800; color:#2e7d32; margin-bottom:4px; }
+  #mfin-retenir {
+    background:#e8f5e9; border-radius:10px; padding:10px 12px;
+    font-size:13.5px; line-height:1.55; color:#1b5e20; margin:0 0 14px;
+  }
+  .mrow {
+    display:flex; align-items:center; gap:8px; width:100%;
+    border:none; background:#f4f7fb; border-radius:8px; padding:10px;
+    margin-bottom:5px; font-size:13px; cursor:pointer; text-align:left; color:#263238;
+  }
+  .mrow .n { font-weight:700; color:#90a4ae; min-width:22px; }
+  .mrow.faite .n { color:#2e7d32; }
+  .mrow.courante { outline:2px solid #1565c0; background:#e3f2fd; }
+  .mrow .t { flex:1; }
+
+  /* ---------- Visite guidée ---------- */
+  #visite { position:fixed; inset:0; z-index:30; display:none; }
+  #visite.sombre { background:rgba(38,50,56,.62); }
+  #visite-halo {
+    position:absolute; border-radius:12px; border:2px solid #ffca28;
+    box-shadow:0 0 0 9999px rgba(38,50,56,.62);
+    transition:all .3s ease; pointer-events:none;
+  }
+  #visite-carte {
+    position:absolute; background:#fff; border-radius:14px; padding:16px;
+    width:min(310px, calc(100vw - 24px)); box-shadow:0 10px 40px rgba(0,0,0,.35);
+  }
+  .vtitre { font-size:15px; font-weight:800; color:#1565c0; margin-bottom:6px; }
+  .vtexte { font-size:13px; line-height:1.55; color:#37474f; white-space:pre-line; }
+  .vbas { display:flex; align-items:center; gap:10px; margin-top:12px; }
+  .vprog { flex:1; font-size:11px; font-weight:700; color:#90a4ae; }
+  #visite-passer {
+    background:none; border:none; color:#90a4ae; font-size:12px;
+    text-decoration:underline; cursor:pointer; padding:6px;
+  }
+  #visite-suivant {
+    border:none; background:#1565c0; color:#fff; font-weight:700;
+    font-size:13px; padding:9px 18px; border-radius:9px; cursor:pointer;
+  }
+  .vmarque { margin-top:10px; text-align:center; font-size:10px; color:#b0bec5; }
+
+  /* ==================== THÈME SOMBRE ==================== */
+  body.sombre { background:#10181f; color:#eceff1; }
+  body.sombre header,
+  body.sombre #mbar,
+  body.sombre nav#palette { background:#1c262e; border-color:#2c3a45; }
+  body.sombre header h1 { color:#64b5f6; }
+  body.sombre .btn { background:#22303a; border-color:#3a4a56; color:#cfd8dc; }
+  body.sombre .btn:active { background:#0d2c4f; }
+  body.sombre #mtitre { color:#eceff1; }
+  body.sombre #metape { color:#cfd8dc; }
+  body.sombre #mbar .mbtn { background:#22303a; border-color:#3a4a56; color:#cfd8dc; }
+  body.sombre #btn-indice { background:#3a3220 !important; border-color:#8d6e63 !important; color:#ffd54f; }
+  body.sombre #mindice { background:#2b2618; border-color:#5d4d1a; color:#ffe082; }
+  body.sombre #mdiag { background:#33261a; border-color:#7a5c3d; color:#ffcc80; }
+  body.sombre #mpoints .pt { background:#3a4a56; }
+  body.sombre #mpoints .pt.faite { background:#66bb6a; }
+  body.sombre #mpoints .pt.courante { background:#64b5f6; }
+  body.sombre #mbar.flash { animation-name:flashvert-sombre; }
+  @keyframes flashvert-sombre { 0% { background:#1b3a22; } 100% { background:#1c262e; } }
+  body.sombre nav#palette button { background:#22303a; }
+  body.sombre nav#palette button .form { color:#eceff1; }
+  body.sombre nav#palette button.actif { background:#0d2c4f; border-color:#64b5f6; }
+  body.sombre #atome-info { background:rgba(28,38,46,.95); border-color:#3a4a56; color:#eceff1; }
+  body.sombre #formule { background:rgba(28,38,46,.95); border-color:#3a4a56; color:#cfd8dc; }
+  body.sombre #formule .ftitre { color:#64b5f6; }
+  body.sombre #formule .fformule { color:#eceff1; }
+  body.sombre #formule .fres { color:#81c784; }
+  body.sombre #formule .flex { color:#64b5f6; }
+  body.sombre .lex dt { color:#64b5f6; }
+  body.sombre .lex dd { color:#cfd8dc; }
+  body.sombre .voile .carte, body.sombre #visite-carte { background:#1c262e; }
+  body.sombre .voile .carte h2, body.sombre .vtitre { color:#64b5f6; }
+  body.sombre .vtexte { color:#cfd8dc; }
+  body.sombre .voile .btn2 { background:#22303a; border-color:#3a4a56; color:#cfd8dc; }
+  body.sombre #mfin-titre { color:#eceff1; }
+  body.sombre .retenir-label { color:#81c784; }
+  body.sombre #mfin-retenir { background:#16281a; color:#a5d6a7; }
+  body.sombre .mrow { background:#26313a; color:#eceff1; }
+  body.sombre .mrow.courante { background:#0d2c4f; outline-color:#64b5f6; }
+</style>
+</head>
+<body>
+
+<div id="splash">
+  <div class="logo">⚡</div>
+  <div class="nom">IKE <span>Simulations</span></div>
+  <div class="sub">Sciences au collège</div>
+  <div class="barre"><div class="rempl"></div></div>
+  <div class="ver">v2.4.0 · prototype 3D</div>
+</div>
+
+<header>
+  <h1>⚛️ Molécules en 3D</h1>
+  <div class="spacer"></div>
+  <button class="btn" id="btn-formule">📐<span class="lbl"> Infos</span></button>
+  <button class="btn" id="btn-theme">🌙<span class="lbl"> Sombre</span></button>
+  <button class="btn" id="btn-aide">❓<span class="lbl"> Aide</span></button>
+</header>
+
+<div id="mbar">
+  <div class="l1">
+    <span id="mchip"></span>
+    <span id="mtitre"></span>
+    <button class="mbtn" id="btn-missions" title="Toutes les missions">📋</button>
+  </div>
+  <div class="l2">
+    <span id="mpoints"></span>
+    <span id="metape"></span>
+    <span id="mcompteur"></span>
+    <button class="mbtn" id="btn-indice" title="Indice">💡 Indice</button>
+    <button class="mbtn" id="btn-suiv2" style="display:none">Suivante ▶</button>
+  </div>
+  <div id="mindice"></div>
+  <div id="mdiag"></div>
+</div>
+
+<div id="wrap">
+  <canvas id="scene"></canvas>
+  <div id="formule"></div>
+  <div id="atome-info"><span class="pastille"></span><span id="atome-nom"></span></div>
+  <div id="toast"></div>
+</div>
+
+<nav id="palette"></nav>
+
+<div id="mlecon" class="voile">
+  <div class="carte">
+    <h2>📖 Avant de commencer…</h2>
+    <div id="mlecon-titre" style="font-weight:700; font-size:15px; margin-bottom:10px;"></div>
+    <p id="mlecon-texte" style="font-size:14px; line-height:1.65; margin-bottom:14px;"></p>
+    <button class="go" id="btn-go-lecon">C'est parti !</button>
+  </div>
+</div>
+
+<div id="mlexique" class="voile">
+  <div class="carte">
+    <h2>📖 Lexique des molécules</h2>
+    <dl class="lex" id="lex-items"></dl>
+    <button class="go" id="btn-fermer-lexique">Fermer</button>
+  </div>
+</div>
+
+<div id="mfin" class="voile">
+  <div class="carte">
+    <h2>🎉 Mission réussie !</h2>
+    <div id="mfin-titre"></div>
+    <div class="retenir-label">💡 À retenir</div>
+    <p id="mfin-retenir"></p>
+    <button class="go" id="btn-suivante">Mission suivante ▶</button>
+    <button class="btn2" id="btn-liste2">📋 Toutes les missions</button>
+  </div>
+</div>
+
+<div id="mliste" class="voile">
+  <div class="carte">
+    <h2>📋 Parcours d'apprentissage</h2>
+    <div id="mliste-items"></div>
+    <button class="btn2" id="btn-libre">🧪 Mode libre — explore toutes les molécules</button>
+    <button class="go" id="btn-fermer-liste">Fermer</button>
+    <button class="lien" id="btn-reset-prog">↺ Réinitialiser tout le parcours</button>
+  </div>
+</div>
+
+<div id="visite">
+  <div id="visite-halo"></div>
+  <div id="visite-carte">
+    <div class="vtitre"></div>
+    <div class="vtexte"></div>
+    <div class="vbas">
+      <span class="vprog"></span>
+      <button id="visite-passer">Passer</button>
+      <button id="visite-suivant">Suivant</button>
+    </div>
+    <div class="vmarque">IKE Simulations · collège (PCT)</div>
+  </div>
+</div>
+
+<script>
+/*__THREE_JS_ICI__*/
+</script>
+<script>
+'use strict';
+/* =====================================================================
+   MOLÉCULES EN 3D — prototype de validation de la 3D légère (Three.js
+   embarqué). Programme : 4ᵉ SA2 (structure d'un atome) et SA4 (étude
+   de quelques molécules). Socle pédagogique IKE standard.
+   ===================================================================== */
+
+/* ---------- 1. Données chimiques ---------- */
+
+const ATOMES = {
+  H: { nom: 'Hydrogène', couleur: 0xf0f0f0, css: '#f0f0f0', r: 0.34 },
+  O: { nom: 'Oxygène',   couleur: 0xef5350, css: '#ef5350', r: 0.58 },
+  C: { nom: 'Carbone',   couleur: 0x455a64, css: '#455a64', r: 0.54 },
+  N: { nom: 'Azote',     couleur: 0x42a5f5, css: '#42a5f5', r: 0.56 },
+};
+
+const MOLECULES = {
+  eau: {
+    nom: 'Eau', formule: 'H₂O', forme: 'coudée',
+    atomes: [['O', 0, 0.15, 0], ['H', 0.9, -0.45, 0], ['H', -0.9, -0.45, 0]],
+    liaisons: [[0, 1], [0, 2]],
+  },
+  dioxygene: {
+    nom: 'Dioxygène', formule: 'O₂', forme: 'linéaire',
+    atomes: [['O', -0.62, 0, 0], ['O', 0.62, 0, 0]],
+    liaisons: [[0, 1]],
+  },
+  diazote: {
+    nom: 'Diazote', formule: 'N₂', forme: 'linéaire',
+    atomes: [['N', -0.56, 0, 0], ['N', 0.56, 0, 0]],
+    liaisons: [[0, 1]],
+  },
+  co2: {
+    nom: 'Dioxyde de carbone', formule: 'CO₂', forme: 'linéaire',
+    atomes: [['C', 0, 0, 0], ['O', -1.18, 0, 0], ['O', 1.18, 0, 0]],
+    liaisons: [[0, 1], [0, 2]],
+  },
+  methane: {
+    nom: 'Méthane', formule: 'CH₄', forme: 'tétraédrique',
+    atomes: [['C', 0, 0, 0],
+      ['H', 0.72, 0.72, 0.72], ['H', 0.72, -0.72, -0.72],
+      ['H', -0.72, 0.72, -0.72], ['H', -0.72, -0.72, 0.72]],
+    liaisons: [[0, 1], [0, 2], [0, 3], [0, 4]],
+  },
+  ammoniac: {
+    nom: 'Ammoniac', formule: 'NH₃', forme: 'pyramidale',
+    atomes: [['N', 0, 0.25, 0],
+      ['H', 0.85, -0.35, 0], ['H', -0.43, -0.35, 0.74], ['H', -0.43, -0.35, -0.74]],
+    liaisons: [[0, 1], [0, 2], [0, 3]],
+  },
+};
+const ORDRE_MOL = ['eau', 'dioxygene', 'diazote', 'co2', 'methane', 'ammoniac'];
+const SIMPLES = ['dioxygene', 'diazote'];   // corps purs simples (une seule sorte d'atomes)
+
+/* ---------- 2. État & suivi missions ---------- */
+
+const etat = { mol: 'eau', theme: 'clair' };
+const suivi = {
+  rotation: 0,                       // rotation faite PAR L'ÉLÈVE (rad), depuis la mission
+  rotationParMol: {},                // idem, par molécule
+  touches: new Set(),                // "mol:indexAtome" touchés depuis la mission
+  vues: [],                          // molécules affichées (dans l'ordre) depuis la mission
+  derniereTouche: null,              // élément du dernier atome touché
+};
+function resetSuivi() {
+  suivi.rotation = 0;
+  suivi.rotationParMol = {};
+  suivi.touches.clear();
+  suivi.vues = [etat.mol];
+  suivi.derniereTouche = null;
+}
+const nbTouches = (mol, elem) => {
+  let n = 0;
+  const def = MOLECULES[mol];
+  for (const cle of suivi.touches) {
+    const [m, i] = cle.split(':');
+    if (m === mol && def.atomes[+i][0] === elem) n++;
+  }
+  return n;
+};
+const aVu = mol => suivi.vues.includes(mol);
+const sequenceVue = (...mols) => {
+  let i = 0;
+  for (const v of suivi.vues) if (v === mols[i]) { i++; if (i >= mols.length) return true; }
+  return false;
+};
+
+/* ---------- 3. Scène Three.js ---------- */
+
+const canvas = document.getElementById('scene');
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+camera.position.set(0, 0, 6);
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+const soleil = new THREE.DirectionalLight(0xffffff, 0.85);
+soleil.position.set(3, 4, 5);
+scene.add(soleil);
+const groupe = new THREE.Group();
+scene.add(groupe);
+
+const ECHELLE = 1.55;
+const matCache = {}, geoCache = {};
+function matDe(elem) {
+  if (!matCache[elem])
+    matCache[elem] = new THREE.MeshPhongMaterial({ color: ATOMES[elem].couleur, shininess: 55 });
+  return matCache[elem];
+}
+function geoDe(r) {
+  const cle = r.toFixed(2);
+  if (!geoCache[cle]) geoCache[cle] = new THREE.SphereGeometry(r, 26, 18);
+  return geoCache[cle];
+}
+const geoLiaison = new THREE.CylinderGeometry(0.09, 0.09, 1, 10);
+const matLiaison = new THREE.MeshPhongMaterial({ color: 0x9e9e9e });
+
+function construireMolecule(id) {
+  etat.mol = id;
+  if (!suivi.vues.includes(id) || suivi.vues[suivi.vues.length - 1] !== id) suivi.vues.push(id);
+  while (groupe.children.length) groupe.remove(groupe.children[0]);
+  const def = MOLECULES[id];
+  def.atomes.forEach(([elem, x, y, z], i) => {
+    const m = new THREE.Mesh(geoDe(ATOMES[elem].r * ECHELLE), matDe(elem).clone());
+    m.position.set(x * ECHELLE, y * ECHELLE, z * ECHELLE);
+    m.userData = { elem, idx: i };
+    groupe.add(m);
+  });
+  for (const [a, b] of def.liaisons) {
+    const pa = new THREE.Vector3(...def.atomes[a].slice(1)).multiplyScalar(ECHELLE);
+    const pb = new THREE.Vector3(...def.atomes[b].slice(1)).multiplyScalar(ECHELLE);
+    const dir = new THREE.Vector3().subVectors(pb, pa);
+    const liaison = new THREE.Mesh(geoLiaison, matLiaison);
+    liaison.scale.y = dir.length();
+    liaison.position.copy(pa).add(pb).multiplyScalar(0.5);
+    liaison.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.clone().normalize());
+    liaison.userData = { liaison: true };
+    groupe.add(liaison);
+  }
+  groupe.rotation.set(0.25, 0.5, 0);
+  majPalette();
+  majFormule();
+  evaluerMission();
+}
+
+function redimensionner() {
+  const wrap = document.getElementById('wrap');
+  const w = wrap.clientWidth, h = wrap.clientHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+}
+
+/* ---------- 4. Boucle de rendu + compteur FPS ---------- */
+
+let fps = 0, cadres = 0, fpsDepuis = performance.now(), tPrec = 0;
+
+function boucle(t) {
+  const dt = Math.min(0.05, (t - tPrec) / 1000 || 0.016);
+  tPrec = t;
+  cadres++;
+  if (t - fpsDepuis >= 1000) {
+    fps = cadres; cadres = 0; fpsDepuis = t;
+    majFormule();   // rafraîchit l'affichage FPS 1 fois/s
+  }
+  if (!doigt.actif) groupe.rotation.y += 0.25 * dt;   // rotation douce au repos
+  renderer.render(scene, camera);
+  requestAnimationFrame(boucle);
+}
+
+/* ---------- 5. Interactions tactiles : tourner, zoomer, toucher ---------- */
+
+const doigt = { actif: false, x: 0, y: 0, depX: 0, depY: 0 };
+const pointeurs = new Map();
+let distPince = 0;
+
+canvas.addEventListener('pointerdown', e => {
+  e.preventDefault();
+  canvas.setPointerCapture(e.pointerId);
+  pointeurs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (pointeurs.size === 1) {
+    doigt.actif = true;
+    doigt.x = doigt.depX = e.clientX;
+    doigt.y = doigt.depY = e.clientY;
+  } else if (pointeurs.size === 2) {
+    const [a, b] = [...pointeurs.values()];
+    distPince = Math.hypot(a.x - b.x, a.y - b.y);
+  }
+});
+
+canvas.addEventListener('pointermove', e => {
+  if (!pointeurs.has(e.pointerId)) return;
+  pointeurs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (pointeurs.size === 2) {
+    const [a, b] = [...pointeurs.values()];
+    const d = Math.hypot(a.x - b.x, a.y - b.y);
+    if (distPince > 0) {
+      camera.position.z = Math.max(3.2, Math.min(9, camera.position.z * distPince / d));
+    }
+    distPince = d;
+    return;
+  }
+  if (!doigt.actif) return;
+  const dx = e.clientX - doigt.x, dy = e.clientY - doigt.y;
+  doigt.x = e.clientX; doigt.y = e.clientY;
+  groupe.rotation.y += dx * 0.011;
+  groupe.rotation.x = Math.max(-1.4, Math.min(1.4, groupe.rotation.x + dy * 0.011));
+  const rot = Math.abs(dx * 0.011) + Math.abs(dy * 0.011);
+  suivi.rotation += rot;
+  suivi.rotationParMol[etat.mol] = (suivi.rotationParMol[etat.mol] || 0) + rot;
+});
+
+canvas.addEventListener('pointerup', e => {
+  const dist = Math.hypot(e.clientX - doigt.depX, e.clientY - doigt.depY);
+  pointeurs.delete(e.pointerId);
+  if (pointeurs.size === 0) doigt.actif = false;
+  if (dist < 9) toucherAtome(e);
+  evaluerMission();
+});
+canvas.addEventListener('pointercancel', e => { pointeurs.delete(e.pointerId); doigt.actif = false; });
+canvas.addEventListener('contextmenu', e => e.preventDefault());
+
+const rayon = new THREE.Raycaster();
+const ndc = new THREE.Vector2();
+let infoTimer = null;
+
+function toucherAtome(e) {
+  const r = canvas.getBoundingClientRect();
+  ndc.x = ((e.clientX - r.left) / r.width) * 2 - 1;
+  ndc.y = -((e.clientY - r.top) / r.height) * 2 + 1;
+  rayon.setFromCamera(ndc, camera);
+  const hits = rayon.intersectObjects(groupe.children)
+    .filter(h => h.object.userData && !h.object.userData.liaison);
+  if (!hits.length) return;
+  const mesh = hits[0].object;
+  const { elem, idx } = mesh.userData;
+  suivi.touches.add(etat.mol + ':' + idx);
+  suivi.derniereTouche = elem;
+  // Flash de surbrillance
+  mesh.material.emissive = new THREE.Color(0x555500);
+  setTimeout(() => { mesh.material.emissive = new THREE.Color(0x000000); }, 450);
+  // Étiquette
+  const info = document.getElementById('atome-info');
+  info.querySelector('.pastille').style.background = ATOMES[elem].css;
+  document.getElementById('atome-nom').textContent = `${ATOMES[elem].nom} (${elem})`;
+  info.classList.add('visible');
+  clearTimeout(infoTimer);
+  infoTimer = setTimeout(() => info.classList.remove('visible'), 2200);
+  evaluerMission();
+}
+
+/* ---------- 6. Palette de molécules ---------- */
+
+const palette = document.getElementById('palette');
+for (const id of ORDRE_MOL) {
+  const btn = document.createElement('button');
+  btn.dataset.mol = id;
+  const f = document.createElement('span');
+  f.className = 'form'; f.textContent = MOLECULES[id].formule;
+  const n = document.createElement('span');
+  n.className = 'nomm'; n.textContent = MOLECULES[id].nom;
+  btn.append(f, n);
+  btn.addEventListener('click', () => construireMolecule(id));
+  palette.appendChild(btn);
+}
+function majPalette() {
+  const autorises = outilsAutorises();
+  for (const btn of palette.children) {
+    btn.style.display = autorises.includes(btn.dataset.mol) ? '' : 'none';
+    btn.classList.toggle('actif', btn.dataset.mol === etat.mol);
+  }
+}
+
+/* ---------- 7. Panneau infos + FPS ---------- */
+
+let formuleVisible = true;
+try { formuleVisible = localStorage.getItem('ike-mol3d-formule') !== 'non'; } catch (e) {}
+
+function majFormule() {
+  const f = document.getElementById('formule');
+  if (!formuleVisible) { f.style.display = 'none'; return; }
+  f.style.display = '';
+  const def = MOLECULES[etat.mol];
+  const compte = {};
+  for (const [elem] of def.atomes) compte[elem] = (compte[elem] || 0) + 1;
+  const l = [`<div class="ftitre">⚛️ ${def.nom}</div>`];
+  l.push(`<div class="fformule">${def.formule}</div>`);
+  for (const [elem, n] of Object.entries(compte))
+    l.push(`<div class="fligne"><span class="pastille" style="background:${ATOMES[elem].css}"></span>${n} atome${n > 1 ? 's' : ''} d'${ATOMES[elem].nom.toLowerCase()}</div>`);
+  l.push(`<div class="fligne fres">forme ${def.forme} · ${def.atomes.length} atomes</div>`);
+  l.push(`<span class="fnote">3D · ${fps} images/s sur ton appareil</span>`);
+  l.push('<button class="flex" id="btn-lexique">📖 Lexique des termes</button>');
+  const html = l.join('');
+  if (f.dataset.prec !== html) {
+    f.dataset.prec = html;
+    f.innerHTML = html;
+    document.getElementById('btn-lexique').addEventListener('click', ouvrirLexique);
+  }
+}
+document.getElementById('btn-formule').addEventListener('click', () => {
+  formuleVisible = !formuleVisible;
+  try { localStorage.setItem('ike-mol3d-formule', formuleVisible ? 'oui' : 'non'); } catch (e) {}
+  majFormule();
+});
+
+const LEXIQUE = [
+  ['Atome', 'Grain de matière élémentaire. Chaque sorte d\'atome a son symbole (H, O, C, N…) et, dans les modèles, sa couleur.'],
+  ['Molécule', 'Assemblage d\'atomes liés entre eux. L\'eau, le dioxygène, le méthane… sont des molécules.'],
+  ['Formule chimique', 'Écriture qui donne la composition d\'une molécule : H₂O = 2 atomes d\'hydrogène + 1 atome d\'oxygène. Le petit chiffre compte l\'atome placé juste avant.'],
+  ['Liaison', 'Ce qui attache les atomes entre eux dans une molécule (les bâtonnets gris du modèle).'],
+  ['Modèle moléculaire', 'Représentation des molécules par des boules (atomes) et des bâtonnets (liaisons). Les vraies molécules sont des milliards de fois plus petites !'],
+  ['Corps pur simple', 'Matière dont les molécules ne contiennent qu\'UNE sorte d\'atomes : O₂, N₂…'],
+  ['Corps pur composé', 'Matière dont les molécules contiennent PLUSIEURS sortes d\'atomes : H₂O, CO₂, CH₄, NH₃…'],
+  ['Géométrie d\'une molécule', 'La forme dans l\'espace : coudée (eau), linéaire (CO₂), tétraédrique (méthane), pyramidale (ammoniac). C\'est pour la voir qu\'il faut la 3D !'],
+];
+function ouvrirLexique() {
+  const dl = document.getElementById('lex-items');
+  if (!dl.childElementCount) {
+    for (const [terme, def] of LEXIQUE) {
+      const dt = document.createElement('dt'); dt.textContent = terme;
+      const dd = document.createElement('dd'); dd.textContent = def;
+      dl.append(dt, dd);
+    }
+  }
+  document.getElementById('mlexique').classList.add('visible');
+}
+document.getElementById('btn-fermer-lexique').addEventListener('click', fermerVoiles);
+
+/* =====================================================================
+   8. PARCOURS PÉDAGOGIQUE — 4ᵉ SA2 & SA4
+   ===================================================================== */
+
+const MISSIONS = [
+  {
+    titre: "La molécule d'eau",
+    outils: ['eau'],
+    etapes: [
+      { texte: "Fais tourner la molécule d'eau avec ton doigt, dans tous les sens. Observe-la bien !",
+        test: () => suivi.rotation > 3 },
+    ],
+    retenir: "Voici l'eau vue de très, très près : une molécule. Les boules sont des atomes, les bâtonnets des liaisons qui les attachent. Ce modèle « boules et bâtonnets » est celui des chimistes.",
+    indice: "Pose ton doigt sur la molécule et fais-le glisser : elle tourne. Continue quelques secondes.",
+  },
+  {
+    titre: "Les atomes de l'eau",
+    outils: ['eau'],
+    etapes: [
+      { texte: "Touche la grosse boule rouge : c'est l'atome d'oxygène.",
+        test: () => nbTouches('eau', 'O') >= 1 },
+      { texte: "Touche maintenant une petite boule blanche : un atome d'hydrogène.",
+        test: () => nbTouches('eau', 'H') >= 1 },
+    ],
+    retenir: "La molécule d'eau contient 1 atome d'oxygène (O) et 2 atomes d'hydrogène (H). Sa formule s'écrit H₂O : le petit 2 compte les hydrogènes. Chaque atome a sa couleur dans les modèles.",
+    indice: "Un petit coup de doigt directement SUR la boule. Le rouge = oxygène, le blanc = hydrogène.",
+    diags: [
+      { si: () => suivi.derniereTouche === 'O' && nbTouches('eau', 'O') >= 1 && nbTouches('eau', 'H') === 0,
+        msg: "Ça, c'est encore l'oxygène (rouge) ! Les hydrogènes sont les deux petites boules blanches." },
+    ],
+  },
+  {
+    titre: 'Le dioxygène',
+    outils: ['eau', 'dioxygene'],
+    etapes: [
+      { texte: "Nouvelle molécule débloquée ! Affiche O₂ (barre du bas), puis touche ses deux atomes.",
+        test: () => nbTouches('dioxygene', 'O') >= 2 },
+    ],
+    retenir: "Le dioxygène O₂ : deux atomes d'oxygène identiques. C'est LE gaz que tu respires (21 % de l'air) et celui qui entretient les combustions. Une seule sorte d'atomes → corps pur simple.",
+    indice: "Touche le bouton O₂ en bas, puis touche chacune des deux boules rouges.",
+    diags: [
+      { si: () => etat.mol !== 'dioxygene', msg: "Affiche d'abord O₂ : touche son bouton dans la barre du bas." },
+    ],
+  },
+  {
+    titre: 'Le diazote',
+    outils: ['eau', 'dioxygene', 'diazote'],
+    etapes: [
+      { texte: "Affiche N₂, le diazote, et touche un de ses atomes d'azote (bleus).",
+        test: () => nbTouches('diazote', 'N') >= 1 },
+    ],
+    retenir: "Le diazote N₂ remplit 78 % de l'air — presque 4 molécules d'air sur 5 ! Deux atomes d'azote (bleus). Lui aussi est un corps pur simple.",
+    indice: "Bouton N₂ en bas, puis touche une boule bleue.",
+  },
+  {
+    titre: 'Le dioxyde de carbone',
+    outils: ['eau', 'dioxygene', 'diazote', 'co2'],
+    etapes: [
+      { texte: "Affiche CO₂ et touche son atome de carbone (au centre, gris foncé).",
+        test: () => nbTouches('co2', 'C') >= 1 },
+      { texte: "Fais-le tourner : vérifie que les 3 atomes restent bien ALIGNÉS.",
+        test: () => (suivi.rotationParMol.co2 || 0) > 1.5 },
+    ],
+    retenir: "Le dioxyde de carbone CO₂ : 1 carbone entre 2 oxygènes, molécule LINÉAIRE (alignée). C'est le gaz des combustions, de ta respiration… et de l'effet de serre. Trouble l'eau de chaux !",
+    indice: "Le carbone est la boule sombre du milieu. Puis fais tourner pour voir l'alignement.",
+  },
+  {
+    titre: 'Le méthane',
+    outils: ['eau', 'dioxygene', 'diazote', 'co2', 'methane'],
+    etapes: [
+      { texte: "Affiche CH₄ et fais-le bien tourner : sa forme est une pyramide parfaite à 4 pointes, le tétraèdre. Impossible à voir sur un dessin plat !",
+        test: () => (suivi.rotationParMol.methane || 0) > 2.5 },
+    ],
+    retenir: "Le méthane CH₄ (gaz naturel, biogaz) : 1 carbone entouré de 4 hydrogènes en tétraèdre. C'est exactement pour ces formes dans l'espace que les chimistes utilisent des modèles 3D !",
+    indice: "Bouton CH₄, puis tourne longuement : regarde les 4 hydrogènes se répartir dans l'espace.",
+  },
+  {
+    titre: "L'ammoniac",
+    outils: ['eau', 'dioxygene', 'diazote', 'co2', 'methane', 'ammoniac'],
+    etapes: [
+      { texte: "Dernière molécule : NH₃, l'ammoniac. Affiche-le et touche son atome d'azote.",
+        test: () => nbTouches('ammoniac', 'N') >= 1 },
+    ],
+    retenir: "L'ammoniac NH₃ : 1 azote et 3 hydrogènes en pyramide. C'est la base des engrais azotés qui nourrissent les cultures — chimie et agriculture sont liées !",
+    indice: "Bouton NH₃, puis touche la boule bleue au sommet de la pyramide.",
+  },
+  {
+    titre: 'Compte les hydrogènes',
+    outils: ['eau', 'dioxygene', 'diazote', 'co2', 'methane', 'ammoniac'],
+    etapes: [
+      { texte: "Retourne sur le méthane et touche ses 4 atomes d'hydrogène, un par un. La formule CH₄ se vérifie au doigt !",
+        test: () => nbTouches('methane', 'H') >= 4 },
+    ],
+    retenir: "Lire une formule, c'est compter les atomes : CH₄ = 1 C + 4 H, soit 5 atomes en tout. Le petit chiffre compte toujours l'atome écrit juste avant lui.",
+    indice: "Fais tourner la molécule pour atteindre les hydrogènes cachés derrière !",
+    diags: [
+      { si: () => etat.mol !== 'methane', msg: "Reviens sur CH₄ : touche son bouton dans la barre du bas." },
+    ],
+  },
+  {
+    titre: 'Simple ou composé ?',
+    outils: ['eau', 'dioxygene', 'diazote', 'co2', 'methane', 'ammoniac'],
+    etapes: [
+      { texte: "Affiche une molécule faite d'UNE SEULE sorte d'atomes (corps pur simple).",
+        test: () => SIMPLES.includes(etat.mol) },
+      { texte: "Affiche maintenant une molécule faite de PLUSIEURS sortes d'atomes (corps pur composé).",
+        test: () => !SIMPLES.includes(etat.mol) },
+    ],
+    retenir: "Corps pur SIMPLE : une seule sorte d'atomes (O₂, N₂). Corps pur COMPOSÉ : plusieurs sortes (H₂O, CO₂, CH₄, NH₃). Regarde les couleurs : une seule couleur = simple !",
+    indice: "Une seule couleur de boules = simple. Plusieurs couleurs = composé.",
+  },
+  {
+    titre: 'Défi des formules',
+    outils: ['eau', 'dioxygene', 'diazote', 'co2', 'methane', 'ammoniac'],
+    etapes: [
+      { texte: "Défi final : affiche, DANS L'ORDRE, la molécule d'eau, puis le dioxyde de carbone, puis le méthane — en te fiant seulement aux formules H₂O, CO₂, CH₄ !",
+        test: () => sequenceVue('eau', 'co2', 'methane') },
+    ],
+    retenir: "Bravo, parcours terminé 💪 Tu sais lire une formule chimique et reconnaître les molécules essentielles. Prochaine étape en classe : les réactions chimiques, où ces molécules se transforment !",
+    indice: "Dans la barre du bas : H₂O d'abord, ensuite CO₂, et enfin CH₄. L'ordre compte !",
+  },
+];
+
+const LECONS = [
+  "Bienvenue dans la 3D ! Ce que tu vois est un modèle moléculaire : les boules sont des atomes, les bâtonnets des liaisons. Une vraie molécule d'eau est des milliards de fois plus petite que ça.",
+  "Chaque sorte d'atome a son symbole et sa couleur : O = oxygène (rouge), H = hydrogène (blanc). En les comptant, on peut écrire la formule de la molécule.",
+  "L'air que tu respires est un mélange de molécules. La plus vitale pour toi : le dioxygène. Allons la voir de près.",
+  "Le deuxième gaz de l'air — et de loin le plus abondant — est le diazote. Sans lui, pas d'engrais, pas de protéines !",
+  "Voici le gaz dont tout le monde parle : le dioxyde de carbone. Tu vas découvrir sa forme très particulière.",
+  "Certaines molécules ont des formes que seul un modèle 3D peut montrer. Le méthane est l'exemple parfait : prépare-toi à tourner !",
+  "Une dernière molécule pour ta collection : l'ammoniac, à la base des engrais. Encore une forme nouvelle !",
+  "Une formule chimique, ça se vérifie : chaque petit chiffre compte des atomes bien réels. Au doigt !",
+  "Les chimistes classent les corps purs en deux familles, selon leurs molécules. Les couleurs du modèle te donnent la réponse du premier coup d'œil.",
+  "Le grand test : sauras-tu retrouver les molécules à partir de leurs seules formules ? C'est exactement l'exercice des évaluations.",
+];
+
+/* ---- Moteur de progression (socle IKE) ---- */
+const progression = { m: 0, etape: 0, faites: [] };
+
+function chargerProgression() {
+  try {
+    const d = JSON.parse(localStorage.getItem('ike-mol3d-progression'));
+    if (d) {
+      if (d.m === 'libre' || (Number.isInteger(d.m) && d.m >= 0 && d.m < MISSIONS.length))
+        progression.m = d.m;
+      if (Array.isArray(d.faites)) progression.faites = d.faites.filter(Number.isInteger);
+    }
+  } catch (e) {}
+}
+function sauverProgression() {
+  try {
+    localStorage.setItem('ike-mol3d-progression',
+      JSON.stringify({ m: progression.m, faites: progression.faites }));
+  } catch (e) {}
+}
+function missionCourante() { return progression.m === 'libre' ? null : MISSIONS[progression.m]; }
+function outilsAutorises() {
+  const m = missionCourante();
+  return m ? m.outils : ORDRE_MOL;
+}
+
+function ouvrirLecon() {
+  const m = missionCourante();
+  if (!m || !LECONS[progression.m]) return;
+  document.getElementById('mlecon-titre').textContent =
+    `Mission ${progression.m + 1} — ${m.titre}`;
+  document.getElementById('mlecon-texte').textContent = LECONS[progression.m];
+  document.getElementById('mlecon').classList.add('visible');
+}
+document.getElementById('btn-go-lecon').addEventListener('click', fermerVoiles);
+
+function evaluerMission() {
+  const m = missionCourante();
+  if (!m || progression.etape >= m.etapes.length) return;
+  if (document.querySelector('.voile.visible')) return;
+  let avance = false;
+  while (progression.etape < m.etapes.length && m.etapes[progression.etape].test()) {
+    progression.etape++;
+    avance = true;
+  }
+  if (!avance) { majDiagnostic(m); return; }
+  masquerDiagnostic();
+  resetEtapeTimer();
+  if (progression.etape >= m.etapes.length) {
+    if (!progression.faites.includes(progression.m)) {
+      progression.faites.push(progression.m);
+      sauverProgression();
+    }
+    toast('🎉 Mission réussie ! Admire ta molécule…');
+    const mACeMoment = progression.m;
+    setTimeout(() => {
+      if (progression.m === mACeMoment && !document.querySelector('.voile.visible'))
+        ouvrirFin(m);
+    }, 2100);
+  } else {
+    toast(`✅ Étape ${progression.etape} réussie !`);
+    const bar = document.getElementById('mbar');
+    bar.classList.remove('flash'); void bar.offsetWidth; bar.classList.add('flash');
+  }
+  majMissionBar();
+}
+
+function majDiagnostic(m) {
+  const d = document.getElementById('mdiag');
+  const hit = (m.diags || []).find(x => x.si());
+  if (!hit) { masquerDiagnostic(); return; }
+  const msg = '🤔 ' + hit.msg;
+  if (d.textContent !== msg || !d.classList.contains('visible')) {
+    d.textContent = msg;
+    d.classList.add('visible');
+  }
+}
+function masquerDiagnostic() {
+  document.getElementById('mdiag').classList.remove('visible');
+}
+
+function allerMission(m) {
+  progression.m = m;
+  progression.etape = 0;
+  sauverProgression();
+  resetEtapeTimer();
+  resetSuivi();
+  masquerDiagnostic();
+  fermerVoiles();
+  document.getElementById('mindice').classList.remove('visible');
+  const autorises = outilsAutorises();
+  if (!autorises.includes(etat.mol)) construireMolecule(autorises[0]);
+  majPalette();
+  majMissionBar();
+  if (m !== 'libre') ouvrirLecon();
+}
+
+function majMissionBar() {
+  const m = missionCourante();
+  const l2 = document.querySelector('#mbar .l2');
+  if (!m) {
+    document.getElementById('mchip').textContent = '🧪';
+    document.getElementById('mtitre').textContent = 'Mode libre — explore !';
+    l2.style.display = 'none';
+  } else {
+    document.getElementById('mchip').textContent = `Mission ${progression.m + 1}/${MISSIONS.length}`;
+    document.getElementById('mtitre').textContent = m.titre;
+    l2.style.display = '';
+    const fini = progression.etape >= m.etapes.length;
+    const pts = document.getElementById('mpoints');
+    pts.innerHTML = '';
+    if (m.etapes.length > 1) {
+      m.etapes.forEach((e2, i) => {
+        const p = document.createElement('span');
+        p.className = 'pt' + (i < progression.etape ? ' faite' : i === progression.etape ? ' courante' : '');
+        pts.appendChild(p);
+      });
+    }
+    const metape = document.getElementById('metape');
+    metape.textContent = fini ? '🎉 Mission terminée ! Passe à la suivante.' : m.etapes[progression.etape].texte;
+    metape.classList.remove('glisse'); void metape.offsetWidth; metape.classList.add('glisse');
+    document.getElementById('mcompteur').textContent =
+      m.etapes.length > 1 && !fini ? `étape ${progression.etape + 1}/${m.etapes.length}` : '';
+    document.getElementById('mindice').textContent = '💡 ' + m.indice;
+    document.getElementById('btn-indice').style.display = fini ? 'none' : '';
+    document.getElementById('btn-suiv2').style.display = fini ? '' : 'none';
+  }
+}
+
+function fermerVoiles() {
+  for (const v of document.querySelectorAll('.voile')) v.classList.remove('visible');
+}
+
+function ouvrirFin(m) {
+  const derniere = progression.m === MISSIONS.length - 1;
+  document.getElementById('mfin-titre').textContent = `Mission ${progression.m + 1} — ${m.titre}`;
+  document.getElementById('mfin-retenir').textContent = m.retenir;
+  document.getElementById('btn-suivante').textContent =
+    derniere ? '🧪 Continuer en Mode libre' : 'Mission suivante ▶';
+  document.getElementById('mfin').classList.add('visible');
+}
+
+document.getElementById('btn-suivante').addEventListener('click', () => {
+  const derniere = progression.m === MISSIONS.length - 1;
+  allerMission(derniere ? 'libre' : progression.m + 1);
+});
+document.getElementById('btn-suiv2').addEventListener('click', () => {
+  const derniere = progression.m === MISSIONS.length - 1;
+  allerMission(derniere ? 'libre' : progression.m + 1);
+});
+document.getElementById('btn-liste2').addEventListener('click', () => { fermerVoiles(); ouvrirListe(); });
+
+function ouvrirListe() {
+  const cont = document.getElementById('mliste-items');
+  cont.innerHTML = '';
+  MISSIONS.forEach((m, i) => {
+    const row = document.createElement('button');
+    row.className = 'mrow'
+      + (progression.faites.includes(i) ? ' faite' : '')
+      + (progression.m === i ? ' courante' : '');
+    const n = document.createElement('span');
+    n.className = 'n';
+    n.textContent = progression.faites.includes(i) ? '✓' : (i + 1) + '.';
+    const t = document.createElement('span');
+    t.className = 't';
+    t.textContent = m.titre;
+    row.append(n, t);
+    row.addEventListener('click', () => allerMission(i));
+    cont.appendChild(row);
+  });
+  document.getElementById('mliste').classList.add('visible');
+}
+
+document.getElementById('btn-missions').addEventListener('click', ouvrirListe);
+document.getElementById('btn-libre').addEventListener('click', () => allerMission('libre'));
+document.getElementById('btn-fermer-liste').addEventListener('click', fermerVoiles);
+
+const btnResetProg = document.getElementById('btn-reset-prog');
+let confirmReset = null;
+btnResetProg.addEventListener('click', () => {
+  if (confirmReset) {
+    clearTimeout(confirmReset); confirmReset = null;
+    btnResetProg.textContent = '↺ Réinitialiser tout le parcours';
+    progression.faites = [];
+    allerMission(0);
+    try { localStorage.removeItem('ike-mol3d-visite'); } catch (e) {}
+    lancerVisite();
+  } else {
+    btnResetProg.textContent = 'Sûr ? Touche encore une fois';
+    confirmReset = setTimeout(() => {
+      confirmReset = null;
+      btnResetProg.textContent = '↺ Réinitialiser tout le parcours';
+    }, 2500);
+  }
+});
+
+for (const v of document.querySelectorAll('.voile'))
+  v.addEventListener('click', e => { if (e.target === v) v.classList.remove('visible'); });
+
+document.getElementById('btn-indice').addEventListener('click', () => {
+  document.getElementById('btn-indice').classList.remove('pulse');
+  document.getElementById('mindice').classList.toggle('visible');
+});
+
+let toastTimer = null;
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('visible');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('visible'), 1900);
+}
+
+let etapeDebut = Date.now();
+let coupDePouceFait = false;
+function resetEtapeTimer() {
+  etapeDebut = Date.now();
+  coupDePouceFait = false;
+  document.getElementById('btn-indice').classList.remove('pulse');
+}
+setInterval(() => {
+  const m = missionCourante();
+  if (!m || progression.etape >= m.etapes.length || visiteIdx >= 0) return;
+  if (document.querySelector('.voile.visible')) return;
+  if (!coupDePouceFait && Date.now() - etapeDebut > 45000) {
+    coupDePouceFait = true;
+    document.getElementById('btn-indice').classList.add('pulse');
+    toast('💡 Besoin d\'aide ? Touche le bouton Indice !');
+  }
+}, 5000);
+
+/* ---------- 9. Visite guidée ---------- */
+
+const VISITE = [
+  { cible: '#mbar', titre: '🎯 Ta mission',
+    texte: "Ta mission s'affiche ici : lis l'étape en cours et réalise-la. Les points colorés montrent ta progression." },
+  { cible: '#scene', titre: '🌀 La molécule en 3D',
+    texte: "Fais GLISSER ton doigt pour faire tourner la molécule dans tous les sens.\n👆 Touche une boule pour identifier l'atome.\n🤏 Pince avec deux doigts pour zoomer." },
+  { cible: '#palette', titre: '⚗️ Les molécules',
+    texte: "Choisis ici la molécule à afficher. De nouvelles molécules se débloquent au fil des missions !" },
+  { cible: '#formule', titre: '📐 La fiche d\'identité',
+    texte: "Nom, formule, composition atome par atome, forme dans l'espace… et le nombre d'images par seconde — dis-nous s'il descend sous 30 sur ton téléphone ! Le lien « Lexique » explique tous les termes." },
+  { cible: '#btn-indice', titre: '💡 Bloqué ? Un indice !',
+    texte: "Ce bouton te donne un coup de pouce pour l'étape en cours. N'hésite jamais à l'utiliser !" },
+  { cible: '#btn-theme', titre: '🌙 Confort visuel',
+    texte: "Bascule entre thème clair et sombre. Ton choix est mémorisé sur l'appareil." },
+];
+let visiteIdx = -1;
+const visiteEl = document.getElementById('visite');
+
+function lancerVisite() {
+  fermerVoiles();
+  visiteIdx = 0;
+  visiteEl.style.display = 'block';
+  montrerEtapeVisite();
+}
+function fermerVisite() {
+  visiteIdx = -1;
+  visiteEl.style.display = 'none';
+  try { localStorage.setItem('ike-mol3d-visite', '1'); } catch (e) {}
+  if (missionCourante() && progression.etape === 0) ouvrirLecon();
+}
+function montrerEtapeVisite() {
+  const et = VISITE[visiteIdx];
+  const halo = document.getElementById('visite-halo');
+  const carte = document.getElementById('visite-carte');
+  let rc = null;
+  if (et.cible) {
+    const el = document.querySelector(et.cible);
+    const r = el && el.getBoundingClientRect();
+    if (r && r.width > 0) rc = r;
+  }
+  if (rc) {
+    visiteEl.classList.remove('sombre');
+    halo.style.display = 'block';
+    halo.style.left = (rc.left - 6) + 'px';
+    halo.style.top = (rc.top - 6) + 'px';
+    halo.style.width = (rc.width + 12) + 'px';
+    halo.style.height = (rc.height + 12) + 'px';
+  } else {
+    visiteEl.classList.add('sombre');
+    halo.style.display = 'none';
+  }
+  carte.querySelector('.vtitre').textContent = et.titre;
+  carte.querySelector('.vtexte').textContent = et.texte;
+  carte.querySelector('.vprog').textContent = `${visiteIdx + 1}/${VISITE.length}`;
+  document.getElementById('visite-suivant').textContent =
+    visiteIdx === VISITE.length - 1 ? "C'est parti !" : 'Suivant';
+  requestAnimationFrame(() => {
+    const cw = carte.offsetWidth, ch = carte.offsetHeight;
+    let x, y;
+    if (rc) {
+      y = rc.bottom + 14;
+      if (y + ch > window.innerHeight - 10) y = rc.top - ch - 14;
+      if (y < 10) y = Math.max(10, (window.innerHeight - ch) / 2);
+      x = Math.max(10, Math.min(window.innerWidth - cw - 10, rc.left + rc.width / 2 - cw / 2));
+    } else {
+      x = (window.innerWidth - cw) / 2;
+      y = (window.innerHeight - ch) / 2;
+    }
+    carte.style.left = x + 'px';
+    carte.style.top = y + 'px';
+  });
+}
+document.getElementById('visite-suivant').addEventListener('click', () => {
+  visiteIdx++;
+  if (visiteIdx >= VISITE.length) fermerVisite(); else montrerEtapeVisite();
+});
+document.getElementById('visite-passer').addEventListener('click', fermerVisite);
+visiteEl.addEventListener('click', e => {
+  if (e.target === visiteEl || e.target.id === 'visite-halo')
+    document.getElementById('visite-suivant').click();
+});
+window.addEventListener('resize', () => { if (visiteIdx >= 0) montrerEtapeVisite(); });
+document.getElementById('btn-aide').addEventListener('click', lancerVisite);
+
+/* ---------- 10. Thème & démarrage ---------- */
+
+function appliquerTheme() {
+  document.body.classList.toggle('sombre', etat.theme === 'sombre');
+  document.getElementById('btn-theme').innerHTML =
+    etat.theme === 'sombre' ? '☀️<span class="lbl"> Clair</span>' : '🌙<span class="lbl"> Sombre</span>';
+}
+document.getElementById('btn-theme').addEventListener('click', () => {
+  etat.theme = etat.theme === 'sombre' ? 'clair' : 'sombre';
+  try { localStorage.setItem('ike-theme', etat.theme); } catch (e) {}
+  appliquerTheme();
+});
+try {
+  const memo = localStorage.getItem('ike-theme') || localStorage.getItem('ike-circuit-theme');
+  if (memo === 'sombre' || memo === 'clair') etat.theme = memo;
+  else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
+    etat.theme = 'sombre';
+} catch (e) {}
+
+chargerProgression();
+window.addEventListener('resize', redimensionner);
+redimensionner();
+appliquerTheme();
+resetSuivi();
+const autorisesInit = outilsAutorises();
+construireMolecule(autorisesInit.includes('eau') ? 'eau' : autorisesInit[0]);
+majMissionBar();
+requestAnimationFrame(boucle);
+
+setTimeout(() => {
+  const s = document.getElementById('splash');
+  s.classList.add('fini');
+  setTimeout(() => s.remove(), 600);
+  try {
+    if (!localStorage.getItem('ike-mol3d-visite')) lancerVisite();
+    else if (missionCourante() && progression.etape === 0) ouvrirLecon();
+  } catch (e) { lancerVisite(); }
+}, 1400);
+</script>
+</body>
+</html>

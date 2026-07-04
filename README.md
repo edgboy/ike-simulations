@@ -59,8 +59,8 @@ L'historique complet est dans [CHANGELOG.md](CHANGELOG.md). Chaque version est u
 2. ✅ Circuit électrique v1.5 : **parcours de 10 missions progressives** (validation par le montage réel, outils débloqués au fur et à mesure, « À retenir » du programme, progression sauvegardée) + mode libre
 3. ✅ Deuxième simulation 2D : **Banc d'optique** (5ᵉ→3ᵉ, alignée sur les SA du programme) — les patterns communs sont identifiés (socle : missions, visite, diagnostics, thèmes)
 4. ✅ Troisième simulation : **États de la matière** (chimie, 6ᵉ/5ᵉ — molécules, paliers, pression des gaz)
-5. ⬜ Quatrième simulation : **Combustions vives** (chimie, 6ᵉ SA3) — ou prototype labo 3D
-6. ⬜ Circuit électrique v2 : voltmètre, résistances, sauvegarde/chargement de montages
-5. ⬜ Prototype **labo 3D léger** (Three.js embarqué, low-poly) → valider la faisabilité sur Android bas de gamme
-6. ⬜ Choix de la plateforme e-learning → couche d'intégration (iframe + postMessage, ou SCORM/H5P si Moodle)
-7. ⬜ **Guide de création et d'intégration** rédigé à partir du journal technique et des simulations existantes
+5. ✅ **Prototype 3D** : Molécules en 3D (4ᵉ, Three.js embarqué, 0,63 Mo, compteur FPS pour mesurer sur le terrain)
+6. ✅ **[Guide de création et d'intégration](docs/guide-creation-simulations.md)** (philosophie, charte, pas-à-pas, moteur de missions, 3D, checklist)
+7. ⬜ Quatrième simulation 2D : **Combustions vives** (chimie, 6ᵉ SA3)
+8. ⬜ Circuit électrique v2 : voltmètre, résistances, sauvegarde/chargement de montages
+9. ⬜ Choix de la plateforme e-learning → couche d'intégration (iframe + postMessage, ou SCORM/H5P si Moodle)

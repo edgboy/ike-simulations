@@ -160,6 +160,34 @@ modification de logique. La « recette » est prête pour le guide.
 
 ---
 
+## Simulation 4 : Molécules en 3D — prototype 3D (2026-07, v2.4.0)
+
+### Décision : valider la 3D sur un sujet qui l'EXIGE
+- **Choix** : modèles moléculaires boules-bâtonnets (4ᵉ SA2/SA4) plutôt qu'un labo 3D décoratif.
+- **Pourquoi** : le tétraèdre du méthane est indémontrable en 2D — la 3D y est une nécessité
+  pédagogique, pas un gadget. Et la scène (≤ 10 sphères + cylindres) est assez légère pour
+  les Android d'entrée de gamme.
+- **Instrumentation** : compteur d'images/seconde affiché dans le panneau infos → chaque
+  testeur du terrain mesure la fluidité réelle. C'est le critère de décision pour les
+  futurs labos 3D plus ambitieux.
+
+### Décision : Three.js embarqué via un assemblage
+- `vendor/three-r128.min.js` (~590 Ko, build UMD classique) + `app.template.html` lisible
+  avec marqueur `/*__THREE_JS_ICI__*/` → `node outils/embarquer.js` produit le fichier
+  unique (0,63 Mo < budget 1,5 Mo). Le template reste versionné et lisible ; le fichier
+  final respecte la charte (autonome, hors-ligne).
+- Rendu : `alpha:true` (le fond suit le thème CSS), `pixelRatio` ≤ 2, matériaux Phong,
+  géométries en cache. Gestes : 1 doigt = rotation, 2 doigts = zoom, toucher = Raycaster.
+- **Le socle IKE fonctionne tel quel en 3D** : missions-prédicats sur des compteurs
+  (rotation cumulée, atomes touchés, séquence de molécules vues), leçons, diagnostics,
+  visite, thèmes. Quatrième validation du socle, premier changement de moteur de rendu.
+
+### Le guide est publié
+`docs/guide-creation-simulations.md` — rédigé à partir des quatre simulations.
+Le journal reste le « pourquoi », le guide est le « comment ».
+
+---
+
 ## Intégration plateforme (à compléter quand la plateforme sera choisie)
 
 Options gardées ouvertes par le format « un fichier autonome » :
