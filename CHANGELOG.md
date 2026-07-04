@@ -5,6 +5,12 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v1.8.1 — 2026-07-04
+
+- « ↺ Réinitialiser tout le parcours » relance aussi la **visite guidée** (pensé pour les
+  appareils partagés en classe : nouvel élève = parcours à zéro = visite immédiate).
+  Rappel : le bouton ❓ permet de revoir la visite à tout moment.
+
 ## v1.8.0 — 2026-07-04
 
 Deuxième vague de retours utilisateurs :

@@ -288,7 +288,7 @@
   <div class="nom">IKE <span>Simulations</span></div>
   <div class="sub">Sciences au collège</div>
   <div class="barre"><div class="rempl"></div></div>
-  <div class="ver">v1.8.0</div>
+  <div class="ver">v1.8.1</div>
 </div>
 
 <header>
@@ -1562,7 +1562,9 @@ btnResetProg.addEventListener('click', () => {
     etat.comps = [];
     allerMission(0);
     resoudre();
-    toast('↺ Parcours réinitialisé');
+    // Nouvel élève sur l'appareil : on relance aussi la visite guidée
+    try { localStorage.removeItem('ike-circuit-visite'); } catch (e) {}
+    lancerVisite();
   } else {
     btnResetProg.textContent = 'Sûr ? Touche encore une fois';
     confirmReset = setTimeout(() => {
