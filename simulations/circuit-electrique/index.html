@@ -107,6 +107,7 @@
     animation:charge 1.3s ease-out forwards;
   }
   @keyframes charge { to { transform:scaleX(1); } }
+  #splash .ver { position:absolute; bottom:14px; color:rgba(255,255,255,.5); font-size:11px; }
 
   /* ---------- Barre de mission ---------- */
   #mbar { flex:none; background:#fff; border-bottom:1px solid #e0e6ed; padding:6px 10px; z-index:4; }
@@ -124,8 +125,25 @@
     font-size:14px; padding:4px 10px; cursor:pointer; min-height:34px;
   }
   #mbar .l2 { display:flex; align-items:center; gap:8px; margin-top:5px; }
+  #mbar.flash { animation:flashvert .9s ease; }
+  @keyframes flashvert { 0% { background:#c8e6c9; } 100% { background:#fff; } }
+  #mpoints { display:flex; gap:5px; align-items:center; flex:none; }
+  #mpoints .pt { width:9px; height:9px; border-radius:50%; background:#cfd8dc; }
+  #mpoints .pt.faite { background:#2e7d32; }
+  #mpoints .pt.courante { background:#1565c0; animation:ptpulse 1.6s infinite; }
+  @keyframes ptpulse { 50% { transform:scale(1.4); } }
   #metape { flex:1; font-size:12.5px; color:#37474f; line-height:1.4; }
+  #metape.glisse { animation:glisse .4s ease; }
+  @keyframes glisse { from { opacity:0; transform:translateX(12px); } }
   #mcompteur { font-size:11px; color:#90a4ae; font-weight:700; white-space:nowrap; }
+  #btn-indice {
+    background:#fff8e1 !important; border-color:#ffca28 !important;
+    color:#795548; font-weight:700; white-space:nowrap;
+  }
+  #btn-indice.pulse { animation:indicepulse 1.2s infinite; }
+  @keyframes indicepulse {
+    50% { transform:scale(1.08); box-shadow:0 0 0 7px rgba(255,202,40,.3); }
+  }
   #mindice {
     display:none; margin-top:6px; background:#fff8e1; border:1px solid #ffe082;
     color:#795548; font-size:12.5px; border-radius:8px; padding:7px 10px; line-height:1.45;
@@ -134,13 +152,41 @@
 
   /* Toast de progression */
   #toast {
-    position:absolute; bottom:14px; left:50%;
-    transform:translateX(-50%) translateY(8px);
-    background:#2e7d32; color:#fff; font-size:13px; font-weight:700;
-    padding:8px 16px; border-radius:18px; opacity:0; pointer-events:none;
-    transition:opacity .25s, transform .25s; z-index:6; white-space:nowrap;
+    position:absolute; bottom:16px; left:50%;
+    transform:translateX(-50%) translateY(10px) scale(.9);
+    background:#2e7d32; color:#fff; font-size:14.5px; font-weight:800;
+    padding:11px 22px; border-radius:22px; opacity:0; pointer-events:none;
+    transition:opacity .25s, transform .3s cubic-bezier(.34,1.56,.64,1);
+    box-shadow:0 6px 20px rgba(46,125,50,.4); z-index:6; white-space:nowrap;
   }
-  #toast.visible { opacity:1; transform:translateX(-50%) translateY(0); }
+  #toast.visible { opacity:1; transform:translateX(-50%) translateY(0) scale(1); }
+
+  /* ---------- Visite guidée de l'interface ---------- */
+  #visite { position:fixed; inset:0; z-index:30; display:none; }
+  #visite.sombre { background:rgba(38,50,56,.62); }
+  #visite-halo {
+    position:absolute; border-radius:12px; border:2px solid #ffca28;
+    box-shadow:0 0 0 9999px rgba(38,50,56,.62);
+    transition:all .3s ease; pointer-events:none;
+  }
+  #visite-carte {
+    position:absolute; background:#fff; border-radius:14px; padding:16px;
+    width:min(310px, calc(100vw - 24px));
+    box-shadow:0 10px 40px rgba(0,0,0,.35);
+  }
+  .vtitre { font-size:15px; font-weight:800; color:#1565c0; margin-bottom:6px; }
+  .vtexte { font-size:13px; line-height:1.55; color:#37474f; white-space:pre-line; }
+  .vbas { display:flex; align-items:center; gap:10px; margin-top:12px; }
+  .vprog { flex:1; font-size:11px; font-weight:700; color:#90a4ae; }
+  #visite-passer {
+    background:none; border:none; color:#90a4ae; font-size:12px;
+    text-decoration:underline; cursor:pointer; padding:6px;
+  }
+  #visite-suivant {
+    border:none; background:#1565c0; color:#fff; font-weight:700;
+    font-size:13px; padding:9px 18px; border-radius:9px; cursor:pointer;
+  }
+  .vmarque { margin-top:10px; text-align:center; font-size:10px; color:#b0bec5; }
 
   /* ---------- Voiles (aide, fin de mission, liste) ---------- */
   .voile {
@@ -201,6 +247,7 @@
   <div class="nom">IKE <span>Simulations</span></div>
   <div class="sub">Sciences au collège</div>
   <div class="barre"><div class="rempl"></div></div>
+  <div class="ver">v1.6.0</div>
 </div>
 
 <header>
@@ -218,9 +265,10 @@
     <button class="mbtn" id="btn-missions" title="Toutes les missions">📋</button>
   </div>
   <div class="l2">
+    <span id="mpoints"></span>
     <span id="metape"></span>
     <span id="mcompteur"></span>
-    <button class="mbtn" id="btn-indice" title="Indice">💡</button>
+    <button class="mbtn" id="btn-indice" title="Indice">💡 Indice</button>
   </div>
   <div id="mindice"></div>
 </div>
@@ -258,22 +306,17 @@
   </div>
 </div>
 
-<div id="aide" class="voile">
-  <div class="carte">
-    <h2>⚡ Construis ton circuit !</h2>
-    <ol>
-      <li>👇 Choisis un composant en bas.</li>
-      <li>✏️ Fais-le glisser entre deux points de la grille.</li>
-      <li>💡 Ferme la boucle pour allumer la lampe !</li>
-    </ol>
-    <p class="astuce">
-      Suis les <b>missions</b> en haut de l'écran pour apprendre pas à pas,
-      du premier fil jusqu'aux circuits en parallèle.
-      Astuce : touche un <b>interrupteur</b> pour l'ouvrir ou le fermer ;
-      touche un autre composant pour le sélectionner.
-    </p>
-    <button class="go" id="btn-go">C'est parti !</button>
-    <div class="marque">IKE Simulations · collège (PCT)</div>
+<div id="visite">
+  <div id="visite-halo"></div>
+  <div id="visite-carte">
+    <div class="vtitre"></div>
+    <div class="vtexte"></div>
+    <div class="vbas">
+      <span class="vprog"></span>
+      <button id="visite-passer">Passer</button>
+      <button id="visite-suivant">Suivant</button>
+    </div>
+    <div class="vmarque">IKE Simulations · collège (PCT)</div>
   </div>
 </div>
 
@@ -673,14 +716,23 @@ function dessinerComp(c2d, comp, icone) {
       c2d.textAlign = 'center'; c2d.textBaseline = 'middle';
       c2d.fillText('A', mx, my + 0.5);
       if (!icone) {
+        // Écran de mesure façon appareil : fond sombre, chiffres verts.
+        // Impossible à confondre avec un fil (retour utilisateurs v1.5).
         const txt = formatA(comp.I || 0);
-        c2d.font = `bold ${11 * s}px sans-serif`;
-        const ty = my + R + 11 * s;
+        c2d.font = `bold ${11 * s}px Consolas, monospace`;
         const tw = c2d.measureText(txt).width;
-        c2d.fillStyle = 'rgba(255,255,255,.85)';
-        c2d.fillRect(mx - tw / 2 - 3, ty - 7 * s, tw + 6, 14 * s);
-        c2d.fillStyle = '#1565c0';
-        c2d.fillText(txt, mx, ty);
+        const eh = 17 * s;                       // hauteur de l'écran
+        const ey = my + R + 4 * s;               // haut de l'écran
+        c2d.fillStyle = '#263238';
+        c2d.beginPath();
+        c2d.roundRect(mx - tw / 2 - 7, ey, tw + 14, eh, 4 * s);
+        c2d.fill();
+        c2d.strokeStyle = '#78909c'; c2d.lineWidth = 1.2;
+        c2d.beginPath();
+        c2d.roundRect(mx - tw / 2 - 7, ey, tw + 14, eh, 4 * s);
+        c2d.stroke();
+        c2d.fillStyle = '#69f0ae';
+        c2d.fillText(txt, mx, ey + eh / 2 + 0.5);
       }
       break;
     }
@@ -888,16 +940,120 @@ btnEffacer.addEventListener('click', () => {
   }
 });
 
-// ---- Aide ----
-const aide = document.getElementById('aide');
-document.getElementById('btn-aide').addEventListener('click', () => aide.classList.add('visible'));
-document.getElementById('btn-go').addEventListener('click', () => {
-  aide.classList.remove('visible');
-  try { localStorage.setItem('ike-circuit-aide-vue', '1'); } catch (e) {}
+/* =====================================================================
+   8. VISITE GUIDÉE — présentation de l'interface et des gestes
+   ---------------------------------------------------------------------
+   Un « projecteur » (halo) met en lumière chaque zone de l'écran avec
+   une carte d'explication. Lancée au premier démarrage, puis à volonté
+   avec le bouton ❓.
+   ===================================================================== */
+
+const VISITE = [
+  { cible: '#mbar', titre: '🎯 Ta mission',
+    texte: "Ta mission s'affiche ici : lis l'étape en cours et réalise-la sur la grille. Les points colorés montrent ta progression dans la mission." },
+  { cible: '#palette', titre: '🧰 Les composants',
+    texte: "Choisis ici ce que tu veux poser : fil, pile, lampe… De nouveaux composants se débloquent au fil des missions !" },
+  { cible: '#scene', titre: '🕸️ La grille de construction',
+    texte: "Pour poser un composant : fais glisser ton doigt d'un point de la grille vers un point voisin." },
+  { cible: null, titre: '✋ Modifier ton circuit',
+    texte: "👆 Touche un interrupteur pour l'ouvrir ou le fermer.\n👆 Touche un autre composant pour le sélectionner : tu peux alors le 🗑 supprimer, ou ↔ inverser une pile.\n✏️ Trace par-dessus un composant pour le remplacer." },
+  { cible: '#btn-indice', titre: '💡 Bloqué ? Un indice !',
+    texte: "Ce bouton te donne un coup de pouce pour l'étape en cours. N'hésite jamais à l'utiliser, il est là pour ça !" },
+  { cible: '#btn-vue', titre: '👁 Deux façons de voir',
+    texte: "Bascule entre le dessin réaliste et les symboles normalisés — ceux utilisés en classe et aux évaluations." },
+];
+let visiteIdx = -1;
+const visiteEl = document.getElementById('visite');
+
+function lancerVisite() {
+  fermerVoiles();
+  visiteIdx = 0;
+  visiteEl.style.display = 'block';
+  montrerEtapeVisite();
+}
+
+function fermerVisite() {
+  visiteIdx = -1;
+  visiteEl.style.display = 'none';
+  try { localStorage.setItem('ike-circuit-visite', '1'); } catch (e) {}
+}
+
+function montrerEtapeVisite() {
+  const et = VISITE[visiteIdx];
+  const halo = document.getElementById('visite-halo');
+  const carte = document.getElementById('visite-carte');
+  let rc = null;
+  if (et.cible) {
+    const el = document.querySelector(et.cible);
+    const r = el && el.getBoundingClientRect();
+    if (r && r.width > 0) rc = r;
+  }
+  if (rc) {
+    visiteEl.classList.remove('sombre');       // le halo assombrit le reste
+    halo.style.display = 'block';
+    halo.style.left = (rc.left - 6) + 'px';
+    halo.style.top = (rc.top - 6) + 'px';
+    halo.style.width = (rc.width + 12) + 'px';
+    halo.style.height = (rc.height + 12) + 'px';
+  } else {
+    visiteEl.classList.add('sombre');          // pas de cible : fond assombri
+    halo.style.display = 'none';
+  }
+  carte.querySelector('.vtitre').textContent = et.titre;
+  carte.querySelector('.vtexte').textContent = et.texte;
+  carte.querySelector('.vprog').textContent = `${visiteIdx + 1}/${VISITE.length}`;
+  document.getElementById('visite-suivant').textContent =
+    visiteIdx === VISITE.length - 1 ? "C'est parti !" : 'Suivant';
+  requestAnimationFrame(() => {
+    const cw = carte.offsetWidth, ch = carte.offsetHeight;
+    let x, y;
+    if (rc) {
+      y = rc.bottom + 14;
+      if (y + ch > window.innerHeight - 10) y = rc.top - ch - 14;
+      if (y < 10) y = Math.max(10, (window.innerHeight - ch) / 2);
+      x = Math.max(10, Math.min(window.innerWidth - cw - 10, rc.left + rc.width / 2 - cw / 2));
+    } else {
+      x = (window.innerWidth - cw) / 2;
+      y = (window.innerHeight - ch) / 2;
+    }
+    carte.style.left = x + 'px';
+    carte.style.top = y + 'px';
+  });
+}
+
+document.getElementById('visite-suivant').addEventListener('click', () => {
+  visiteIdx++;
+  if (visiteIdx >= VISITE.length) fermerVisite(); else montrerEtapeVisite();
 });
-try {
-  if (!localStorage.getItem('ike-circuit-aide-vue')) aide.classList.add('visible');
-} catch (e) { aide.classList.add('visible'); }
+document.getElementById('visite-passer').addEventListener('click', fermerVisite);
+visiteEl.addEventListener('click', e => {
+  if (e.target === visiteEl || e.target.id === 'visite-halo')
+    document.getElementById('visite-suivant').click();
+});
+window.addEventListener('resize', () => { if (visiteIdx >= 0) montrerEtapeVisite(); });
+
+document.getElementById('btn-aide').addEventListener('click', lancerVisite);
+
+/* ---- Coup de pouce : élève bloqué sur une étape depuis 45 s ---- */
+let etapeDebut = Date.now();
+let coupDePouceFait = false;
+
+function resetEtapeTimer() {
+  etapeDebut = Date.now();
+  coupDePouceFait = false;
+  document.getElementById('btn-indice').classList.remove('pulse');
+}
+
+setInterval(() => {
+  const m = missionCourante();
+  if (!m || progression.etape >= m.etapes.length || visiteIdx >= 0) return;
+  if (document.querySelector('.voile.visible')) return;
+  if (!coupDePouceFait && Date.now() - etapeDebut > 45000) {
+    coupDePouceFait = true;
+    document.getElementById('btn-indice').classList.add('pulse');
+    toast('💡 Besoin d\'aide ? Touche le bouton Indice !');
+  }
+}, 5000);
 
 /* =====================================================================
    7. PARCOURS PÉDAGOGIQUE — missions progressives
@@ -932,43 +1088,64 @@ const MISSIONS = [
     indice: "Pose ton doigt (ou clique) sur un point de la grille, puis glisse vers un point voisin sans lever.",
   },
   {
+    titre: 'La pile et la lampe',
+    outils: ['fil', 'pile', 'lampe'],
+    etapes: [
+      { texte: "Nouveaux composants débloqués ! Pose une pile : c'est elle qui fournit l'énergie.",
+        test: () => nb('pile') >= 1 },
+      { texte: "Pose maintenant une lampe : elle transformera le courant en lumière.",
+        test: () => nb('lampe') >= 1 },
+    ],
+    retenir: "La pile est le générateur : c'est elle qui fait circuler le courant, de sa borne + vers sa borne −. La lampe est un récepteur : elle reçoit le courant et le transforme en lumière.",
+    indice: "Choisis le composant en bas de l'écran, puis fais-le glisser entre deux points de la grille, comme un fil.",
+  },
+  {
     titre: 'Allume la lampe !',
     outils: ['fil', 'pile', 'lampe'],
     etapes: [
-      { texte: "Pose une pile sur la grille.", test: () => nb('pile') >= 1 },
-      { texte: "Pose une lampe.", test: () => nb('lampe') >= 1 },
-      { texte: "Relie tout avec des fils pour former une boucle complète : la lampe doit s'allumer !",
+      { texte: "Relie la pile et la lampe avec des fils pour former une boucle complète : la lampe doit s'allumer !",
         test: () => lampesAllumees().length >= 1 },
     ],
     retenir: "Un circuit doit être fermé (une boucle complète) pour que le courant circule : il sort par la borne + de la pile, traverse la lampe et revient à la borne −.",
     indice: "Fais une boucle : pile → fil → lampe → fil → retour à la pile. S'il manque un seul morceau, le courant ne passe pas !",
   },
   {
-    titre: "L'interrupteur commande",
+    titre: "L'interrupteur",
     outils: ['fil', 'pile', 'lampe', 'interrupteur'],
     etapes: [
-      { texte: "Ajoute un interrupteur sur le chemin du courant, puis touche-le pour le fermer : la lampe doit briller.",
+      { texte: "Nouveau composant ! Pose un interrupteur sur le chemin du courant : la lampe s'éteint, car il est ouvert.",
+        test: () => nb('lampe') >= 1 && nb('pile') >= 1 && lampesAllumees().length === 0 &&
+                    etat.comps.some(c => c.type === 'interrupteur' && !c.ferme) },
+      { texte: "Touche l'interrupteur pour le fermer : la lampe se rallume !",
         test: () => lampesAllumees().length >= 1 &&
                     etat.comps.some(c => c.type === 'interrupteur' && c.ferme && Math.abs(c.I) >= 0.1) },
-      { texte: "Touche l'interrupteur pour l'ouvrir : la lampe s'éteint.",
+    ],
+    retenir: "L'interrupteur commande le circuit sans le démonter : ouvert, il coupe le chemin du courant ; fermé, il le rétablit.",
+    indice: "Pose l'interrupteur DANS la boucle, à la place d'un fil (trace par-dessus !). Puis touche-le d'un petit coup de doigt.",
+  },
+  {
+    titre: "Joue avec l'interrupteur",
+    outils: ['fil', 'pile', 'lampe', 'interrupteur'],
+    etapes: [
+      { texte: "Ouvre l'interrupteur : le courant ne passe plus, la lampe s'éteint.",
         test: () => lampesAllumees().length === 0 && nb('lampe') >= 1 && nb('pile') >= 1 &&
                     etat.comps.some(c => c.type === 'interrupteur' && !c.ferme) },
       { texte: "Referme-le : la lumière revient !",
         test: () => lampesAllumees().length >= 1 &&
                     etat.comps.some(c => c.type === 'interrupteur' && c.ferme && Math.abs(c.I) >= 0.1) },
     ],
-    retenir: "L'interrupteur ouvre ou ferme le circuit sans le démonter. Circuit ouvert = le courant ne passe plus, tout s'éteint. Circuit fermé = le courant circule.",
-    indice: "L'interrupteur doit être DANS la boucle, comme un maillon de la chaîne. Un appui bref dessus l'ouvre ou le ferme.",
+    retenir: "Circuit ouvert = le courant ne circule plus, tout s'éteint. Circuit fermé = le courant circule. C'est exactement l'interrupteur de ta chambre !",
+    indice: "Un petit coup de doigt sur l'interrupteur suffit pour l'ouvrir ou le fermer.",
   },
   {
-    titre: 'Mesure le courant',
+    titre: "L'ampèremètre",
     outils: ['fil', 'pile', 'lampe', 'interrupteur', 'amperemetre'],
     etapes: [
-      { texte: "Nouvel outil débloqué : l'ampèremètre ! Place-le dans un circuit qui fonctionne (lampe allumée) et lis la valeur affichée.",
+      { texte: "Nouvel outil : l'ampèremètre ! Place-le dans un circuit qui fonctionne, puis lis la mesure sur son petit écran.",
         test: () => lampesAllumees().length >= 1 &&
                     amperemetres().some(c => Math.abs(c.I) >= 0.1) },
     ],
-    retenir: "L'intensité du courant se mesure en ampères (A) avec un ampèremètre, toujours branché en série (sur le chemin du courant). Ici, environ 0,43 A avec une pile et une lampe.",
+    retenir: "L'intensité du courant se mesure en ampères (A) avec un ampèremètre, toujours branché en série (sur le chemin du courant). Son écran affiche la mesure en temps réel : ici, environ 0,43 A.",
     indice: "L'ampèremètre se pose dans la boucle, comme un maillon — pas à côté du circuit.",
   },
   {
@@ -1057,7 +1234,7 @@ const progression = { m: 0, etape: 0, faites: [] };
 
 function chargerProgression() {
   try {
-    const d = JSON.parse(localStorage.getItem('ike-circuit-progression'));
+    const d = JSON.parse(localStorage.getItem('ike-circuit-progression-v2'));
     if (d) {
       if (d.m === 'libre' || (Number.isInteger(d.m) && d.m >= 0 && d.m < MISSIONS.length))
         progression.m = d.m;
@@ -1067,7 +1244,7 @@ function chargerProgression() {
 }
 function sauverProgression() {
   try {
-    localStorage.setItem('ike-circuit-progression',
+    localStorage.setItem('ike-circuit-progression-v2',
       JSON.stringify({ m: progression.m, faites: progression.faites }));
   } catch (e) {}
 }
@@ -1091,6 +1268,7 @@ function evaluerMission() {
     avance = true;
   }
   if (!avance) return;
+  resetEtapeTimer();
   if (progression.etape >= m.etapes.length) {
     if (!progression.faites.includes(progression.m)) {
       progression.faites.push(progression.m);
@@ -1098,7 +1276,11 @@ function evaluerMission() {
     }
     ouvrirFin(m);
   } else {
-    toast('✅ Étape réussie !');
+    toast(`✅ Étape ${progression.etape} réussie ! Lis la suite ⬆`);
+    const bar = document.getElementById('mbar');
+    bar.classList.remove('flash');
+    void bar.offsetWidth;                    // relance l'animation CSS
+    bar.classList.add('flash');
   }
   majMissionBar();
 }
@@ -1107,6 +1289,7 @@ function allerMission(m) {
   progression.m = m;
   progression.etape = 0;
   sauverProgression();
+  resetEtapeTimer();
   deselectionner();
   fermerVoiles();
   document.getElementById('mindice').classList.remove('visible');
@@ -1128,8 +1311,22 @@ function majMissionBar() {
     document.getElementById('mtitre').textContent = m.titre;
     l2.style.display = '';
     const fini = progression.etape >= m.etapes.length;
-    document.getElementById('metape').textContent =
-      fini ? '🎉 Mission terminée ! Passe à la suivante.' : '⬜ ' + m.etapes[progression.etape].texte;
+    // Points de progression des étapes (vert = faite, bleu = en cours)
+    const pts = document.getElementById('mpoints');
+    pts.innerHTML = '';
+    if (m.etapes.length > 1) {
+      m.etapes.forEach((e2, i) => {
+        const p = document.createElement('span');
+        p.className = 'pt' + (i < progression.etape ? ' faite' : i === progression.etape ? ' courante' : '');
+        pts.appendChild(p);
+      });
+    }
+    const metape = document.getElementById('metape');
+    metape.textContent =
+      fini ? '🎉 Mission terminée ! Passe à la suivante.' : m.etapes[progression.etape].texte;
+    metape.classList.remove('glisse');
+    void metape.offsetWidth;
+    metape.classList.add('glisse');
     document.getElementById('mcompteur').textContent =
       m.etapes.length > 1 && !fini ? `étape ${progression.etape + 1}/${m.etapes.length}` : '';
     document.getElementById('mindice').textContent = '💡 ' + m.indice;
@@ -1211,6 +1408,7 @@ for (const v of document.querySelectorAll('.voile'))
 
 // ---- Indice ----
 document.getElementById('btn-indice').addEventListener('click', () => {
+  document.getElementById('btn-indice').classList.remove('pulse');
   document.getElementById('mindice').classList.toggle('visible');
   redimensionner();
 });
@@ -1236,11 +1434,15 @@ majMissionBar();
 resoudre();
 requestAnimationFrame(boucle);
 
-// Écran de démarrage : la marque s'affiche ~1,4 s puis s'efface en fondu
+// Écran de démarrage : la marque s'affiche ~1,4 s puis s'efface en fondu.
+// Au tout premier lancement, on enchaîne sur la visite guidée de l'interface.
 setTimeout(() => {
   const s = document.getElementById('splash');
   s.classList.add('fini');
   setTimeout(() => s.remove(), 600);
+  try {
+    if (!localStorage.getItem('ike-circuit-visite')) lancerVisite();
+  } catch (e) { lancerVisite(); }
 }, 1400);
 </script>
 </body>

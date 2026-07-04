@@ -39,6 +39,15 @@ Double-cliquer sur son `index.html` — aucun serveur, aucune installation.
 Pour tester sur téléphone : copier le fichier sur l'appareil, ou le servir sur le réseau local
 (`python -m http.server` dans le dossier, puis ouvrir `http://<ip-du-pc>:8000` sur le téléphone).
 
+## Versions
+
+L'historique complet est dans [CHANGELOG.md](CHANGELOG.md). Chaque version est un tag git et une
+[release GitHub](https://github.com/edgboy/ike-simulations/releases) :
+
+- Lister les versions : `git tag`
+- Consulter une ancienne version : `git checkout v1.5.0` — puis `git checkout main` pour revenir
+- La version en cours est affichée sur l'écran de démarrage de chaque simulation
+
 ## Feuille de route
 
 1. ✅ **Circuit électrique** (v1) : fils, piles, lampes, interrupteurs, ampèremètre — série/parallèle, court-circuit

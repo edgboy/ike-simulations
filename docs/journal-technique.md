@@ -77,6 +77,22 @@ Séquence : 1 fil → 2 circuit fermé → 3 interrupteur → 4 ampèremètre (s
 → 6 série (éclat réduit) → 7 parallèle (dérivation) → 8 indépendance des branches → 9 court-circuit (sécurité)
 → 10 piles en série (tensions qui s'additionnent).
 
+### v1.6 — Premiers retours utilisateurs (2026-07)
+
+Retours reçus → réponses apportées :
+| Retour | Réponse |
+|---|---|
+| « Il faut une présentation de l'interface au début » | **Visite guidée** avec projecteur (halo) zone par zone, au premier lancement + bouton ❓ |
+| « Comment supprimer / inverser / remplacer ? » | Carte « Modifier ton circuit » dans la visite (gestes illustrés) |
+| « Le passage d'étape n'est pas assez visible » | Points de progression ●●○, flash vert de la barre, toast « Étape N réussie », animation du nouvel objectif |
+| « Rendre visibles les astuces / le guide » | Bouton « 💡 Indice » coloré + **coup de pouce automatique** : après 45 s sans progrès, le bouton pulse et un message invite à l'utiliser |
+| « Découper les missions pour les débutants » | 10 → **12 missions** : pile/lampe séparées de l'allumage, interrupteur en deux temps ; clé de sauvegarde changée (`-v2`) |
+| « La mesure de l'ampèremètre se confond avec un fil » | **Écran de mesure façon appareil** : cadre sombre arrondi, chiffres verts style afficheur digital |
+| « La configuration quadratique est top » ✅ | La grille est confirmée comme bon choix — conservée |
+
+Leçon pour le guide : la **détection de blocage** (timer d'étape) et la **visite guidée par projecteur**
+sont des mécaniques réutilisables dans toutes les futures simulations.
+
 ### Pistes pour la v2 (notées, non faites)
 - Voltmètre (se branche en parallèle → interaction à concevoir : appui long sur deux nœuds ?)
 - Résistance variable (potentiomètre) ; sauvegarde/chargement d'un montage (JSON dans l'URL ou localStorage)
