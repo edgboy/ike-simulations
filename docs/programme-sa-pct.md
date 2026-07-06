@@ -60,4 +60,5 @@ chaque simulation sur le programme officiel béninois (APC).
 | ⚡ Circuit électrique | 6ème SA1 (courant électrique), 6ème SA2 (lampe de poche), 4ème SA1 (appareils de mesure), 5ème SA2 (dangers/court-circuit) |
 | 🔍 Banc d'optique | 5ème SA4 (propagation rectiligne, ombres), 4ème SA5-6 (propagation, chambre noire), 3ème SA6 (lentilles, optique au service de l'homme) |
 | 🧊 États de la matière | 6ème SA4 (états de l'eau), 5ème SA3 (structure de la matière), 5ème SA5 (propriétés des gaz) |
-| 🔥 Combustions vives *(à venir)* | 6ème SA3 (combustions vives), 3ème SA5 (hydrocarbures) |
+| 🔥 Combustions vives | 6ème SA3 (combustions vives) — pont vers 3ème SA5 (hydrocarbures) |
+| ⚛️ Molécules en 3D | 4ème SA2 (structure d'un atome), 4ème SA4 (étude de quelques molécules) |

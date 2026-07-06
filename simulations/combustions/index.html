@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#1565c0">
+<title>Combustions vives · IKE Simulations</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html, body { height:100%; overflow:hidden; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background:#f4f7fb; color:#263238;
+    display:flex; flex-direction:column;
+    user-select:none; -webkit-user-select:none; touch-action:manipulation;
+  }
+
+  /* ---------- Écran de démarrage IKE ---------- */
+  #splash {
+    position:fixed; inset:0; z-index:100;
+    background:linear-gradient(160deg,#0d47a1 0%,#1565c0 55%,#1e88e5 100%);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    transition:opacity .5s ease;
+  }
+  #splash.fini { opacity:0; pointer-events:none; }
+  #splash .logo {
+    font-size:56px; line-height:1;
+    animation:battement 1.1s ease-in-out infinite;
+    filter:drop-shadow(0 4px 14px rgba(255,202,40,.45));
+  }
+  @keyframes battement { 50% { transform:scale(1.18); } }
+  #splash .nom { margin-top:14px; color:#fff; font-size:30px; font-weight:800; letter-spacing:.5px; }
+  #splash .nom span { font-weight:300; opacity:.9; }
+  #splash .sub {
+    margin-top:4px; color:rgba(255,255,255,.75); font-size:13px;
+    letter-spacing:2px; text-transform:uppercase;
+  }
+  #splash .barre {
+    margin-top:22px; width:150px; height:4px; border-radius:2px;
+    background:rgba(255,255,255,.25); overflow:hidden;
+  }
+  #splash .rempl {
+    height:100%; background:#ffca28; border-radius:2px;
+    transform-origin:left; transform:scaleX(0); animation:charge 1.3s ease-out forwards;
+  }
+  @keyframes charge { to { transform:scaleX(1); } }
+  #splash .ver { position:absolute; bottom:14px; color:rgba(255,255,255,.5); font-size:11px; }
+
+  /* ---------- En-tête ---------- */
+  header {
+    display:flex; align-items:center; gap:8px;
+    padding:8px 12px; background:#fff; border-bottom:1px solid #e0e6ed;
+    flex:none; z-index:5;
+  }
+  header h1 { font-size:16px; font-weight:700; color:#1565c0; white-space:nowrap; }
+  header .spacer { flex:1; }
+  .btn {
+    border:1px solid #cfd8dc; background:#fff; color:#37474f;
+    border-radius:8px; padding:8px 10px; font-size:13px; font-weight:600;
+    cursor:pointer; white-space:nowrap; min-height:40px;
+  }
+  .btn:active { background:#e3f2fd; }
+  @media (max-width:480px) { .btn .lbl { display:none; } header h1 { font-size:14px; } }
+
+  /* ---------- Barre de mission ---------- */
+  #mbar { flex:none; background:#fff; border-bottom:1px solid #e0e6ed; padding:6px 10px; z-index:4; }
+  #mbar .l1 { display:flex; align-items:center; gap:8px; }
+  #mchip {
+    background:#1565c0; color:#fff; font-size:11px; font-weight:700;
+    border-radius:12px; padding:3px 9px; white-space:nowrap;
+  }
+  #mtitre {
+    font-size:13.5px; font-weight:700; color:#263238; flex:1;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  #mbar .mbtn {
+    border:1px solid #cfd8dc; background:#fff; border-radius:8px;
+    font-size:14px; padding:4px 10px; cursor:pointer; min-height:34px;
+  }
+  #mbar .l2 { display:flex; align-items:center; gap:8px; margin-top:5px; }
+  #mbar.flash { animation:flashvert .9s ease; }
+  @keyframes flashvert { 0% { background:#c8e6c9; } 100% { background:#fff; } }
+  #mpoints { display:flex; gap:5px; align-items:center; flex:none; }
+  #mpoints .pt { width:9px; height:9px; border-radius:50%; background:#cfd8dc; }
+  #mpoints .pt.faite { background:#2e7d32; }
+  #mpoints .pt.courante { background:#1565c0; animation:ptpulse 1.6s infinite; }
+  @keyframes ptpulse { 50% { transform:scale(1.4); } }
+  #metape { flex:1; font-size:12.5px; color:#37474f; line-height:1.4; }
+  #metape.glisse { animation:glisse .4s ease; }
+  @keyframes glisse { from { opacity:0; transform:translateX(12px); } }
+  #mcompteur { font-size:11px; color:#90a4ae; font-weight:700; white-space:nowrap; }
+  #btn-indice {
+    background:#fff8e1 !important; border-color:#ffca28 !important;
+    color:#795548; font-weight:700; white-space:nowrap;
+  }
+  #btn-indice.pulse { animation:indicepulse 1.2s infinite; }
+  @keyframes indicepulse {
+    50% { transform:scale(1.08); box-shadow:0 0 0 7px rgba(255,202,40,.3); }
+  }
+  #btn-suiv2 {
+    background:#1565c0 !important; border-color:#1565c0 !important;
+    color:#fff !important; font-weight:700; white-space:nowrap;
+  }
+  #mindice {
+    display:none; margin-top:6px; background:#fff8e1; border:1px solid #ffe082;
+    color:#795548; font-size:12.5px; border-radius:8px; padding:7px 10px; line-height:1.45;
+  }
+  #mindice.visible { display:block; }
+  #mdiag {
+    display:none; margin-top:6px; background:#fff3e0; border:1px solid #ffcc80;
+    color:#bf360c; font-size:12.5px; border-radius:8px; padding:7px 10px; line-height:1.45;
+  }
+  #mdiag.visible { display:block; animation:glisse .4s ease; }
+
+  /* ---------- Scène ---------- */
+  #wrap { flex:1; position:relative; overflow:hidden; }
+  canvas#scene { position:absolute; inset:0; width:100%; height:100%; touch-action:none; display:block; }
+
+  /* Panneau triangle du feu + bilan */
+  #formule {
+    position:absolute; top:10px; left:10px; z-index:5;
+    background:rgba(255,255,255,.94); border:1px solid #cfd8dc; border-radius:12px;
+    padding:10px 12px; max-width:min(265px, 58vw);
+    font-size:12px; line-height:1.6; color:#37474f;
+    box-shadow:0 3px 12px rgba(0,0,0,.12);
+  }
+  #formule .ftitre {
+    font-size:11px; font-weight:800; letter-spacing:.5px; color:#1565c0;
+    text-transform:uppercase; margin-bottom:4px;
+  }
+  #formule .fmath {
+    font-family:Consolas, "Courier New", monospace; font-size:11px;
+    background:#f4f7fb; border-radius:6px; padding:2px 6px; margin:2px 0;
+    white-space:nowrap; overflow-x:auto; display:block;
+  }
+  #formule .fok { font-weight:800; color:#2e7d32; }
+  #formule .fnon { font-weight:800; color:#c62828; }
+  #formule .fnote { font-size:11px; color:#90a4ae; font-style:italic; }
+  #formule .flex {
+    display:block; margin-top:6px; font-size:11px; font-weight:700;
+    color:#1565c0; text-decoration:underline; cursor:pointer;
+    background:none; border:none; padding:0;
+  }
+
+  .lex { margin-bottom:10px; }
+  .lex dt { font-size:13px; font-weight:800; color:#1565c0; margin-top:10px; }
+  .lex dd { font-size:12.5px; line-height:1.5; color:#37474f; margin:2px 0 0; }
+
+  #toast {
+    position:absolute; bottom:16px; left:50%;
+    transform:translateX(-50%) translateY(10px) scale(.9);
+    background:#2e7d32; color:#fff; font-size:14.5px; font-weight:800;
+    padding:11px 22px; border-radius:22px; opacity:0; pointer-events:none;
+    transition:opacity .25s, transform .3s cubic-bezier(.34,1.56,.64,1);
+    box-shadow:0 6px 20px rgba(46,125,50,.4); z-index:6; white-space:nowrap;
+  }
+  #toast.visible { opacity:1; transform:translateX(-50%) translateY(0) scale(1); }
+
+  /* ---------- Commandes ---------- */
+  nav#palette {
+    flex:none; display:flex; justify-content:center; align-items:center; gap:8px;
+    padding:8px 10px calc(8px + env(safe-area-inset-bottom));
+    background:#fff; border-top:1px solid #e0e6ed; z-index:5; flex-wrap:wrap;
+  }
+  .cmd {
+    display:flex; align-items:center; gap:6px;
+    border:2px solid #cfd8dc; border-radius:12px; background:#f4f7fb;
+    padding:11px 14px; font-size:13.5px; font-weight:800; color:#37474f;
+    cursor:pointer; min-height:50px;
+  }
+  .cmd:active { background:#e3f2fd; }
+  #vol-bloc { display:none; align-items:center; gap:8px; font-size:12px; font-weight:700; color:#37474f; }
+  #vol-bloc.visible { display:flex; }
+  #vol-bloc input { width:110px; accent-color:#1565c0; }
+
+  /* ---------- Voiles ---------- */
+  .voile {
+    position:fixed; inset:0; background:rgba(38,50,56,.55);
+    display:none; align-items:center; justify-content:center; z-index:20; padding:16px;
+  }
+  .voile.visible { display:flex; }
+  .voile .carte {
+    position:relative;
+    background:#fff; border-radius:16px; padding:22px; max-width:400px; width:100%;
+    max-height:86vh; overflow-y:auto; box-shadow:0 10px 40px rgba(0,0,0,.3);
+  }
+  .fermer-x {
+    position:absolute; top:8px; right:10px; border:none; background:none;
+    font-size:20px; line-height:1; color:#90a4ae; cursor:pointer; padding:6px 8px;
+  }
+  .voile .carte h2 { font-size:18px; color:#1565c0; margin-bottom:12px; }
+  .voile.visible .carte h2 { animation:pop .4s ease-out; }
+  @keyframes pop { 0% { transform:scale(.5); opacity:0; } 80% { transform:scale(1.08); } 100% { transform:scale(1); } }
+  .voile .go {
+    width:100%; border:none; background:#1565c0; color:#fff; font-size:15px; font-weight:700;
+    padding:12px; border-radius:10px; cursor:pointer;
+  }
+  .voile .btn2 {
+    width:100%; border:1px solid #cfd8dc; background:#fff; color:#37474f;
+    font-size:13px; font-weight:600; padding:10px; border-radius:10px;
+    cursor:pointer; margin-top:8px;
+  }
+  .voile .lien {
+    display:block; width:100%; text-align:center; margin-top:10px;
+    background:none; border:none; color:#90a4ae; font-size:11.5px;
+    text-decoration:underline; cursor:pointer;
+  }
+  #mfin-titre { font-weight:700; font-size:15px; color:#263238; margin-bottom:10px; }
+  .retenir-label { font-size:12px; font-weight:800; color:#2e7d32; margin-bottom:4px; }
+  #mfin-retenir {
+    background:#e8f5e9; border-radius:10px; padding:10px 12px;
+    font-size:13.5px; line-height:1.55; color:#1b5e20; margin:0 0 14px;
+  }
+  .mrow {
+    display:flex; align-items:center; gap:8px; width:100%;
+    border:none; background:#f4f7fb; border-radius:8px; padding:10px;
+    margin-bottom:5px; font-size:13px; cursor:pointer; text-align:left; color:#263238;
+  }
+  .mrow .n { font-weight:700; color:#90a4ae; min-width:22px; }
+  .mrow.faite .n { color:#2e7d32; }
+  .mrow.courante { outline:2px solid #1565c0; background:#e3f2fd; }
+  .mrow .t { flex:1; }
+
+  /* ---------- Visite guidée ---------- */
+  #visite { position:fixed; inset:0; z-index:30; display:none; }
+  #visite.sombre { background:rgba(38,50,56,.62); }
+  #visite-halo {
+    position:absolute; border-radius:12px; border:2px solid #ffca28;
+    box-shadow:0 0 0 9999px rgba(38,50,56,.62);
+    transition:all .3s ease; pointer-events:none;
+  }
+  #visite-carte {
+    position:absolute; background:#fff; border-radius:14px; padding:16px;
+    width:min(310px, calc(100vw - 24px)); box-shadow:0 10px 40px rgba(0,0,0,.35);
+  }
+  .vtitre { font-size:15px; font-weight:800; color:#1565c0; margin-bottom:6px; }
+  .vtexte { font-size:13px; line-height:1.55; color:#37474f; white-space:pre-line; }
+  .vbas { display:flex; align-items:center; gap:10px; margin-top:12px; }
+  .vprog { flex:1; font-size:11px; font-weight:700; color:#90a4ae; }
+  #visite-passer {
+    background:none; border:none; color:#90a4ae; font-size:12px;
+    text-decoration:underline; cursor:pointer; padding:6px;
+  }
+  #visite-suivant {
+    border:none; background:#1565c0; color:#fff; font-weight:700;
+    font-size:13px; padding:9px 18px; border-radius:9px; cursor:pointer;
+  }
+  .vmarque { margin-top:10px; text-align:center; font-size:10px; color:#b0bec5; }
+
+  /* ==================== THÈME SOMBRE ==================== */
+  body.sombre { background:#10181f; color:#eceff1; }
+  body.sombre header,
+  body.sombre #mbar,
+  body.sombre nav#palette { background:#1c262e; border-color:#2c3a45; }
+  body.sombre header h1 { color:#64b5f6; }
+  body.sombre .btn { background:#22303a; border-color:#3a4a56; color:#cfd8dc; }
+  body.sombre .btn:active { background:#0d2c4f; }
+  body.sombre #mtitre { color:#eceff1; }
+  body.sombre #metape { color:#cfd8dc; }
+  body.sombre #mbar .mbtn { background:#22303a; border-color:#3a4a56; color:#cfd8dc; }
+  body.sombre #btn-indice { background:#3a3220 !important; border-color:#8d6e63 !important; color:#ffd54f; }
+  body.sombre #mindice { background:#2b2618; border-color:#5d4d1a; color:#ffe082; }
+  body.sombre #mdiag { background:#33261a; border-color:#7a5c3d; color:#ffcc80; }
+  body.sombre #mpoints .pt { background:#3a4a56; }
+  body.sombre #mpoints .pt.faite { background:#66bb6a; }
+  body.sombre #mpoints .pt.courante { background:#64b5f6; }
+  body.sombre #mbar.flash { animation-name:flashvert-sombre; }
+  @keyframes flashvert-sombre { 0% { background:#1b3a22; } 100% { background:#1c262e; } }
+  body.sombre .cmd { background:#22303a; border-color:#3a4a56; color:#cfd8dc; }
+  body.sombre .cmd:active { background:#0d2c4f; }
+  body.sombre #vol-bloc { color:#cfd8dc; }
+  body.sombre #formule { background:rgba(28,38,46,.95); border-color:#3a4a56; color:#cfd8dc; }
+  body.sombre #formule .ftitre { color:#64b5f6; }
+  body.sombre #formule .fmath { background:#10181f; }
+  body.sombre #formule .fok { color:#81c784; }
+  body.sombre #formule .fnon { color:#ef9a9a; }
+  body.sombre #formule .flex { color:#64b5f6; }
+  body.sombre .lex dt { color:#64b5f6; }
+  body.sombre .lex dd { color:#cfd8dc; }
+  body.sombre .voile .carte, body.sombre #visite-carte { background:#1c262e; }
+  body.sombre .voile .carte h2, body.sombre .vtitre { color:#64b5f6; }
+  body.sombre .vtexte { color:#cfd8dc; }
+  body.sombre .voile .btn2 { background:#22303a; border-color:#3a4a56; color:#cfd8dc; }
+  body.sombre #mfin-titre { color:#eceff1; }
+  body.sombre .retenir-label { color:#81c784; }
+  body.sombre #mfin-retenir { background:#16281a; color:#a5d6a7; }
+  body.sombre .mrow { background:#26313a; color:#eceff1; }
+  body.sombre .mrow.courante { background:#0d2c4f; outline-color:#64b5f6; }
+</style>
+</head>
+<body>
+
+<div id="splash">
+  <div class="logo">⚡</div>
+  <div class="nom">IKE <span>Simulations</span></div>
+  <div class="sub">Sciences au collège</div>
+  <div class="barre"><div class="rempl"></div></div>
+  <div class="ver">v2.6.0</div>
+</div>
+
+<header>
+  <h1>🔥 Combustions vives</h1>
+  <div class="spacer"></div>
+  <button class="btn" id="btn-formule">🔺<span class="lbl"> Triangle</span></button>
+  <button class="btn" id="btn-theme">🌙<span class="lbl"> Sombre</span></button>
+  <button class="btn" id="btn-aide">❓<span class="lbl"> Aide</span></button>
+</header>
+
+<div id="mbar">
+  <div class="l1">
+    <span id="mchip"></span>
+    <span id="mtitre"></span>
+    <button class="mbtn" id="btn-missions" title="Toutes les missions">📋</button>
+  </div>
+  <div class="l2">
+    <span id="mpoints"></span>
+    <span id="metape"></span>
+    <span id="mcompteur"></span>
+    <button class="mbtn" id="btn-indice" title="Indice">💡 Indice</button>
+    <button class="mbtn" id="btn-suiv2" style="display:none">Suivante ▶</button>
+  </div>
+  <div id="mindice"></div>
+  <div id="mdiag"></div>
+</div>
+
+<div id="wrap">
+  <canvas id="scene"></canvas>
+  <div id="formule"></div>
+  <div id="toast"></div>
+</div>
+
+<nav id="palette">
+  <button class="cmd" id="btn-allumer">🔥 Allumer</button>
+  <button class="cmd" id="btn-cloche">🫙 Poser la cloche</button>
+  <button class="cmd" id="btn-souffler">💨 Souffler</button>
+  <button class="cmd" id="btn-chaux">🧪 Tester le gaz</button>
+  <div id="vol-bloc">
+    <span>Cloche</span>
+    <input type="range" id="volume" min="1" max="4" value="2" step="0.5">
+    <span id="vol-val">2,0 L</span>
+  </div>
+</nav>
+
+<div id="mlecon" class="voile">
+  <div class="carte">
+    <h2>📖 Avant de commencer…</h2>
+    <div id="mlecon-titre" style="font-weight:700; font-size:15px; margin-bottom:10px;"></div>
+    <p id="mlecon-texte" style="font-size:14px; line-height:1.65; margin-bottom:14px;"></p>
+    <button class="go" id="btn-go-lecon">C'est parti !</button>
+  </div>
+</div>
+
+<div id="mlexique" class="voile">
+  <div class="carte">
+    <h2>📖 Lexique de la combustion</h2>
+    <dl class="lex" id="lex-items"></dl>
+    <button class="go" id="btn-fermer-lexique">Fermer</button>
+  </div>
+</div>
+
+<div id="mfin" class="voile">
+  <div class="carte">
+    <button class="fermer-x" id="btn-fermer-fin" title="Fermer et observer">✕</button>
+    <h2>🎉 Mission réussie !</h2>
+    <div id="mfin-titre"></div>
+    <div class="retenir-label">💡 À retenir</div>
+    <p id="mfin-retenir"></p>
+    <button class="go" id="btn-suivante">Mission suivante ▶</button>
+    <button class="btn2" id="btn-liste2">📋 Toutes les missions</button>
+  </div>
+</div>
+
+<div id="mliste" class="voile">
+  <div class="carte">
+    <h2>📋 Parcours d'apprentissage</h2>
+    <div id="mliste-items"></div>
+    <button class="btn2" id="btn-libre">🧪 Mode libre — expérimente librement</button>
+    <button class="go" id="btn-fermer-liste">Fermer</button>
+    <button class="lien" id="btn-reset-prog">↺ Réinitialiser tout le parcours</button>
+  </div>
+</div>
+
+<div id="visite">
+  <div id="visite-halo"></div>
+  <div id="visite-carte">
+    <div class="vtitre"></div>
+    <div class="vtexte"></div>
+    <div class="vbas">
+      <span class="vprog"></span>
+      <button id="visite-passer">Passer</button>
+      <button id="visite-suivant">Suivant</button>
+    </div>
+    <div class="vmarque">IKE Simulations · collège (PCT)</div>
+  </div>
+</div>
+
+<script>
+'use strict';
+/* =====================================================================
+   COMBUSTIONS VIVES — 6ᵉ SA3 (pont vers 3ᵉ SA5)
+   ---------------------------------------------------------------------
+   Modèle : l'air contient 21 % de dioxygène. Sous cloche, la bougie
+   consomme l'O₂ (vitesse ∝ 1/volume) et produit CO₂ + H₂O (buée).
+   La flamme s'affaiblit puis MEURT à ~15 % d'O₂ — pas à zéro !
+   Le triangle du feu (combustible/comburant/chaleur) est suivi en direct.
+   ===================================================================== */
+
+/* ---------- 1. Modèle ---------- */
+
+const O2_AIR = 21, CO2_AIR = 0.04;
+const O2_EXTINCTION = 15;         // seuil réel d'extinction d'une flamme
+const O2_RALLUMAGE = 15.6;        // en dessous, impossible de rallumer
+const K_COMBUSTION = 0.75;        // % d'O₂ consommé par seconde et par litre
+const CO2_TROUBLE = 2;            // % de CO₂ qui trouble l'eau de chaux
+
+// Temps de combustion théorique sous une cloche de v litres (pour les tests)
+function tempsCombustion(v) { return (O2_AIR - O2_EXTINCTION) / (K_COMBUSTION / v); }
+
+const etat = {
+  allumee: false,
+  cloche: false,        // cloche posée sur la bougie ?
+  volume: 2,            // litres
+  o2: O2_AIR, co2: CO2_AIR,
+  buee: 0,              // 0 → 1
+  tCombustion: 0,       // chrono de la combustion en cours (s)
+  chaux: 'limpide',     // limpide | trouble
+  theme: 'clair',
+};
+
+const suivi = {
+  volumesEteints: [],   // volumes de cloche ayant mené à une extinction
+  extinctionCloche: false,
+  extinctionSouffle: false,
+  o2AExtinction: null,
+  co2Cumule: 0,
+  testsTroubles: 0,
+  rallumages: 0,
+  meilleurTemps: 0,
+};
+function resetSuivi() {
+  suivi.volumesEteints = [];
+  suivi.extinctionCloche = false;
+  suivi.extinctionSouffle = false;
+  suivi.o2AExtinction = null;
+  suivi.co2Cumule = 0;
+  suivi.testsTroubles = 0;
+  suivi.rallumages = 0;
+  suivi.meilleurTemps = 0;
+}
+
+/* ---------- 2. Actions ---------- */
+
+function allumer() {
+  if (etat.allumee) { toast('Elle brûle déjà !'); return; }
+  if (etat.cloche && etat.o2 < O2_RALLUMAGE) {
+    toast('⚠ Impossible : plus assez de dioxygène sous la cloche !');
+    evaluerMission();
+    return;
+  }
+  etat.allumee = true;
+  etat.tCombustion = 0;
+  if (missionCourante()) suivi.rallumages++;
+  evaluerMission();
+}
+
+function eteindre(cause) {
+  if (!etat.allumee) return;
+  etat.allumee = false;
+  fumee = 1;
+  if (cause === 'cloche') {
+    suivi.extinctionCloche = true;
+    suivi.o2AExtinction = etat.o2;
+    if (!suivi.volumesEteints.includes(etat.volume)) suivi.volumesEteints.push(etat.volume);
+    toast('🕯️ Plus assez de dioxygène : la flamme meurt !');
+  } else if (cause === 'souffle') {
+    suivi.extinctionSouffle = true;
+    toast('💨 Soufflée ! La flamme a été refroidie.');
+  }
+  evaluerMission();
+}
+
+document.getElementById('btn-allumer').addEventListener('click', allumer);
+
+document.getElementById('btn-souffler').addEventListener('click', () => {
+  if (etat.cloche) { toast('La cloche protège la flamme du souffle !'); return; }
+  if (!etat.allumee) { toast('Rien à souffler : la bougie est éteinte.'); return; }
+  eteindre('souffle');
+});
+
+const btnCloche = document.getElementById('btn-cloche');
+btnCloche.addEventListener('click', () => {
+  etat.cloche = !etat.cloche;
+  if (etat.cloche) {
+    etat.o2 = O2_AIR; etat.co2 = CO2_AIR; etat.buee = 0;   // air frais emprisonné
+    btnCloche.textContent = '🫙 Retirer la cloche';
+  } else {
+    btnCloche.textContent = '🫙 Poser la cloche';
+    etat.o2 = O2_AIR; etat.co2 = CO2_AIR; etat.buee = 0;   // aération
+  }
+  evaluerMission();
+});
+
+document.getElementById('btn-chaux').addEventListener('click', () => {
+  if (!etat.cloche) {
+    toast('Pose d\'abord la cloche : à l\'air libre, le gaz s\'échappe !');
+    evaluerMission();
+    return;
+  }
+  etat.chaux = etat.co2 >= CO2_TROUBLE ? 'trouble' : 'limpide';
+  if (etat.chaux === 'trouble') {
+    suivi.testsTroubles++;
+    toast('🧪 L\'eau de chaux se TROUBLE : il y a du dioxyde de carbone !');
+  } else {
+    toast('🧪 L\'eau de chaux reste limpide : pas (encore) de CO₂.');
+  }
+  evaluerMission();
+});
+
+const volCurseur = document.getElementById('volume');
+volCurseur.addEventListener('input', () => {
+  etat.volume = parseFloat(volCurseur.value);
+  document.getElementById('vol-val').textContent = etat.volume.toFixed(1).replace('.', ',') + ' L';
+});
+
+function volumeDebloque() {
+  const m = missionCourante();
+  return m ? (m.outils || []).includes('volume') : true;
+}
+function majCommandes() {
+  const autorises = missionCourante() ? missionCourante().outils || [] :
+    ['allumer', 'cloche', 'souffler', 'chaux', 'volume'];
+  document.getElementById('btn-allumer').style.display = autorises.includes('allumer') ? '' : 'none';
+  document.getElementById('btn-cloche').style.display = autorises.includes('cloche') ? '' : 'none';
+  document.getElementById('btn-souffler').style.display = autorises.includes('souffler') ? '' : 'none';
+  document.getElementById('btn-chaux').style.display = autorises.includes('chaux') ? '' : 'none';
+  document.getElementById('vol-bloc').classList.toggle('visible', autorises.includes('volume'));
+}
+
+/* ---------- 3. Simulation continue ---------- */
+
+let fumee = 0;      // intensité de la fumée après extinction (décroît)
+let tAnim = 0, tPrec = 0, cadreEval = 0;
+
+function boucle(t) {
+  const dt = Math.min(0.05, (t - tPrec) / 1000 || 0.016);
+  tPrec = t; tAnim += dt;
+
+  if (etat.allumee) {
+    etat.tCombustion += dt;
+    if (etat.cloche) {
+      suivi.meilleurTemps = Math.max(suivi.meilleurTemps, etat.tCombustion); // défi marathon
+      const conso = (K_COMBUSTION / etat.volume) * dt;
+      etat.o2 = Math.max(0, etat.o2 - conso);
+      etat.co2 += conso;
+      suivi.co2Cumule += conso;
+      etat.buee = Math.min(1, etat.buee + conso / 4);
+      if (etat.o2 <= O2_EXTINCTION) eteindre('cloche');
+    } else {
+      suivi.co2Cumule += K_COMBUSTION * dt * 0.5;   // brûle aussi à l'air libre
+    }
+  }
+  if (fumee > 0) fumee = Math.max(0, fumee - dt * 0.5);
+
+  dessiner();
+  majFormule();
+  if (++cadreEval % 10 === 0) evaluerMission();
+  requestAnimationFrame(boucle);
+}
+
+/* ---------- 4. Rendu ---------- */
+
+const canvas = document.getElementById('scene');
+const ctx = canvas.getContext('2d');
+let largeur = 0, hauteur = 0;
+
+function redimensionner() {
+  const wrap = document.getElementById('wrap');
+  largeur = wrap.clientWidth; hauteur = wrap.clientHeight;
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  canvas.width = Math.round(largeur * dpr);
+  canvas.height = Math.round(hauteur * dpr);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+
+const PALETTES = {
+  clair: {
+    table: '#8d6e63', tableBord: '#5d4037', texte: '#37474f', doux: '#90a4ae',
+    cire: '#fff8e1', cireBord: '#d7ccc8', verre: 'rgba(174,213,229,.20)',
+    verreBord: '#78909c', jaugeFond: '#eceff1',
+  },
+  sombre: {
+    table: '#5d4037', tableBord: '#3e2723', texte: '#cfd8dc', doux: '#78909c',
+    cire: '#efebe9', cireBord: '#8d6e63', verre: 'rgba(100,181,246,.12)',
+    verreBord: '#90a4ae', jaugeFond: '#22303a',
+  },
+};
+const T_ = () => PALETTES[etat.theme];
+
+function vigueur() {
+  if (!etat.allumee) return 0;
+  if (!etat.cloche) return 1;
+  return Math.max(0.25, Math.min(1, (etat.o2 - O2_EXTINCTION) / 6));
+}
+
+function dessiner() {
+  ctx.clearRect(0, 0, largeur, hauteur);
+  const t = T_();
+  const tableY = hauteur * 0.78;
+  const bx = largeur * 0.42;                    // position de la bougie
+
+  // Table
+  ctx.fillStyle = t.table;
+  ctx.fillRect(0, tableY, largeur, hauteur - tableY);
+  ctx.fillStyle = t.tableBord;
+  ctx.fillRect(0, tableY, largeur, 6);
+
+  // Bougie
+  const bh = 74, bw = 26;
+  ctx.fillStyle = t.cire;
+  ctx.strokeStyle = t.cireBord; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.roundRect(bx - bw / 2, tableY - bh, bw, bh, 4);
+  ctx.fill(); ctx.stroke();
+  // mèche
+  ctx.strokeStyle = '#37474f'; ctx.lineWidth = 2.5;
+  ctx.beginPath(); ctx.moveTo(bx, tableY - bh); ctx.lineTo(bx, tableY - bh - 9); ctx.stroke();
+
+  // Flamme
+  const v = vigueur();
+  if (v > 0) {
+    const fy = tableY - bh - 10;
+    const vac = 1 + Math.sin(tAnim * 13) * 0.08 + Math.sin(tAnim * 29) * 0.05;
+    const fh = 34 * v * vac, fw = 13 * (0.6 + 0.4 * v);
+    const glow = ctx.createRadialGradient(bx, fy - fh / 2, 4, bx, fy - fh / 2, 70 * v);
+    glow.addColorStop(0, 'rgba(255,180,60,.35)');
+    glow.addColorStop(1, 'rgba(255,180,60,0)');
+    ctx.fillStyle = glow;
+    ctx.beginPath(); ctx.arc(bx, fy - fh / 2, 70 * v, 0, 7); ctx.fill();
+    for (const [k, coul] of [[1, '#ff9800'], [0.66, '#ffc107'], [0.34, '#fff59d']]) {
+      ctx.fillStyle = coul;
+      ctx.beginPath();
+      ctx.ellipse(bx, fy - fh * k / 2, fw * k, fh * k / 2, 0, 0, 7);
+      ctx.fill();
+    }
+    ctx.fillStyle = '#64b5f6';
+    ctx.beginPath(); ctx.ellipse(bx, fy - 2, 4.5, 5, 0, 0, 7); ctx.fill();
+  }
+
+  // Fumée après extinction
+  if (fumee > 0) {
+    ctx.fillStyle = `rgba(120,130,140,${0.5 * fumee})`;
+    for (let i = 0; i < 6; i++) {
+      const fy2 = tableY - bh - 16 - i * 14 - (1 - fumee) * 60;
+      ctx.beginPath();
+      ctx.arc(bx + Math.sin(tAnim * 2 + i * 1.7) * (4 + i * 2.4), fy2, 3 + i * 1.6, 0, 7);
+      ctx.fill();
+    }
+  }
+
+  // Cloche (taille ∝ volume)
+  if (etat.cloche) {
+    const cw = 60 + etat.volume * 22, ch = 130 + etat.volume * 26;
+    const cx1 = bx - cw, cx2 = bx + cw, cyH = tableY - ch;
+    ctx.fillStyle = t.verre;
+    ctx.strokeStyle = t.verreBord; ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(cx1, tableY);
+    ctx.lineTo(cx1, cyH + 40);
+    ctx.quadraticCurveTo(cx1, cyH, bx, cyH);
+    ctx.quadraticCurveTo(cx2, cyH, cx2, cyH + 40);
+    ctx.lineTo(cx2, tableY);
+    ctx.closePath();
+    ctx.fill(); ctx.stroke();
+    // poignée + reflet
+    ctx.beginPath(); ctx.arc(bx, cyH - 6, 7, 0, 7); ctx.stroke();
+    ctx.strokeStyle = 'rgba(255,255,255,.5)'; ctx.lineWidth = 4;
+    ctx.beginPath(); ctx.arc(bx, tableY - ch * 0.45, cw * 0.72, -2.2, -1.6); ctx.stroke();
+    // Buée : gouttelettes sur la paroi
+    if (etat.buee > 0.05) {
+      ctx.fillStyle = `rgba(179,229,252,${(0.4 + etat.buee * 0.5).toFixed(2)})`;
+      const n = Math.floor(etat.buee * 26);
+      for (let i = 0; i < n; i++) {
+        const a = (i * 2.399) % 6.283;
+        const gx = bx + Math.cos(a) * cw * 0.8;
+        const gy = cyH + 30 + ((i * 53) % (ch * 0.6));
+        ctx.beginPath(); ctx.arc(gx, gy, 2 + (i % 3), 0, 7); ctx.fill();
+      }
+      etiquetteTexte(bx + cw * 0.62, cyH + 24, 'buée 💧', t.doux);
+    }
+    // Chrono
+    if (etat.allumee)
+      etiquetteTexte(bx, cyH - 22, `⏱ ${etat.tCombustion.toFixed(1).replace('.', ',')} s`, t.texte);
+  }
+
+  // Jauges O₂ / CO₂ (à droite)
+  const jx = largeur - Math.min(84, largeur * 0.16);
+  dessinerJauge(jx, 'O₂', etat.cloche ? etat.o2 : O2_AIR, 25, '#42a5f5',
+    etat.cloche && etat.o2 <= O2_EXTINCTION + 1);
+  dessinerJauge(jx + 38, 'CO₂', etat.cloche ? etat.co2 : CO2_AIR, 25, '#78909c', false);
+  if (!etat.cloche) etiquetteTexte(jx + 18, hauteur * 0.13 - 18, 'air libre', t.doux);
+
+  // Tube d'eau de chaux (posé sur la table, à gauche)
+  const tx = largeur * 0.12, tw = 20, th2 = 58;
+  ctx.strokeStyle = t.verreBord; ctx.lineWidth = 2;
+  ctx.fillStyle = etat.chaux === 'trouble' ? 'rgba(236,239,241,.95)' : 'rgba(200,230,240,.35)';
+  ctx.beginPath(); ctx.roundRect(tx - tw / 2, tableY - th2, tw, th2, 8); ctx.fill(); ctx.stroke();
+  etiquetteTexte(tx, tableY - th2 - 12, etat.chaux === 'trouble' ? 'eau de chaux TROUBLE' : 'eau de chaux', t.texte);
+}
+
+function dessinerJauge(x, nom, valeur, max, coul, alerte) {
+  const t = T_();
+  const y1 = hauteur * 0.13, y2 = hauteur * 0.62, w = 22;
+  ctx.fillStyle = t.jaugeFond;
+  ctx.strokeStyle = t.doux; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.roundRect(x, y1, w, y2 - y1, 6); ctx.fill(); ctx.stroke();
+  const h = (y2 - y1) * Math.min(1, valeur / max);
+  ctx.fillStyle = alerte ? '#e53935' : coul;
+  ctx.beginPath(); ctx.roundRect(x + 2, y2 - h + 1, w - 4, Math.max(2, h - 2), 4); ctx.fill();
+  // seuil d'extinction sur la jauge O₂
+  if (nom === 'O₂') {
+    const ys = y2 - (y2 - y1) * (O2_EXTINCTION / max);
+    ctx.strokeStyle = '#e53935'; ctx.lineWidth = 1.5;
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath(); ctx.moveTo(x - 3, ys); ctx.lineTo(x + w + 3, ys); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+  ctx.fillStyle = t.texte; ctx.font = 'bold 11px sans-serif';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  ctx.fillText(nom, x + w / 2, y2 + 6);
+  ctx.fillText(valeur.toFixed(1).replace('.', ','), x + w / 2, y2 + 20);
+}
+
+function etiquetteTexte(x, y, txt, coul) {
+  ctx.font = 'bold 11px sans-serif';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  const w = ctx.measureText(txt).width;
+  ctx.fillStyle = etat.theme === 'sombre' ? 'rgba(16,24,31,.8)' : 'rgba(244,247,251,.85)';
+  ctx.fillRect(x - w / 2 - 4, y - 8, w + 8, 16);
+  ctx.fillStyle = coul;
+  ctx.fillText(txt, x, y);
+}
+
+/* ---------- 5. Panneau : triangle du feu + bilan ---------- */
+
+let formuleVisible = true;
+try { formuleVisible = localStorage.getItem('ike-combustion-formule') !== 'non'; } catch (e) {}
+
+function majFormule() {
+  const f = document.getElementById('formule');
+  if (!formuleVisible) { f.style.display = 'none'; return; }
+  f.style.display = '';
+  const o2ok = (etat.cloche ? etat.o2 : O2_AIR) > O2_EXTINCTION;
+  const l = ['<div class="ftitre">🔺 Le triangle du feu</div>'];
+  const ligne = (ok, txt) =>
+    l.push(`<span class="fmath ${ok ? 'fok' : 'fnon'}">${ok ? '✓' : '✗'} ${txt}</span>`);
+  ligne(true, 'combustible : la cire de la bougie');
+  ligne(o2ok, `comburant : O₂ = ${(etat.cloche ? etat.o2 : O2_AIR).toFixed(1).replace('.', ',')} %` +
+    (o2ok ? '' : ' (< 15 %)'));
+  ligne(etat.allumee, etat.allumee ? 'chaleur : flamme allumée' : 'chaleur : pas de flamme');
+  l.push('<div class="ftitre" style="margin-top:8px">Bilan de la combustion</div>');
+  l.push('<span class="fmath">cire + dioxygène → dioxyde<br>de carbone + eau</span>');
+  l.push(`<span class="fnote">O₂ consommé : ${suivi.co2Cumule.toFixed(1).replace('.', ',')} · ` +
+    `CO₂ produit : ${suivi.co2Cumule.toFixed(1).replace('.', ',')} · eau : buée</span>`);
+  l.push('<button class="flex" id="btn-lexique">📖 Lexique des termes</button>');
+  const html = l.join('');
+  if (f.dataset.prec !== html) {
+    f.dataset.prec = html;
+    f.innerHTML = html;
+    document.getElementById('btn-lexique').addEventListener('click', ouvrirLexique);
+  }
+}
+document.getElementById('btn-formule').addEventListener('click', () => {
+  formuleVisible = !formuleVisible;
+  try { localStorage.setItem('ike-combustion-formule', formuleVisible ? 'oui' : 'non'); } catch (e) {}
+  majFormule();
+});
+
+const LEXIQUE = [
+  ['Combustion', 'Transformation chimique qui dégage beaucoup de chaleur et souvent de la lumière : le combustible brûle grâce au comburant.'],
+  ['Combustible', 'Ce qui brûle : la cire de la bougie, le bois, le butane, l\'essence…'],
+  ['Comburant', 'Ce qui fait brûler : le dioxygène (O₂) de l\'air. Sans lui, pas de flamme.'],
+  ['Énergie d\'activation', 'Le « coup de chaud » qui démarre la combustion : la flamme de l\'allumette. Une combustion ne démarre jamais toute seule.'],
+  ['Triangle du feu', 'Les 3 conditions du feu : combustible + comburant + chaleur. Il suffit d\'en casser UNE pour éteindre — c\'est le principe de tous les extincteurs.'],
+  ['Dioxyde de carbone (CO₂)', 'Gaz produit par la combustion (et ta respiration). Invisible, il se détecte avec l\'eau de chaux.'],
+  ['Eau de chaux', 'Liquide limpide qui se TROUBLE (devient blanc laiteux) en présence de CO₂. C\'est le test d\'identification du dioxyde de carbone.'],
+  ['Buée', 'Gouttelettes d\'eau sur une paroi froide : la preuve que la combustion produit aussi de l\'eau !'],
+  ['Étouffement', 'Éteindre en privant le feu de dioxygène : cloche, couvercle sur la poêle, couverture anti-feu.'],
+  ['Combustion vive', 'Combustion rapide, avec flamme. (La rouille, elle, est une combustion lente !)'],
+];
+function ouvrirLexique() {
+  const dl = document.getElementById('lex-items');
+  if (!dl.childElementCount) {
+    for (const [terme, def] of LEXIQUE) {
+      const dt = document.createElement('dt'); dt.textContent = terme;
+      const dd = document.createElement('dd'); dd.textContent = def;
+      dl.append(dt, dd);
+    }
+  }
+  document.getElementById('mlexique').classList.add('visible');
+}
+document.getElementById('btn-fermer-lexique').addEventListener('click', fermerVoiles);
+
+/* =====================================================================
+   6. PARCOURS PÉDAGOGIQUE — 6ᵉ SA3
+   ===================================================================== */
+
+const MISSIONS = [
+  {
+    titre: 'Allume la bougie',
+    outils: ['allumer'],
+    etapes: [
+      { texte: "Touche 🔥 Allumer pour enflammer la mèche. Observe bien la flamme !",
+        test: () => etat.allumee },
+    ],
+    retenir: "Une combustion ne démarre jamais seule : il faut une énergie d'activation — la chaleur de l'allumette. Ensuite, la flamme s'entretient toute seule… tant qu'elle a ce qu'il lui faut.",
+    indice: "Le bouton 🔥 Allumer, en bas de l'écran.",
+  },
+  {
+    titre: 'La cloche mystérieuse',
+    outils: ['allumer', 'cloche'],
+    etapes: [
+      { texte: "Bougie allumée, pose la cloche en verre par-dessus… et regarde ce qui arrive à la flamme.",
+        test: () => suivi.extinctionCloche },
+    ],
+    retenir: "Sous la cloche, la flamme faiblit puis MEURT : la combustion a consommé le dioxygène de l'air emprisonné. Sans comburant, pas de feu. C'est l'extinction par étouffement !",
+    indice: "Allume d'abord, puis 🫙 Poser la cloche. Regarde la jauge O₂ descendre à droite…",
+    diags: [
+      { si: () => etat.cloche && !etat.allumee && !suivi.extinctionCloche,
+        msg: "La bougie est éteinte sous la cloche : retire la cloche, rallume, puis repose-la." },
+    ],
+  },
+  {
+    titre: 'La taille de la cloche',
+    outils: ['allumer', 'cloche', 'volume'],
+    etapes: [
+      { texte: "Nouveau réglage : le volume de la cloche ! Fais s'éteindre la bougie sous DEUX cloches de tailles différentes et compare les temps ⏱.",
+        test: () => suivi.volumesEteints.length >= 2 },
+    ],
+    retenir: "Plus la cloche est grande, plus elle emprisonne d'air (donc de dioxygène), plus la combustion dure longtemps. Le chrono le prouve : le temps est proportionnel au volume !",
+    indice: "Extinction avec la cloche à 1 L, puis retire-la, règle à 4 L, rallume et repose-la.",
+    diags: [
+      { si: () => suivi.volumesEteints.length === 1,
+        msg: "Première extinction faite ! Maintenant CHANGE le volume (curseur en bas) et recommence." },
+    ],
+  },
+  {
+    titre: "Le seuil des 15 %",
+    outils: ['allumer', 'cloche', 'volume'],
+    etapes: [
+      { texte: "Refais une extinction sous cloche en fixant la jauge O₂ : à combien s'arrête-t-elle ? (Regarde le trait rouge…)",
+        test: () => suivi.extinctionCloche && suivi.o2AExtinction !== null &&
+                    Math.abs(suivi.o2AExtinction - O2_EXTINCTION) < 0.8 },
+    ],
+    retenir: "Surprise : la flamme meurt vers 15 % d'O₂, pas à 0 ! Il reste du dioxygène, mais plus assez. Et souviens-toi : l'air n'est pas que du dioxygène — 21 % d'O₂ et 78 % de diazote, qui ne brûle pas.",
+    indice: "Allume, pose la cloche, et ne quitte pas la jauge O₂ des yeux jusqu'à l'extinction.",
+  },
+  {
+    titre: 'Le test du gaz',
+    outils: ['allumer', 'cloche', 'volume', 'chaux'],
+    etapes: [
+      { texte: "Nouvel outil : l'eau de chaux ! Après une extinction sous cloche, touche 🧪 Tester le gaz. Que se passe-t-il ?",
+        test: () => suivi.testsTroubles >= 1 },
+    ],
+    retenir: "L'eau de chaux se trouble : la combustion a produit du DIOXYDE DE CARBONE. C'est LE test d'identification du CO₂ — retiens-le, il revient à toutes les évaluations !",
+    indice: "Brûle bien la bougie sous cloche (jusqu'à l'extinction), puis 🧪 sans retirer la cloche.",
+    diags: [
+      { si: () => !etat.cloche, msg: "Le gaz s'échappe à l'air libre : pose la cloche d'abord !" },
+      { si: () => etat.cloche && etat.co2 < CO2_TROUBLE,
+        msg: "Pas encore assez de CO₂ sous la cloche : laisse brûler plus longtemps avant de tester." },
+    ],
+  },
+  {
+    titre: "L'autre produit : l'eau",
+    outils: ['allumer', 'cloche', 'volume', 'chaux'],
+    etapes: [
+      { texte: "Pendant une combustion sous cloche, observe la paroi du verre : fais apparaître la buée 💧.",
+        test: () => etat.buee >= 0.5 },
+    ],
+    retenir: "Ces gouttelettes sur le verre, c'est de l'EAU produite par la combustion, qui se condense sur la paroi froide. La combustion de la cire produit donc du CO₂ ET de l'eau.",
+    indice: "Allume sous une grande cloche et laisse brûler : la buée s'accumule sur la paroi.",
+  },
+  {
+    titre: 'Le bilan de la combustion',
+    outils: ['allumer', 'cloche', 'volume', 'chaux'],
+    etapes: [
+      { texte: "Regarde le panneau 🔺 : fais brûler la bougie jusqu'à avoir produit au moins 15 unités de CO₂ (en une ou plusieurs fois).",
+        test: () => suivi.co2Cumule >= 15 },
+    ],
+    retenir: "Le bilan s'écrit en mots : cire + dioxygène → dioxyde de carbone + eau. Rien ne disparaît : les atomes du combustible et du comburant se réarrangent en nouveaux produits. C'est une transformation chimique !",
+    indice: "Le compteur est dans le panneau 🔺. Brûle à l'air libre ou sous cloche, rallume autant qu'il faut.",
+  },
+  {
+    titre: 'Souffler, ce n\'est pas étouffer',
+    outils: ['allumer', 'cloche', 'volume', 'chaux', 'souffler'],
+    etapes: [
+      { texte: "Nouvelle technique : 💨 Souffler ! Éteins la bougie en soufflant (sans cloche).",
+        test: () => suivi.extinctionSouffle },
+      { texte: "Rallume aussitôt : à l'air libre, ça repart sans problème !",
+        test: () => suivi.extinctionSouffle && etat.allumee && !etat.cloche },
+    ],
+    retenir: "Souffler éteint en REFROIDISSANT la flamme (et en éloignant les gaz chauds) : on casse le côté « chaleur » du triangle. L'étouffement, lui, casse le côté « comburant ». Deux côtés différents, deux façons d'éteindre !",
+    indice: "💨 Souffler avec la bougie allumée SANS cloche, puis 🔥 Allumer à nouveau.",
+    diags: [
+      { si: () => etat.cloche, msg: "Retire la cloche : elle protège la flamme du souffle !" },
+    ],
+  },
+  {
+    titre: 'Casse le triangle !',
+    outils: ['allumer', 'cloche', 'volume', 'chaux', 'souffler'],
+    etapes: [
+      { texte: "Prouve que tu maîtrises le triangle du feu : éteins par étouffement (cloche) PUIS par refroidissement (souffle), dans la même mission.",
+        test: () => suivi.extinctionCloche && suivi.extinctionSouffle },
+    ],
+    retenir: "Combustible, comburant, chaleur : casser UN seul côté suffit à éteindre. C'est le principe de tous les moyens d'extinction : couvercle (comburant), eau (chaleur), couper le gaz (combustible). Les pompiers appliquent ce triangle tous les jours !",
+    indice: "Une extinction sous cloche + une extinction au souffle, dans n'importe quel ordre.",
+  },
+  {
+    titre: 'Défi : la flamme marathon',
+    outils: ['allumer', 'cloche', 'volume', 'chaux', 'souffler'],
+    etapes: [
+      { texte: "Défi final : fais brûler la bougie SOUS CLOCHE pendant au moins 28 secondes d'affilée. À toi de trouver le réglage !",
+        test: () => suivi.meilleurTemps >= 28 },
+    ],
+    retenir: "Bravo, parcours terminé 💪 Tu sais ce qu'est une combustion, ce qu'elle consomme, ce qu'elle produit, et comment l'arrêter. Dernier rappel, le plus important : en vrai, le feu n'est PAS un jeu — les expériences de combustion se font avec un adulte.",
+    indice: "Le temps dépend du volume… La plus grande cloche (4 L) tient environ 32 secondes.",
+    diags: [
+      { si: () => !etat.cloche && etat.allumee,
+        msg: "Le chrono du défi compte sous la cloche : pose-la !" },
+    ],
+  },
+];
+
+const LECONS = [
+  "Bienvenue au labo ! Ici tu vas jouer avec le feu — en toute sécurité, c'est une simulation. Première question : comment démarre une flamme ?",
+  "Une flamme a besoin de « respirer » : elle consomme un gaz précis de l'air. Cette cloche en verre va nous permettre de le prouver. Prépare-toi à observer.",
+  "Si la flamme mange le dioxygène, alors la quantité d'air emprisonné doit changer la durée de la combustion… Vérifions avec des cloches de différentes tailles !",
+  "Un détail que même les adultes ignorent : à quel niveau d'O₂ la flamme meurt-elle exactement ? La jauge et son trait rouge vont te le révéler.",
+  "La combustion consomme du dioxygène… mais que fabrique-t-elle en échange ? Les chimistes ont un test infaillible pour démasquer le premier produit.",
+  "Le CO₂ n'est pas le seul produit de la combustion. Le deuxième se cache sous tes yeux, sur la paroi du verre. Sais-tu le reconnaître ?",
+  "Résumons tout : ce qui entre, ce qui sort. En chimie, on appelle ça un bilan — et rien ne s'y perd jamais.",
+  "Tu sais éteindre par étouffement. Mais quand tu souffles une bougie d'anniversaire, il y a plein d'air ! Alors pourquoi ça s'éteint ? Mystère à résoudre…",
+  "Combustible, comburant, chaleur : le fameux triangle du feu. Les pompiers le connaissent par cœur — à ton tour de prouver que tu le maîtrises.",
+  "Dernier défi : toutes tes connaissances en une seule expérience. Trouve le réglage qui fait durer la flamme le plus longtemps possible !",
+];
+
+/* ---- Moteur de progression (socle IKE) ---- */
+const progression = { m: 0, etape: 0, faites: [] };
+
+function chargerProgression() {
+  try {
+    const d = JSON.parse(localStorage.getItem('ike-combustion-progression'));
+    if (d) {
+      if (d.m === 'libre' || (Number.isInteger(d.m) && d.m >= 0 && d.m < MISSIONS.length))
+        progression.m = d.m;
+      if (Array.isArray(d.faites)) progression.faites = d.faites.filter(Number.isInteger);
+    }
+  } catch (e) {}
+}
+function sauverProgression() {
+  try {
+    localStorage.setItem('ike-combustion-progression',
+      JSON.stringify({ m: progression.m, faites: progression.faites }));
+  } catch (e) {}
+}
+function missionCourante() { return progression.m === 'libre' ? null : MISSIONS[progression.m]; }
+
+function ouvrirLecon() {
+  const m = missionCourante();
+  if (!m || !LECONS[progression.m]) return;
+  document.getElementById('mlecon-titre').textContent =
+    `Mission ${progression.m + 1} — ${m.titre}`;
+  document.getElementById('mlecon-texte').textContent = LECONS[progression.m];
+  document.getElementById('mlecon').classList.add('visible');
+}
+document.getElementById('btn-go-lecon').addEventListener('click', fermerVoiles);
+
+function evaluerMission() {
+  const m = missionCourante();
+  if (!m || progression.etape >= m.etapes.length) return;
+  if (document.querySelector('.voile.visible')) return;
+  let avance = false;
+  while (progression.etape < m.etapes.length && m.etapes[progression.etape].test()) {
+    progression.etape++;
+    avance = true;
+  }
+  if (!avance) { majDiagnostic(m); return; }
+  masquerDiagnostic();
+  resetEtapeTimer();
+  if (progression.etape >= m.etapes.length) {
+    if (!progression.faites.includes(progression.m)) {
+      progression.faites.push(progression.m);
+      sauverProgression();
+    }
+    toast('🎉 Mission réussie ! Observe la paillasse…');
+    const mACeMoment = progression.m;
+    setTimeout(() => {
+      if (progression.m === mACeMoment && !document.querySelector('.voile.visible'))
+        ouvrirFin(m);
+    }, 2100);
+  } else {
+    toast(`✅ Étape ${progression.etape} réussie !`);
+    const bar = document.getElementById('mbar');
+    bar.classList.remove('flash'); void bar.offsetWidth; bar.classList.add('flash');
+  }
+  majMissionBar();
+}
+
+function majDiagnostic(m) {
+  const d = document.getElementById('mdiag');
+  const hit = (m.diags || []).find(x => x.si());
+  if (!hit) { masquerDiagnostic(); return; }
+  const msg = '🤔 ' + hit.msg;
+  if (d.textContent !== msg || !d.classList.contains('visible')) {
+    d.textContent = msg;
+    d.classList.add('visible');
+  }
+}
+function masquerDiagnostic() {
+  document.getElementById('mdiag').classList.remove('visible');
+}
+
+function allerMission(m) {
+  progression.m = m;
+  progression.etape = 0;
+  sauverProgression();
+  resetEtapeTimer();
+  resetSuivi();
+  masquerDiagnostic();
+  fermerVoiles();
+  document.getElementById('mindice').classList.remove('visible');
+  majCommandes();
+  majMissionBar();
+  if (m !== 'libre') ouvrirLecon();
+}
+
+function majMissionBar() {
+  const m = missionCourante();
+  const l2 = document.querySelector('#mbar .l2');
+  if (!m) {
+    document.getElementById('mchip').textContent = '🧪';
+    document.getElementById('mtitre').textContent = 'Mode libre — expérimente !';
+    l2.style.display = 'none';
+  } else {
+    document.getElementById('mchip').textContent = `Mission ${progression.m + 1}/${MISSIONS.length}`;
+    document.getElementById('mtitre').textContent = m.titre;
+    l2.style.display = '';
+    const fini = progression.etape >= m.etapes.length;
+    const pts = document.getElementById('mpoints');
+    pts.innerHTML = '';
+    if (m.etapes.length > 1) {
+      m.etapes.forEach((e2, i) => {
+        const p = document.createElement('span');
+        p.className = 'pt' + (i < progression.etape ? ' faite' : i === progression.etape ? ' courante' : '');
+        pts.appendChild(p);
+      });
+    }
+    const metape = document.getElementById('metape');
+    metape.textContent = fini ? '🎉 Mission terminée ! Passe à la suivante.' : m.etapes[progression.etape].texte;
+    metape.classList.remove('glisse'); void metape.offsetWidth; metape.classList.add('glisse');
+    document.getElementById('mcompteur').textContent =
+      m.etapes.length > 1 && !fini ? `étape ${progression.etape + 1}/${m.etapes.length}` : '';
+    document.getElementById('mindice').textContent = '💡 ' + m.indice;
+    document.getElementById('btn-indice').style.display = fini ? 'none' : '';
+    document.getElementById('btn-suiv2').style.display = fini ? '' : 'none';
+  }
+}
+
+function fermerVoiles() {
+  for (const v of document.querySelectorAll('.voile')) v.classList.remove('visible');
+}
+
+function ouvrirFin(m) {
+  const derniere = progression.m === MISSIONS.length - 1;
+  document.getElementById('mfin-titre').textContent = `Mission ${progression.m + 1} — ${m.titre}`;
+  document.getElementById('mfin-retenir').textContent = m.retenir;
+  document.getElementById('btn-suivante').textContent =
+    derniere ? '🧪 Continuer en Mode libre' : 'Mission suivante ▶';
+  document.getElementById('mfin').classList.add('visible');
+}
+
+document.getElementById('btn-suivante').addEventListener('click', () => {
+  const derniere = progression.m === MISSIONS.length - 1;
+  allerMission(derniere ? 'libre' : progression.m + 1);
+});
+document.getElementById('btn-suiv2').addEventListener('click', () => {
+  const derniere = progression.m === MISSIONS.length - 1;
+  allerMission(derniere ? 'libre' : progression.m + 1);
+});
+document.getElementById('btn-liste2').addEventListener('click', () => { fermerVoiles(); ouvrirListe(); });
+document.getElementById('btn-fermer-fin').addEventListener('click', fermerVoiles);
+
+function ouvrirListe() {
+  const cont = document.getElementById('mliste-items');
+  cont.innerHTML = '';
+  MISSIONS.forEach((m, i) => {
+    const row = document.createElement('button');
+    row.className = 'mrow'
+      + (progression.faites.includes(i) ? ' faite' : '')
+      + (progression.m === i ? ' courante' : '');
+    const n = document.createElement('span');
+    n.className = 'n';
+    n.textContent = progression.faites.includes(i) ? '✓' : (i + 1) + '.';
+    const t = document.createElement('span');
+    t.className = 't';
+    t.textContent = m.titre;
+    row.append(n, t);
+    row.addEventListener('click', () => allerMission(i));
+    cont.appendChild(row);
+  });
+  document.getElementById('mliste').classList.add('visible');
+}
+
+document.getElementById('btn-missions').addEventListener('click', ouvrirListe);
+document.getElementById('btn-libre').addEventListener('click', () => allerMission('libre'));
+document.getElementById('btn-fermer-liste').addEventListener('click', fermerVoiles);
+
+const btnResetProg = document.getElementById('btn-reset-prog');
+let confirmReset = null;
+btnResetProg.addEventListener('click', () => {
+  if (confirmReset) {
+    clearTimeout(confirmReset); confirmReset = null;
+    btnResetProg.textContent = '↺ Réinitialiser tout le parcours';
+    progression.faites = [];
+    etat.allumee = false; etat.cloche = false;
+    etat.o2 = O2_AIR; etat.co2 = CO2_AIR; etat.buee = 0; etat.chaux = 'limpide';
+    btnCloche.textContent = '🫙 Poser la cloche';
+    allerMission(0);
+    try { localStorage.removeItem('ike-combustion-visite'); } catch (e) {}
+    lancerVisite();
+  } else {
+    btnResetProg.textContent = 'Sûr ? Touche encore une fois';
+    confirmReset = setTimeout(() => {
+      confirmReset = null;
+      btnResetProg.textContent = '↺ Réinitialiser tout le parcours';
+    }, 2500);
+  }
+});
+
+for (const v of document.querySelectorAll('.voile'))
+  v.addEventListener('click', e => { if (e.target === v) v.classList.remove('visible'); });
+
+document.getElementById('btn-indice').addEventListener('click', () => {
+  document.getElementById('btn-indice').classList.remove('pulse');
+  document.getElementById('mindice').classList.toggle('visible');
+});
+
+let toastTimer = null;
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('visible');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('visible'), 1900);
+}
+
+let etapeDebut = Date.now();
+let coupDePouceFait = false;
+function resetEtapeTimer() {
+  etapeDebut = Date.now();
+  coupDePouceFait = false;
+  document.getElementById('btn-indice').classList.remove('pulse');
+}
+setInterval(() => {
+  const m = missionCourante();
+  if (!m || progression.etape >= m.etapes.length || visiteIdx >= 0) return;
+  if (document.querySelector('.voile.visible')) return;
+  if (!coupDePouceFait && Date.now() - etapeDebut > 45000) {
+    coupDePouceFait = true;
+    document.getElementById('btn-indice').classList.add('pulse');
+    toast('💡 Besoin d\'aide ? Touche le bouton Indice !');
+  }
+}, 5000);
+
+/* ---------- 7. Visite guidée ---------- */
+
+const VISITE = [
+  { cible: '#mbar', titre: '🎯 Ta mission',
+    texte: "Ta mission s'affiche ici : lis l'étape en cours et réalise-la. Les points colorés montrent ta progression." },
+  { cible: '#scene', titre: '🕯️ La paillasse',
+    texte: "Ta bougie, la cloche en verre, le tube d'eau de chaux… et à droite, les jauges O₂ et CO₂ qui mesurent l'air en direct. Le trait rouge en pointillés ? Tu le découvriras en mission 4 !" },
+  { cible: '#palette', titre: '🔬 Tes gestes de chimiste',
+    texte: "Allumer, poser la cloche, souffler, tester le gaz… Les boutons se débloquent au fil des missions, avec le réglage du volume de la cloche." },
+  { cible: '#formule', titre: '🔺 Le triangle du feu',
+    texte: "Le panneau suit les 3 conditions du feu en direct : combustible ✓, comburant ✓, chaleur ✓. Quand l'une passe au rouge… la flamme meurt. Le bilan de la combustion s'y affiche aussi." },
+  { cible: '#btn-indice', titre: '💡 Bloqué ? Un indice !',
+    texte: "Ce bouton te donne un coup de pouce pour l'étape en cours. N'hésite jamais à l'utiliser !" },
+  { cible: '#btn-theme', titre: '🌙 Confort visuel',
+    texte: "Bascule entre thème clair et sombre. Ton choix est mémorisé sur l'appareil." },
+];
+let visiteIdx = -1;
+const visiteEl = document.getElementById('visite');
+
+function lancerVisite() {
+  fermerVoiles();
+  visiteIdx = 0;
+  visiteEl.style.display = 'block';
+  montrerEtapeVisite();
+}
+function fermerVisite() {
+  visiteIdx = -1;
+  visiteEl.style.display = 'none';
+  try { localStorage.setItem('ike-combustion-visite', '1'); } catch (e) {}
+  if (missionCourante() && progression.etape === 0) ouvrirLecon();
+}
+function montrerEtapeVisite() {
+  const et = VISITE[visiteIdx];
+  const halo = document.getElementById('visite-halo');
+  const carte = document.getElementById('visite-carte');
+  let rc = null;
+  if (et.cible) {
+    const el = document.querySelector(et.cible);
+    const r = el && el.getBoundingClientRect();
+    if (r && r.width > 0) rc = r;
+  }
+  if (rc) {
+    visiteEl.classList.remove('sombre');
+    halo.style.display = 'block';
+    halo.style.left = (rc.left - 6) + 'px';
+    halo.style.top = (rc.top - 6) + 'px';
+    halo.style.width = (rc.width + 12) + 'px';
+    halo.style.height = (rc.height + 12) + 'px';
+  } else {
+    visiteEl.classList.add('sombre');
+    halo.style.display = 'none';
+  }
+  carte.querySelector('.vtitre').textContent = et.titre;
+  carte.querySelector('.vtexte').textContent = et.texte;
+  carte.querySelector('.vprog').textContent = `${visiteIdx + 1}/${VISITE.length}`;
+  document.getElementById('visite-suivant').textContent =
+    visiteIdx === VISITE.length - 1 ? "C'est parti !" : 'Suivant';
+  requestAnimationFrame(() => {
+    const cw = carte.offsetWidth, ch = carte.offsetHeight;
+    let x, y;
+    if (rc) {
+      y = rc.bottom + 14;
+      if (y + ch > window.innerHeight - 10) y = rc.top - ch - 14;
+      if (y < 10) y = Math.max(10, (window.innerHeight - ch) / 2);
+      x = Math.max(10, Math.min(window.innerWidth - cw - 10, rc.left + rc.width / 2 - cw / 2));
+    } else {
+      x = (window.innerWidth - cw) / 2;
+      y = (window.innerHeight - ch) / 2;
+    }
+    carte.style.left = x + 'px';
+    carte.style.top = y + 'px';
+  });
+}
+document.getElementById('visite-suivant').addEventListener('click', () => {
+  visiteIdx++;
+  if (visiteIdx >= VISITE.length) fermerVisite(); else montrerEtapeVisite();
+});
+document.getElementById('visite-passer').addEventListener('click', fermerVisite);
+visiteEl.addEventListener('click', e => {
+  if (e.target === visiteEl || e.target.id === 'visite-halo')
+    document.getElementById('visite-suivant').click();
+});
+window.addEventListener('resize', () => { if (visiteIdx >= 0) montrerEtapeVisite(); });
+document.getElementById('btn-aide').addEventListener('click', lancerVisite);
+
+/* ---------- 8. Thème & démarrage ---------- */
+
+function appliquerTheme() {
+  document.body.classList.toggle('sombre', etat.theme === 'sombre');
+  document.getElementById('btn-theme').innerHTML =
+    etat.theme === 'sombre' ? '☀️<span class="lbl"> Clair</span>' : '🌙<span class="lbl"> Sombre</span>';
+}
+document.getElementById('btn-theme').addEventListener('click', () => {
+  etat.theme = etat.theme === 'sombre' ? 'clair' : 'sombre';
+  try { localStorage.setItem('ike-theme', etat.theme); } catch (e) {}
+  appliquerTheme();
+});
+try {
+  const memo = localStorage.getItem('ike-theme') || localStorage.getItem('ike-circuit-theme');
+  if (memo === 'sombre' || memo === 'clair') etat.theme = memo;
+  else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
+    etat.theme = 'sombre';
+} catch (e) {}
+
+chargerProgression();
+window.addEventListener('resize', redimensionner);
+redimensionner();
+appliquerTheme();
+resetSuivi();
+majCommandes();
+majMissionBar();
+requestAnimationFrame(boucle);
+
+setTimeout(() => {
+  const s = document.getElementById('splash');
+  s.classList.add('fini');
+  setTimeout(() => s.remove(), 600);
+  try {
+    if (!localStorage.getItem('ike-combustion-visite')) lancerVisite();
+    else if (missionCourante() && progression.etape === 0) ouvrirLecon();
+  } catch (e) { lancerVisite(); }
+}, 1400);
+</script>
+</body>
+</html>

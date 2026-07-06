@@ -61,6 +61,6 @@ L'historique complet est dans [CHANGELOG.md](CHANGELOG.md). Chaque version est u
 4. ✅ Troisième simulation : **États de la matière** (chimie, 6ᵉ/5ᵉ — molécules, paliers, pression des gaz)
 5. ✅ **Prototype 3D** : Molécules en 3D (4ᵉ, Three.js embarqué, 0,63 Mo, compteur FPS pour mesurer sur le terrain)
 6. ✅ **[Guide de création et d'intégration](docs/guide-creation-simulations.md)** (philosophie, charte, pas-à-pas, moteur de missions, 3D, checklist)
-7. ⬜ Quatrième simulation 2D : **Combustions vives** (chimie, 6ᵉ SA3)
-8. ⬜ Circuit électrique v2 : voltmètre, résistances, sauvegarde/chargement de montages
+7. ✅ Cinquième simulation : **Combustions vives** (chimie, 6ᵉ SA3 — triangle du feu, seuil des 15 % d'O₂, eau de chaux)
+8. ⬜ Circuit électrique v2 : voltmètre, résistances, sauvegarde/chargement de montages · Molécules 3D v2 : atelier d'assemblage
 9. ⬜ Choix de la plateforme e-learning → couche d'intégration (iframe + postMessage, ou SCORM/H5P si Moodle)

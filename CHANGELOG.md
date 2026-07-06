@@ -5,6 +5,22 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v2.6.0 — 2026-07-05
+
+🔥 **Cinquième simulation : Combustions vives** (6ᵉ SA3, chimie) — la carte « Bientôt » tient sa promesse.
+
+- **Paillasse virtuelle** : bougie, allumette, cloche en verre au volume réglable (1–4 L),
+  jauges O₂/CO₂ en direct, tube d'eau de chaux, buée sur la paroi, fumée d'extinction
+- **Physique honnête** (9 tests) : la flamme meurt à **15 % d'O₂** (pas 0 !, trait rouge
+  sur la jauge), durée de combustion proportionnelle au volume (8 s/L), CO₂ produit =
+  O₂ consommé, eau de chaux troublée au-delà du seuil
+- **🔺 Triangle du feu suivi en direct** dans le panneau : combustible ✓ / comburant ✓ /
+  chaleur ✓ — avec le bilan en mots « cire + dioxygène → dioxyde de carbone + eau »
+- **10 missions** : allumage (énergie d'activation), étouffement, volumes comparés,
+  seuil des 15 %, test du CO₂, la buée, le bilan, souffler ≠ étouffer, casser le
+  triangle, défi « flamme marathon » — avec leçons, diagnostics et lexique (10 termes)
+- Message de sécurité : en vrai, le feu n'est pas un jeu
+
 ## v2.5.0 — 2026-07-05
 
 Retours utilisateurs (4ᵉ vague — merci Espérain !) :
