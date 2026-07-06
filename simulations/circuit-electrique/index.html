@@ -204,9 +204,14 @@
   }
   .voile.visible { display:flex; }
   .voile .carte {
+    position:relative;
     background:#fff; border-radius:16px; padding:22px; max-width:400px; width:100%;
     max-height:86vh; overflow-y:auto;
     box-shadow:0 10px 40px rgba(0,0,0,.3);
+  }
+  .fermer-x {
+    position:absolute; top:8px; right:10px; border:none; background:none;
+    font-size:20px; line-height:1; color:#90a4ae; cursor:pointer; padding:6px 8px;
   }
   .voile .carte h2 { font-size:18px; color:#1565c0; margin-bottom:12px; }
   .voile.visible .carte h2 { animation:pop .4s ease-out; }
@@ -292,7 +297,7 @@
   <div class="nom">IKE <span>Simulations</span></div>
   <div class="sub">Sciences au collège</div>
   <div class="barre"><div class="rempl"></div></div>
-  <div class="ver">v2.2.0</div>
+  <div class="ver">v2.5.0</div>
 </div>
 
 <header>
@@ -335,6 +340,7 @@
 
 <div id="mfin" class="voile">
   <div class="carte">
+    <button class="fermer-x" id="btn-fermer-fin" title="Fermer et admirer le montage">✕</button>
     <h2>🎉 Mission réussie !</h2>
     <div id="mfin-titre"></div>
     <div class="retenir-label">💡 À retenir</div>
@@ -1543,6 +1549,8 @@ document.getElementById('btn-suiv2').addEventListener('click', () => {
 document.getElementById('btn-liste2').addEventListener('click', () => {
   fermerVoiles(); ouvrirListe();
 });
+// ✕ : fermer pour admirer le montage — « Suivante ▶ » attend dans la barre
+document.getElementById('btn-fermer-fin').addEventListener('click', fermerVoiles);
 
 function ouvrirListe() {
   const cont = document.getElementById('mliste-items');

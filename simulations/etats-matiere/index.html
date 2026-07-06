@@ -181,8 +181,13 @@
   }
   .voile.visible { display:flex; }
   .voile .carte {
+    position:relative;
     background:#fff; border-radius:16px; padding:22px; max-width:400px; width:100%;
     max-height:86vh; overflow-y:auto; box-shadow:0 10px 40px rgba(0,0,0,.3);
+  }
+  .fermer-x {
+    position:absolute; top:8px; right:10px; border:none; background:none;
+    font-size:20px; line-height:1; color:#90a4ae; cursor:pointer; padding:6px 8px;
   }
   .voile .carte h2 { font-size:18px; color:#1565c0; margin-bottom:12px; }
   .voile.visible .carte h2 { animation:pop .4s ease-out; }
@@ -292,7 +297,7 @@
   <div class="nom">IKE <span>Simulations</span></div>
   <div class="sub">Sciences au collège</div>
   <div class="barre"><div class="rempl"></div></div>
-  <div class="ver">v2.3.0</div>
+  <div class="ver">v2.5.0</div>
 </div>
 
 <header>
@@ -355,6 +360,7 @@
 
 <div id="mfin" class="voile">
   <div class="carte">
+    <button class="fermer-x" id="btn-fermer-fin" title="Fermer et observer">✕</button>
     <h2>🎉 Mission réussie !</h2>
     <div id="mfin-titre"></div>
     <div class="retenir-label">💡 À retenir</div>
@@ -424,12 +430,15 @@ function thermo(E) {
 function pression(vap, T, volFrac) {
   return 100 * vap * ((T + 273) / 293) / volFrac;
 }
+const P_EXPLOSION = 260;   // au-delà, le piston saute ! (mission « couvercle »)
 
 const etat = {
   E: 70,                 // départ : eau liquide à 20 °C
   chauffe: false,
   refroidit: false,
   volFrac: 1,            // position du piston (1 = tout en haut)
+  dernierSens: 'chauffe',// dernier sens d'action (fusion ≠ solidification !)
+  explosion: null,       // temps écoulé depuis l'explosion du piston (ou null)
   theme: 'clair',
 };
 let th = thermo(etat.E); // état thermique courant (recalculé chaque image)
@@ -439,10 +448,12 @@ const suivi = {
   chauffeMs: 0,          // temps total passé à chauffer
   palierChauffeMs: 0,    // temps passé à chauffer PENDANT un palier
   aEteGaz: false,
+  explosions: 0,         // nombre de fois où le piston a sauté
   cycleGlace1: false, cycleVapeur: false, cycleRetour: false,
 };
 function resetSuivi() {
   suivi.chauffeMs = 0; suivi.palierChauffeMs = 0; suivi.aEteGaz = false;
+  suivi.explosions = 0;
   suivi.cycleGlace1 = false; suivi.cycleVapeur = false; suivi.cycleRetour = false;
 }
 
@@ -490,14 +501,38 @@ function boucle(t) {
   const dt = Math.min(0.05, (t - tPrec) / 1000 || 0.016);
   tPrec = t; tAnim += dt;
 
-  // Énergie
+  // Énergie — ralentie sur les paliers pour laisser VOIR la température bloquée
+  const surPalier = th.seg === 'fusion' || th.seg === 'ebullition';
+  const taux = TAUX * (surPalier ? 0.5 : 1);
   if (etat.chauffe) {
-    etat.E = Math.min(E_MAX, etat.E + TAUX * dt);
+    etat.E = Math.min(E_MAX, etat.E + taux * dt);
+    etat.dernierSens = 'chauffe';
     suivi.chauffeMs += dt * 1000;
-    if (th.seg === 'fusion' || th.seg === 'ebullition') suivi.palierChauffeMs += dt * 1000;
+    if (surPalier) suivi.palierChauffeMs += dt * 1000;
   }
-  if (etat.refroidit) etat.E = Math.max(0, etat.E - TAUX * dt);
+  if (etat.refroidit) {
+    etat.E = Math.max(0, etat.E - taux * dt);
+    etat.dernierSens = 'refroidit';
+  }
   th = thermo(etat.E);
+
+  // Trop de pression sous un piston fermé : il saute !
+  if (etat.explosion === null && pistonDebloque() && etat.volFrac < 1 && th.vap > 0.5 &&
+      pression(th.vap, th.T, etat.volFrac) >= P_EXPLOSION) {
+    etat.explosion = 0;
+    suivi.explosions++;
+    toast('💥 Trop de pression : le piston a sauté !');
+    evaluerMission();
+  }
+  if (etat.explosion !== null) {
+    etat.explosion += dt;
+    if (etat.explosion > 1.4) {        // on « replace » le piston tout en haut
+      etat.explosion = null;
+      etat.volFrac = 1;
+      piston.value = 100;
+      document.getElementById('piston-val').textContent = '100 %';
+    }
+  }
 
   // Suivi missions
   if (th.vap >= 0.9) suivi.aEteGaz = true;
@@ -541,7 +576,7 @@ function boucle(t) {
       const vitesse = 55 + Math.max(0, th.T + 30) * 1.5;
       p.x += p.vx * vitesse * dt;
       p.y += p.vy * vitesse * dt;
-      const haut = pistonY() + 8;
+      const haut = (etat.explosion !== null ? boxY : pistonY()) + 8;
       const bas = (nLiq + nSol > 0 ? surfaceLiqY : boxY + boxH) - 6;
       if (p.x < boxX + 8) { p.x = boxX + 8; p.vx = Math.abs(p.vx); }
       if (p.x > boxX + boxW - 8) { p.x = boxX + boxW - 8; p.vx = -Math.abs(p.vx); }
@@ -577,7 +612,9 @@ const T_ = () => PALETTES[etat.theme];
 function dessiner() {
   ctx.clearRect(0, 0, largeur, hauteur);
   const t = T_();
-  const pY = pistonY();
+  // Pendant l'explosion, le piston s'envole vers le haut (accéléré)
+  const envol = etat.explosion !== null ? etat.explosion * etat.explosion * 900 : 0;
+  const pY = pistonY() - envol;
 
   // Enceinte
   ctx.fillStyle = t.fond;
@@ -587,12 +624,20 @@ function dessiner() {
 
   // Piston (visible dès qu'il est débloqué ou abaissé)
   if (pistonDebloque() || etat.volFrac < 1) {
+    ctx.save();
+    if (etat.explosion !== null) {                       // il tournoie en s'envolant
+      ctx.translate(boxX + boxW / 2, pY - 4);
+      ctx.rotate(Math.sin(etat.explosion * 9) * 0.25);
+      ctx.translate(-(boxX + boxW / 2), -(pY - 4));
+    }
     ctx.fillStyle = t.piston;
     ctx.fillRect(boxX + 3, pY - 10, boxW - 6, 12);
-    ctx.fillRect(boxX + boxW / 2 - 4, boxY - 14, 8, pY - boxY + 4);
+    const hTige = Math.max(0, pY - boxY + 4);
+    if (etat.explosion === null) ctx.fillRect(boxX + boxW / 2 - 4, boxY - 14, 8, hTige);
     ctx.fillStyle = t.texte; ctx.font = 'bold 10px sans-serif';
     ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
-    ctx.fillText('piston', boxX + boxW / 2, pY - 13);
+    ctx.fillText(etat.explosion !== null ? '💥' : 'piston', boxX + boxW / 2, pY - 13);
+    ctx.restore();
   }
 
   // Molécules
@@ -624,9 +669,12 @@ function dessiner() {
       ctx.fillText('❄', boxX + 40 + i * (boxW - 80) / 4, plaqueY - 4 - Math.abs(Math.sin(tAnim * 3 + i)) * 8);
   }
 
-  // Étiquette d'état au-dessus de l'enceinte
-  const nomEtat = th.seg === 'fusion' ? 'FUSION EN COURS'
-    : th.seg === 'ebullition' ? 'ÉBULLITION EN COURS'
+  // Étiquette d'état au-dessus de l'enceinte — le NOM du changement dépend
+  // du sens : on ne parle d'ébullition qu'en chauffant ! (retour testeurs)
+  const nomEtat = th.seg === 'fusion'
+      ? (etat.dernierSens === 'refroidit' ? 'SOLIDIFICATION EN COURS' : 'FUSION EN COURS')
+    : th.seg === 'ebullition'
+      ? (etat.dernierSens === 'refroidit' ? 'LIQUÉFACTION EN COURS' : 'ÉBULLITION EN COURS')
     : th.seg === 'solide' ? 'SOLIDE' : th.seg === 'liquide' ? 'LIQUIDE' : 'GAZ';
   ctx.fillStyle = (th.seg === 'fusion' || th.seg === 'ebullition') ? '#e65100' : t.texte;
   ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
@@ -829,6 +877,20 @@ const MISSIONS = [
     ],
   },
   {
+    titre: 'Et le couvercle saute !',
+    outils: ['piston'],
+    etapes: [
+      { texte: "Expérience interdite en cuisine : enferme bien le gaz (piston à 60 % ou moins) et chauffe SANS T'ARRÊTER… jusqu'à ce que la pression fasse sauter le piston !",
+        test: () => suivi.explosions >= 1 },
+    ],
+    retenir: "Quand la pression devient trop forte, elle soulève tout ce qui ferme le récipient : c'est exactement pourquoi le couvercle de la marmite saute ! Les cocottes-minute ont une soupape de sécurité pour évacuer la vapeur avant l'accident. Un récipient fermé qui chauffe est un vrai danger.",
+    indice: "Piston bien bas (≤ 60 %), tout en gaz, puis 🔥 sans lâcher. Regarde P foncer vers la zone rouge…",
+    diags: [
+      { si: () => th.vap < 0.9, msg: "Il faut d'abord tout vaporiser : chauffe au-delà du palier de 100 °C." },
+      { si: () => etat.volFrac > 0.62, msg: "Descends davantage le piston (60 % ou moins) : il faut bien enfermer le gaz." },
+    ],
+  },
+  {
     titre: 'Défi : le cycle complet',
     outils: ['piston'],
     etapes: [
@@ -853,6 +915,7 @@ const LECONS = [
   "Dernier retour : du liquide au solide. En refroidissant, les molécules ralentissent tellement qu'elles se rangent et se figent. Et devine quoi : ça se passe encore à 0 °C, avec un palier.",
   "Nouvelle propriété étonnante des gaz : on peut les comprimer, c'est-à-dire réduire leur volume ! Impossible avec un liquide ou un solide. Le piston va te le prouver — surveille la pression P.",
   "La pression, ce sont les chocs des molécules sur les parois. Deux façons de l'augmenter : réduire le volume… ou chauffer ! Attention, c'est exactement le danger des bouteilles de gaz au soleil.",
+  "Que se passe-t-il si la pression monte, monte, monte… et que rien ne cède ? Spoiler : quelque chose finit TOUJOURS par céder. À la maison, c'est le couvercle de la marmite. Ici, tu vas le faire exprès — en toute sécurité !",
   "À toi de jouer : le grand cycle complet, comme l'eau dans la nature. Glace, eau, vapeur, et retour. Tu vas traverser les quatre paliers — un vrai tour de maître !",
 ];
 
@@ -861,7 +924,7 @@ const progression = { m: 0, etape: 0, faites: [] };
 
 function chargerProgression() {
   try {
-    const d = JSON.parse(localStorage.getItem('ike-matiere-progression'));
+    const d = JSON.parse(localStorage.getItem('ike-matiere-progression-v2'));
     if (d) {
       if (d.m === 'libre' || (Number.isInteger(d.m) && d.m >= 0 && d.m < MISSIONS.length))
         progression.m = d.m;
@@ -871,7 +934,7 @@ function chargerProgression() {
 }
 function sauverProgression() {
   try {
-    localStorage.setItem('ike-matiere-progression',
+    localStorage.setItem('ike-matiere-progression-v2',
       JSON.stringify({ m: progression.m, faites: progression.faites }));
   } catch (e) {}
 }
@@ -1003,6 +1066,7 @@ document.getElementById('btn-suiv2').addEventListener('click', () => {
   allerMission(derniere ? 'libre' : progression.m + 1);
 });
 document.getElementById('btn-liste2').addEventListener('click', () => { fermerVoiles(); ouvrirListe(); });
+document.getElementById('btn-fermer-fin').addEventListener('click', fermerVoiles);
 
 function ouvrirListe() {
   const cont = document.getElementById('mliste-items');
@@ -1104,14 +1168,21 @@ function majFormule() {
   l.push('<div class="ftitre">📐 En direct</div>');
 
   math(`T = ${fmt(th.T)} °C`);
+  const refroidit = etat.dernierSens === 'refroidit';
   if (th.seg === 'fusion') {
-    palier(`PALIER DE FUSION : T bloquée à 0 °C`);
+    palier(refroidit ? 'PALIER DE SOLIDIFICATION : T bloquée à 0 °C'
+                     : 'PALIER DE FUSION : T bloquée à 0 °C');
     res(`fondu : ${fmt(th.fondu * 100)} %`);
-    note("L'énergie reçue casse les liaisons entre molécules — elle ne chauffe pas !");
+    note(refroidit
+      ? "En refroidissant, les liaisons se reforment — la température attend !"
+      : "L'énergie reçue casse les liaisons entre molécules — elle ne chauffe pas !");
   } else if (th.seg === 'ebullition') {
-    palier(`PALIER D'ÉBULLITION : T bloquée à 100 °C`);
+    palier(refroidit ? 'PALIER DE LIQUÉFACTION : T bloquée à 100 °C'
+                     : "PALIER D'ÉBULLITION : T bloquée à 100 °C");
     res(`vaporisé : ${fmt(th.vap * 100)} %`);
-    note("L'énergie libère les molécules du liquide — la température attend !");
+    note(refroidit
+      ? "Les molécules du gaz se rassemblent en liquide — la température attend !"
+      : "L'énergie libère les molécules du liquide — la température attend !");
   } else {
     const nom = th.seg === 'solide' ? 'SOLIDE — molécules rangées, qui vibrent'
       : th.seg === 'liquide' ? 'LIQUIDE — molécules serrées, qui glissent'

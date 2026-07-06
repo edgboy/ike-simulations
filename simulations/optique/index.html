@@ -195,8 +195,13 @@
   }
   .voile.visible { display:flex; }
   .voile .carte {
+    position:relative;
     background:#fff; border-radius:16px; padding:22px; max-width:400px; width:100%;
     max-height:86vh; overflow-y:auto; box-shadow:0 10px 40px rgba(0,0,0,.3);
+  }
+  .fermer-x {
+    position:absolute; top:8px; right:10px; border:none; background:none;
+    font-size:20px; line-height:1; color:#90a4ae; cursor:pointer; padding:6px 8px;
   }
   .voile .carte h2 { font-size:18px; color:#1565c0; margin-bottom:12px; }
   .voile.visible .carte h2 { animation:pop .4s ease-out; }
@@ -257,6 +262,21 @@
   }
   .vmarque { margin-top:10px; text-align:center; font-size:10px; color:#b0bec5; }
 
+  /* ---------- Mode paysage obligatoire sur téléphone ---------- */
+  #paysage {
+    display:none; position:fixed; inset:0; z-index:200;
+    background:linear-gradient(160deg,#0d47a1 0%,#1565c0 55%,#1e88e5 100%);
+    color:#fff; flex-direction:column; align-items:center; justify-content:center;
+    gap:16px; text-align:center; padding:24px;
+  }
+  #paysage .tel { font-size:56px; animation:tourner 1.6s ease-in-out infinite; }
+  @keyframes tourner { 0%, 20% { transform:rotate(0); } 60%, 100% { transform:rotate(90deg); } }
+  #paysage h2 { font-size:20px; font-weight:800; }
+  #paysage p { font-size:14px; color:rgba(255,255,255,.85); line-height:1.5; max-width:300px; }
+  @media (orientation: portrait) and (max-width: 820px) {
+    #paysage { display:flex; }
+  }
+
   /* ==================== THÈME SOMBRE ==================== */
   body.sombre { background:#10181f; color:#eceff1; }
   body.sombre header,
@@ -304,12 +324,18 @@
 </head>
 <body>
 
+<div id="paysage">
+  <div class="tel">📱</div>
+  <h2>Tourne ton téléphone !</h2>
+  <p>Le banc d'optique mesure 100 cm : il se manipule en mode <b>paysage</b> pour bien voir les rayons et les distances.</p>
+</div>
+
 <div id="splash">
   <div class="logo">⚡</div>
   <div class="nom">IKE <span>Simulations</span></div>
   <div class="sub">Sciences au collège</div>
   <div class="barre"><div class="rempl"></div></div>
-  <div class="ver">v2.2.0</div>
+  <div class="ver">v2.5.0</div>
 </div>
 
 <header>
@@ -354,6 +380,7 @@
 
 <div id="mfin" class="voile">
   <div class="carte">
+    <button class="fermer-x" id="btn-fermer-fin" title="Fermer et admirer le banc">✕</button>
     <h2>🎉 Mission réussie !</h2>
     <div id="mfin-titre"></div>
     <div class="retenir-label">💡 À retenir</div>
@@ -679,9 +706,10 @@ function dessiner() {
   trait(px(0), yBanc, px(BANC_MAX), yBanc, 4, T().banc);
   ctx.fillStyle = T().gradu; ctx.font = '10px sans-serif';
   ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-  for (let g = 0; g <= BANC_MAX; g += 10) {
-    trait(px(g), yBanc - 4, px(g), yBanc + 4, 1.5, T().gradu);
-    ctx.fillText(g, px(g), yBanc + 7);
+  for (let g = 0; g <= BANC_MAX; g += 5) {
+    const majeur = g % 10 === 0;
+    trait(px(g), yBanc - (majeur ? 4 : 2.5), px(g), yBanc + (majeur ? 4 : 2.5), majeur ? 1.5 : 1, T().gradu);
+    if (majeur) ctx.fillText(g, px(g), yBanc + 7);
   }
 
   // Rayons lumineux
@@ -722,6 +750,25 @@ function dessiner() {
   if (scn.image && scn.image.reelle && !scn.image.surEcran && scn.image.x < BANC_MAX + 2) {
     dessinerFlecheObjet(scn.image.x, scn.image.h, '#ab47bc', 0.45, true);
     etiquette(scn.image.x, scn.image.h - 1.8, 'image (place l’écran ici !)', '#ab47bc');
+  }
+
+  dessinerCotes();   // distances entre éléments, lisibles directement
+}
+
+// Cotes : la « règle » du banc — distance entre éléments voisins, affichée
+// en permanence (retour testeurs : plus besoin de calculer de tête).
+function dessinerCotes() {
+  const xs = Object.values(etat.elems).filter(e => e).map(e => e.x).sort((a, b) => a - b);
+  if (xs.length < 2) return;
+  const y = py(14.4);
+  ctx.strokeStyle = T().doux; ctx.lineWidth = 1.2;
+  for (let i = 0; i < xs.length - 1; i++) {
+    const x1 = px(xs[i]), x2 = px(xs[i + 1]);
+    if (x2 - x1 < 30) continue;                       // trop serré pour être lisible
+    ctx.beginPath(); ctx.moveTo(x1 + 3, y); ctx.lineTo(x2 - 3, y); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x1 + 3, y - 4); ctx.lineTo(x1 + 3, y + 4); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x2 - 3, y - 4); ctx.lineTo(x2 - 3, y + 4); ctx.stroke();
+    etiquette((xs[i] + xs[i + 1]) / 2, 14.4, `${fmt(xs[i + 1] - xs[i], 0)} cm`);
   }
 }
 
@@ -788,6 +835,14 @@ function dessinerLentille(x, f) {
     ctx.fillStyle = '#1565c0';
     ctx.beginPath(); ctx.arc(px(xf), py(0), 3.2, 0, 7); ctx.fill();
     ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(nom, px(xf), py(0) + 14);
+  }
+  // repères 2F et 2F' (discrets mais visibles — retour testeurs)
+  for (const [xf, nom] of [[x - 2 * f, '2F'], [x + 2 * f, '2F’']]) {
+    if (xf < 1 || xf > BANC_MAX - 1) continue;
+    ctx.fillStyle = T().doux;
+    ctx.beginPath(); ctx.arc(px(xf), py(0), 2.6, 0, 7); ctx.fill();
+    ctx.font = 'bold 10px sans-serif'; ctx.textAlign = 'center';
     ctx.fillText(nom, px(xf), py(0) + 14);
   }
   etiquette(x, 10.4, `lentille f = ${fmt(f, 0)} cm`);
@@ -1354,6 +1409,7 @@ document.getElementById('btn-suiv2').addEventListener('click', () => {
   allerMission(derniere ? 'libre' : progression.m + 1);
 });
 document.getElementById('btn-liste2').addEventListener('click', () => { fermerVoiles(); ouvrirListe(); });
+document.getElementById('btn-fermer-fin').addEventListener('click', fermerVoiles);
 
 function ouvrirListe() {
   const cont = document.getElementById('mliste-items');
@@ -1553,30 +1609,38 @@ function majFormule() {
     titre('Formule de l\'ombre');
     if (E.ecran) {
       const dLE = E.ecran.x - E.lampe.x, dLB = scn.ombre.xb - E.lampe.x;
-      math('ombre = Ø × (lampe→écran) ÷ (lampe→balle)');
+      math('ombre = Ø × D ÷ d');
+      note(`Ø = diamètre de la balle = ${fmt(E.balle.d, 0)} cm`);
+      note(`D = distance lampe→écran = ${fmt(dLE, 0)} cm`);
+      note(`d = distance lampe→balle = ${fmt(dLB, 0)} cm`);
       math(`ombre = ${fmt(E.balle.d, 0)} × ${fmt(dLE, 0)} ÷ ${fmt(dLB, 0)}`);
       res(`ombre = ${fmt(2 * scn.ombre.demi)} cm`);
-      note('Triangles semblables : les rayons partent de la lampe en ligne droite.');
+      note('Les distances sont affichées sur le banc, sous les éléments 📏');
     } else {
-      math('ombre = Ø × (lampe→écran) ÷ (lampe→balle)');
+      math('ombre = Ø × D ÷ d');
+      note('Ø = diamètre de la balle · D = distance lampe→écran · d = distance lampe→balle');
       note('Ajoute l\'écran pour mesurer ton ombre !');
     }
   } else if (scn.config === 'stenope') {
     titre('Formule de la chambre noire');
     if (scn.image && scn.image.surEcran) {
       const dTE = E.ecran.x - E.stenope.x, dOT = E.stenope.x - E.objet.x;
-      math('image = objet × (trou→écran) ÷ (objet→trou)');
+      math('image = h × D ÷ d');
+      note(`h = hauteur de l'objet = ${fmt(E.objet.h, 0)} cm`);
+      note(`D = distance trou→écran = ${fmt(dTE, 0)} cm`);
+      note(`d = distance objet→trou = ${fmt(dOT, 0)} cm`);
       math(`image = ${fmt(E.objet.h, 0)} × ${fmt(dTE, 0)} ÷ ${fmt(dOT, 0)}`);
       res(`image = ${fmt(Math.abs(scn.image.h))} cm, renversée`);
-      note('Chaque rayon passe tout droit par le trou : haut et bas s\'échangent.');
     } else {
-      math('image = objet × (trou→écran) ÷ (objet→trou)');
+      math('image = h × D ÷ d');
+      note('h = hauteur de l\'objet · D = distance trou→écran · d = distance objet→trou');
       note('Ajoute l\'écran derrière le sténopé pour capter l\'image !');
     }
   } else if (scn.config === 'lentille' && E.lentille && E.objet) {
     const dO = E.lentille.x - E.objet.x, fc = E.lentille.f;
     titre('Formules de la lentille');
-    note(`d<sub>o</sub> : objet→lentille = ${fmt(dO)} cm · f : focale = ${fmt(fc, 0)} cm`);
+    note(`d<sub>o</sub> = distance objet→lentille = ${fmt(dO)} cm`);
+    note(`d<sub>i</sub> = distance lentille→image · f = focale = ${fmt(fc, 0)} cm`);
     if (Math.abs(dO - fc) < 0.4) {
       math('d<sub>o</sub> = f → rayons parallèles');
       note('Objet au foyer : les rayons ne se croisent jamais, pas d\'image !');
@@ -1626,6 +1690,7 @@ const LEXIQUE = [
   ['Distance focale (f)', 'Distance entre le centre O et un foyer. Petite focale = lentille très bombée, très puissante.'],
   ['Image réelle', 'Image que l\'on peut capter sur un écran : les rayons s\'y croisent vraiment. Elle est renversée.'],
   ['Image virtuelle', 'Image que l\'œil voit mais qu\'aucun écran ne peut capter (les rayons ne s\'y croisent pas vraiment). Celle de la loupe : droite et agrandie.'],
+  ['2F (double distance focale)', 'Le point situé à deux focales de la lentille (repère gris sur l\'axe). Objet entre F et 2F → image agrandie ; objet au-delà de 2F → image réduite.'],
   ['Grandissement (γ)', 'Hauteur de l\'image ÷ hauteur de l\'objet. γ = 2 : image deux fois plus grande ; γ = 0,5 : deux fois plus petite.'],
   ['Mise au point', 'Placer l\'écran exactement là où l\'image est nette (là où les rayons se croisent).'],
 ];

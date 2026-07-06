@@ -5,6 +5,37 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v2.5.0 — 2026-07-05
+
+Retours utilisateurs (4ᵉ vague — merci Espérain !) :
+
+**Toutes les simulations**
+- Croix ✕ sur le panneau de réussite : on comprend qu'on peut le fermer pour admirer
+  son montage, puis continuer avec « Suivante ▶ » dans la barre
+
+**Banc d'optique**
+- Formules explicitées pour les enfants : chaque lettre est définie avec sa valeur
+  (« Ø = diamètre de la balle = 4 cm », « D = distance lampe→écran = 75 cm »…)
+- **Cotes de distances** affichées en permanence entre les éléments du banc (la « règle »
+  demandée — plus besoin de calculer de tête avec les graduations)
+- Repères **2F et 2F′** affichés en gris sur l'axe (+ entrée au lexique) ; graduations
+  fines tous les 5 cm
+- **Mode paysage obligatoire sur téléphone** : écran d'invitation à tourner l'appareil
+
+**États de la matière**
+- Le chauffage **ralentit de moitié sur les paliers** : l'élève a le temps de voir que
+  la température ne bouge plus
+- Correction physique : en refroidissant, les paliers affichent **SOLIDIFICATION** et
+  **LIQUÉFACTION** (on ne parle d'ébullition qu'en chauffant !)
+- 💥 **Le piston saute** quand la pression dépasse la limite — et c'est la nouvelle
+  mission « Et le couvercle saute ! » (pourquoi le couvercle de la marmite se soulève,
+  et à quoi sert la soupape d'une cocotte-minute)
+
+**Molécules en 3D**
+- **Vue compacte** ⚪ : deuxième représentation des atomes (tailles relatives réalistes,
+  atomes en contact), en plus des boules-bâtonnets — bascule dans l'en-tête
+- Noté pour une prochaine version : construire soi-même les molécules (atelier d'assemblage)
+
 ## v2.4.0 — 2026-07-04
 
 ⚛️ **La 3D arrive + le guide de création est rédigé.** Les simulations 2D restent intactes.

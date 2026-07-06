@@ -186,8 +186,13 @@
   }
   .voile.visible { display:flex; }
   .voile .carte {
+    position:relative;
     background:#fff; border-radius:16px; padding:22px; max-width:400px; width:100%;
     max-height:86vh; overflow-y:auto; box-shadow:0 10px 40px rgba(0,0,0,.3);
+  }
+  .fermer-x {
+    position:absolute; top:8px; right:10px; border:none; background:none;
+    font-size:20px; line-height:1; color:#90a4ae; cursor:pointer; padding:6px 8px;
   }
   .voile .carte h2 { font-size:18px; color:#1565c0; margin-bottom:12px; }
   .voile.visible .carte h2 { animation:pop .4s ease-out; }
@@ -296,12 +301,13 @@
   <div class="nom">IKE <span>Simulations</span></div>
   <div class="sub">Sciences au collège</div>
   <div class="barre"><div class="rempl"></div></div>
-  <div class="ver">v2.4.0 · prototype 3D</div>
+  <div class="ver">v2.5.0 · prototype 3D</div>
 </div>
 
 <header>
   <h1>⚛️ Molécules en 3D</h1>
   <div class="spacer"></div>
+  <button class="btn" id="btn-vue">⚪<span class="lbl"> Compacte</span></button>
   <button class="btn" id="btn-formule">📐<span class="lbl"> Infos</span></button>
   <button class="btn" id="btn-theme">🌙<span class="lbl"> Sombre</span></button>
   <button class="btn" id="btn-aide">❓<span class="lbl"> Aide</span></button>
@@ -352,6 +358,7 @@
 
 <div id="mfin" class="voile">
   <div class="carte">
+    <button class="fermer-x" id="btn-fermer-fin" title="Fermer et admirer la molécule">✕</button>
     <h2>🎉 Mission réussie !</h2>
     <div id="mfin-titre"></div>
     <div class="retenir-label">💡 À retenir</div>
@@ -445,7 +452,7 @@ const SIMPLES = ['dioxygene', 'diazote'];   // corps purs simples (une seule sor
 
 /* ---------- 2. État & suivi missions ---------- */
 
-const etat = { mol: 'eau', theme: 'clair' };
+const etat = { mol: 'eau', vue: 'batonnets', theme: 'clair' };   // vue : batonnets | compacte
 const suivi = {
   rotation: 0,                       // rotation faite PAR L'ÉLÈVE (rad), depuis la mission
   rotationParMol: {},                // idem, par molécule
@@ -511,13 +518,16 @@ function construireMolecule(id) {
   if (!suivi.vues.includes(id) || suivi.vues[suivi.vues.length - 1] !== id) suivi.vues.push(id);
   while (groupe.children.length) groupe.remove(groupe.children[0]);
   const def = MOLECULES[id];
+  // Deux représentations : boules-bâtonnets (structure) ou compacte
+  // (les atomes se touchent, proportions plus réalistes)
+  const facteur = etat.vue === 'compacte' ? 2.05 : 1;
   def.atomes.forEach(([elem, x, y, z], i) => {
-    const m = new THREE.Mesh(geoDe(ATOMES[elem].r * ECHELLE), matDe(elem).clone());
+    const m = new THREE.Mesh(geoDe(ATOMES[elem].r * ECHELLE * facteur), matDe(elem).clone());
     m.position.set(x * ECHELLE, y * ECHELLE, z * ECHELLE);
     m.userData = { elem, idx: i };
     groupe.add(m);
   });
-  for (const [a, b] of def.liaisons) {
+  if (etat.vue !== 'compacte') for (const [a, b] of def.liaisons) {
     const pa = new THREE.Vector3(...def.atomes[a].slice(1)).multiplyScalar(ECHELLE);
     const pb = new THREE.Vector3(...def.atomes[b].slice(1)).multiplyScalar(ECHELLE);
     const dir = new THREE.Vector3().subVectors(pb, pa);
@@ -679,7 +689,7 @@ function majFormule() {
   for (const [elem, n] of Object.entries(compte))
     l.push(`<div class="fligne"><span class="pastille" style="background:${ATOMES[elem].css}"></span>${n} atome${n > 1 ? 's' : ''} d'${ATOMES[elem].nom.toLowerCase()}</div>`);
   l.push(`<div class="fligne fres">forme ${def.forme} · ${def.atomes.length} atomes</div>`);
-  l.push(`<span class="fnote">3D · ${fps} images/s sur ton appareil</span>`);
+  l.push(`<span class="fnote">vue ${etat.vue === 'compacte' ? 'compacte' : 'boules et bâtonnets'} · 3D · ${fps} images/s</span>`);
   l.push('<button class="flex" id="btn-lexique">📖 Lexique des termes</button>');
   const html = l.join('');
   if (f.dataset.prec !== html) {
@@ -694,12 +704,32 @@ document.getElementById('btn-formule').addEventListener('click', () => {
   majFormule();
 });
 
+// Bascule boules-bâtonnets ⇄ modèle compact (autre représentation des atomes)
+function majBtnVue() {
+  document.getElementById('btn-vue').innerHTML =
+    etat.vue === 'compacte' ? '🔗<span class="lbl"> Bâtonnets</span>' : '⚪<span class="lbl"> Compacte</span>';
+}
+document.getElementById('btn-vue').addEventListener('click', () => {
+  etat.vue = etat.vue === 'compacte' ? 'batonnets' : 'compacte';
+  try { localStorage.setItem('ike-mol3d-vue', etat.vue); } catch (e) {}
+  majBtnVue();
+  construireMolecule(etat.mol);
+  toast(etat.vue === 'compacte'
+    ? '⚪ Modèle compact : les atomes se touchent, comme en vrai !'
+    : '🔗 Boules et bâtonnets : la structure et les liaisons.');
+});
+try {
+  const vueMemo = localStorage.getItem('ike-mol3d-vue');
+  if (vueMemo === 'compacte' || vueMemo === 'batonnets') etat.vue = vueMemo;
+} catch (e) {}
+
 const LEXIQUE = [
   ['Atome', 'Grain de matière élémentaire. Chaque sorte d\'atome a son symbole (H, O, C, N…) et, dans les modèles, sa couleur.'],
   ['Molécule', 'Assemblage d\'atomes liés entre eux. L\'eau, le dioxygène, le méthane… sont des molécules.'],
   ['Formule chimique', 'Écriture qui donne la composition d\'une molécule : H₂O = 2 atomes d\'hydrogène + 1 atome d\'oxygène. Le petit chiffre compte l\'atome placé juste avant.'],
   ['Liaison', 'Ce qui attache les atomes entre eux dans une molécule (les bâtonnets gris du modèle).'],
   ['Modèle moléculaire', 'Représentation des molécules par des boules (atomes) et des bâtonnets (liaisons). Les vraies molécules sont des milliards de fois plus petites !'],
+  ['Modèle compact', 'Autre représentation (bouton ⚪) : les atomes y sont dessinés à leur taille « réelle » relative, collés les uns aux autres — plus proche de la réalité, mais la structure se voit moins bien.'],
   ['Corps pur simple', 'Matière dont les molécules ne contiennent qu\'UNE sorte d\'atomes : O₂, N₂…'],
   ['Corps pur composé', 'Matière dont les molécules contiennent PLUSIEURS sortes d\'atomes : H₂O, CO₂, CH₄, NH₃…'],
   ['Géométrie d\'une molécule', 'La forme dans l\'espace : coudée (eau), linéaire (CO₂), tétraédrique (méthane), pyramidale (ammoniac). C\'est pour la voir qu\'il faut la 3D !'],
@@ -1003,6 +1033,7 @@ document.getElementById('btn-suiv2').addEventListener('click', () => {
   allerMission(derniere ? 'libre' : progression.m + 1);
 });
 document.getElementById('btn-liste2').addEventListener('click', () => { fermerVoiles(); ouvrirListe(); });
+document.getElementById('btn-fermer-fin').addEventListener('click', fermerVoiles);
 
 function ouvrirListe() {
   const cont = document.getElementById('mliste-items');
@@ -1191,6 +1222,7 @@ chargerProgression();
 window.addEventListener('resize', redimensionner);
 redimensionner();
 appliquerTheme();
+majBtnVue();
 resetSuivi();
 const autorisesInit = outilsAutorises();
 construireMolecule(autorisesInit.includes('eau') ? 'eau' : autorisesInit[0]);
