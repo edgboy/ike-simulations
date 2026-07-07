@@ -159,6 +159,26 @@
   }
   #mdiag.visible { display:block; animation:glisse .4s ease; }
 
+  /* Panneau loi d'Ohm en direct */
+  #formule {
+    position:absolute; top:10px; right:10px; z-index:5;
+    background:rgba(255,255,255,.94); border:1px solid #cfd8dc; border-radius:12px;
+    padding:10px 12px; max-width:min(240px, 52vw);
+    font-size:12px; line-height:1.6; color:#37474f;
+    box-shadow:0 3px 12px rgba(0,0,0,.12);
+  }
+  #formule .ftitre {
+    font-size:11px; font-weight:800; letter-spacing:.5px; color:#1565c0;
+    text-transform:uppercase; margin-bottom:4px;
+  }
+  #formule .fmath {
+    font-family:Consolas, "Courier New", monospace; font-size:11.5px;
+    background:#f4f7fb; border-radius:6px; padding:2px 6px; margin:2px 0;
+    white-space:nowrap; overflow-x:auto; display:block;
+  }
+  #formule .fres { font-weight:800; color:#2e7d32; }
+  #formule .fnote { font-size:11px; color:#90a4ae; font-style:italic; }
+
   /* Toast de progression */
   #toast {
     position:absolute; bottom:16px; left:50%;
@@ -277,6 +297,10 @@
   body.sombre nav#palette button span { color:#cfd8dc; }
   body.sombre nav#palette button.actif { background:#0d2c4f; border-color:#64b5f6; }
   body.sombre #selbar { background:#1c262e; border-color:#3a4a56; }
+  body.sombre #formule { background:rgba(28,38,46,.95); border-color:#3a4a56; color:#cfd8dc; }
+  body.sombre #formule .ftitre { color:#64b5f6; }
+  body.sombre #formule .fmath { background:#10181f; }
+  body.sombre #formule .fres { color:#81c784; }
   body.sombre #btn-inverser { background:#0d2c4f; color:#90caf9; }
   body.sombre #btn-supprimer { background:#3a1f22; color:#ef9a9a; }
   body.sombre .voile .carte, body.sombre #visite-carte { background:#1c262e; }
@@ -297,12 +321,13 @@
   <div class="nom">IKE <span>Simulations</span></div>
   <div class="sub">Sciences au collège</div>
   <div class="barre"><div class="rempl"></div></div>
-  <div class="ver">v2.5.0</div>
+  <div class="ver">v2.7.0</div>
 </div>
 
 <header>
   <h1>⚡ Circuit électrique</h1>
   <div class="spacer"></div>
+  <button class="btn" id="btn-formule">📐<span class="lbl"> Formule</span></button>
   <button class="btn" id="btn-theme">🌙<span class="lbl"> Sombre</span></button>
   <button class="btn" id="btn-vue">👁 <span class="lbl" id="lbl-vue">Symboles</span></button>
   <button class="btn" id="btn-aide">❓<span class="lbl"> Aide</span></button>
@@ -328,6 +353,7 @@
 
 <div id="wrap">
   <canvas id="scene"></canvas>
+  <div id="formule" style="display:none"></div>
   <div id="banniere">⚠️ Court-circuit ! La pile chauffe.</div>
   <div id="toast"></div>
   <div id="selbar">
@@ -395,7 +421,9 @@ const OUTILS = [
   { id:'lampe',        nom:'Lampe' },
   { id:'interrupteur', nom:'Interrupteur' },
   { id:'amperemetre',  nom:'Ampèremètre' },
+  { id:'voltmetre',    nom:'Voltmètre' },
 ];
+const R_VOLTMETRE = 1e6;   // très grande résistance : ne perturbe pas le circuit
 
 const etat = {
   comps: [],          // { id, type, a:{c,r}, b:{c,r}, ferme?, I }
@@ -518,9 +546,10 @@ function distSegment(px, py, ax, ay, bx, by) {
 
 function resistanceDe(comp) {
   switch (comp.type) {
-    case 'pile':  return R_PILE;
-    case 'lampe': return R_LAMPE;
-    default:      return R_FAIBLE; // fil, interrupteur fermé, ampèremètre
+    case 'pile':      return R_PILE;
+    case 'lampe':     return R_LAMPE;
+    case 'voltmetre': return R_VOLTMETRE;
+    default:          return R_FAIBLE; // fil, interrupteur fermé, ampèremètre
   }
 }
 
@@ -566,12 +595,47 @@ function resoudre() {
       if (Math.abs(comp.I) > I_COURT) etat.courtCircuit = true;
     } else {
       comp.I = (va - vb) / resistanceDe(comp);
+      if (comp.type === 'voltmetre') comp.U = va - vb;   // tension mesurée
     }
   }
   majBanniere();
   demanderRendu();
   evaluerMission();   // le parcours pédagogique observe chaque action de l'élève
+  majFormule();       // la loi d'Ohm en direct avec les mesures de l'élève
 }
+
+// Panneau 📐 : quand l'élève mesure U et I, la loi d'Ohm se vérifie sous ses yeux
+let formuleVisible = true;
+try { formuleVisible = localStorage.getItem('ike-circuit-formule') !== 'non'; } catch (e) {}
+
+function majFormule() {
+  const f = document.getElementById('formule');
+  const vm = etat.comps.find(c => c.type === 'voltmetre' && Math.abs(c.U || 0) >= 0.1);
+  const am = etat.comps.find(c => c.type === 'amperemetre' && Math.abs(c.I) >= 0.01);
+  if (!formuleVisible || (!vm && !am)) { f.style.display = 'none'; return; }
+  f.style.display = '';
+  const l = ['<div class="ftitre">📐 Mesures en direct</div>'];
+  if (vm) l.push(`<span class="fmath">U (voltmètre) = ${formatV(vm.U)}</span>`);
+  if (am) l.push(`<span class="fmath">I (ampèremètre) = ${formatA(am.I)}</span>`);
+  if (vm && am) {
+    const R = Math.abs(vm.U) / Math.abs(am.I);
+    l.push(`<span class="fmath">U ÷ I = ${Math.abs(vm.U).toFixed(1).replace('.', ',')} ÷ ${Math.abs(am.I).toFixed(2).replace('.', ',')}</span>`);
+    l.push(`<span class="fmath fres">R = ${R.toFixed(1).replace('.', ',')} Ω</span>`);
+    if (Math.abs(R - R_LAMPE) <= 1.5)
+      l.push(`<span class="fmath fres">Loi d'Ohm : U = R × I ✓</span>`);
+    l.push('<span class="fnote">R = résistance de la lampe (10 Ω)</span>');
+  } else {
+    l.push(`<span class="fnote">${vm ? 'Ajoute un ampèremètre en série pour vérifier U = R × I !' : 'Ajoute un voltmètre en parallèle pour vérifier U = R × I !'}</span>`);
+  }
+  const html = l.join('');
+  if (f.dataset.prec !== html) { f.dataset.prec = html; f.innerHTML = html; }
+}
+
+document.getElementById('btn-formule').addEventListener('click', () => {
+  formuleVisible = !formuleVisible;
+  try { localStorage.setItem('ike-circuit-formule', formuleVisible ? 'oui' : 'non'); } catch (e) {}
+  majFormule();
+});
 
 // Élimination de Gauss avec pivot partiel
 function gauss(A, b) {
@@ -678,14 +742,14 @@ function dessiner() {
 // décalés perpendiculairement au fil (jamais superposés au conducteur).
 function dessinerMesures() {
   for (const comp of etat.comps) {
-    if (comp.type !== 'amperemetre') continue;
+    if (comp.type !== 'amperemetre' && comp.type !== 'voltmetre') continue;
     const pa = pxDeNoeud(comp.a), pb = pxDeNoeud(comp.b);
     const mx = (pa.x + pb.x) / 2, my = (pa.y + pb.y) / 2;
     const L = Math.hypot(pb.x - pa.x, pb.y - pa.y) || 1;
     let nx = -(pb.y - pa.y) / L, ny = (pb.x - pa.x) / L;   // normale à l'arête
     if (ny < 0 || (ny === 0 && nx < 0)) { nx = -nx; ny = -ny; } // côté bas/droite
     const s = Math.min(1, cell / 48);
-    const txt = formatA(comp.I || 0);
+    const txt = comp.type === 'voltmetre' ? formatV(comp.U || 0) : formatA(comp.I || 0);
     ctx.font = `bold ${11 * s}px Consolas, monospace`;
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     const tw = ctx.measureText(txt).width;
@@ -814,7 +878,8 @@ function dessinerComp(c2d, comp, icone) {
       break;
     }
 
-    case 'amperemetre': {
+    case 'amperemetre':
+    case 'voltmetre': {
       trait(pa.x, pa.y, pb.x, pb.y, 4 * s, filCoul);
       const R = 13 * s;
       c2d.fillStyle = T().compFond;
@@ -823,7 +888,7 @@ function dessinerComp(c2d, comp, icone) {
       c2d.beginPath(); c2d.arc(mx, my, R, 0, 7); c2d.stroke();
       c2d.fillStyle = T().trait; c2d.font = `bold ${13 * s}px sans-serif`;
       c2d.textAlign = 'center'; c2d.textBaseline = 'middle';
-      c2d.fillText('A', mx, my + 0.5);
+      c2d.fillText(comp.type === 'voltmetre' ? 'V' : 'A', mx, my + 0.5);
       // (l'écran de mesure est dessiné au premier plan, voir dessinerMesures)
       break;
     }
@@ -843,6 +908,12 @@ function formatA(I) {
   const a = Math.abs(I);
   const val = a < 0.005 ? 0 : a;
   return val.toFixed(2).replace('.', ',') + ' A';
+}
+// Tension au format français : « 4,3 V »
+function formatV(U) {
+  const a = Math.abs(U);
+  const val = a < 0.05 ? 0 : a;
+  return val.toFixed(1).replace('.', ',') + ' V';
 }
 
 function majBanniere() {
@@ -1374,7 +1445,7 @@ const MISSIONS = [
       { texte: "Place DEUX piles dans le même sens dans ta boucle, avec une lampe : elle doit briller plus fort que jamais (plus de 0,60 A) !",
         test: () => nb('pile') >= 2 && lampes().some(c => Math.abs(c.I) >= 0.6) },
     ],
-    retenir: "Deux piles en série dans le même sens additionnent leurs tensions : 4,5 V + 4,5 V = 9 V → la lampe brille plus fort. Dans des sens opposés, elles s'annulent et rien ne s'allume ! Bravo, parcours terminé 💪 — explore maintenant le Mode libre.",
+    retenir: "Deux piles en série dans le même sens additionnent leurs tensions : 4,5 V + 4,5 V = 9 V → la lampe brille plus fort. Dans des sens opposés, elles s'annulent et rien ne s'allume ! La suite : apprendre à MESURER cette fameuse tension…",
     indice: "Le + d'une pile doit pointer vers le − de la suivante. Si rien ne s'allume, sélectionne une pile et touche « ↔ Inverser ».",
     diags: [
       { si: () => nb('pile') >= 2 && nb('lampe') >= 1 &&
@@ -1383,6 +1454,50 @@ const MISSIONS = [
       { si: () => nb('pile') >= 2 && lampes().some(c => Math.abs(c.I) >= 0.3 && Math.abs(c.I) < 0.6),
         msg: "Tes piles ne s'additionnent pas : place-les l'une APRÈS l'autre dans la même boucle (en série)." },
     ],
+  },
+  {
+    titre: 'Le voltmètre',
+    outils: ['fil', 'pile', 'lampe', 'interrupteur', 'amperemetre', 'voltmetre'],
+    etapes: [
+      { texte: "Nouvel outil : le voltmètre ! Branche-le EN PARALLÈLE de la lampe (à cheval, sur une branche à côté) et lis la tension.",
+        test: () => lampesAllumees().length >= 1 &&
+                    etat.comps.some(c => c.type === 'voltmetre' && Math.abs(c.U || 0) >= 3) },
+    ],
+    retenir: "La tension se mesure en volts (V) avec un voltmètre, toujours branché EN PARALLÈLE (en dérivation) — l'inverse de l'ampèremètre ! Sa très grande résistance fait qu'il ne perturbe pas le circuit.",
+    indice: "Construis une petite boucle qui part d'un côté de la lampe et revient de l'autre, avec le voltmètre dessus : fil ↗ voltmètre ↘ fil.",
+    diags: [
+      { si: () => etat.comps.some(c => c.type === 'voltmetre') && lampesAllumees().length === 0 && nb('lampe') >= 1 && nb('pile') >= 1,
+        msg: "Ton voltmètre est EN SÉRIE : sa très grande résistance bloque le courant, tout s'éteint ! Remets un fil à sa place et branche-le en parallèle." },
+    ],
+  },
+  {
+    titre: 'La tension se partage',
+    outils: ['fil', 'pile', 'lampe', 'interrupteur', 'amperemetre', 'voltmetre'],
+    etapes: [
+      { texte: "Monte DEUX lampes en série (une seule pile), puis mesure la tension d'UNE seule lampe. Que remarques-tu ?",
+        test: () => signatureSerie() &&
+                    etat.comps.some(c => c.type === 'voltmetre' && Math.abs(c.U || 0) >= 1.6 && Math.abs(c.U || 0) <= 2.7) },
+    ],
+    retenir: "En série, la tension de la pile se PARTAGE entre les lampes : chacune reçoit environ la moitié de 4,5 V. C'est la loi d'additivité des tensions — les tensions des récepteurs s'additionnent pour égaler celle du générateur.",
+    indice: "Pile → lampe → lampe → retour, puis le voltmètre en parallèle d'UNE seule des deux lampes.",
+    diags: [
+      { si: () => etat.comps.some(c => c.type === 'voltmetre' && Math.abs(c.U || 0) > 3.5) && signatureSerie(),
+        msg: "Ton voltmètre mesure les DEUX lampes (ou la pile) à la fois : branche-le à cheval sur UNE seule lampe." },
+    ],
+  },
+  {
+    titre: "La loi d'Ohm",
+    outils: ['fil', 'pile', 'lampe', 'interrupteur', 'amperemetre', 'voltmetre'],
+    etapes: [
+      { texte: "La grande expérience de 4ᵉ : dans un même circuit, mesure U (voltmètre sur la lampe) ET I (ampèremètre en série). Le panneau 📐 fera le calcul U ÷ I…",
+        test: () => {
+          const vm = etat.comps.find(c => c.type === 'voltmetre' && Math.abs(c.U || 0) >= 1);
+          const am = etat.comps.find(c => c.type === 'amperemetre' && Math.abs(c.I) >= 0.1);
+          return vm && am && Math.abs(Math.abs(vm.U) / Math.abs(am.I) - R_LAMPE) <= 1.5;
+        } },
+    ],
+    retenir: "U ÷ I = 10 Ω : c'est la résistance de la lampe, et elle ne change pas ! C'est la loi d'Ohm : U = R × I. Trois grandeurs, une formule — celle qui domine toute l'électricité de 4ᵉ. Bravo, parcours terminé 💪 place au Mode libre !",
+    indice: "Ampèremètre DANS la boucle (série), voltmètre À CHEVAL sur la lampe (parallèle). Puis regarde le panneau 📐 en haut à droite.",
   },
 ];
 

@@ -179,6 +179,22 @@
   nav#palette button .form { font-size:15px; font-weight:800; color:#263238; }
   nav#palette button .nomm { font-size:9.5px; font-weight:600; color:#90a4ae; white-space:nowrap; }
 
+  /* Atelier d'assemblage : jetons d'atomes */
+  #atelier-bar { display:none; align-items:center; gap:8px; flex-wrap:wrap; justify-content:center; }
+  #atelier-bar .acible { font-size:14px; font-weight:800; color:#1565c0; margin-right:4px; }
+  .abtn {
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    width:54px; height:54px; border-radius:16px; border:2px solid rgba(0,0,0,.15);
+    font-size:17px; font-weight:800; cursor:pointer; line-height:1.1;
+  }
+  .abtn small { font-size:10px; font-weight:700; opacity:.85; }
+  #btn-vider {
+    height:54px; padding:0 14px; border-radius:16px; border:2px solid #ffcdd2;
+    background:#ffebee; color:#c62828; font-size:13px; font-weight:800; cursor:pointer;
+  }
+  body.sombre #atelier-bar .acible { color:#64b5f6; }
+  body.sombre #btn-vider { background:#3a1f22; border-color:#7a3b40; color:#ef9a9a; }
+
   /* ---------- Voiles ---------- */
   .voile {
     position:fixed; inset:0; background:rgba(38,50,56,.55);
@@ -301,7 +317,7 @@
   <div class="nom">IKE <span>Simulations</span></div>
   <div class="sub">Sciences au collège</div>
   <div class="barre"><div class="rempl"></div></div>
-  <div class="ver">v2.5.0 · prototype 3D</div>
+  <div class="ver">v2.7.0 · 3D</div>
 </div>
 
 <header>
@@ -337,7 +353,16 @@
   <div id="toast"></div>
 </div>
 
-<nav id="palette"></nav>
+<nav id="palette">
+  <div id="atelier-bar">
+    <span class="acible" id="atelier-cible"></span>
+    <button class="abtn" data-atome="H" style="background:#f0f0f0;color:#263238">H<small id="cpt-H">×0</small></button>
+    <button class="abtn" data-atome="O" style="background:#ef5350;color:#fff">O<small id="cpt-O">×0</small></button>
+    <button class="abtn" data-atome="C" style="background:#455a64;color:#fff">C<small id="cpt-C">×0</small></button>
+    <button class="abtn" data-atome="N" style="background:#42a5f5;color:#fff">N<small id="cpt-N">×0</small></button>
+    <button id="btn-vider">↺ Vider</button>
+  </div>
+</nav>
 
 <div id="mlecon" class="voile">
   <div class="carte">
@@ -459,6 +484,8 @@ const suivi = {
   touches: new Set(),                // "mol:indexAtome" touchés depuis la mission
   vues: [],                          // molécules affichées (dans l'ordre) depuis la mission
   derniereTouche: null,              // élément du dernier atome touché
+  atelierCompte: { H: 0, O: 0, C: 0, N: 0 },   // atomes posés dans l'atelier
+  assemblees: [],                    // molécules assemblées avec succès
 };
 function resetSuivi() {
   suivi.rotation = 0;
@@ -466,6 +493,8 @@ function resetSuivi() {
   suivi.touches.clear();
   suivi.vues = [etat.mol];
   suivi.derniereTouche = null;
+  suivi.atelierCompte = { H: 0, O: 0, C: 0, N: 0 };
+  suivi.assemblees = [];
 }
 const nbTouches = (mol, elem) => {
   let n = 0;
@@ -666,11 +695,84 @@ for (const id of ORDRE_MOL) {
 }
 function majPalette() {
   const autorises = outilsAutorises();
+  const m = missionCourante();
+  const enAtelier = !!(m && m.atelier);
+  document.getElementById('atelier-bar').style.display = enAtelier ? 'flex' : 'none';
+  if (enAtelier)
+    document.getElementById('atelier-cible').textContent = MOLECULES[m.atelier].formule + ' =';
   for (const btn of palette.children) {
-    btn.style.display = autorises.includes(btn.dataset.mol) ? '' : 'none';
+    if (!btn.dataset.mol) continue;   // la barre d'atelier n'est pas un bouton de molécule
+    btn.style.display = (!enAtelier && autorises.includes(btn.dataset.mol)) ? '' : 'none';
     btn.classList.toggle('actif', btn.dataset.mol === etat.mol);
   }
 }
+
+/* ---------- 6bis. Atelier d'assemblage ---------- */
+
+function compositionDe(molId) {
+  const c = { H: 0, O: 0, C: 0, N: 0 };
+  for (const [elem] of MOLECULES[molId].atomes) c[elem]++;
+  return c;
+}
+const atelierDepasse = () => {
+  const m = missionCourante();
+  if (!m || !m.atelier) return false;
+  const o = compositionDe(m.atelier);
+  return ['H', 'O', 'C', 'N'].some(e => suivi.atelierCompte[e] > o[e]);
+};
+
+// Atomes en vrac : disposés en anneau tant que la formule n'est pas exacte
+function construireNuage() {
+  while (groupe.children.length) groupe.remove(groupe.children[0]);
+  const total = Object.values(suivi.atelierCompte).reduce((a, b) => a + b, 0);
+  let i = 0;
+  for (const el of ['O', 'C', 'N', 'H']) {
+    for (let k = 0; k < suivi.atelierCompte[el]; k++) {
+      const mesh = new THREE.Mesh(geoDe(ATOMES[el].r * ECHELLE), matDe(el).clone());
+      const a = total ? (i / total) * Math.PI * 2 : 0;
+      mesh.position.set(Math.cos(a) * 1.8, Math.sin(a * 2) * 0.5, Math.sin(a) * 1.8);
+      mesh.userData = { elem: el, idx: -1 };
+      groupe.add(mesh);
+      i++;
+    }
+  }
+}
+
+function ajouterAtome(el) {
+  const m = missionCourante();
+  if (!m || !m.atelier) return;
+  const total = Object.values(suivi.atelierCompte).reduce((a, b) => a + b, 0);
+  if (total >= 8) { toast('Ça déborde ! ↺ Vide et recompte.'); return; }
+  suivi.atelierCompte[el]++;
+  majAtelier();
+}
+function viderAtelier() {
+  suivi.atelierCompte = { H: 0, O: 0, C: 0, N: 0 };
+  majAtelier();
+}
+
+function majAtelier() {
+  for (const el of ['H', 'O', 'C', 'N'])
+    document.getElementById('cpt-' + el).textContent = '×' + suivi.atelierCompte[el];
+  const m = missionCourante();
+  if (!m || !m.atelier) return;
+  const objectif = compositionDe(m.atelier);
+  const total = Object.values(suivi.atelierCompte).reduce((a, b) => a + b, 0);
+  const exact = ['H', 'O', 'C', 'N'].every(e => objectif[e] === suivi.atelierCompte[e]);
+  if (exact && total > 0) {
+    if (!suivi.assemblees.includes(m.atelier)) suivi.assemblees.push(m.atelier);
+    construireMolecule(m.atelier);   // ✨ l'assemblage se fait sous les yeux de l'élève
+    toast(`✨ ${MOLECULES[m.atelier].formule} assemblée ! Bien lu !`);
+  } else {
+    construireNuage();
+    majFormule();
+    evaluerMission();
+  }
+}
+
+for (const b of document.querySelectorAll('.abtn'))
+  b.addEventListener('click', () => ajouterAtome(b.dataset.atome));
+document.getElementById('btn-vider').addEventListener('click', viderAtelier);
 
 /* ---------- 7. Panneau infos + FPS ---------- */
 
@@ -681,6 +783,23 @@ function majFormule() {
   const f = document.getElementById('formule');
   if (!formuleVisible) { f.style.display = 'none'; return; }
   f.style.display = '';
+  // Mode atelier : afficher l'objectif tant que la molécule n'est pas assemblée
+  const mAt = missionCourante();
+  if (mAt && mAt.atelier && !suivi.assemblees.includes(mAt.atelier)) {
+    const defA = MOLECULES[mAt.atelier];
+    const objectif = compositionDe(mAt.atelier);
+    const l2 = [`<div class="ftitre">🛠 Objectif : ${defA.formule}</div>`];
+    for (const el of ['C', 'N', 'O', 'H']) {
+      if (!objectif[el]) continue;
+      const ok = suivi.atelierCompte[el] === objectif[el];
+      l2.push(`<div class="fligne"><span class="pastille" style="background:${ATOMES[el].css}"></span>` +
+        `${objectif[el]} × ${ATOMES[el].nom.toLowerCase()} — tu en as ${suivi.atelierCompte[el]} ${ok ? '✓' : ''}</div>`);
+    }
+    l2.push('<span class="fnote">Touche les jetons d\'atomes en bas. Formule exacte = assemblage !</span>');
+    const html2 = l2.join('');
+    if (f.dataset.prec !== html2) { f.dataset.prec = html2; f.innerHTML = html2; }
+    return;
+  }
   const def = MOLECULES[etat.mol];
   const compte = {};
   for (const [elem] of def.atomes) compte[elem] = (compte[elem] || 0) + 1;
@@ -865,8 +984,62 @@ const MISSIONS = [
       { texte: "Défi final : affiche, DANS L'ORDRE, la molécule d'eau, puis le dioxyde de carbone, puis le méthane — en te fiant seulement aux formules H₂O, CO₂, CH₄ !",
         test: () => sequenceVue('eau', 'co2', 'methane') },
     ],
-    retenir: "Bravo, parcours terminé 💪 Tu sais lire une formule chimique et reconnaître les molécules essentielles. Prochaine étape en classe : les réactions chimiques, où ces molécules se transforment !",
+    retenir: "Tu sais lire une formule chimique et reconnaître les molécules essentielles. Et maintenant, le plus beau : les CONSTRUIRE toi-même. Direction l'atelier !",
     indice: "Dans la barre du bas : H₂O d'abord, ensuite CO₂, et enfin CH₄. L'ordre compte !",
+  },
+  {
+    titre: "Atelier : l'eau",
+    atelier: 'eau', outils: [],
+    etapes: [
+      { texte: "À toi de construire ! Lis la formule H₂O et ajoute EXACTEMENT les bons atomes avec les jetons du bas. La molécule s'assemblera toute seule.",
+        test: () => suivi.assemblees.includes('eau') },
+    ],
+    retenir: "H₂O se lit : 2 atomes d'hydrogène + 1 atome d'oxygène — le petit chiffre compte l'atome écrit juste avant. Tu viens de réaliser ta première synthèse !",
+    indice: "Touche 2 fois le jeton H, puis 1 fois le jeton O. Ni plus, ni moins.",
+    diags: [
+      { si: atelierDepasse, msg: "Trop d'atomes d'une sorte ! Touche ↺ Vider et recompte à partir de la formule." },
+      { si: () => suivi.atelierCompte.C > 0 || suivi.atelierCompte.N > 0,
+        msg: "L'eau ne contient ni carbone ni azote… ↺ Vider et relis : H₂O." },
+    ],
+  },
+  {
+    titre: 'Atelier : le dioxyde de carbone',
+    atelier: 'co2', outils: [],
+    etapes: [
+      { texte: "Construis CO₂. Attention au piège de lecture : le petit 2 compte quels atomes ?",
+        test: () => suivi.assemblees.includes('co2') },
+    ],
+    retenir: "CO₂ = 1 carbone + 2 oxygènes : le 2 compte l'atome écrit juste avant lui, l'oxygène. C'est LA règle de lecture des formules.",
+    indice: "1 jeton C, puis 2 jetons O.",
+    diags: [
+      { si: atelierDepasse, msg: "Trop d'atomes ! ↺ Vider — et souviens-toi : le 2 compte les oxygènes." },
+    ],
+  },
+  {
+    titre: 'Atelier : le méthane',
+    atelier: 'methane', outils: [],
+    etapes: [
+      { texte: "Construis CH₄ et regarde-le prendre sa forme de tétraèdre sous tes yeux !",
+        test: () => suivi.assemblees.includes('methane') },
+    ],
+    retenir: "CH₄ = 1 carbone + 4 hydrogènes, 5 atomes en tout. Et dès l'assemblage, la géométrie s'impose : les 4 hydrogènes s'écartent au maximum → tétraèdre !",
+    indice: "1 jeton C, puis 4 jetons H.",
+    diags: [
+      { si: atelierDepasse, msg: "Trop d'atomes ! ↺ Vider — CH₄ n'a qu'un seul carbone." },
+    ],
+  },
+  {
+    titre: 'Atelier défi : la molécule mystère',
+    atelier: 'ammoniac', outils: [],
+    etapes: [
+      { texte: "Défi final : construis la molécule de formule NH₃… sans autre indice. Et au fait — quel est son nom, déjà ?",
+        test: () => suivi.assemblees.includes('ammoniac') },
+    ],
+    retenir: "NH₃ = 1 azote + 3 hydrogènes : c'était l'ammoniac, celui des engrais ! Tu sais maintenant lire ET construire n'importe quelle formule. Parcours terminé 💪 place au Mode libre !",
+    indice: "N, c'est l'azote (jeton bleu). Le 3 compte les hydrogènes.",
+    diags: [
+      { si: atelierDepasse, msg: "Trop d'atomes ! ↺ Vider — relis calmement : N, puis H₃." },
+    ],
   },
 ];
 
@@ -881,6 +1054,10 @@ const LECONS = [
   "Une formule chimique, ça se vérifie : chaque petit chiffre compte des atomes bien réels. Au doigt !",
   "Les chimistes classent les corps purs en deux familles, selon leurs molécules. Les couleurs du modèle te donnent la réponse du premier coup d'œil.",
   "Le grand test : sauras-tu retrouver les molécules à partir de leurs seules formules ? C'est exactement l'exercice des évaluations.",
+  "Jusqu'ici tu observais des molécules toutes faites. Place à la chimie active : lire une formule et assembler la molécule toi-même, atome par atome. L'atelier est ouvert !",
+  "Nouveau défi de lecture : CO₂. Méfie-toi du piège classique — le petit 2 ne compte pas les carbones…",
+  "Le méthane maintenant. Quatre hydrogènes à compter, et une récompense : la molécule s'assemble en tétraèdre sous tes yeux.",
+  "L'examen final du chimiste : une formule brute, sans nom ni image. À toi de jouer — et de deviner de qui il s'agit !",
 ];
 
 /* ---- Moteur de progression (socle IKE) ---- */
@@ -972,9 +1149,15 @@ function allerMission(m) {
   masquerDiagnostic();
   fermerVoiles();
   document.getElementById('mindice').classList.remove('visible');
-  const autorises = outilsAutorises();
-  if (!autorises.includes(etat.mol)) construireMolecule(autorises[0]);
-  majPalette();
+  const mc = missionCourante();
+  if (mc && mc.atelier) {
+    majPalette();
+    majAtelier();          // scène vide + badges à ×0, prêt à assembler
+  } else {
+    const autorises = outilsAutorises();
+    if (autorises.length && !autorises.includes(etat.mol)) construireMolecule(autorises[0]);
+    majPalette();
+  }
   majMissionBar();
   if (m !== 'libre') ouvrirLecon();
 }

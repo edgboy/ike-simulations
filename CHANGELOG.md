@@ -5,6 +5,27 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v2.7.0 — 2026-07-07
+
+⚡ **Circuit électrique v2 : le voltmètre et la loi d'Ohm** (4ᵉ SA1)
+
+- Nouveau composant **voltmètre** (résistance de 1 MΩ, comme les vrais) : se branche
+  **en parallèle**, affiche la tension en volts sur son écran — validé par 6 tests
+  (lecture exacte, circuit non perturbé, courant traversant ≈ 1 µA)
+- 3 nouvelles missions (15 au total) : « Le voltmètre » (avec le diagnostic-clé :
+  *branché en série, il bloque tout !*), « La tension se partage » (additivité en série),
+  « **La loi d'Ohm** » — mesurer U et I et retrouver R = 10 Ω
+- **Panneau 📐 rétroporté au circuit** : dès qu'un voltmètre ou un ampèremètre mesure,
+  le panneau affiche U, I, puis le calcul U ÷ I = R et « Loi d'Ohm : U = R × I ✓ »
+
+⚛️ **Molécules en 3D v2 : l'atelier d'assemblage** (demande des testeurs)
+
+- 4 nouvelles missions « Atelier » (14 au total) : lire une formule (H₂O, CO₂, CH₄,
+  puis NH₃ mystère) et ajouter EXACTEMENT les bons atomes avec des **jetons colorés** —
+  la molécule s'assemble toute seule dès que la composition est exacte ✨
+- Panneau objectif en direct (« 2 × hydrogène — tu en as 1 »), bouton ↺ Vider,
+  diagnostics de lecture (« le 2 compte les oxygènes, pas les carbones ! »)
+
 ## v2.6.0 — 2026-07-05
 
 🔥 **Cinquième simulation : Combustions vives** (6ᵉ SA3, chimie) — la carte « Bientôt » tient sa promesse.
