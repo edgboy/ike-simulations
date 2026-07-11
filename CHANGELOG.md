@@ -5,6 +5,19 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v2.9.0 — 2026-07-07
+
+🏠 **Page d'accueil réorganisée en onglets** — l'espace est optimisé, le catalogue se scanne d'un coup d'œil.
+
+- **Onglets par matière** : 🔬 Physique-Chimie (5) · 📐 Mathématiques (1) · 🌱 SVT (0),
+  avec le **nombre de simulations** affiché sur chaque onglet ; barre collante en haut,
+  onglet mémorisé d'une visite à l'autre, navigation au clavier (flèches ← →), rôles ARIA
+- **En-tête compact** (logo, titre et badge sur une seule ligne) : les simulations sont
+  visibles dès l'ouverture, sans faire défiler
+- **Cartes plus denses** : icône et titre sur la même ligne, niveau et bouton « Lancer »
+  côte à côte, nombre de missions indiqué. Plus de simulations visibles par écran.
+- L'onglet SVT annonce les deux simulations à venir (besoins des végétaux, immunité)
+
 ## v2.8.0 — 2026-07-07
 
 🔺 **Sixième simulation : Transformations du plan** — *IKE entre en mathématiques !*

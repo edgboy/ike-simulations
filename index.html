@@ -4,74 +4,116 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#0d47a1">
-<title>IKE Simulations — Sciences au collège</title>
+<title>IKE Simulations — Sciences et maths au collège</title>
 <style>
-  * { margin:0; padding:0; box-sizing:border-box; }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   body {
     font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     background:#f4f7fb; color:#263238; min-height:100vh;
     display:flex; flex-direction:column;
   }
 
+  /* ---------- En-tête compact ---------- */
   header {
     background:linear-gradient(160deg,#0d47a1 0%,#1565c0 55%,#1e88e5 100%);
-    color:#fff; text-align:center; padding:52px 20px 44px;
+    color:#fff; padding:22px 20px 20px;
   }
-  header .logo { font-size:52px; line-height:1; filter:drop-shadow(0 4px 14px rgba(255,202,40,.45)); }
-  header h1 { margin-top:12px; font-size:32px; font-weight:800; letter-spacing:.5px; }
+  .hcontenu {
+    max-width:900px; margin:0 auto;
+    display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+  }
+  header .logo { font-size:34px; line-height:1; filter:drop-shadow(0 3px 10px rgba(255,202,40,.45)); }
+  header .titres { flex:1; min-width:200px; }
+  header h1 { font-size:23px; font-weight:800; letter-spacing:.4px; }
   header h1 span { font-weight:300; opacity:.9; }
   header p.tagline {
-    margin:12px auto 0; max-width:520px; font-size:15px; line-height:1.6;
-    color:rgba(255,255,255,.88);
+    margin-top:3px; font-size:13px; line-height:1.5; color:rgba(255,255,255,.85);
   }
   .badge {
-    display:inline-block; margin-top:16px; background:#ffca28; color:#5d4037;
-    font-size:12px; font-weight:800; letter-spacing:1px; text-transform:uppercase;
-    padding:5px 14px; border-radius:14px;
+    background:#ffca28; color:#5d4037; white-space:nowrap;
+    font-size:11px; font-weight:800; letter-spacing:.8px; text-transform:uppercase;
+    padding:5px 12px; border-radius:12px;
   }
 
-  main { flex:1; max-width:760px; width:100%; margin:0 auto; padding:28px 16px 40px; }
-  h2 { font-size:15px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase;
-       color:#90a4ae; margin:8px 0 14px; }
+  /* ---------- Onglets ---------- */
+  .onglets {
+    position:sticky; top:0; z-index:10;
+    background:#fff; border-bottom:1px solid #e0e6ed;
+    box-shadow:0 1px 8px rgba(13,71,161,.06);
+  }
+  .onglets-in {
+    max-width:900px; margin:0 auto; padding:0 16px;
+    display:flex; gap:4px; overflow-x:auto;
+  }
+  .onglet {
+    display:flex; align-items:center; gap:7px;
+    border:none; background:none; cursor:pointer;
+    padding:14px 14px 12px; font-size:14px; font-weight:700; color:#78909c;
+    border-bottom:3px solid transparent; white-space:nowrap;
+    transition:color .15s, border-color .15s;
+  }
+  .onglet:hover { color:#37474f; }
+  .onglet[aria-selected="true"] { color:#1565c0; border-bottom-color:#1565c0; }
+  .onglet .n {
+    background:#eceff1; color:#546e7a; font-size:11px; font-weight:800;
+    border-radius:9px; padding:2px 7px; min-width:20px; text-align:center;
+  }
+  .onglet[aria-selected="true"] .n { background:#e3f2fd; color:#1565c0; }
+  .onglet:focus-visible { outline:2px solid #1565c0; outline-offset:-3px; border-radius:6px; }
 
-  .grille { display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:14px; }
+  /* ---------- Grille de cartes ---------- */
+  main { flex:1; max-width:900px; width:100%; margin:0 auto; padding:20px 16px 32px; }
+  .panneau[hidden] { display:none; }
+  .grille { display:grid; grid-template-columns:repeat(auto-fill, minmax(228px, 1fr)); gap:12px; }
+
   .carte {
-    background:#fff; border:1px solid #e0e6ed; border-radius:16px; padding:18px;
-    display:flex; flex-direction:column; gap:8px; text-decoration:none; color:inherit;
-    transition:transform .15s, box-shadow .15s;
+    background:#fff; border:1px solid #e0e6ed; border-radius:14px; padding:15px;
+    display:flex; flex-direction:column; gap:6px; text-decoration:none; color:inherit;
+    transition:transform .15s, box-shadow .15s, border-color .15s;
   }
-  a.carte:hover { transform:translateY(-3px); box-shadow:0 8px 24px rgba(13,71,161,.14); }
-  .carte .ico { font-size:34px; line-height:1; }
-  .carte h3 { font-size:16px; font-weight:700; }
-  .carte p { font-size:13px; color:#546e7a; line-height:1.5; flex:1; }
-  .carte .niveau { font-size:11px; font-weight:700; color:#1565c0; }
+  a.carte:hover, a.carte:focus-visible {
+    transform:translateY(-3px); box-shadow:0 8px 22px rgba(13,71,161,.13);
+    border-color:#bbdefb; outline:none;
+  }
+  .carte .haut { display:flex; align-items:center; gap:9px; }
+  .carte .ico { font-size:25px; line-height:1; }
+  .carte h3 { font-size:15px; font-weight:700; flex:1; }
+  .carte p { font-size:12.5px; color:#546e7a; line-height:1.5; flex:1; }
+  .carte .bas { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:2px; }
+  .carte .niveau { font-size:10.5px; font-weight:700; color:#1565c0; }
   .carte .lancer {
-    margin-top:6px; align-self:flex-start; background:#1565c0; color:#fff;
-    font-size:13px; font-weight:700; padding:8px 18px; border-radius:9px;
+    background:#1565c0; color:#fff; white-space:nowrap;
+    font-size:12px; font-weight:700; padding:7px 14px; border-radius:8px;
   }
-  .carte.bientot { opacity:.62; }
+  .carte.bientot { opacity:.6; }
   .carte.bientot .lancer { background:#cfd8dc; color:#546e7a; }
+  .carte.bientot .niveau { color:#90a4ae; }
 
   .note {
-    margin-top:26px; background:#e3f2fd; border:1px solid #bbdefb; border-radius:14px;
-    padding:14px 16px; font-size:13.5px; line-height:1.6; color:#0d47a1;
+    margin-top:20px; background:#e3f2fd; border:1px solid #bbdefb; border-radius:12px;
+    padding:12px 14px; font-size:13px; line-height:1.55; color:#0d47a1;
   }
 
   footer {
-    text-align:center; font-size:12px; color:#90a4ae; padding:18px;
+    text-align:center; font-size:11.5px; color:#90a4ae; padding:16px;
     border-top:1px solid #e0e6ed; background:#fff; line-height:1.7;
   }
 
-  /* Thème sombre automatique (préférence du système) */
+  /* ---------- Thème sombre automatique ---------- */
   @media (prefers-color-scheme: dark) {
     body { background:#10181f; color:#eceff1; }
-    h2 { color:#78909c; }
+    .onglets { background:#1c262e; border-color:#2c3a45; box-shadow:0 1px 8px rgba(0,0,0,.3); }
+    .onglet { color:#78909c; }
+    .onglet:hover { color:#cfd8dc; }
+    .onglet[aria-selected="true"] { color:#64b5f6; border-bottom-color:#64b5f6; }
+    .onglet .n { background:#26313a; color:#90a4ae; }
+    .onglet[aria-selected="true"] .n { background:#0d2c4f; color:#64b5f6; }
     .carte { background:#1c262e; border-color:#2c3a45; }
     .carte h3 { color:#eceff1; }
     .carte p { color:#b0bec5; }
     .carte .niveau { color:#64b5f6; }
     .carte.bientot .lancer { background:#3a4a56; color:#b0bec5; }
-    a.carte:hover { box-shadow:0 8px 24px rgba(0,0,0,.5); }
+    a.carte:hover, a.carte:focus-visible { box-shadow:0 8px 22px rgba(0,0,0,.5); border-color:#1a4a7a; }
     .note { background:#0d2c4f; border-color:#1a4a7a; color:#bbdefb; }
     footer { background:#1c262e; border-color:#2c3a45; color:#78909c; }
   }
@@ -80,76 +122,98 @@
 <body>
 
 <header>
-  <div class="logo">⚡</div>
-  <h1>IKE <span>Simulations</span></h1>
-  <p class="tagline">
-    Des simulations interactives pour le collège — PCT et mathématiques,
-    légères, en français, utilisables sur téléphone et hors-ligne.
-  </p>
-  <div class="badge">Version de test</div>
+  <div class="hcontenu">
+    <div class="logo">⚡</div>
+    <div class="titres">
+      <h1>IKE <span>Simulations</span></h1>
+      <p class="tagline">
+        Simulations interactives pour le collège — légères, en français,
+        sur téléphone et hors-ligne.
+      </p>
+    </div>
+    <div class="badge">Version de test</div>
+  </div>
 </header>
 
+<nav class="onglets">
+  <div class="onglets-in" role="tablist" aria-label="Matières">
+    <button class="onglet" role="tab" aria-selected="true" aria-controls="p-pct" id="t-pct">
+      🔬 Physique-Chimie <span class="n">5</span>
+    </button>
+    <button class="onglet" role="tab" aria-selected="false" aria-controls="p-maths" id="t-maths">
+      📐 Mathématiques <span class="n">1</span>
+    </button>
+    <button class="onglet" role="tab" aria-selected="false" aria-controls="p-svt" id="t-svt">
+      🌱 SVT <span class="n">0</span>
+    </button>
+  </div>
+</nav>
+
 <main>
-  <h2>Physique · Chimie · Technologie</h2>
-  <div class="grille">
-    <a class="carte" href="simulations/circuit-electrique/index.html">
-      <div class="ico">💡</div>
-      <h3>Circuit électrique</h3>
-      <p>Construis des circuits, mesure l'intensité, découvre la série, le parallèle
-         et le court-circuit — guidé par 10 missions progressives.</p>
-      <div class="niveau">PCT · 6ᵉ → 3ᵉ</div>
-      <div class="lancer">Lancer ▶</div>
-    </a>
-    <a class="carte" href="simulations/optique/index.html">
-      <div class="ico">🔍</div>
-      <h3>Banc d'optique</h3>
-      <p>Rayons, ombres, chambre noire, lentille convergente et loupe —
-         12 missions qui suivent le programme, de la 5ᵉ à la 3ᵉ.</p>
-      <div class="niveau">PCT · 5ᵉ → 3ᵉ</div>
-      <div class="lancer">Lancer ▶</div>
-    </a>
-    <a class="carte" href="simulations/etats-matiere/index.html">
-      <div class="ico">🧊</div>
-      <h3>États de la matière</h3>
-      <p>Chauffe, refroidis et comprime 70 molécules : fusion, ébullition,
-         les fameux paliers de température, et la pression des gaz.</p>
-      <div class="niveau">PCT · 6ᵉ → 5ᵉ · Chimie</div>
-      <div class="lancer">Lancer ▶</div>
-    </a>
-    <a class="carte" href="simulations/molecules-3d/index.html">
-      <div class="ico">⚛️</div>
-      <h3>Molécules en 3D</h3>
-      <p>Tourne, zoome et touche les atomes de H₂O, CO₂, CH₄… Le tétraèdre du
-         méthane comme aucun dessin plat ne peut le montrer. (Prototype 3D)</p>
-      <div class="niveau">PCT · 4ᵉ · Chimie</div>
-      <div class="lancer">Lancer ▶</div>
-    </a>
-    <a class="carte" href="simulations/combustions/index.html">
-      <div class="ico">🔥</div>
-      <h3>Combustions vives</h3>
-      <p>Bougie sous cloche, jauge de dioxygène, test à l'eau de chaux, buée…
-         et le triangle du feu suivi en direct. La flamme meurt à 15 % d'O₂ !</p>
-      <div class="niveau">PCT · 6ᵉ · Chimie</div>
-      <div class="lancer">Lancer ▶</div>
-    </a>
+  <div class="panneau" id="p-pct" role="tabpanel" aria-labelledby="t-pct">
+    <div class="grille">
+      <a class="carte" href="simulations/circuit-electrique/index.html">
+        <div class="haut"><span class="ico">💡</span><h3>Circuit électrique</h3></div>
+        <p>Construis des circuits, mesure I et U, vérifie la loi d'Ohm — série,
+           parallèle et court-circuit. 15 missions.</p>
+        <div class="bas"><span class="niveau">PCT · 6ᵉ · 4ᵉ</span><span class="lancer">Lancer ▶</span></div>
+      </a>
+      <a class="carte" href="simulations/optique/index.html">
+        <div class="haut"><span class="ico">🔍</span><h3>Banc d'optique</h3></div>
+        <p>Rayons, ombres, chambre noire, lentille convergente et loupe.
+           Formules expliquées en direct. 12 missions.</p>
+        <div class="bas"><span class="niveau">PCT · 5ᵉ → 3ᵉ</span><span class="lancer">Lancer ▶</span></div>
+      </a>
+      <a class="carte" href="simulations/etats-matiere/index.html">
+        <div class="haut"><span class="ico">🧊</span><h3>États de la matière</h3></div>
+        <p>Chauffe et comprime 70 molécules : fusion, ébullition, paliers de
+           température… et le piston qui saute ! 13 missions.</p>
+        <div class="bas"><span class="niveau">Chimie · 6ᵉ · 5ᵉ</span><span class="lancer">Lancer ▶</span></div>
+      </a>
+      <a class="carte" href="simulations/combustions/index.html">
+        <div class="haut"><span class="ico">🔥</span><h3>Combustions vives</h3></div>
+        <p>Bougie sous cloche, jauge d'O₂, eau de chaux et triangle du feu.
+           La flamme meurt à 15 % ! 10 missions.</p>
+        <div class="bas"><span class="niveau">Chimie · 6ᵉ</span><span class="lancer">Lancer ▶</span></div>
+      </a>
+      <a class="carte" href="simulations/molecules-3d/index.html">
+        <div class="haut"><span class="ico">⚛️</span><h3>Molécules en 3D</h3></div>
+        <p>Tourne H₂O, CO₂, CH₄… puis assemble-les toi-même à partir de leur
+           formule. Vraie 3D. 14 missions.</p>
+        <div class="bas"><span class="niveau">Chimie · 4ᵉ</span><span class="lancer">Lancer ▶</span></div>
+      </a>
+    </div>
   </div>
 
-  <h2 style="margin-top:26px">Mathématiques</h2>
-  <div class="grille">
-    <a class="carte" href="simulations/transformations/index.html">
-      <div class="ico">🔺</div>
-      <h3>Transformations du plan</h3>
-      <p>Miroir, demi-tour, glissement, pivot : déplace l'axe ou le centre,
-         l'image se construit sous tes yeux. Les propriétés se vérifient en direct.</p>
-      <div class="niveau">Maths · 6ᵉ → 3ᵉ · Applications du plan</div>
-      <div class="lancer">Lancer ▶</div>
-    </a>
-    <div class="carte bientot">
-      <div class="ico">📊</div>
-      <h3>Organisation des données</h3>
-      <p>Tableaux d'effectifs, diagrammes, moyenne et fréquences.</p>
-      <div class="niveau">Maths · 6ᵉ → 3ᵉ</div>
-      <div class="lancer">Bientôt</div>
+  <div class="panneau" id="p-maths" role="tabpanel" aria-labelledby="t-maths" hidden>
+    <div class="grille">
+      <a class="carte" href="simulations/transformations/index.html">
+        <div class="haut"><span class="ico">🔺</span><h3>Transformations du plan</h3></div>
+        <p>Miroir, demi-tour, glissement, pivot : déplace l'axe ou le centre,
+           l'image se construit sous tes yeux. 12 missions.</p>
+        <div class="bas"><span class="niveau">Maths · 6ᵉ → 3ᵉ</span><span class="lancer">Lancer ▶</span></div>
+      </a>
+      <div class="carte bientot">
+        <div class="haut"><span class="ico">📊</span><h3>Organisation des données</h3></div>
+        <p>Tableaux d'effectifs, diagrammes, moyenne et fréquences.</p>
+        <div class="bas"><span class="niveau">Maths · 6ᵉ → 3ᵉ</span><span class="lancer">Bientôt</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panneau" id="p-svt" role="tabpanel" aria-labelledby="t-svt" hidden>
+    <div class="grille">
+      <div class="carte bientot">
+        <div class="haut"><span class="ico">🌿</span><h3>Besoins des végétaux</h3></div>
+        <p>Lumière, eau, sels minéraux : des expériences de plusieurs semaines,
+           en quelques minutes.</p>
+        <div class="bas"><span class="niveau">SVT · 5ᵉ</span><span class="lancer">Bientôt</span></div>
+      </div>
+      <div class="carte bientot">
+        <div class="haut"><span class="ico">🛡️</span><h3>Réactions immunitaires</h3></div>
+        <p>Microbes, barrières, phagocytose, anticorps et vaccination.</p>
+        <div class="bas"><span class="niveau">SVT · 3ᵉ</span><span class="lancer">Bientôt</span></div>
+      </div>
     </div>
   </div>
 
@@ -161,9 +225,40 @@
 </main>
 
 <footer>
-  IKE Simulations · Sciences au collège (Bénin)<br>
-  Gratuit et hors-ligne · Inspiré des simulations PhET · v2.8.0
+  IKE Simulations · Sciences et maths au collège (Bénin)<br>
+  Gratuit et hors-ligne · Inspiré des simulations PhET · v2.9.0
 </footer>
+
+<script>
+  // Onglets : un seul panneau visible, choix mémorisé
+  const onglets = [...document.querySelectorAll('.onglet')];
+
+  function activer(id) {
+    for (const o of onglets) {
+      const actif = o.id === id;
+      o.setAttribute('aria-selected', actif);
+      document.getElementById(o.getAttribute('aria-controls')).hidden = !actif;
+    }
+    try { localStorage.setItem('ike-accueil-onglet', id); } catch (e) {}
+  }
+
+  for (const o of onglets) {
+    o.addEventListener('click', () => activer(o.id));
+    // navigation au clavier (flèches), comme un vrai jeu d'onglets
+    o.addEventListener('keydown', e => {
+      const i = onglets.indexOf(o);
+      let j = null;
+      if (e.key === 'ArrowRight') j = (i + 1) % onglets.length;
+      if (e.key === 'ArrowLeft') j = (i - 1 + onglets.length) % onglets.length;
+      if (j !== null) { e.preventDefault(); onglets[j].focus(); activer(onglets[j].id); }
+    });
+  }
+
+  try {
+    const memo = localStorage.getItem('ike-accueil-onglet');
+    if (memo && document.getElementById(memo)) activer(memo);
+  } catch (e) {}
+</script>
 
 </body>
 </html>
