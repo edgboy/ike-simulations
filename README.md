@@ -29,8 +29,11 @@ IKE Simulations/
 ├── CHANGELOG.md                ← journal des versions (tags git + releases GitHub)
 ├── index.html                  ← page d'accueil / catalogue des simulations
 ├── docs/
-│   ├── journal-technique.md    ← décisions techniques (matière première du futur guide)
-│   └── programme-sa-pct.md     ← programme officiel PCT (SA par promotion)
+│   ├── guide-creation-simulations.md  ← LE guide : créer et intégrer une simulation IKE
+│   ├── journal-technique.md    ← décisions techniques et leurs raisons
+│   ├── programme-sa-pct.md     ← programme officiel PCT (SA par promotion)
+│   ├── programme-cursus.md     ← PCT + Maths + SVT (6ᵉ→3ᵉ) + propositions de simulations
+│   └── guides cursus/          ← guides officiels de l'enseignant (sources PDF/DOC)
 └── simulations/
     ├── circuit-electrique/
     │   └── index.html          ← simulation autonome : double-cliquer pour lancer
