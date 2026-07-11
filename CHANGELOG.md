@@ -5,6 +5,26 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v2.8.0 — 2026-07-07
+
+🔺 **Sixième simulation : Transformations du plan** — *IKE entre en mathématiques !*
+
+- SA « **Applications du plan** », présente dans **les quatre classes** (6ᵉ → 3ᵉ) : une seule
+  simulation sert tout le collège
+- **Les 4 transformations** : symétrie axiale (miroir), symétrie centrale (demi-tour),
+  translation (glissement), rotation (pivot). L'élève **fait glisser l'élément** (axe, centre,
+  vecteur) et l'image se reconstruit en direct, avec les **traits de construction** :
+  pointillés vers l'image, codage des distances égales, arcs de rotation, vecteurs fléchés
+- **Panneau 📐 des propriétés** : coordonnées de A et A′, égalité des longueurs (AB = A′B′),
+  conservation de l'aire, et le **sens** (conservé / inversé) — les théorèmes se vérifient
+  sous les yeux de l'élève au lieu d'être récités
+- **12 missions** dont deux moments-clés : « La grande découverte » (la rotation de 180° EST
+  la symétrie centrale) et le défi final (trouver le centre qui envoie A sur une cible donnée
+  — la propriété du milieu utilisée pour résoudre un problème)
+- Moteur géométrique validé par **22 tests** (points invariants, involution, conservation des
+  aires, orientation inversée par la symétrie axiale, composition de deux symétries = translation)
+- Accueil réorganisé en deux sections : PCT et Mathématiques
+
 ## v2.7.0 — 2026-07-07
 
 ⚡ **Circuit électrique v2 : le voltmètre et la loi d'Ohm** (4ᵉ SA1)

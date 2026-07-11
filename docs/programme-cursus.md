@@ -48,9 +48,9 @@ angles, **symétries et transformations du plan** (« applications du plan »), 
 pourcentages, statistiques (« organisation des données »), solides de l'espace, **théorème de Pythagore**,
 **théorème de Thalès**, racines carrées, équations, trigonométrie (3ᵉ).
 
-**Aucune simulation IKE pour l'instant.** Candidates naturelles (voir propositions ci-dessous) :
-les *applications du plan* (transformations géométriques) et l'*organisation des données* (statistiques),
-qui se prêtent magnifiquement à la manipulation interactive.
+**Couverture IKE** : 🔺 **Transformations du plan** (v2.8.0) couvre la SA « Applications du plan »
+**des quatre classes** (symétrie axiale, symétrie centrale, translation, rotation).
+Prochaine candidate : *Organisation des données* (SA4, les quatre classes également).
 
 ---
 

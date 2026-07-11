@@ -188,6 +188,31 @@ Le journal reste le « pourquoi », le guide est le « comment ».
 
 ---
 
+## Simulation 6 : Transformations du plan — première simulation de maths (2026-07, v2.8.0)
+
+### Décision : viser la SA présente dans les 4 classes
+- « Applications du plan » existe en 6ᵉ, 5ᵉ, 4ᵉ **et** 3ᵉ (voir `programme-cursus.md`) : une seule
+  simulation sert tout le collège. Meilleur effet de levier du catalogue.
+
+### Décision : c'est l'ÉLÉMENT qu'on manipule, pas la figure
+- **Choix** : la figure de départ est fixe ; l'élève fait glisser **l'axe, le centre ou le vecteur**,
+  et l'image se recalcule à chaque image.
+- **Pourquoi** : en géométrie, la difficulté n'est pas de bouger une figure, c'est de comprendre
+  **de quoi dépend l'image**. En manipulant l'élément caractéristique, l'élève éprouve directement
+  le rôle de l'axe/du centre/du vecteur. Les **traits de construction** (pointillés, codage des
+  distances, arcs) sont dessinés en permanence : ce sont exactement ceux du cahier.
+- **Le panneau 📐 fait la démonstration** : longueurs conservées, aires conservées, sens
+  conservé/inversé — recalculés à chaque geste. Le théorème devient une observation.
+
+### Ce que la première simulation de maths apprend au socle
+Le socle IKE fonctionne **hors sciences expérimentales** sans modification : missions-prédicats
+(ici : « le centre est en (2;2) », « 3 axes différents essayés », « l'image de A est en (14;8) »),
+leçons, diagnostics, visite, thèmes. Sixième validation, deuxième discipline.
+Les fonctions du modèle sont ici purement mathématiques (symétries, rotation, aire signée) — donc
+particulièrement faciles à tester : 22 tests Node, dont l'orientation et la composition de symétries.
+
+---
+
 ## Intégration plateforme (à compléter quand la plateforme sera choisie)
 
 Options gardées ouvertes par le format « un fichier autonome » :
