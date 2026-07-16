@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#0d47a1">
+<title>Atelier de molécules · IKE Simulations</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html, body { height:100%; overflow:hidden; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background:#f4f7fb; color:#263238;
+    display:flex; flex-direction:column;
+    user-select:none; -webkit-user-select:none; touch-action:manipulation;
+  }
+
+  /* ---------- En-tête ---------- */
+  header {
+    display:flex; align-items:center; gap:8px;
+    padding:8px 12px; background:#fff; border-bottom:1px solid #e0e6ed;
+    flex:none; z-index:5;
+  }
+  header .marque { display:flex; align-items:center; gap:7px; }
+  header .logo { font-size:19px; filter:drop-shadow(0 2px 5px rgba(255,202,40,.5)); }
+  header h1 { font-size:15px; font-weight:700; color:#1565c0; white-space:nowrap; }
+  header .spacer { flex:1; }
+  .btn {
+    border:1px solid #cfd8dc; background:#fff; color:#37474f;
+    border-radius:8px; padding:8px 10px; font-size:13px; font-weight:600;
+    cursor:pointer; white-space:nowrap; min-height:38px;
+  }
+  .btn:active { background:#e3f2fd; }
+  @media (max-width:640px) { .btn .lbl { display:none; } header h1 { display:none; } }
+
+  /* ---------- Scène ---------- */
+  #wrap { flex:1; position:relative; overflow:hidden; }
+  canvas#scene { position:absolute; inset:0; width:100%; height:100%; touch-action:none; display:block; }
+
+  /* Fiche d'identité de la molécule */
+  #fiche {
+    position:absolute; top:10px; left:10px; z-index:4;
+    background:rgba(255,255,255,.94); border:1px solid #cfd8dc; border-radius:12px;
+    padding:11px 13px; max-width:min(250px, 58vw);
+    box-shadow:0 3px 12px rgba(0,0,0,.12);
+  }
+  #fiche .formule { font-size:25px; font-weight:800; color:#263238; line-height:1.1; }
+  #fiche .nom { font-size:14px; font-weight:700; color:#2e7d32; margin-top:3px; }
+  #fiche .nom.inconnue { color:#90a4ae; font-weight:600; font-style:italic; }
+  #fiche .forme {
+    font-size:11.5px; font-weight:700; color:#1565c0; margin-top:5px;
+    text-transform:uppercase; letter-spacing:.4px;
+  }
+  #fiche .compo { margin-top:7px; display:flex; flex-direction:column; gap:2px; }
+  #fiche .lg { display:flex; align-items:center; gap:6px; font-size:11.5px; color:#546e7a; }
+  #fiche .pastille { width:11px; height:11px; border-radius:50%; border:1.5px solid rgba(0,0,0,.2); flex:none; }
+  #fiche .vide { font-size:12.5px; color:#90a4ae; line-height:1.5; }
+
+  /* Aide contextuelle */
+  #conseil {
+    position:absolute; top:10px; left:50%; transform:translateX(-50%) translateY(-6px);
+    background:rgba(21,101,192,.95); color:#fff; font-size:12.5px; font-weight:700;
+    padding:7px 15px; border-radius:18px; opacity:0; transition:opacity .2s, transform .2s;
+    z-index:6; white-space:nowrap; pointer-events:none; max-width:92vw;
+  }
+  #conseil.visible { opacity:1; transform:translateX(-50%) translateY(0); }
+
+  #toast {
+    position:absolute; bottom:14px; left:50%;
+    transform:translateX(-50%) translateY(10px) scale(.92);
+    background:#2e7d32; color:#fff; font-size:14px; font-weight:800;
+    padding:10px 20px; border-radius:22px; opacity:0; pointer-events:none;
+    transition:opacity .25s, transform .3s cubic-bezier(.34,1.56,.64,1);
+    box-shadow:0 6px 20px rgba(46,125,50,.4); z-index:6; white-space:nowrap; max-width:92vw;
+  }
+  #toast.visible { opacity:1; transform:translateX(-50%) translateY(0) scale(1); }
+  #toast.rouge { background:#c62828; box-shadow:0 6px 20px rgba(198,40,40,.4); }
+
+  /* Barre de l'atome sélectionné */
+  #selbar {
+    position:absolute; bottom:14px; left:50%; transform:translateX(-50%);
+    display:none; align-items:center; gap:8px; z-index:7;
+    background:#fff; border:1px solid #cfd8dc; border-radius:12px;
+    padding:7px 11px; box-shadow:0 4px 16px rgba(0,0,0,.2);
+  }
+  #selbar.visible { display:flex; }
+  #selbar .info { font-size:12.5px; font-weight:700; color:#37474f; white-space:nowrap; }
+  #selbar button {
+    border:none; border-radius:8px; padding:8px 12px; font-size:12.5px; font-weight:700;
+    cursor:pointer; background:#ffebee; color:#c62828; white-space:nowrap;
+  }
+
+  /* ---------- Palette d'atomes ---------- */
+  nav#palette {
+    flex:none; display:flex; justify-content:center; align-items:center; gap:7px;
+    padding:8px 10px calc(8px + env(safe-area-inset-bottom));
+    background:#fff; border-top:1px solid #e0e6ed; overflow-x:auto; z-index:5;
+  }
+  .abtn {
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    width:52px; height:52px; flex:none; border-radius:15px;
+    border:2px solid rgba(0,0,0,.14); cursor:pointer; line-height:1.15;
+    font-size:17px; font-weight:800;
+  }
+  .abtn:active { transform:scale(.94); }
+  .abtn small { font-size:9px; font-weight:700; opacity:.8; }
+  .sep { width:1px; height:34px; background:#e0e6ed; flex:none; margin:0 3px; }
+  #btn-vider {
+    height:52px; padding:0 13px; border-radius:15px; border:2px solid #ffcdd2;
+    background:#ffebee; color:#c62828; font-size:12.5px; font-weight:800;
+    cursor:pointer; white-space:nowrap; flex:none;
+  }
+
+  /* ---------- Voiles ---------- */
+  .voile {
+    position:fixed; inset:0; background:rgba(38,50,56,.6);
+    display:none; align-items:center; justify-content:center; z-index:20; padding:16px;
+  }
+  .voile.visible { display:flex; }
+  .voile .carte {
+    position:relative;
+    background:#fff; border-radius:16px; padding:22px; max-width:430px; width:100%;
+    max-height:86vh; overflow-y:auto; box-shadow:0 10px 40px rgba(0,0,0,.35);
+  }
+  .fermer-x {
+    position:absolute; top:8px; right:10px; border:none; background:none;
+    font-size:20px; line-height:1; color:#90a4ae; cursor:pointer; padding:6px 8px;
+  }
+  .voile h2 { font-size:18px; color:#1565c0; margin-bottom:14px; }
+  .voile .go {
+    width:100%; border:none; background:#1565c0; color:#fff; font-size:15px; font-weight:700;
+    padding:12px; border-radius:10px; cursor:pointer; margin-top:6px;
+  }
+  .etape { display:flex; gap:11px; margin-bottom:13px; align-items:flex-start; }
+  .etape .num {
+    flex:none; width:25px; height:25px; border-radius:50%; background:#e3f2fd;
+    color:#1565c0; font-size:12.5px; font-weight:800;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .etape .txt { font-size:13.5px; line-height:1.5; color:#37474f; }
+  .etape .txt b { color:#263238; }
+  .astuce {
+    background:#fff8e1; border:1px solid #ffe082; border-radius:10px;
+    padding:10px 12px; font-size:12.5px; line-height:1.5; color:#795548; margin-top:4px;
+  }
+
+  /* Catalogue */
+  .cat-grille { display:grid; grid-template-columns:repeat(auto-fill, minmax(120px, 1fr)); gap:8px; }
+  .cat-item {
+    border:1px solid #e0e6ed; background:#f4f7fb; border-radius:11px; padding:10px 8px;
+    cursor:pointer; text-align:center;
+  }
+  .cat-item:hover { border-color:#1565c0; background:#e3f2fd; }
+  .cat-item .f { font-size:16px; font-weight:800; color:#263238; }
+  .cat-item .n { font-size:10.5px; font-weight:600; color:#78909c; margin-top:2px; }
+
+  /* ---------- Thème sombre ---------- */
+  body.sombre { background:#0f1620; color:#eceff1; }
+  body.sombre header, body.sombre nav#palette { background:#1c262e; border-color:#2c3a45; }
+  body.sombre header h1 { color:#64b5f6; }
+  body.sombre .btn { background:#22303a; border-color:#3a4a56; color:#cfd8dc; }
+  body.sombre .btn:active { background:#0d2c4f; }
+  body.sombre .sep { background:#2c3a45; }
+  body.sombre #btn-vider { background:#3a1f22; border-color:#7a3b40; color:#ef9a9a; }
+  body.sombre #fiche { background:rgba(28,38,46,.95); border-color:#3a4a56; }
+  body.sombre #fiche .formule { color:#eceff1; }
+  body.sombre #fiche .nom { color:#81c784; }
+  body.sombre #fiche .nom.inconnue { color:#78909c; }
+  body.sombre #fiche .forme { color:#64b5f6; }
+  body.sombre #fiche .lg { color:#b0bec5; }
+  body.sombre #fiche .vide { color:#78909c; }
+  body.sombre #selbar { background:#1c262e; border-color:#3a4a56; }
+  body.sombre #selbar .info { color:#cfd8dc; }
+  body.sombre #selbar button { background:#3a1f22; color:#ef9a9a; }
+  body.sombre .voile .carte { background:#1c262e; }
+  body.sombre .voile h2 { color:#64b5f6; }
+  body.sombre .etape .num { background:#0d2c4f; color:#64b5f6; }
+  body.sombre .etape .txt { color:#cfd8dc; }
+  body.sombre .etape .txt b { color:#eceff1; }
+  body.sombre .astuce { background:#2b2618; border-color:#5d4d1a; color:#ffe082; }
+  body.sombre .cat-item { background:#22303a; border-color:#3a4a56; }
+  body.sombre .cat-item:hover { background:#0d2c4f; border-color:#64b5f6; }
+  body.sombre .cat-item .f { color:#eceff1; }
+  body.sombre .cat-item .n { color:#90a4ae; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="marque"><span class="logo">⚡</span><h1>Atelier de molécules</h1></div>
+  <div class="spacer"></div>
+  <button class="btn" id="btn-catalogue">🧪<span class="lbl"> Exemples</span></button>
+  <button class="btn" id="btn-doublets" title="Afficher les doublets non liants">👁<span class="lbl"> Doublets</span></button>
+  <button class="btn" id="btn-vue">⚪<span class="lbl"> Compacte</span></button>
+  <button class="btn" id="btn-theme">🌙</button>
+  <button class="btn" id="btn-aide">❓<span class="lbl"> Guide</span></button>
+</header>
+
+<div id="wrap">
+  <canvas id="scene"></canvas>
+  <div id="fiche"></div>
+  <div id="conseil"></div>
+  <div id="selbar">
+    <span class="info" id="sel-info"></span>
+    <button id="btn-retirer">🗑 Retirer</button>
+  </div>
+  <div id="toast"></div>
+</div>
+
+<nav id="palette"></nav>
+
+<div id="aide" class="voile">
+  <div class="carte">
+    <button class="fermer-x" id="btn-fermer-aide">✕</button>
+    <h2>⚗️ Construis tes molécules</h2>
+    <div class="etape">
+      <span class="num">1</span>
+      <span class="txt"><b>Ajoute des atomes</b> en touchant les pastilles colorées, en bas.
+        Le petit chiffre indique combien de liaisons l'atome peut faire.</span>
+    </div>
+    <div class="etape">
+      <span class="num">2</span>
+      <span class="txt"><b>Relie deux atomes</b> : touche le premier, puis le second.
+        Une liaison se crée — si leurs « bras » sont encore libres !</span>
+    </div>
+    <div class="etape">
+      <span class="num">3</span>
+      <span class="txt"><b>Touche une liaison</b> pour la faire passer en double, puis en triple
+        (indispensable pour O₂ ou CO₂).</span>
+    </div>
+    <div class="etape">
+      <span class="num">4</span>
+      <span class="txt"><b>Regarde la molécule prendre sa forme</b> toute seule, et lis sa fiche
+        d'identité en haut à gauche : formule, nom, géométrie.</span>
+    </div>
+    <div class="astuce">
+      🌀 <b>Glisse un doigt</b> pour tourner · 🤏 <b>pince</b> pour zoomer<br>
+      👁 <b>Doublets</b> montre les paires d'électrons libres — ce sont elles qui donnent
+      sa forme coudée à l'eau !<br>
+      🧪 <b>Exemples</b> construit une molécule d'un seul geste.
+    </div>
+    <button class="go" id="btn-go-aide">C'est parti !</button>
+  </div>
+</div>
+
+<div id="catalogue" class="voile">
+  <div class="carte">
+    <button class="fermer-x" id="btn-fermer-cat">✕</button>
+    <h2>🧪 Molécules d'exemple</h2>
+    <div class="cat-grille" id="cat-items"></div>
+  </div>
+</div>
+
+<script>
+/*__THREE_JS_ICI__*/
+</script>
+<script>
+'use strict';
+/* =====================================================================
+   ATELIER DE MOLÉCULES — construction libre, autonome et intégrable
+   ---------------------------------------------------------------------
+   L'élève ajoute des atomes et les relie. La molécule trouve SEULE sa
+   géométrie réelle par relaxation VSEPR (les doublets non liants sont
+   des particules invisibles qui repoussent) : l'eau sort coudée, le
+   méthane en tétraèdre, le CO₂ linéaire. Valeurs validées par tests.
+   ===================================================================== */
+
+/* ---------- 1. Données chimiques ---------- */
+
+const ATOMES = {
+  H:  { nom:'Hydrogène', couleur:0xf2f2f2, css:'#f2f2f2', txt:'#263238', r:0.32, valence:1, electrons:1 },
+  C:  { nom:'Carbone',   couleur:0x455a64, css:'#455a64', txt:'#fff',    r:0.72, valence:4, electrons:4 },
+  N:  { nom:'Azote',     couleur:0x42a5f5, css:'#42a5f5', txt:'#fff',    r:0.71, valence:3, electrons:5 },
+  O:  { nom:'Oxygène',   couleur:0xef5350, css:'#ef5350', txt:'#fff',    r:0.66, valence:2, electrons:6 },
+  S:  { nom:'Soufre',    couleur:0xfdd835, css:'#fdd835', txt:'#5d4037', r:1.05, valence:2, electrons:6 },
+  Cl: { nom:'Chlore',    couleur:0x66bb6a, css:'#66bb6a', txt:'#fff',    r:0.99, valence:1, electrons:7 },
+};
+const ORDRE_ATOMES = ['H', 'C', 'N', 'O', 'S', 'Cl'];
+
+// Molécules reconnues (clé = formule brute en notation de Hill)
+const CONNUES = {
+  'H₂':'dihydrogène', 'O₂':'dioxygène', 'N₂':'diazote', 'Cl₂':'dichlore',
+  'H₂O':'eau', 'H₂O₂':'peroxyde d’hydrogène (eau oxygénée)',
+  'CO₂':'dioxyde de carbone', 'CO':'monoxyde de carbone',
+  'CH₄':'méthane', 'NH₃':'ammoniac', 'HCl':'chlorure d’hydrogène',
+  'H₂S':'sulfure d’hydrogène', 'SO₂':'dioxyde de soufre',
+  'C₂H₆':'éthane', 'C₂H₄':'éthène (éthylène)', 'C₂H₂':'éthyne (acétylène)',
+  'C₃H₈':'propane', 'C₄H₁₀':'butane',
+  'CH₄O':'méthanol', 'C₂H₆O':'éthanol (alcool)',
+  'CH₂O':'méthanal (formol)', 'CH₃Cl':'chlorométhane', 'CCl₄':'tétrachlorométhane',
+  'NO':'monoxyde d’azote', 'NO₂':'dioxyde d’azote', 'N₂O':'protoxyde d’azote',
+};
+
+// Recettes du catalogue : [atomes], [liaisons a-b-ordre]
+const CATALOGUE = [
+  { f:'H₂O',  n:'eau',        at:['O','H','H'],               li:[[0,1,1],[0,2,1]] },
+  { f:'CO₂',  n:'dioxyde de carbone', at:['C','O','O'],       li:[[0,1,2],[0,2,2]] },
+  { f:'CH₄',  n:'méthane',    at:['C','H','H','H','H'],       li:[[0,1,1],[0,2,1],[0,3,1],[0,4,1]] },
+  { f:'NH₃',  n:'ammoniac',   at:['N','H','H','H'],           li:[[0,1,1],[0,2,1],[0,3,1]] },
+  { f:'O₂',   n:'dioxygène',  at:['O','O'],                   li:[[0,1,2]] },
+  { f:'N₂',   n:'diazote',    at:['N','N'],                   li:[[0,1,3]] },
+  { f:'C₂H₆', n:'éthane',     at:['C','C','H','H','H','H','H','H'],
+    li:[[0,1,1],[0,2,1],[0,3,1],[0,4,1],[1,5,1],[1,6,1],[1,7,1]] },
+  { f:'C₂H₄', n:'éthène',     at:['C','C','H','H','H','H'],
+    li:[[0,1,2],[0,2,1],[0,3,1],[1,4,1],[1,5,1]] },
+  { f:'C₂H₆O', n:'éthanol',   at:['C','C','O','H','H','H','H','H','H'],
+    li:[[0,1,1],[1,2,1],[0,3,1],[0,4,1],[0,5,1],[1,6,1],[1,7,1],[2,8,1]] },
+  { f:'CH₂O', n:'méthanal',   at:['C','O','H','H'],           li:[[0,1,2],[0,2,1],[0,3,1]] },
+  { f:'HCl',  n:'chlorure d’hydrogène', at:['H','Cl'],        li:[[0,1,1]] },
+  { f:'SO₂',  n:'dioxyde de soufre', at:['S','O','O'],        li:[[0,1,2],[0,2,2]] },
+];
+
+/* ---------- 2. Modèle : atomes, liaisons, VSEPR ---------- */
+
+const IND = ['₀','₁','₂','₃','₄','₅','₆','₇','₈','₉'];
+const indice = n => n <= 1 ? '' : String(n).split('').map(c => IND[+c]).join('');
+
+const etat = {
+  atomes: [],        // { sym, x, y, z, vx, vy, vz }
+  liaisons: [],      // { a, b, ordre }
+  selection: null,
+  vue: 'batonnets',  // batonnets | compacte
+  doublets: false,   // afficher les doublets non liants ?
+  theme: 'clair',
+};
+
+const ordreDe = i => etat.liaisons
+  .filter(l => l.a === i || l.b === i)
+  .reduce((s, l) => s + l.ordre, 0);
+const librePour = i => ATOMES[etat.atomes[i].sym].valence - ordreDe(i);
+const nbDoublets = i => {
+  const a = etat.atomes[i];
+  if (a.sym === 'H') return 0;
+  return Math.max(0, Math.round((ATOMES[a.sym].electrons - ordreDe(i)) / 2));
+};
+
+// Formule brute en notation de Hill : C, puis H, puis les autres par ordre alphabétique
+function formule() {
+  const c = {};
+  for (const a of etat.atomes) c[a.sym] = (c[a.sym] || 0) + 1;
+  const cles = Object.keys(c).sort();
+  const ordre = [];
+  if (c.C) ordre.push('C');
+  if (c.H) ordre.push('H');
+  for (const k of cles) if (k !== 'C' && k !== 'H') ordre.push(k);
+  return ordre.map(k => k + indice(c[k])).join('');
+}
+
+// Géométrie : nom de la forme selon le nombre de domaines de l'atome central
+function formeMolecule() {
+  const n = etat.atomes.length;
+  if (n < 2) return null;
+  if (n === 2) return 'linéaire';
+  // atome central = celui qui a le plus de liaisons
+  let central = 0, maxL = -1;
+  etat.atomes.forEach((a, i) => {
+    const nl = etat.liaisons.filter(l => l.a === i || l.b === i).length;
+    if (nl > maxL) { maxL = nl; central = i; }
+  });
+  if (maxL < 2) return 'linéaire';
+  const liaisonsC = maxL, dbl = nbDoublets(central);
+  const domaines = liaisonsC + dbl;
+  if (domaines === 2) return 'linéaire';
+  if (domaines === 3) return liaisonsC === 3 ? 'triangulaire plane' : 'coudée';
+  if (domaines === 4) {
+    if (liaisonsC === 4) return 'tétraédrique';
+    if (liaisonsC === 3) return 'pyramidale';
+    if (liaisonsC === 2) return 'coudée';
+  }
+  return null;
+}
+
+/* ---------- 3. Relaxation VSEPR (validée par tests) ---------- */
+
+const L_DOUBLET = 0.6;
+const K_LIAISON = 34, K_REP = 5.2, K_REP_DBL = 7.5, AMORTI = 0.82, CUTOFF = 8;
+
+let doubletsPos = [];   // positions des doublets (recalculées à chaque image)
+
+function relaxer(dt) {
+  const A = etat.atomes;
+  const n = A.length;
+  if (!n) { doubletsPos = []; return; }
+
+  // (re)construire les doublets si leur nombre a changé
+  const attendus = [];
+  A.forEach((a, i) => { for (let k = 0; k < nbDoublets(i); k++) attendus.push(i); });
+  if (doubletsPos.length !== attendus.length ||
+      doubletsPos.some((d, k) => d.parent !== attendus[k])) {
+    doubletsPos = attendus.map(i => ({
+      parent: i,
+      x: A[i].x + (Math.random() - .5), y: A[i].y + (Math.random() - .5), z: A[i].z + (Math.random() - .5),
+      vx: 0, vy: 0, vz: 0,
+    }));
+  }
+
+  const P = [...A.map(a => ({ ...a, dbl: false })), ...doubletsPos.map(d => ({ ...d, dbl: true, sym: null }))];
+  const ressorts = etat.liaisons.map(l => ({
+    i: l.a, j: l.b,
+    L0: (ATOMES[A[l.a].sym].r + ATOMES[A[l.b].sym].r) * (l.ordre === 1 ? 1.5 : l.ordre === 2 ? 1.35 : 1.25),
+  }));
+  doubletsPos.forEach((d, k) => ressorts.push({ i: d.parent, j: n + k, L0: L_DOUBLET }));
+
+  const voisins = P.map(() => new Set());
+  for (const r of ressorts) { voisins[r.i].add(r.j); voisins[r.j].add(r.i); }
+  const lies = new Set(ressorts.map(r => Math.min(r.i, r.j) + ':' + Math.max(r.i, r.j)));
+
+  // Un doublet ne repousse que ce qui est attaché à SON atome (règle VSEPR)
+  const doubletAgit = (i, j) => {
+    const a = P[i], b = P[j];
+    if (a.dbl && b.dbl) return a.parent === b.parent;
+    const d = a.dbl ? a : b, autre = a.dbl ? j : i;
+    return voisins[d.parent].has(autre);
+  };
+
+  const f = P.map(() => ({ x: 0, y: 0, z: 0 }));
+  for (const r of ressorts) {
+    const a = P[r.i], b = P[r.j];
+    let dx = b.x - a.x, dy = b.y - a.y, dz = b.z - a.z;
+    const L = Math.hypot(dx, dy, dz) || 1e-6;
+    const F = K_LIAISON * (L - r.L0);
+    dx /= L; dy /= L; dz /= L;
+    f[r.i].x += F * dx; f[r.i].y += F * dy; f[r.i].z += F * dz;
+    f[r.j].x -= F * dx; f[r.j].y -= F * dy; f[r.j].z -= F * dz;
+  }
+  for (let i = 0; i < P.length; i++) {
+    for (let j = i + 1; j < P.length; j++) {
+      if (lies.has(i + ':' + j)) continue;
+      const a = P[i], b = P[j];
+      if ((a.dbl || b.dbl) && !doubletAgit(i, j)) continue;
+      let dx = b.x - a.x, dy = b.y - a.y, dz = b.z - a.z;
+      let L = Math.hypot(dx, dy, dz) || 1e-6;
+      if (L > CUTOFF) continue;
+      L = Math.max(L, 0.45);
+      const F = ((a.dbl || b.dbl) ? K_REP_DBL : K_REP) / (L * L);
+      dx /= L; dy /= L; dz /= L;
+      f[i].x -= F * dx; f[i].y -= F * dy; f[i].z -= F * dz;
+      f[j].x += F * dx; f[j].y += F * dy; f[j].z += F * dz;
+    }
+  }
+
+  const h = Math.min(dt, 0.05);
+  for (let i = 0; i < P.length; i++) {
+    const cible = i < n ? A[i] : doubletsPos[i - n];
+    cible.vx = (cible.vx + f[i].x * h) * AMORTI;
+    cible.vy = (cible.vy + f[i].y * h) * AMORTI;
+    cible.vz = (cible.vz + f[i].z * h) * AMORTI;
+    cible.x += cible.vx * h; cible.y += cible.vy * h; cible.z += cible.vz * h;
+  }
+  // recentrer la molécule
+  let cx = 0, cy = 0, cz = 0;
+  for (const a of A) { cx += a.x; cy += a.y; cz += a.z; }
+  cx /= n; cy /= n; cz /= n;
+  for (const p of [...A, ...doubletsPos]) { p.x -= cx; p.y -= cy; p.z -= cz; }
+}
+
+/* ---------- 4. Actions ---------- */
+
+function ajouterAtome(sym) {
+  if (etat.atomes.length >= 20) { toast('Molécule déjà bien grande ! 🗑 Vider pour recommencer.', true); return; }
+  const a = Math.random() * 7, r = 1.6 + Math.random();
+  etat.atomes.push({
+    sym,
+    x: Math.cos(a) * r, y: (Math.random() - .5) * 2, z: Math.sin(a) * r,
+    vx: 0, vy: 0, vz: 0,
+  });
+  construireScene();
+  conseil(etat.atomes.length === 1
+    ? 'Ajoute un autre atome, puis touche les deux pour les relier !'
+    : 'Touche deux atomes l’un après l’autre pour les relier.');
+}
+
+function relier(i, j) {
+  if (i === j) return;
+  const dejaLa = etat.liaisons.find(l =>
+    (l.a === i && l.b === j) || (l.a === j && l.b === i));
+  if (dejaLa) { cyclerLiaison(dejaLa); return; }
+  if (librePour(i) < 1 || librePour(j) < 1) {
+    const plein = librePour(i) < 1 ? i : j;
+    const s = etat.atomes[plein].sym;
+    toast(`${ATOMES[s].nom} (${s}) n’a plus de liaison libre : il en fait ${ATOMES[s].valence} au maximum.`, true);
+    return;
+  }
+  etat.liaisons.push({ a: i, b: j, ordre: 1 });
+  construireScene();
+  const nom = CONNUES[formule()];
+  if (nom) toast(`✨ ${formule()} — c’est ${nom} !`);
+}
+
+function cyclerLiaison(l) {
+  const max = 1 + Math.min(librePour(l.a), librePour(l.b));
+  const suivant = l.ordre >= Math.min(3, max) ? 1 : l.ordre + 1;
+  if (suivant > 3) return;
+  if (suivant > l.ordre && (librePour(l.a) < 1 || librePour(l.b) < 1)) {
+    toast('Impossible : plus de liaison libre sur ces atomes.', true);
+    return;
+  }
+  l.ordre = suivant;
+  construireScene();
+  const noms = { 1:'simple', 2:'double', 3:'triple' };
+  toast(`Liaison ${noms[l.ordre]}`);
+}
+
+function retirerAtome(i) {
+  etat.liaisons = etat.liaisons.filter(l => l.a !== i && l.b !== i)
+    .map(l => ({ a: l.a > i ? l.a - 1 : l.a, b: l.b > i ? l.b - 1 : l.b, ordre: l.ordre }));
+  etat.atomes.splice(i, 1);
+  etat.selection = null;
+  doubletsPos = [];
+  construireScene();
+}
+
+function vider() {
+  etat.atomes = []; etat.liaisons = []; etat.selection = null; doubletsPos = [];
+  construireScene();
+  conseil('Touche une pastille colorée en bas pour ajouter un atome.');
+}
+
+function chargerRecette(rec) {
+  etat.atomes = rec.at.map((sym, k) => {
+    const a = (k / rec.at.length) * Math.PI * 2;
+    return { sym, x: Math.cos(a) * 1.8, y: (Math.random() - .5), z: Math.sin(a) * 1.8, vx:0, vy:0, vz:0 };
+  });
+  etat.liaisons = rec.li.map(([a, b, o]) => ({ a, b, ordre: o }));
+  etat.selection = null; doubletsPos = [];
+  construireScene();
+  fermerVoiles();
+  toast(`✨ ${rec.f} — ${rec.n}`);
+}
+
+/* ---------- 5. Scène 3D ---------- */
+
+const canvas = document.getElementById('scene');
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+camera.position.set(0, 0, 9);
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+const lum = new THREE.DirectionalLight(0xffffff, 0.8);
+lum.position.set(3, 4, 5); scene.add(lum);
+const groupe = new THREE.Group(); scene.add(groupe);
+
+const ECHELLE = 1.5;
+const geoCache = {}, matCache = {};
+const geoSphere = r => {
+  const k = r.toFixed(2);
+  if (!geoCache[k]) geoCache[k] = new THREE.SphereGeometry(r, 24, 16);
+  return geoCache[k];
+};
+const matAtome = sym => {
+  if (!matCache[sym]) matCache[sym] = new THREE.MeshPhongMaterial({ color: ATOMES[sym].couleur, shininess: 60 });
+  return matCache[sym];
+};
+const geoCyl = new THREE.CylinderGeometry(0.085, 0.085, 1, 10);
+const matLiaison = new THREE.MeshPhongMaterial({ color: 0x9e9e9e });
+const matDoublet = new THREE.MeshPhongMaterial({
+  color: 0xba68c8, transparent: true, opacity: 0.5, shininess: 30 });
+
+let meshAtomes = [], meshLiaisons = [];
+
+function construireScene() {
+  while (groupe.children.length) groupe.remove(groupe.children[0]);
+  meshAtomes = []; meshLiaisons = [];
+  const compacte = etat.vue === 'compacte';
+  etat.atomes.forEach((a, i) => {
+    const r = ATOMES[a.sym].r * ECHELLE * (compacte ? 1.7 : 1);
+    const m = new THREE.Mesh(geoSphere(r), matAtome(a.sym).clone());
+    m.userData = { type: 'atome', i };
+    groupe.add(m); meshAtomes.push(m);
+  });
+  if (!compacte) etat.liaisons.forEach((l, k) => {
+    for (let b = 0; b < l.ordre; b++) {
+      const m = new THREE.Mesh(geoCyl, matLiaison);
+      m.userData = { type: 'liaison', k, b };
+      groupe.add(m); meshLiaisons.push(m);
+    }
+  });
+  if (etat.doublets) doubletsPos.forEach(() => {
+    const m = new THREE.Mesh(geoSphere(0.22), matDoublet);
+    m.userData = { type: 'doublet' };
+    groupe.add(m);
+  });
+  majFiche();
+}
+
+// Place les meshes selon les positions du modèle (à chaque image)
+function placerMeshes() {
+  etat.atomes.forEach((a, i) => {
+    if (meshAtomes[i]) {
+      meshAtomes[i].position.set(a.x, a.y, a.z);
+      const sel = etat.selection === i;
+      meshAtomes[i].material.emissive = new THREE.Color(sel ? 0x554400 : 0x000000);
+    }
+  });
+  let idx = 0;
+  for (const l of etat.liaisons) {
+    const A = etat.atomes[l.a], B = etat.atomes[l.b];
+    if (!A || !B) continue;
+    const pa = new THREE.Vector3(A.x, A.y, A.z), pb = new THREE.Vector3(B.x, B.y, B.z);
+    const dir = new THREE.Vector3().subVectors(pb, pa);
+    const L = dir.length();
+    // décalage perpendiculaire pour les liaisons multiples
+    const perp = new THREE.Vector3(0, 1, 0).cross(dir).normalize();
+    if (perp.lengthSq() < 0.01) perp.set(1, 0, 0);
+    for (let b = 0; b < l.ordre; b++) {
+      const m = meshLiaisons[idx++];
+      if (!m) continue;
+      const off = (b - (l.ordre - 1) / 2) * 0.24;
+      m.position.copy(pa).add(pb).multiplyScalar(0.5).addScaledVector(perp, off);
+      m.scale.y = L;
+      m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.clone().normalize());
+    }
+  }
+  if (etat.doublets) {
+    const dm = groupe.children.filter(c => c.userData.type === 'doublet');
+    doubletsPos.forEach((d, k) => { if (dm[k]) dm[k].position.set(d.x, d.y, d.z); });
+  }
+}
+
+function redimensionner() {
+  const wrap = document.getElementById('wrap');
+  const w = wrap.clientWidth, h = wrap.clientHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+}
+
+let tPrec = 0;
+function boucle(t) {
+  const dt = Math.min(0.05, (t - tPrec) / 1000 || 0.016);
+  tPrec = t;
+  relaxer(dt);
+  if (etat.doublets && groupe.children.filter(c => c.userData.type === 'doublet').length !== doubletsPos.length)
+    construireScene();
+  placerMeshes();
+  if (!doigt.actif) groupe.rotation.y += 0.22 * dt;
+  renderer.render(scene, camera);
+  requestAnimationFrame(boucle);
+}
+
+/* ---------- 6. Interactions ---------- */
+
+const doigt = { actif: false, x: 0, y: 0, depX: 0, depY: 0 };
+const pointeurs = new Map();
+let distPince = 0;
+
+canvas.addEventListener('pointerdown', e => {
+  e.preventDefault();
+  canvas.setPointerCapture(e.pointerId);
+  pointeurs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (pointeurs.size === 1) {
+    doigt.actif = true;
+    doigt.x = doigt.depX = e.clientX; doigt.y = doigt.depY = e.clientY;
+  } else if (pointeurs.size === 2) {
+    const [a, b] = [...pointeurs.values()];
+    distPince = Math.hypot(a.x - b.x, a.y - b.y);
+  }
+});
+
+canvas.addEventListener('pointermove', e => {
+  if (!pointeurs.has(e.pointerId)) return;
+  pointeurs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (pointeurs.size === 2) {
+    const [a, b] = [...pointeurs.values()];
+    const d = Math.hypot(a.x - b.x, a.y - b.y);
+    if (distPince > 0) camera.position.z = Math.max(4, Math.min(16, camera.position.z * distPince / d));
+    distPince = d;
+    return;
+  }
+  if (!doigt.actif) return;
+  const dx = e.clientX - doigt.x, dy = e.clientY - doigt.y;
+  doigt.x = e.clientX; doigt.y = e.clientY;
+  groupe.rotation.y += dx * 0.011;
+  groupe.rotation.x = Math.max(-1.4, Math.min(1.4, groupe.rotation.x + dy * 0.011));
+});
+
+canvas.addEventListener('pointerup', e => {
+  const d = Math.hypot(e.clientX - doigt.depX, e.clientY - doigt.depY);
+  pointeurs.delete(e.pointerId);
+  if (pointeurs.size === 0) doigt.actif = false;
+  if (d < 9) toucher(e);
+});
+canvas.addEventListener('pointercancel', e => { pointeurs.delete(e.pointerId); doigt.actif = false; });
+canvas.addEventListener('contextmenu', e => e.preventDefault());
+
+const rayon = new THREE.Raycaster();
+const ndc = new THREE.Vector2();
+
+function toucher(e) {
+  const r = canvas.getBoundingClientRect();
+  ndc.x = ((e.clientX - r.left) / r.width) * 2 - 1;
+  ndc.y = -((e.clientY - r.top) / r.height) * 2 + 1;
+  rayon.setFromCamera(ndc, camera);
+  const hits = rayon.intersectObjects(groupe.children)
+    .filter(h => h.object.userData.type === 'atome' || h.object.userData.type === 'liaison');
+  if (!hits.length) { deselectionner(); return; }
+  const o = hits[0].object.userData;
+  if (o.type === 'liaison') {
+    cyclerLiaison(etat.liaisons[o.k]);
+    deselectionner();
+    return;
+  }
+  if (etat.selection === null) selectionner(o.i);
+  else if (etat.selection === o.i) deselectionner();
+  else { relier(etat.selection, o.i); deselectionner(); }
+}
+
+function selectionner(i) {
+  etat.selection = i;
+  const a = etat.atomes[i], A = ATOMES[a.sym];
+  const libre = librePour(i);
+  document.getElementById('sel-info').textContent =
+    `${A.nom} (${a.sym}) · ${libre} liaison${libre > 1 ? 's' : ''} libre${libre > 1 ? 's' : ''}`;
+  document.getElementById('selbar').classList.add('visible');
+  conseil('Touche un autre atome pour les relier.');
+}
+function deselectionner() {
+  etat.selection = null;
+  document.getElementById('selbar').classList.remove('visible');
+}
+document.getElementById('btn-retirer').addEventListener('click', () => {
+  if (etat.selection !== null) retirerAtome(etat.selection);
+  deselectionner();
+});
+
+/* ---------- 7. Palette ---------- */
+
+const palette = document.getElementById('palette');
+for (const sym of ORDRE_ATOMES) {
+  const A = ATOMES[sym];
+  const b = document.createElement('button');
+  b.className = 'abtn';
+  b.style.background = A.css; b.style.color = A.txt;
+  b.innerHTML = `${sym}<small>${A.valence} liaison${A.valence > 1 ? 's' : ''}</small>`;
+  b.title = `${A.nom} — ${A.valence} liaison(s)`;
+  b.addEventListener('click', () => ajouterAtome(sym));
+  palette.appendChild(b);
+}
+const sep = document.createElement('div'); sep.className = 'sep'; palette.appendChild(sep);
+const bVider = document.createElement('button');
+bVider.id = 'btn-vider'; bVider.textContent = '🗑 Vider';
+bVider.addEventListener('click', vider);
+palette.appendChild(bVider);
+
+/* ---------- 8. Fiche d'identité ---------- */
+
+function majFiche() {
+  const f = document.getElementById('fiche');
+  if (!etat.atomes.length) {
+    f.innerHTML = '<div class="vide">Touche une pastille colorée en bas pour poser ton premier atome ⚛️</div>';
+    return;
+  }
+  const fo = formule();
+  const nom = CONNUES[fo];
+  const compo = {};
+  for (const a of etat.atomes) compo[a.sym] = (compo[a.sym] || 0) + 1;
+  const forme = formeMolecule();
+  const l = [`<div class="formule">${fo}</div>`];
+  l.push(nom
+    ? `<div class="nom">${nom}</div>`
+    : `<div class="nom inconnue">${etat.liaisons.length ? 'molécule inconnue' : 'atomes non reliés'}</div>`);
+  if (forme && etat.liaisons.length) l.push(`<div class="forme">forme ${forme}</div>`);
+  l.push('<div class="compo">');
+  for (const [sym, n] of Object.entries(compo))
+    l.push(`<div class="lg"><span class="pastille" style="background:${ATOMES[sym].css}"></span>` +
+      `${n} × ${ATOMES[sym].nom.toLowerCase()}</div>`);
+  const libres = etat.atomes.reduce((s, a, i) => s + librePour(i), 0);
+  l.push(`<div class="lg">${etat.atomes.length} atomes · ${etat.liaisons.length} liaison(s)` +
+    (libres ? ` · ${libres} bras libre(s)` : ' · tous liés ✓') + '</div>');
+  l.push('</div>');
+  f.innerHTML = l.join('');
+}
+
+/* ---------- 9. Boutons ---------- */
+
+let conseilTimer = null;
+function conseil(msg) {
+  const c = document.getElementById('conseil');
+  c.textContent = msg;
+  c.classList.add('visible');
+  clearTimeout(conseilTimer);
+  conseilTimer = setTimeout(() => c.classList.remove('visible'), 3200);
+}
+let toastTimer = null;
+function toast(msg, rouge) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.toggle('rouge', !!rouge);
+  t.classList.add('visible');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('visible'), 2400);
+}
+function fermerVoiles() {
+  for (const v of document.querySelectorAll('.voile')) v.classList.remove('visible');
+}
+for (const v of document.querySelectorAll('.voile'))
+  v.addEventListener('click', e => { if (e.target === v) v.classList.remove('visible'); });
+
+const aide = document.getElementById('aide');
+document.getElementById('btn-aide').addEventListener('click', () => aide.classList.add('visible'));
+document.getElementById('btn-fermer-aide').addEventListener('click', fermerVoiles);
+document.getElementById('btn-go-aide').addEventListener('click', () => {
+  fermerVoiles();
+  try { localStorage.setItem('ike-atelier-guide', '1'); } catch (e) {}
+});
+
+const catItems = document.getElementById('cat-items');
+for (const rec of CATALOGUE) {
+  const b = document.createElement('button');
+  b.className = 'cat-item';
+  b.innerHTML = `<div class="f">${rec.f}</div><div class="n">${rec.n}</div>`;
+  b.addEventListener('click', () => chargerRecette(rec));
+  catItems.appendChild(b);
+}
+document.getElementById('btn-catalogue').addEventListener('click', () =>
+  document.getElementById('catalogue').classList.add('visible'));
+document.getElementById('btn-fermer-cat').addEventListener('click', fermerVoiles);
+
+const btnVue = document.getElementById('btn-vue');
+btnVue.addEventListener('click', () => {
+  etat.vue = etat.vue === 'compacte' ? 'batonnets' : 'compacte';
+  btnVue.innerHTML = etat.vue === 'compacte'
+    ? '🔗<span class="lbl"> Bâtonnets</span>' : '⚪<span class="lbl"> Compacte</span>';
+  construireScene();
+  toast(etat.vue === 'compacte' ? '⚪ Modèle compact : les atomes se touchent' : '🔗 Boules et bâtonnets');
+});
+
+const btnDbl = document.getElementById('btn-doublets');
+btnDbl.addEventListener('click', () => {
+  etat.doublets = !etat.doublets;
+  btnDbl.style.background = etat.doublets ? '#f3e5f5' : '';
+  btnDbl.style.borderColor = etat.doublets ? '#ba68c8' : '';
+  construireScene();
+  toast(etat.doublets
+    ? '👁 Doublets non liants affichés (violets) — ce sont eux qui plient la molécule !'
+    : 'Doublets masqués');
+});
+
+function appliquerTheme() {
+  document.body.classList.toggle('sombre', etat.theme === 'sombre');
+  document.getElementById('btn-theme').textContent = etat.theme === 'sombre' ? '☀️' : '🌙';
+}
+document.getElementById('btn-theme').addEventListener('click', () => {
+  etat.theme = etat.theme === 'sombre' ? 'clair' : 'sombre';
+  try { localStorage.setItem('ike-theme', etat.theme); } catch (e) {}
+  appliquerTheme();
+});
+try {
+  const memo = localStorage.getItem('ike-theme');
+  if (memo === 'sombre' || memo === 'clair') etat.theme = memo;
+  else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
+    etat.theme = 'sombre';
+} catch (e) {}
+
+/* ---------- Démarrage ---------- */
+window.addEventListener('resize', redimensionner);
+redimensionner();
+appliquerTheme();
+// On démarre sur une molécule d'eau : la scène n'est jamais vide (utile en démo)
+chargerRecette(CATALOGUE[0]);
+requestAnimationFrame(boucle);
+
+try {
+  if (!localStorage.getItem('ike-atelier-guide')) aide.classList.add('visible');
+} catch (e) { aide.classList.add('visible'); }
+</script>
+</body>
+</html>

@@ -5,6 +5,28 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v3.0.0 — 2026-07-07
+
+⚗️ **Atelier de molécules — simulation autonome, intégrable et sans parcours imposé.**
+
+Pensée pour être **intégrée à un autre site** (présentation, page de démo) : voir
+[`docs/integration-atelier-molecules.md`](docs/integration-atelier-molecules.md) et son snippet iframe.
+
+- **Construction libre** : ajouter des atomes (H, C, N, O, S, Cl), les relier, cycler les
+  liaisons simple → double → triple. La **valence est respectée** : impossible de construire
+  une molécule chimiquement absurde (message explicatif à l'appui).
+- **Moteur VSEPR : la géométrie réelle émerge de la physique** — les doublets non liants sont
+  simulés comme des particules invisibles qui repoussent. Résultats validés par tests contre
+  les valeurs réelles : CH₄ **109,5°** (tétraèdre), CO₂ **180,0°** (linéaire), H₂O **101,5°**
+  (coudée — et non linéaire !), NH₃ **103,7°** (pyramidale).
+- **👁 Doublets** : bouton qui révèle les paires d'électrons libres — la réponse visuelle
+  au « pourquoi l'eau est-elle coudée ? »
+- **Fiche d'identité en direct** : formule brute (Hill), nom parmi **28 molécules connues**,
+  forme géométrique, composition, bras libres restants.
+- **🧪 Exemples** : 12 recettes construites d'un seul geste (idéal en démo), **guide intégré**
+  en 4 étapes, vue boules-bâtonnets ⇄ compacte, thème clair/sombre, rotation et zoom tactiles.
+- Fichier unique de 0,61 Mo, hors-ligne, iframe-friendly.
+
 ## v2.9.0 — 2026-07-07
 
 🏠 **Page d'accueil réorganisée en onglets** — l'espace est optimisé, le catalogue se scanne d'un coup d'œil.
