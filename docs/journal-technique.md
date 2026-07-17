@@ -213,6 +213,32 @@ particulièrement faciles à tester : 22 tests Node, dont l'orientation et la co
 
 ---
 
+## Revue « Labo-Bénin » (2026-07, v3.1.0) — le socle change de génération
+
+La vision produit (`docs/references/vision-labo-benin.pdf`) redéfinit la cible :
+approche **notionnelle** (« Concept-First », pas de récits), interface 90 % manipulation /
+10 % texte, deux volets par simulation (🎓 Apprendre guidé / 🧪 Expérimenter libre),
+et à terme une application Élève (mobile) + une plateforme Enseignant (démonstration).
+
+### Décisions de cette revue
+- **L'atelier de molécules retravaillé par l'équipe devient la référence** du futur socle :
+  missions `intro → étapes vérifiées en direct → QCM`, déverrouillage séquentiel des missions,
+  fiche notion avec lexique contextuel (`docs/references/exemple-uiux-atelier-2026-07.htm`).
+- **Verrou de progression** : Expérimenter (bac à sable) se mérite — visible dès l'entrée,
+  déverrouillé à la fin du parcours. Appliqué aux 7 simulations.
+- **Modales indépendantes** : règle générale — un bouton de fermeture ne ferme QUE sa modale ;
+  le lexique s'empile au-dessus (z-index dédié). `fermerVoiles()` est réservé aux transitions.
+- **Bug liaison triple** : `max = ordre_actuel + min(bras_libres)` (et non `1 + min`) —
+  leçon : tester chaque chemin d'un cycle d'états, pas seulement le premier passage.
+
+### Chantier ouvert (prochaines versions)
+- Migrer les 6 simulations à missions vers la structure complète de l'exemple
+  (fiches notion, QCM « Je m'évalue », déverrouillage séquentiel).
+- R&D : drag & drop des atomes avec snap magnétique (identité propre, sans copier PhET).
+- Mode Enseignant (masquage/révélation, saisie précise, superposition théorique).
+
+---
+
 ## Intégration plateforme (à compléter quand la plateforme sera choisie)
 
 Options gardées ouvertes par le format « un fichier autonome » :

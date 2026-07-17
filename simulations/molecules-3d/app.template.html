@@ -243,6 +243,23 @@
   .mrow.courante { outline:2px solid #1565c0; background:#e3f2fd; }
   .mrow .t { flex:1; }
 
+  /* ---------- Choix du mode : Apprendre / Expérimenter ---------- */
+  #mlexique { z-index:26; }             /* le lexique s'empile au-dessus des modales */
+  #tab-exp.verrouille { opacity:.55; }
+  #choix-mode .deux { display:flex; flex-direction:column; gap:12px; }
+  .gros-btn {
+    display:flex; align-items:center; gap:14px; width:100%;
+    border:2px solid #cfd8dc; background:#f4f7fb; border-radius:14px;
+    padding:15px 16px; cursor:pointer; text-align:left;
+  }
+  .gros-btn:active { background:#e3f2fd; }
+  .gros-btn .gi { font-size:30px; flex:none; }
+  .gros-btn .gt { font-size:16px; font-weight:800; color:#263238; }
+  .gros-btn .gs { font-size:12px; color:#78909c; line-height:1.45; display:block; margin-top:2px; }
+  .gros-btn.verrouille { opacity:.55; }
+  body.sombre .gros-btn { background:#22303a; border-color:#3a4a56; }
+  body.sombre .gros-btn .gt { color:#eceff1; }
+
   /* ---------- Visite guidée ---------- */
   #visite { position:fixed; inset:0; z-index:30; display:none; }
   #visite.sombre { background:rgba(38,50,56,.62); }
@@ -317,12 +334,13 @@
   <div class="nom">IKE <span>Simulations</span></div>
   <div class="sub">Sciences au collège</div>
   <div class="barre"><div class="rempl"></div></div>
-  <div class="ver">v2.7.0 · 3D</div>
+  <div class="ver">v3.1.0 · 3D</div>
 </div>
 
 <header>
   <h1>⚛️ Molécules en 3D</h1>
   <div class="spacer"></div>
+  <button class="btn" id="tab-exp">🧪<span class="lbl"> Expérimenter</span></button>
   <button class="btn" id="btn-vue">⚪<span class="lbl"> Compacte</span></button>
   <button class="btn" id="btn-formule">📐<span class="lbl"> Infos</span></button>
   <button class="btn" id="btn-theme">🌙<span class="lbl"> Sombre</span></button>
@@ -400,6 +418,22 @@
     <button class="btn2" id="btn-libre">🧪 Mode libre — explore toutes les molécules</button>
     <button class="go" id="btn-fermer-liste">Fermer</button>
     <button class="lien" id="btn-reset-prog">↺ Réinitialiser tout le parcours</button>
+  </div>
+</div>
+
+<div id="choix-mode" class="voile">
+  <div class="carte">
+    <h2>⚡ Que veux-tu faire ?</h2>
+    <div class="deux">
+      <button class="gros-btn" id="choix-apprendre">
+        <span class="gi">🎓</span>
+        <span><span class="gt">Apprendre</span><span class="gs">Le parcours guidé, mission par mission — recommandé pour commencer.</span></span>
+      </button>
+      <button class="gros-btn" id="choix-experimenter">
+        <span class="gi">🧪</span>
+        <span><span class="gt">Expérimenter</span><span class="gs" id="gs-exp"></span></span>
+      </button>
+    </div>
   </div>
 </div>
 
@@ -864,7 +898,9 @@ function ouvrirLexique() {
   }
   document.getElementById('mlexique').classList.add('visible');
 }
-document.getElementById('btn-fermer-lexique').addEventListener('click', fermerVoiles);
+// Modales indépendantes : fermer le lexique ne ferme QUE le lexique
+document.getElementById('btn-fermer-lexique').addEventListener('click', () =>
+  document.getElementById('mlexique').classList.remove('visible'));
 
 /* =====================================================================
    8. PARCOURS PÉDAGOGIQUE — 4ᵉ SA2 & SA4
@@ -1240,7 +1276,11 @@ function ouvrirListe() {
 }
 
 document.getElementById('btn-missions').addEventListener('click', ouvrirListe);
-document.getElementById('btn-libre').addEventListener('click', () => allerMission('libre'));
+document.getElementById('btn-libre').addEventListener('click', () => {
+  if (!experimenterDebloque()) { toast(MSG_VERROU); return; }
+  allerMission('libre');
+  majTabExp();
+});
 document.getElementById('btn-fermer-liste').addEventListener('click', fermerVoiles);
 
 const btnResetProg = document.getElementById('btn-reset-prog');
@@ -1315,6 +1355,62 @@ const VISITE = [
 ];
 let visiteIdx = -1;
 const visiteEl = document.getElementById('visite');
+
+/* ---------- Apprendre / Expérimenter (verrou de progression) ---------- */
+
+const MSG_VERROU = '🔒 Termine d’abord toutes les missions d’apprentissage avant d’accéder au mode Expérimenter.';
+const experimenterDebloque = () => progression.faites.length >= MISSIONS.length;
+const prochaineMission = () => {
+  for (let i = 0; i < MISSIONS.length; i++) if (!progression.faites.includes(i)) return i;
+  return 0;
+};
+
+function majTabExp() {
+  const b = document.getElementById('tab-exp');
+  const libre = progression.m === 'libre';
+  const ok = experimenterDebloque();
+  const html = libre
+    ? '🎓<span class="lbl"> Apprendre</span>'
+    : (ok ? '🧪' : '🔒') + '<span class="lbl"> Expérimenter</span>';
+  if (b.dataset.prec !== html) { b.dataset.prec = html; b.innerHTML = html; }
+  b.classList.toggle('verrouille', !libre && !ok);
+}
+setInterval(majTabExp, 1500);
+
+document.getElementById('tab-exp').addEventListener('click', () => {
+  if (progression.m === 'libre') allerMission(prochaineMission());
+  else if (!experimenterDebloque()) toast(MSG_VERROU);
+  else allerMission('libre');
+  majTabExp();
+});
+
+function entrerApprendre() {
+  document.getElementById('choix-mode').classList.remove('visible');
+  if (progression.m === 'libre') { allerMission(prochaineMission()); majTabExp(); return; }
+  majTabExp();
+  try {
+    if (!localStorage.getItem('ike-mol3d-visite')) { lancerVisite(); return; }
+  } catch (e) { lancerVisite(); return; }
+  if (typeof ouvrirLecon === 'function' && missionCourante() && progression.etape === 0) ouvrirLecon();
+}
+
+function ouvrirChoixMode() {
+  // un ancien « mode libre » sauvegardé sans déblocage n'est plus valable
+  if (progression.m === 'libre' && !experimenterDebloque()) allerMission(prochaineMission());
+  const ok = experimenterDebloque();
+  document.getElementById('gs-exp').textContent = ok
+    ? 'Le bac à sable : tous les outils, aucune consigne.'
+    : `Se débloque à la fin du parcours (${progression.faites.length}/${MISSIONS.length} missions réussies).`;
+  document.getElementById('choix-experimenter').classList.toggle('verrouille', !ok);
+  document.getElementById('choix-mode').classList.add('visible');
+}
+document.getElementById('choix-apprendre').addEventListener('click', entrerApprendre);
+document.getElementById('choix-experimenter').addEventListener('click', () => {
+  if (!experimenterDebloque()) { toast(MSG_VERROU); return; }
+  document.getElementById('choix-mode').classList.remove('visible');
+  allerMission('libre');
+  majTabExp();
+});
 
 function lancerVisite() {
   fermerVoiles();
@@ -1416,10 +1512,7 @@ setTimeout(() => {
   const s = document.getElementById('splash');
   s.classList.add('fini');
   setTimeout(() => s.remove(), 600);
-  try {
-    if (!localStorage.getItem('ike-mol3d-visite')) lancerVisite();
-    else if (missionCourante() && progression.etape === 0) ouvrirLecon();
-  } catch (e) { lancerVisite(); }
+  ouvrirChoixMode();   // écran d'entrée : Apprendre / Expérimenter
 }, 1400);
 </script>
 </body>

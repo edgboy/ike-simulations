@@ -5,6 +5,37 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v3.1.0 — 2026-07-17
+
+🎓 **Revue générale : le modèle « Apprendre / Expérimenter » entre dans toutes les simulations**
+(aligné sur la vision « Labo-Bénin » — `docs/references/vision-labo-benin.pdf`).
+
+**Atelier de molécules** (retiré du catalogue en ligne pour l'instant, conservé dans le dépôt)
+- La **version retravaillée par l'équipe** devient la base officielle : missions structurées
+  Introduction → Réalisation guidée → QCM « Je m'évalue », déverrouillage séquentiel,
+  fiches notion avec lexique contextuel — c'est la référence UI/UX du futur socle
+- 🔴 **Mode Expérimenter verrouillé** tant que le parcours n'est pas terminé, avec le message
+  explicatif et le déblocage automatique (+ toast « Mode Expérimenter débloqué ! »)
+- 🔴 **Modales indépendantes** : fermer le lexique ne ferme plus la modale de mission
+  en dessous (fermeture scopée + empilement z-index)
+- 🟡 **Bug de la liaison triple corrigé** : l'ordre maximal se calcule désormais à partir de
+  l'ordre actuel + bras libres — le passage double → triple (N≡N) fonctionne
+
+**Les 6 simulations à missions** (circuit, optique, états de la matière, combustions,
+transformations, molécules 3D)
+- 🔴 **Écran d'entrée « Que veux-tu faire ? »** : deux grands boutons 🎓 Apprendre /
+  🧪 Expérimenter. Expérimenter est **visible mais verrouillé** tant que toutes les missions
+  ne sont pas réussies (« Se débloque à la fin du parcours (3/12 missions réussies) ») ;
+  tenté trop tôt → « Termine d'abord toutes les missions d'apprentissage… »
+- **Onglet de bascule dans l'en-tête** (🔒/🧪 Expérimenter ⇄ 🎓 Apprendre), visible en
+  permanence pour montrer que le second mode existe ; verrou rétroactif sur les anciennes
+  progressions « mode libre »
+- 🔴 **Modales indépendantes** : la croix du lexique ne ferme que le lexique
+- 🟡 Le temps d'observation après une mission réussie est conservé (comportement validé)
+
+**R&D notée** : prototype drag & drop des atomes avec assemblage magnétique (snap), à
+évaluer sans copier PhET — voir feuille de route.
+
 ## v3.0.0 — 2026-07-07
 
 ⚗️ **Atelier de molécules — simulation autonome, intégrable et sans parcours imposé.**
