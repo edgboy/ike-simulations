@@ -342,7 +342,11 @@
     background:#2e7d32 !important; border-color:#2e7d32 !important;
     color:#fff !important; font-weight:800; white-space:nowrap; display:none;
   }
-  #btn-continuer.visible { display:inline-block; }
+  /* Le bouton Continuer pulse pour rediriger l'attention de l'élève */
+  #btn-continuer.visible { display:inline-block; animation:continuerPulse 1.3s infinite; }
+  @keyframes continuerPulse {
+    50% { transform:scale(1.07); box-shadow:0 0 0 7px rgba(46,125,50,.28); }
+  }
   body.sombre .notion-bloc { color:#cfd8dc; }
   body.sombre .notion-bloc b { color:#64b5f6; }
   body.sombre .notion-formule { background:#0d2c4f; color:#90caf9; }
@@ -404,7 +408,7 @@
   <div class="nom">IKE <span>Simulations</span></div>
   <div class="sub">Sciences au collège</div>
   <div class="barre"><div class="rempl"></div></div>
-  <div class="ver">v3.2.0</div>
+  <div class="ver">v3.3.0</div>
 </div>
 
 <header>
@@ -1325,7 +1329,7 @@ const META = [
         expl:`La lampe est un récepteur : elle reçoit l'énergie électrique et la transforme en lumière (et en chaleur).` },
     ] },
   { badge:'💡', sousTitre:'Notion : le circuit fermé',
-    intro:[`Pour que le courant circule, le circuit doit former une <b>boucle complète</b> : on dit qu'il est <b>fermé</b>. La moindre coupure, et plus rien ne passe.`,
+    intro:[`Pour que le courant circule, le circuit doit former une <b>boucle complète</b> : on dit qu'il est <b>fermé</b> — comme une piste de course sans aucune coupure. Le courant y tourne comme un coureur sur la piste.`,
       `Le courant sort par la borne <b>+</b> de la pile, traverse la lampe, et revient à la borne <b>−</b>.`],
     formule:'+ → fil → lampe → fil → −',
     lexique:['Circuit fermé / ouvert'],
@@ -1337,11 +1341,11 @@ const META = [
     ] },
   { badge:'🔘', sousTitre:'Notion : commander le circuit',
     intro:[`L'<b>interrupteur</b> permet d'ouvrir ou de fermer le circuit <b>sans le démonter</b>.`,
-      `Posé sur le chemin du courant, il commence ouvert : la lampe s'éteint. Un simple appui le ferme.`],
+      `<b>Ouvrir</b> l'interrupteur, c'est comme couper le chemin avec des ciseaux ✂️ : le courant s'arrête. Le <b>fermer</b>, c'est recoller le chemin : le courant repart.`],
     lexique:['Circuit fermé / ouvert'],
     qcm:[
       { q:`Un interrupteur OUVERT…`, choix:['laisse passer le courant','coupe le courant','augmente le courant'], bonne:1,
-        expl:`Ouvert = le chemin est coupé, le courant ne passe plus. C'est le contraire de l'intuition du mot « ouvert » !` },
+        expl:`Interrupteur ouvert = chemin coupé, comme avec des ciseaux ✂️. Plus de chemin → plus de courant → tout s'éteint.` },
       { q:`Pour rallumer la lampe, il faut…`, choix:['ouvrir l’interrupteur','fermer l’interrupteur','retirer la pile'], bonne:1,
         expl:`Fermer l'interrupteur rétablit la boucle : le courant circule à nouveau.` },
     ] },
@@ -1351,12 +1355,12 @@ const META = [
     lexique:['Circuit fermé / ouvert'],
     qcm:[
       { q:`« Circuit ouvert » signifie…`, choix:['le courant circule','le courant ne circule pas','la pile est vide'], bonne:1,
-        expl:`Ouvert = boucle coupée = plus de courant. Tout le circuit s'éteint.` },
+        expl:`Ouvert = le chemin est coupé (le coup de ciseaux ✂️) : le courant ne peut plus faire sa boucle, tout s'éteint.` },
       { q:`L'interrupteur de ta chambre agit sur…`, choix:['le chemin du courant','la couleur de la lampe','la tension de la pile'], bonne:0,
         expl:`Il ouvre ou ferme le chemin du courant — il ne change ni la pile ni la lampe.` },
     ] },
   { badge:'📟', sousTitre:'Notion : mesurer l’intensité',
-    intro:[`L'<b>intensité</b> (I) mesure la quantité de courant qui circule. Son unité : l'<b>ampère (A)</b>.`,
+    intro:[`L'<b>intensité</b> (I), c'est le « débit » du courant — comme la quantité d'eau qui passe dans un tuyau chaque seconde. Son unité : l'<b>ampère (A)</b>.`,
       `Elle se mesure avec l'<b>ampèremètre</b>, branché <b>en série</b> — comme un maillon sur le chemin du courant.`],
     formule:'I en ampères (A) · ampèremètre EN SÉRIE',
     lexique:['Intensité (I)','Ampèremètre'],
@@ -1377,7 +1381,7 @@ const META = [
         expl:`Le courant ne s'use pas — c'est l'ÉNERGIE de la pile qui se transforme en lumière et chaleur.` },
     ] },
   { badge:'🔗', sousTitre:'Notion : le circuit en série',
-    intro:[`En <b>série</b>, les éléments sont placés l'un après l'autre, sur une seule boucle.`,
+    intro:[`En <b>série</b>, les éléments sont placés l'un après l'autre, sur une seule boucle — comme des élèves en file indienne sur un seul chemin.`,
       `Tu vas monter deux lampes en série et observer leur éclat. Surprise garantie…`],
     lexique:['Circuit en série'],
     qcm:[
@@ -1387,7 +1391,7 @@ const META = [
         expl:`La boucle est coupée : plus de courant nulle part. C'est le défaut du montage en série.` },
     ] },
   { badge:'🔀', sousTitre:'Notion : le circuit en dérivation',
-    intro:[`En <b>dérivation</b> (ou parallèle), chaque lampe a <b>sa propre branche</b> : le courant se sépare, puis se retrouve.`,
+    intro:[`En <b>dérivation</b> (ou parallèle), chaque lampe a <b>sa propre branche</b> — comme deux routes séparées qui partent du même carrefour et se retrouvent plus loin.`,
       `C'est le branchement utilisé dans toutes les maisons. Tu vas comprendre pourquoi.`],
     lexique:['Circuit en dérivation'],
     qcm:[
@@ -1407,7 +1411,7 @@ const META = [
         expl:`Sur le chemin commun, il couperait tout. Sur la branche, il ne coupe que sa lampe.` },
     ] },
   { badge:'⚠️', sousTitre:'Notion : le court-circuit (sécurité)',
-    intro:[`Le <b>court-circuit</b> : relier les deux bornes de la pile sans aucun récepteur pour freiner le courant.`,
+    intro:[`Le <b>court-circuit</b> : relier les deux bornes de la pile sans aucun récepteur pour freiner le courant. C'est un raccourci interdit — tout le courant s'y engouffre d'un coup !`,
       `Ici tu vas le provoquer <b>sans danger</b> — en vrai, ne le fais JAMAIS : la pile chauffe très fort.`],
     formule:'⚠️ jamais avec une vraie pile !',
     lexique:['Court-circuit'],
@@ -1429,7 +1433,7 @@ const META = [
         expl:`Leurs tensions se soustraient : 4,5 − 4,5 = 0 V. Aucun courant ne circule.` },
     ] },
   { badge:'🔎', sousTitre:'Notion : mesurer la tension',
-    intro:[`La <b>tension</b> (U) est la « pression » électrique entre deux points. Son unité : le <b>volt (V)</b>.`,
+    intro:[`La <b>tension</b> (U), c'est la « poussée » électrique de la pile — comme la pression de l'eau qui descend d'un château d'eau. Son unité : le <b>volt (V)</b>.`,
       `Elle se mesure avec le <b>voltmètre</b>, branché <b>en parallèle</b> — à cheval sur l'élément, jamais dans la boucle !`],
     formule:'U en volts (V) · voltmètre EN PARALLÈLE',
     lexique:['Tension (U)','Voltmètre'],
@@ -1553,8 +1557,15 @@ function afficherQuestion() {
     b.textContent = c;
     b.addEventListener('click', () => {
       for (const x of zone.children) x.disabled = true;
-      if (i === q.bonne) { b.classList.add('bonne'); qcmScore++; }
-      else { b.classList.add('mauvaise'); zone.children[q.bonne].classList.add('bonne'); }
+      // ✔️ / ❌ en plus des couleurs : repères universels pour les élèves
+      if (i === q.bonne) {
+        b.classList.add('bonne'); b.textContent = '✔️ ' + b.textContent;
+        qcmScore++;
+      } else {
+        b.classList.add('mauvaise'); b.textContent = '❌ ' + b.textContent;
+        const bb = zone.children[q.bonne];
+        bb.classList.add('bonne'); bb.textContent = '✔️ ' + bb.textContent;
+      }
       expl.textContent = '💬 ' + q.expl;
       expl.classList.add('visible');
       suiv.style.display = 'block';
@@ -1795,6 +1806,10 @@ const MISSIONS = [
     ],
     retenir: "Un circuit doit être fermé (une boucle complète) pour que le courant circule : il sort par la borne + de la pile, traverse la lampe et revient à la borne −.",
     indice: "Fais une boucle : pile → fil → lampe → fil → retour à la pile. S'il manque un seul morceau, le courant ne passe pas !",
+    diags: [
+      { si: () => nb('lampe') >= 1 && nb('pile') >= 1 && nb('fil') >= 3 && lampesAllumees().length === 0,
+        msg: "Ta boucle n'est pas complète : il manque un morceau de chemin quelque part. Suis le circuit avec ton doigt depuis le + de la pile — tu trouveras le trou !" },
+    ],
   },
   {
     titre: "L'interrupteur",
@@ -1807,8 +1822,12 @@ const MISSIONS = [
         test: () => lampesAllumees().length >= 1 &&
                     etat.comps.some(c => c.type === 'interrupteur' && c.ferme && Math.abs(c.I) >= 0.1) },
     ],
-    retenir: "L'interrupteur commande le circuit sans le démonter : ouvert, il coupe le chemin du courant ; fermé, il le rétablit.",
+    retenir: "L'interrupteur commande le circuit sans le démonter : ouvert, il coupe le chemin du courant (le coup de ciseaux ✂️) ; fermé, il le rétablit.",
     indice: "Pose l'interrupteur DANS la boucle, à la place d'un fil (trace par-dessus !). Puis touche-le d'un petit coup de doigt.",
+    diags: [
+      { si: () => etat.comps.some(c => c.type === 'interrupteur' && !c.ferme) && lampesAllumees().length >= 1,
+        msg: "Ton interrupteur est posé À CÔTÉ du circuit : la lampe reste allumée sans lui ! Pose-le SUR la boucle, à la place d'un fil, pour qu'il commande vraiment le courant." },
+    ],
   },
   {
     titre: "Joue avec l'interrupteur",
@@ -1934,8 +1953,12 @@ const MISSIONS = [
     etapes: [
       { texte: "Place DEUX piles dans le même sens dans ta boucle, avec une lampe : elle doit briller plus fort que jamais (plus de 0,60 A) !",
         test: () => nb('pile') >= 2 && lampes().some(c => Math.abs(c.I) >= 0.6) },
+      { texte: "Maintenant, INVERSE une des deux piles (touche-la, puis ↔ Inverser). Que se passe-t-il ?",
+        test: () => nb('pile') >= 2 && nb('lampe') >= 1 && etat.comps.every(c => Math.abs(c.I) < 0.05) },
+      { texte: "Les piles se combattent : TOUT s'éteint ! Remets-les dans le même sens pour rallumer la lampe très fort.",
+        test: () => nb('pile') >= 2 && lampes().some(c => Math.abs(c.I) >= 0.6) },
     ],
-    retenir: "Deux piles en série dans le même sens additionnent leurs tensions : 4,5 V + 4,5 V = 9 V → la lampe brille plus fort. Dans des sens opposés, elles s'annulent et rien ne s'allume ! La suite : apprendre à MESURER cette fameuse tension…",
+    retenir: "Tu viens de le VIVRE : deux piles dans le même sens additionnent leurs tensions (4,5 + 4,5 = 9 V → la lampe brille très fort), mais en sens opposés elles s'annulent (4,5 − 4,5 = 0 V → tout s'éteint). Le sens des piles compte autant que leur nombre ! La suite : apprendre à MESURER cette fameuse tension…",
     indice: "Le + d'une pile doit pointer vers le − de la suivante. Si rien ne s'allume, sélectionne une pile et touche « ↔ Inverser ».",
     diags: [
       { si: () => nb('pile') >= 2 && nb('lampe') >= 1 &&

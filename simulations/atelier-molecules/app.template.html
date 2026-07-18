@@ -1506,8 +1506,15 @@ function afficherQuestion() {
     b.textContent = c;
     b.addEventListener('click', () => {
       for (const x of zone.children) x.disabled = true;
-      if (i === q.bonne) { b.classList.add('bonne'); parcours.qcmScore++; }
-      else { b.classList.add('mauvaise'); zone.children[q.bonne].classList.add('bonne'); }
+      // ✔️ / ❌ en plus des couleurs : repères universels pour les élèves
+      if (i === q.bonne) {
+        b.classList.add('bonne'); b.textContent = '✔️ ' + b.textContent;
+        parcours.qcmScore++;
+      } else {
+        b.classList.add('mauvaise'); b.textContent = '❌ ' + b.textContent;
+        const bb = zone.children[q.bonne];
+        bb.classList.add('bonne'); bb.textContent = '✔️ ' + bb.textContent;
+      }
       expl.textContent = '💬 ' + q.expl;
       expl.classList.add('visible');
       suiv.style.display = 'block';

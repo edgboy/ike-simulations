@@ -5,6 +5,24 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v3.3.0 — 2026-07-18
+
+🎨 **Retours testeurs sur le circuit nouvelle génération** (5ᵉ vague) :
+
+- **Bouton « Continuer → » qui pulse** : animation d'appel doux pour rediriger l'attention
+  de l'élève vers la poursuite de la mission (moins d'exploration hors sujet)
+- **QCM : icônes ✔️ / ❌** ajoutées aux couleurs — des repères universels pour des élèves
+  moins habitués aux conventions du numérique (aussi appliqué à l'atelier de molécules)
+- **Langage accessible + analogies concrètes** dans les fiches notion et les explications :
+  l'interrupteur ouvert = « couper le chemin avec des ciseaux ✂️ », l'intensité = « le débit
+  d'eau dans un tuyau », la tension = « la poussée du château d'eau », série = « la file
+  indienne », dérivation = « deux routes séparées », court-circuit = « le raccourci interdit »
+- **Diagnostics « pourquoi ça ne marche pas »** étendus : boucle incomplète (« suis le circuit
+  avec ton doigt, tu trouveras le trou ! »), interrupteur posé à côté du circuit
+- **Mission « Double énergie » vécue** : l'élève doit maintenant INVERSER une pile
+  (tout s'éteint — les tensions s'annulent) puis la remettre dans le bon sens — la notion
+  n'est plus racontée, elle est expérimentée
+
 ## v3.2.1 — 2026-07-18
 
 🔗 **Correctif liaisons covalentes** (atelier + prototype) — retour testeur : sur N₂, après la
