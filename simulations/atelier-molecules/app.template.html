@@ -699,7 +699,9 @@ function relaxer(dt) {
   const P = [...A.map(a => ({ ...a, dbl: false })), ...doubletsPos.map(d => ({ ...d, dbl: true, sym: null }))];
   const ressorts = etat.liaisons.map(l => ({
     i: l.a, j: l.b,
-    L0: (ATOMES[A[l.a].sym].r + ATOMES[A[l.b].sym].r) * (l.ordre === 1 ? 1.5 : l.ordre === 2 ? 1.35 : 1.25),
+    // > 1.5 (échelle des sphères) pour garantir un bâtonnet visible et cliquable ;
+    // la liaison raccourcit avec l'ordre, comme en vraie chimie (validé VSEPR)
+    L0: (ATOMES[A[l.a].sym].r + ATOMES[A[l.b].sym].r) * (l.ordre === 1 ? 2.0 : l.ordre === 2 ? 1.85 : 1.75),
   }));
   doubletsPos.forEach((d, k) => ressorts.push({ i: d.parent, j: n + k, L0: L_DOUBLET }));
 
@@ -854,16 +856,17 @@ const matAtome = sym => {
   if (!matCache[sym]) matCache[sym] = new THREE.MeshPhongMaterial({ color: ATOMES[sym].couleur, shininess: 60 });
   return matCache[sym];
 };
-const geoCyl = new THREE.CylinderGeometry(0.085, 0.085, 1, 10);
+const geoCyl = new THREE.CylinderGeometry(0.1, 0.1, 1, 10);
+const matHit = new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false });
 const matLiaison = new THREE.MeshPhongMaterial({ color: 0x9e9e9e });
 const matDoublet = new THREE.MeshPhongMaterial({
   color: 0xba68c8, transparent: true, opacity: 0.5, shininess: 30 });
 
-let meshAtomes = [], meshLiaisons = [];
+let meshAtomes = [], meshLiaisons = [], meshHits = [];
 
 function construireScene() {
   while (groupe.children.length) groupe.remove(groupe.children[0]);
-  meshAtomes = []; meshLiaisons = [];
+  meshAtomes = []; meshLiaisons = []; meshHits = [];
   const compacte = etat.vue === 'compacte';
   etat.atomes.forEach((a, i) => {
     const r = ATOMES[a.sym].r * ECHELLE * (compacte ? 1.7 : 1);
@@ -877,6 +880,10 @@ function construireScene() {
       m.userData = { type: 'liaison', k, b };
       groupe.add(m); meshLiaisons.push(m);
     }
+    // cible de clic invisible et large (4× le rayon du bâtonnet)
+    const hit = new THREE.Mesh(geoCyl, matHit);
+    hit.userData = { type: 'liaison', k };
+    groupe.add(hit); meshHits.push(hit);
   });
   if (etat.doublets) doubletsPos.forEach(() => {
     const m = new THREE.Mesh(geoSphere(0.22), matDoublet);
@@ -895,8 +902,9 @@ function placerMeshes() {
       meshAtomes[i].material.emissive.setHex(etat.selection === i ? 0x554400 : 0x000000);
     }
   });
-  let idx = 0;
+  let idx = 0, kk = -1;
   for (const l of etat.liaisons) {
+    kk++;
     const A = etat.atomes[l.a], B = etat.atomes[l.b];
     if (!A || !B) continue;
     const pa = new THREE.Vector3(A.x, A.y, A.z), pb = new THREE.Vector3(B.x, B.y, B.z);
@@ -911,6 +919,12 @@ function placerMeshes() {
       m.position.copy(pa).add(pb).multiplyScalar(0.5).addScaledVector(perp, off);
       m.scale.y = L;
       m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.clone().normalize());
+    }
+    const hit = meshHits[kk];
+    if (hit) {
+      hit.position.copy(pa).add(pb).multiplyScalar(0.5);
+      hit.scale.set(4, L, 4);
+      hit.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.clone().normalize());
     }
   }
   if (etat.doublets) {

@@ -5,6 +5,20 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v3.2.1 — 2026-07-18
+
+🔗 **Correctif liaisons covalentes** (atelier + prototype) — retour testeur : sur N₂, après la
+liaison double, les atomes se collaient au point de rendre la liaison incliquable (triple impossible).
+
+- **Cause** : les longueurs de liaison du modèle (facteurs 1,5/1,35/1,25) étaient inférieures ou
+  égales à la somme des rayons dessinés — les sphères avalaient le bâtonnet
+- **Correction** : nouvelles longueurs (2,0/1,85/1,75) garantissant un **espace visible entre les
+  sphères pour tous les ordres** de liaison (N≡N compris), la triple restant plus courte que la
+  double comme en vraie chimie — angles VSEPR revalidés par tests (CH₄ à 109,47°)
+- **Cible de clic élargie** : chaque liaison porte un cylindre invisible 4× plus large que le
+  bâtonnet — toucher une liaison au doigt devient fiable même sur petit écran
+- Bâtonnets légèrement épaissis (rayon 0,085 → 0,1)
+
 ## v3.2.0 — 2026-07-18
 
 ⚡ **Le circuit électrique migre vers la structure Labo-Bénin** (1ʳᵉ des 6 migrations)
