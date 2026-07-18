@@ -290,6 +290,72 @@
   body.sombre .gros-btn { background:#22303a; border-color:#3a4a56; }
   body.sombre .gros-btn .gt { color:#eceff1; }
 
+  /* ---------- Fiche notion, QCM, cartes de mission (structure Labo-Bénin) ---------- */
+  .notion-bloc { font-size:13.5px; line-height:1.6; color:#37474f; margin-bottom:10px; }
+  .notion-bloc b { color:#1565c0; }
+  .lex { margin-bottom:6px; }
+  .lex dt { font-size:13px; font-weight:800; color:#1565c0; margin-top:10px; }
+  .lex dd { font-size:12.5px; line-height:1.5; color:#37474f; margin:2px 0 0; }
+  body.sombre .lex dt { color:#64b5f6; }
+  body.sombre .lex dd { color:#cfd8dc; }
+  .notion-formule {
+    font-family:Consolas, monospace; text-align:center; font-size:16px; font-weight:800;
+    background:#e3f2fd; color:#0d47a1; border-radius:10px; padding:10px; margin:10px 0;
+  }
+  .m-sous { font-size:12px; font-weight:700; color:#78909c; margin:-8px 0 10px; }
+  .lex-chips { display:flex; flex-wrap:wrap; gap:6px; margin:10px 0 6px; }
+  .lex-chips button {
+    border:1px solid #cfd8dc; background:#f4f7fb; color:#1565c0;
+    border-radius:14px; padding:5px 11px; font-size:11.5px; font-weight:700; cursor:pointer;
+  }
+  .m-carte {
+    display:flex; align-items:center; gap:10px; width:100%;
+    border:1px solid #e0e6ed; background:#f4f7fb; border-radius:11px; padding:10px;
+    margin-bottom:6px; cursor:pointer; text-align:left; color:#263238;
+  }
+  .m-carte .mbadge { font-size:21px; flex:none; }
+  .m-carte .infos { flex:1; }
+  .m-carte .t { font-size:13px; font-weight:800; }
+  .m-carte .s { font-size:11px; color:#78909c; }
+  .m-carte .statut { font-size:10.5px; font-weight:800; white-space:nowrap; }
+  .m-carte .statut.ok { color:#2e7d32; }
+  .m-carte .statut.attente { color:#1565c0; }
+  .m-carte .statut.gris { color:#b0bec5; }
+  .m-carte.faite { border-color:#a5d6a7; }
+  .m-carte.verrou { opacity:.55; cursor:not-allowed; }
+  .m-barre-fond { height:8px; background:#eceff1; border-radius:4px; overflow:hidden; margin:4px 0 12px; }
+  .m-barre { height:100%; width:0; background:linear-gradient(90deg,#1565c0,#42a5f5); border-radius:4px; transition:width .4s; }
+  .m-pct { font-size:12px; font-weight:800; color:#1565c0; }
+  .choix-qcm { display:flex; flex-direction:column; gap:8px; margin:12px 0; }
+  .choix-qcm button {
+    border:2px solid #cfd8dc; background:#f4f7fb; color:#263238; border-radius:10px;
+    padding:11px 13px; font-size:13.5px; font-weight:600; cursor:pointer; text-align:left;
+  }
+  .choix-qcm button.bonne { border-color:#2e7d32; background:#e8f5e9; color:#1b5e20; font-weight:800; }
+  .choix-qcm button.mauvaise { border-color:#c62828; background:#ffebee; color:#b71c1c; }
+  .q-expl {
+    display:none; background:#fff8e1; border:1px solid #ffe082; border-radius:10px;
+    padding:10px 12px; font-size:12.5px; line-height:1.5; color:#795548; margin-bottom:10px;
+  }
+  .q-expl.visible { display:block; }
+  #btn-continuer {
+    background:#2e7d32 !important; border-color:#2e7d32 !important;
+    color:#fff !important; font-weight:800; white-space:nowrap; display:none;
+  }
+  #btn-continuer.visible { display:inline-block; }
+  body.sombre .notion-bloc { color:#cfd8dc; }
+  body.sombre .notion-bloc b { color:#64b5f6; }
+  body.sombre .notion-formule { background:#0d2c4f; color:#90caf9; }
+  body.sombre .lex-chips button { background:#22303a; border-color:#3a4a56; color:#64b5f6; }
+  body.sombre .m-carte { background:#26313a; border-color:#3a4a56; color:#eceff1; }
+  body.sombre .m-carte .s { color:#90a4ae; }
+  body.sombre .m-carte.faite { border-color:#2e7d32; }
+  body.sombre .m-barre-fond { background:#22303a; }
+  body.sombre .choix-qcm button { background:#26313a; border-color:#3a4a56; color:#eceff1; }
+  body.sombre .choix-qcm button.bonne { background:#16281a; border-color:#2e7d32; color:#a5d6a7; }
+  body.sombre .choix-qcm button.mauvaise { background:#3a1f22; border-color:#c62828; color:#ef9a9a; }
+  body.sombre .q-expl { background:#2b2618; border-color:#5d4d1a; color:#ffe082; }
+
   /* ==================== THÈME SOMBRE ==================== */
   body.sombre { background:#10181f; color:#eceff1; }
   body.sombre header,
@@ -338,7 +404,7 @@
   <div class="nom">IKE <span>Simulations</span></div>
   <div class="sub">Sciences au collège</div>
   <div class="barre"><div class="rempl"></div></div>
-  <div class="ver">v3.1.0</div>
+  <div class="ver">v3.2.0</div>
 </div>
 
 <header>
@@ -363,6 +429,7 @@
     <span id="metape"></span>
     <span id="mcompteur"></span>
     <button class="mbtn" id="btn-indice" title="Indice">💡 Indice</button>
+    <button class="mbtn" id="btn-continuer">Continuer →</button>
     <button class="mbtn" id="btn-suiv2" style="display:none">Suivante ▶</button>
   </div>
   <div id="mindice"></div>
@@ -394,9 +461,39 @@
   </div>
 </div>
 
+<div id="mintro" class="voile">
+  <div class="carte">
+    <button class="fermer-x" id="btn-fermer-intro">✕</button>
+    <h2 id="in-titre"></h2>
+    <div class="m-sous" id="in-sous"></div>
+    <div id="in-contenu"></div>
+    <div class="lex-chips" id="in-lexique"></div>
+    <button class="go" id="btn-commencer">🚀 Commencer la mission</button>
+  </div>
+</div>
+
+<div id="mqcm" class="voile">
+  <div class="carte">
+    <h2 id="q-num"></h2>
+    <div class="notion-bloc" id="q-texte" style="font-weight:700"></div>
+    <div class="choix-qcm" id="q-choix"></div>
+    <div class="q-expl" id="q-expl"></div>
+    <button class="go" id="q-suivant" style="display:none"></button>
+  </div>
+</div>
+
+<div id="mlexique" class="voile">
+  <div class="carte">
+    <button class="fermer-x" id="btn-fermer-lexique">✕</button>
+    <h2>📖 Lexique de l'électricité</h2>
+    <dl class="lex" id="lex-items"></dl>
+  </div>
+</div>
+
 <div id="mliste" class="voile">
   <div class="carte">
-    <h2>📋 Parcours d'apprentissage</h2>
+    <h2>📋 Parcours d'apprentissage <span class="m-pct" id="m-pct"></span></h2>
+    <div class="m-barre-fond"><div class="m-barre" id="m-barre"></div></div>
     <div id="mliste-items"></div>
     <button class="btn2" id="btn-libre">🧪 Mode libre — construis ce que tu veux</button>
     <button class="go" id="btn-fermer-liste">Fermer</button>
@@ -1183,6 +1280,307 @@ const VISITE = [
 let visiteIdx = -1;
 const visiteEl = document.getElementById('visite');
 
+/* =====================================================================
+   STRUCTURE LABO-BÉNIN — fiche notion (intro), QCM « Je m'évalue »,
+   lexique intégré, déverrouillage séquentiel des missions.
+   ===================================================================== */
+
+const LEXIQUE = [
+  ['Circuit fermé / ouvert', 'Fermé : la boucle est complète, le courant circule. Ouvert : la boucle est coupée, plus rien ne passe.'],
+  ['Générateur', 'L’élément qui fournit l’énergie et fait circuler le courant : la pile (bornes + et −).'],
+  ['Récepteur', 'L’élément qui utilise l’énergie électrique : la lampe la transforme en lumière.'],
+  ['Conducteur / isolant', 'Un conducteur (cuivre…) laisse passer le courant ; un isolant (plastique, bois…) le bloque.'],
+  ['Intensité (I)', 'La « quantité » de courant qui circule. Unité : l’ampère (A). Se mesure avec l’ampèremètre.'],
+  ['Ampèremètre', 'L’appareil qui mesure l’intensité. Il se branche EN SÉRIE, sur le chemin du courant.'],
+  ['Tension (U)', 'La « pression » électrique fournie entre deux points. Unité : le volt (V). Se mesure avec le voltmètre.'],
+  ['Voltmètre', 'L’appareil qui mesure la tension. Il se branche EN PARALLÈLE (en dérivation), à cheval sur un élément.'],
+  ['Circuit en série', 'Les éléments sont l’un après l’autre, sur une seule boucle. Le même courant les traverse tous.'],
+  ['Circuit en dérivation', 'Chaque élément a sa propre branche. C’est le branchement des maisons : les branches sont indépendantes.'],
+  ['Court-circuit', 'Les deux bornes de la pile reliées sans récepteur : l’intensité devient énorme, la pile chauffe. Danger !'],
+  ['Résistance (R)', 'L’opposition au passage du courant. Unité : l’ohm (Ω). Plus R est grande, plus I est faible.'],
+  ['Loi d’Ohm', 'La formule qui relie les trois grandeurs : U = R × I.'],
+];
+
+// Fiche notion + QCM de chaque mission (même index que MISSIONS)
+const META = [
+  { badge:'🧵', sousTitre:'Notion : les conducteurs',
+    intro:[`Le courant électrique ne circule pas n'importe où : il lui faut un <b>chemin</b> fait de matériaux <b>conducteurs</b> — comme le cuivre des fils.`,
+      `Sur la grille, tu traceras des fils en glissant le doigt entre deux points voisins. C'est la base de tous tes futurs circuits.`],
+    lexique:['Conducteur / isolant'],
+    qcm:[
+      { q:`Un fil électrique sert à…`, choix:['décorer le circuit','conduire le courant','produire du courant'], bonne:1,
+        expl:`Le fil est un conducteur : il laisse passer le courant, mais n'en produit pas.` },
+      { q:`Quel matériau conduit le courant ?`, choix:['le cuivre','le plastique','le bois'], bonne:0,
+        expl:`Les métaux comme le cuivre sont conducteurs ; le plastique et le bois sont isolants.` },
+    ] },
+  { badge:'🔋', sousTitre:'Notion : générateur et récepteur',
+    intro:[`Un circuit a deux familles d'éléments : le <b>générateur</b>, qui fournit l'énergie (la pile), et les <b>récepteurs</b>, qui l'utilisent (la lampe).`,
+      `La pile a deux bornes, <b>+</b> et <b>−</b> : c'est elle qui pousse le courant dans le circuit.`],
+    formule:'pile = générateur · lampe = récepteur',
+    lexique:['Générateur','Récepteur'],
+    qcm:[
+      { q:`Dans un circuit, la pile est…`, choix:['un récepteur','un générateur','un isolant'], bonne:1,
+        expl:`La pile fournit l'énergie : c'est le générateur du circuit.` },
+      { q:`Que fait la lampe ?`, choix:['elle produit du courant','elle transforme l’énergie électrique en lumière','elle bloque le courant'], bonne:1,
+        expl:`La lampe est un récepteur : elle reçoit l'énergie électrique et la transforme en lumière (et en chaleur).` },
+    ] },
+  { badge:'💡', sousTitre:'Notion : le circuit fermé',
+    intro:[`Pour que le courant circule, le circuit doit former une <b>boucle complète</b> : on dit qu'il est <b>fermé</b>. La moindre coupure, et plus rien ne passe.`,
+      `Le courant sort par la borne <b>+</b> de la pile, traverse la lampe, et revient à la borne <b>−</b>.`],
+    formule:'+ → fil → lampe → fil → −',
+    lexique:['Circuit fermé / ouvert'],
+    qcm:[
+      { q:`La lampe s'allume seulement si…`, choix:['le circuit est fermé','le fil est très long','la pile est neuve'], bonne:0,
+        expl:`Sans boucle complète, le courant ne circule pas : circuit fermé = lampe allumée.` },
+      { q:`Le courant sort de la pile par…`, choix:['la borne −','la borne +','les deux bornes'], bonne:1,
+        expl:`Par convention, le courant sort de la borne + du générateur et revient à la borne −.` },
+    ] },
+  { badge:'🔘', sousTitre:'Notion : commander le circuit',
+    intro:[`L'<b>interrupteur</b> permet d'ouvrir ou de fermer le circuit <b>sans le démonter</b>.`,
+      `Posé sur le chemin du courant, il commence ouvert : la lampe s'éteint. Un simple appui le ferme.`],
+    lexique:['Circuit fermé / ouvert'],
+    qcm:[
+      { q:`Un interrupteur OUVERT…`, choix:['laisse passer le courant','coupe le courant','augmente le courant'], bonne:1,
+        expl:`Ouvert = le chemin est coupé, le courant ne passe plus. C'est le contraire de l'intuition du mot « ouvert » !` },
+      { q:`Pour rallumer la lampe, il faut…`, choix:['ouvrir l’interrupteur','fermer l’interrupteur','retirer la pile'], bonne:1,
+        expl:`Fermer l'interrupteur rétablit la boucle : le courant circule à nouveau.` },
+    ] },
+  { badge:'🕹️', sousTitre:'Notion : circuit ouvert / fermé',
+    intro:[`Tu vas maintenant jouer avec l'interrupteur pour bien ancrer le réflexe : <b>ouvert = éteint, fermé = allumé</b>.`,
+      `C'est exactement ce que fait l'interrupteur de ta chambre, des milliers de fois dans sa vie.`],
+    lexique:['Circuit fermé / ouvert'],
+    qcm:[
+      { q:`« Circuit ouvert » signifie…`, choix:['le courant circule','le courant ne circule pas','la pile est vide'], bonne:1,
+        expl:`Ouvert = boucle coupée = plus de courant. Tout le circuit s'éteint.` },
+      { q:`L'interrupteur de ta chambre agit sur…`, choix:['le chemin du courant','la couleur de la lampe','la tension de la pile'], bonne:0,
+        expl:`Il ouvre ou ferme le chemin du courant — il ne change ni la pile ni la lampe.` },
+    ] },
+  { badge:'📟', sousTitre:'Notion : mesurer l’intensité',
+    intro:[`L'<b>intensité</b> (I) mesure la quantité de courant qui circule. Son unité : l'<b>ampère (A)</b>.`,
+      `Elle se mesure avec l'<b>ampèremètre</b>, branché <b>en série</b> — comme un maillon sur le chemin du courant.`],
+    formule:'I en ampères (A) · ampèremètre EN SÉRIE',
+    lexique:['Intensité (I)','Ampèremètre'],
+    qcm:[
+      { q:`L'intensité du courant se mesure en…`, choix:['volts (V)','ampères (A)','ohms (Ω)'], bonne:1,
+        expl:`L'ampère est l'unité de l'intensité — d'où le nom de l'ampèremètre.` },
+      { q:`L'ampèremètre se branche…`, choix:['en série, sur le chemin du courant','en parallèle, à côté du circuit','n’importe où'], bonne:0,
+        expl:`Pour compter le courant, il faut que le courant le traverse : donc en série, dans la boucle.` },
+    ] },
+  { badge:'♻️', sousTitre:'Notion : unicité de l’intensité',
+    intro:[`Question piège : le courant s'use-t-il en traversant la lampe ? Deux ampèremètres vont répondre.`,
+      `Tu vas mesurer <b>avant</b> et <b>après</b> la lampe… et découvrir une loi fondamentale.`],
+    lexique:['Intensité (I)','Circuit en série'],
+    qcm:[
+      { q:`Dans une boucle simple, l'intensité est…`, choix:['plus forte avant la lampe','plus forte après la lampe','la même partout'], bonne:2,
+        expl:`C'est l'unicité de l'intensité : dans un circuit série, le même courant traverse tous les éléments.` },
+      { q:`Ce que la lampe « consomme », c'est…`, choix:['le courant','l’énergie','les fils'], bonne:1,
+        expl:`Le courant ne s'use pas — c'est l'ÉNERGIE de la pile qui se transforme en lumière et chaleur.` },
+    ] },
+  { badge:'🔗', sousTitre:'Notion : le circuit en série',
+    intro:[`En <b>série</b>, les éléments sont placés l'un après l'autre, sur une seule boucle.`,
+      `Tu vas monter deux lampes en série et observer leur éclat. Surprise garantie…`],
+    lexique:['Circuit en série'],
+    qcm:[
+      { q:`Deux lampes en série brillent…`, choix:['plus fort que seules','moins fort que seules','exactement pareil'], bonne:1,
+        expl:`La pile doit pousser le courant à travers deux lampes : chacune reçoit moins et brille moins.` },
+      { q:`Si une lampe grille dans un circuit série…`, choix:['l’autre reste allumée','tout s’éteint','la pile explose'], bonne:1,
+        expl:`La boucle est coupée : plus de courant nulle part. C'est le défaut du montage en série.` },
+    ] },
+  { badge:'🔀', sousTitre:'Notion : le circuit en dérivation',
+    intro:[`En <b>dérivation</b> (ou parallèle), chaque lampe a <b>sa propre branche</b> : le courant se sépare, puis se retrouve.`,
+      `C'est le branchement utilisé dans toutes les maisons. Tu vas comprendre pourquoi.`],
+    lexique:['Circuit en dérivation'],
+    qcm:[
+      { q:`En dérivation, chaque lampe brille…`, choix:['faiblement','comme si elle était seule','deux fois plus fort'], bonne:1,
+        expl:`Chaque branche reçoit la pleine tension de la pile : chaque lampe brille normalement.` },
+      { q:`Le branchement des maisons est…`, choix:['en série','en dérivation','sans circuit'], bonne:1,
+        expl:`En dérivation : chaque appareil est indépendant des autres.` },
+    ] },
+  { badge:'🛠️', sousTitre:'Notion : indépendance des branches',
+    intro:[`Le grand avantage de la dérivation : les branches sont <b>indépendantes</b>.`,
+      `Tu vas construire un montage où un interrupteur éteint UNE lampe… sans toucher à l'autre.`],
+    lexique:['Circuit en dérivation'],
+    qcm:[
+      { q:`En dérivation, couper une branche…`, choix:['éteint tout le circuit','n’éteint que cette branche','éteint l’autre branche'], bonne:1,
+        expl:`Chaque branche vit sa vie : c'est pour ça qu'éteindre la cuisine n'éteint pas le salon.` },
+      { q:`Pour commander UNE seule lampe, l'interrupteur se place…`, choix:['sur le chemin commun','sur la branche de cette lampe','sur la pile'], bonne:1,
+        expl:`Sur le chemin commun, il couperait tout. Sur la branche, il ne coupe que sa lampe.` },
+    ] },
+  { badge:'⚠️', sousTitre:'Notion : le court-circuit (sécurité)',
+    intro:[`Le <b>court-circuit</b> : relier les deux bornes de la pile sans aucun récepteur pour freiner le courant.`,
+      `Ici tu vas le provoquer <b>sans danger</b> — en vrai, ne le fais JAMAIS : la pile chauffe très fort.`],
+    formule:'⚠️ jamais avec une vraie pile !',
+    lexique:['Court-circuit'],
+    qcm:[
+      { q:`Un court-circuit se produit quand…`, choix:['on relie directement les bornes de la pile','on ajoute trop de lampes','on ouvre l’interrupteur'], bonne:0,
+        expl:`Sans récepteur pour limiter le courant, l'intensité devient énorme.` },
+      { q:`Le danger du court-circuit, c'est…`, choix:['la lampe brille trop','la pile chauffe très fort (brûlure, incendie)','le courant s’arrête'], bonne:1,
+        expl:`~9 A dans notre simulation ! En vrai : échauffement, brûlure, départ de feu.` },
+    ] },
+  { badge:'⚡', sousTitre:'Notion : piles en série',
+    intro:[`Que se passe-t-il avec <b>deux piles</b> ? Tout dépend de leur <b>sens</b>.`,
+      `Dans le même sens, leurs tensions <b>s'additionnent</b>. En sens opposés… elles se combattent !`],
+    formule:'4,5 V + 4,5 V = 9 V',
+    lexique:['Tension (U)','Générateur'],
+    qcm:[
+      { q:`Deux piles en série dans le même sens…`, choix:['s’annulent','additionnent leurs tensions','se déchargent plus vite l’une que l’autre'], bonne:1,
+        expl:`4,5 V + 4,5 V = 9 V : la lampe reçoit plus de tension et brille plus fort.` },
+      { q:`Deux piles montées en sens OPPOSÉS…`, choix:['brillent plus fort','s’annulent : rien ne s’allume','font un court-circuit'], bonne:1,
+        expl:`Leurs tensions se soustraient : 4,5 − 4,5 = 0 V. Aucun courant ne circule.` },
+    ] },
+  { badge:'🔎', sousTitre:'Notion : mesurer la tension',
+    intro:[`La <b>tension</b> (U) est la « pression » électrique entre deux points. Son unité : le <b>volt (V)</b>.`,
+      `Elle se mesure avec le <b>voltmètre</b>, branché <b>en parallèle</b> — à cheval sur l'élément, jamais dans la boucle !`],
+    formule:'U en volts (V) · voltmètre EN PARALLÈLE',
+    lexique:['Tension (U)','Voltmètre'],
+    qcm:[
+      { q:`La tension se mesure en…`, choix:['ampères (A)','volts (V)','ohms (Ω)'], bonne:1,
+        expl:`Le volt est l'unité de la tension — d'où le nom du voltmètre.` },
+      { q:`Le voltmètre se branche…`, choix:['en série, dans la boucle','en parallèle, à cheval sur l’élément','à la place de la pile'], bonne:1,
+        expl:`Sa très grande résistance bloquerait le circuit en série. En parallèle, il mesure sans perturber.` },
+    ] },
+  { badge:'➗', sousTitre:'Notion : additivité des tensions',
+    intro:[`En série, la tension de la pile se <b>partage</b> entre les récepteurs.`,
+      `Deux lampes identiques sous 4,5 V ? Environ <b>2,2 V chacune</b>. La somme retombe toujours sur la tension de la pile.`],
+    formule:'U(pile) = U(lampe 1) + U(lampe 2)',
+    lexique:['Tension (U)','Circuit en série'],
+    qcm:[
+      { q:`En série, la tension de la pile…`, choix:['se partage entre les lampes','se retrouve entière sur chaque lampe','disparaît'], bonne:0,
+        expl:`C'est l'additivité des tensions : la somme des tensions des récepteurs égale celle du générateur.` },
+      { q:`Deux lampes identiques en série sous 4,5 V : chacune reçoit environ…`, choix:['4,5 V','2,2 V','9 V'], bonne:1,
+        expl:`4,5 V partagés en deux parts égales ≈ 2,2 V chacune (les fils en prennent une miette).` },
+    ] },
+  { badge:'🏆', sousTitre:'Notion : la loi d’Ohm — U = R × I',
+    intro:[`La formule reine de la 4ᵉ : <b>U = R × I</b>. La tension égale la résistance multipliée par l'intensité.`,
+      `Tu vas la <b>vérifier toi-même</b> : mesurer U et I sur la même lampe, et retrouver sa résistance R = 10 Ω.`],
+    formule:'U = R × I',
+    lexique:['Loi d’Ohm','Résistance (R)'],
+    qcm:[
+      { q:`La loi d'Ohm s'écrit…`, choix:['U = R × I','R = U × I','I = U × R'], bonne:0,
+        expl:`U = R × I. On en déduit R = U ÷ I et I = U ÷ R.` },
+      { q:`U = 12 V et I = 0,4 A. La résistance vaut…`, choix:['4,8 Ω','30 Ω','12,4 Ω'], bonne:1,
+        expl:`R = U ÷ I = 12 ÷ 0,4 = 30 Ω.` },
+      { q:`Si U double (R ne change pas), alors I…`, choix:['double aussi','est divisée par 2','ne change pas'], bonne:0,
+        expl:`U et I sont proportionnelles : c'est exactement ce que dit la loi d'Ohm.` },
+    ] },
+];
+
+/* ---- Lexique ---- */
+function ouvrirLexique(termeCible) {
+  const dl = document.getElementById('lex-items');
+  if (!dl.childElementCount) {
+    for (const [terme, def] of LEXIQUE) {
+      const dt = document.createElement('dt'); dt.textContent = terme; dt.dataset.t = terme;
+      const dd = document.createElement('dd'); dd.textContent = def;
+      dl.append(dt, dd);
+    }
+  }
+  for (const dt of dl.querySelectorAll('dt')) dt.style.background = '';
+  document.getElementById('mlexique').classList.add('visible');
+  if (termeCible) {
+    const el = dl.querySelector(`dt[data-t="${termeCible}"]`);
+    if (el) {
+      el.scrollIntoView({ block: 'center' });
+      el.style.background = 'rgba(255,202,40,.25)';
+      el.style.borderRadius = '6px';
+    }
+  }
+}
+// Modales indépendantes : la croix du lexique ne ferme QUE le lexique
+document.getElementById('btn-fermer-lexique').addEventListener('click', () =>
+  document.getElementById('mlexique').classList.remove('visible'));
+
+/* ---- Déverrouillage séquentiel & fiche notion ---- */
+const missionDeverrouillee = i => i === 0 || progression.faites.includes(i - 1);
+let missionEnAttente = null;
+
+function ouvrirIntro(i) {
+  if (!missionDeverrouillee(i)) {
+    toast('🔒 Termine d’abord la mission précédente !');
+    return;
+  }
+  missionEnAttente = i;
+  const meta = META[i] || {};
+  document.getElementById('in-titre').textContent =
+    `${meta.badge || '🎯'} Mission ${i + 1} · ${MISSIONS[i].titre}`;
+  document.getElementById('in-sous').textContent = meta.sousTitre || '';
+  document.getElementById('in-contenu').innerHTML =
+    (meta.intro || []).map(p => `<div class="notion-bloc">${p}</div>`).join('') +
+    (meta.formule ? `<div class="notion-formule">${meta.formule}</div>` : '');
+  const lx = document.getElementById('in-lexique');
+  lx.innerHTML = '';
+  for (const terme of meta.lexique || []) {
+    const b = document.createElement('button');
+    b.textContent = '📖 ' + terme;
+    b.addEventListener('click', () => ouvrirLexique(terme));
+    lx.appendChild(b);
+  }
+  fermerVoiles();
+  document.getElementById('mintro').classList.add('visible');
+}
+document.getElementById('btn-commencer').addEventListener('click', () => {
+  if (missionEnAttente !== null) lancerMission(missionEnAttente);
+});
+document.getElementById('btn-fermer-intro').addEventListener('click', () => {
+  document.getElementById('mintro').classList.remove('visible');
+  ouvrirListe();
+});
+
+/* ---- QCM « Je m'évalue » ---- */
+let qcmIdx = 0, qcmScore = 0;
+
+function demarrerQCM() {
+  qcmIdx = 0; qcmScore = 0;
+  afficherQuestion();
+}
+function afficherQuestion() {
+  const m = missionCourante(), meta = META[progression.m] || {};
+  const liste = meta.qcm || [];
+  if (!liste.length) { terminerQCM(); return; }
+  const q = liste[qcmIdx];
+  document.getElementById('q-num').textContent =
+    `${meta.badge || '🎯'} Je m'évalue — question ${qcmIdx + 1} / ${liste.length}`;
+  document.getElementById('q-texte').textContent = q.q;
+  const zone = document.getElementById('q-choix');
+  zone.innerHTML = '';
+  const expl = document.getElementById('q-expl');
+  expl.classList.remove('visible');
+  const suiv = document.getElementById('q-suivant');
+  suiv.style.display = 'none';
+  suiv.textContent = qcmIdx < liste.length - 1 ? 'Question suivante →' : 'Terminer 🏁';
+  q.choix.forEach((c, i) => {
+    const b = document.createElement('button');
+    b.textContent = c;
+    b.addEventListener('click', () => {
+      for (const x of zone.children) x.disabled = true;
+      if (i === q.bonne) { b.classList.add('bonne'); qcmScore++; }
+      else { b.classList.add('mauvaise'); zone.children[q.bonne].classList.add('bonne'); }
+      expl.textContent = '💬 ' + q.expl;
+      expl.classList.add('visible');
+      suiv.style.display = 'block';
+    });
+    zone.appendChild(b);
+  });
+  fermerVoiles();
+  document.getElementById('mqcm').classList.add('visible');
+}
+document.getElementById('q-suivant').addEventListener('click', () => {
+  const liste = (META[progression.m] || {}).qcm || [];
+  if (qcmIdx < liste.length - 1) { qcmIdx++; afficherQuestion(); }
+  else terminerQCM();
+});
+function terminerQCM() {
+  const m = missionCourante();
+  progression.etape = m.etapes.length;      // mission bouclée
+  if (!progression.faites.includes(progression.m)) {
+    progression.faites.push(progression.m);
+    sauverProgression();
+  }
+  majMissionBar();
+  fermerVoiles();
+  ouvrirFin(m);
+}
+
 /* ---------- Apprendre / Expérimenter (verrou de progression) ---------- */
 
 const MSG_VERROU = '🔒 Termine d’abord toutes les missions d’apprentissage avant d’accéder au mode Expérimenter.';
@@ -1218,7 +1616,7 @@ function entrerApprendre() {
   try {
     if (!localStorage.getItem('ike-circuit-visite')) { lancerVisite(); return; }
   } catch (e) { lancerVisite(); return; }
-  if (typeof ouvrirLecon === 'function' && missionCourante() && progression.etape === 0) ouvrirLecon();
+  if (missionCourante() && progression.etape === 0 && !etapeValidee) ouvrirIntro(progression.m);
 }
 
 function ouvrirChoixMode() {
@@ -1250,6 +1648,8 @@ function fermerVisite() {
   visiteIdx = -1;
   visiteEl.style.display = 'none';
   try { localStorage.setItem('ike-circuit-visite', '1'); } catch (e) {}
+  // Enchaîner sur la fiche notion si la mission n'a pas encore commencé
+  if (missionCourante() && progression.etape === 0 && !etapeValidee) ouvrirIntro(progression.m);
 }
 
 function montrerEtapeVisite() {
@@ -1620,39 +2020,41 @@ function outilsAutorises() {
 }
 
 // Appelé après chaque résolution du circuit : fait avancer les étapes
+// L'étape validée attend le « Continuer → » de l'élève : il observe son
+// montage à son rythme avant de passer à la suite (structure Labo-Bénin).
+let etapeValidee = false;
+
 function evaluerMission() {
   const m = missionCourante();
   if (!m || progression.etape >= m.etapes.length) return;
   if (document.querySelector('.voile.visible')) return; // un panneau est ouvert
-  let avance = false;
-  while (progression.etape < m.etapes.length && m.etapes[progression.etape].test()) {
-    progression.etape++;
-    avance = true;
-  }
-  if (!avance) { majDiagnostic(m); return; }   // pas de progrès : expliquer ce qui bloque
+  if (etapeValidee) return;
+  let ok = false;
+  try { ok = !!m.etapes[progression.etape].test(); } catch (err) { ok = false; }
+  if (!ok) { majDiagnostic(m); return; }   // pas de progrès : expliquer ce qui bloque
   masquerDiagnostic();
   resetEtapeTimer();
-  if (progression.etape >= m.etapes.length) {
-    if (!progression.faites.includes(progression.m)) {
-      progression.faites.push(progression.m);
-      sauverProgression();
-    }
-    // Laisser l'élève ADMIRER son résultat avant d'ouvrir le panneau
-    toast('🎉 Mission réussie ! Regarde ton montage…');
-    const mACeMoment = progression.m;
-    setTimeout(() => {
-      if (progression.m === mACeMoment && !document.querySelector('.voile.visible'))
-        ouvrirFin(m);
-    }, 2100);
-  } else {
-    toast(`✅ Étape ${progression.etape} réussie ! Lis la suite ⬆`);
-    const bar = document.getElementById('mbar');
-    bar.classList.remove('flash');
-    void bar.offsetWidth;                    // relance l'animation CSS
-    bar.classList.add('flash');
-  }
+  etapeValidee = true;
+  toast('✅ Étape réussie ! Observe, puis Continuer →');
+  const bar = document.getElementById('mbar');
+  bar.classList.remove('flash');
+  void bar.offsetWidth;                    // relance l'animation CSS
+  bar.classList.add('flash');
   majMissionBar();
 }
+
+document.getElementById('btn-continuer').addEventListener('click', () => {
+  const m = missionCourante();
+  if (!m || !etapeValidee) return;
+  etapeValidee = false;
+  if (progression.etape < m.etapes.length - 1) {
+    progression.etape++;
+    majMissionBar();
+    evaluerMission();      // l'étape suivante est peut-être déjà satisfaite
+  } else {
+    demarrerQCM();         // « Je m'évalue » avant la fin de mission
+  }
+});
 
 // Diagnostic pédagogique : quand l'action de l'élève ne valide pas l'étape,
 // on cherche une erreur classique reconnaissable et on la lui explique.
@@ -1676,9 +2078,22 @@ function masquerDiagnostic() {
   }
 }
 
+// Router : une mission numérotée passe TOUJOURS par sa fiche notion ;
+// le mode libre est protégé par le verrou de progression.
 function allerMission(m) {
+  if (m === 'libre') {
+    if (!experimenterDebloque()) { toast(MSG_VERROU); return; }
+    lancerMission('libre');
+    majTabExp();
+    return;
+  }
+  ouvrirIntro(m);
+}
+
+function lancerMission(m) {
   progression.m = m;
   progression.etape = 0;
+  etapeValidee = false;
   sauverProgression();
   resetEtapeTimer();
   masquerDiagnostic();
@@ -1687,6 +2102,7 @@ function allerMission(m) {
   document.getElementById('mindice').classList.remove('visible');
   majPalette();
   majMissionBar();
+  evaluerMission();   // la 1re étape est peut-être déjà satisfaite (continuité)
 }
 
 // ---- Barre de mission ----
@@ -1715,15 +2131,17 @@ function majMissionBar() {
     }
     const metape = document.getElementById('metape');
     metape.textContent =
-      fini ? '🎉 Mission terminée ! Passe à la suivante.' : m.etapes[progression.etape].texte;
+      fini ? '🎉 Mission terminée ! Passe à la suivante.'
+        : (etapeValidee ? '✓ ' : '') + m.etapes[progression.etape].texte;
     metape.classList.remove('glisse');
     void metape.offsetWidth;
     metape.classList.add('glisse');
     document.getElementById('mcompteur').textContent =
       m.etapes.length > 1 && !fini ? `étape ${progression.etape + 1}/${m.etapes.length}` : '';
     document.getElementById('mindice').textContent = '💡 ' + m.indice;
-    document.getElementById('btn-indice').style.display = fini ? 'none' : '';
+    document.getElementById('btn-indice').style.display = fini || etapeValidee ? 'none' : '';
     document.getElementById('btn-suiv2').style.display = fini ? '' : 'none';
+    document.getElementById('btn-continuer').classList.toggle('visible', !fini && etapeValidee);
   }
   redimensionner(); // la hauteur de la barre peut changer → recaler la grille
 }
@@ -1735,9 +2153,12 @@ function fermerVoiles() {
 
 function ouvrirFin(m) {
   const derniere = progression.m === MISSIONS.length - 1;
+  const nbQ = ((META[progression.m] || {}).qcm || []).length;
   document.getElementById('mfin-titre').textContent =
-    `Mission ${progression.m + 1} — ${m.titre}`;
-  document.getElementById('mfin-retenir').textContent = m.retenir;
+    `${(META[progression.m] || {}).badge || '🎯'} Mission ${progression.m + 1} — ${m.titre}` +
+    (nbQ ? ` · QCM : ${qcmScore}/${nbQ}` : '');
+  document.getElementById('mfin-retenir').textContent =
+    m.retenir + (nbQ && qcmScore < nbQ ? ' (Relis les explications du QCM et rejoue la mission quand tu veux !)' : '');
   document.getElementById('btn-suivante').textContent =
     derniere ? '🧪 Continuer en Mode libre' : 'Mission suivante ▶';
   document.getElementById('mfin').classList.add('visible');
@@ -1761,20 +2182,25 @@ function ouvrirListe() {
   const cont = document.getElementById('mliste-items');
   cont.innerHTML = '';
   MISSIONS.forEach((m, i) => {
-    const row = document.createElement('button');
-    row.className = 'mrow'
-      + (progression.faites.includes(i) ? ' faite' : '')
-      + (progression.m === i ? ' courante' : '');
-    const n = document.createElement('span');
-    n.className = 'n';
-    n.textContent = progression.faites.includes(i) ? '✓' : (i + 1) + '.';
-    const t = document.createElement('span');
-    t.className = 't';
-    t.textContent = m.titre;
-    row.append(n, t);
-    row.addEventListener('click', () => allerMission(i)); // relancer = repartir à l'étape 1
-    cont.appendChild(row);
+    const faite = progression.faites.includes(i);
+    const ouverte = missionDeverrouillee(i);
+    const meta = META[i] || {};
+    const carte = document.createElement('button');
+    carte.className = 'm-carte'
+      + (faite ? ' faite' : '')
+      + (!ouverte ? ' verrou' : '');
+    carte.innerHTML =
+      `<span class="mbadge">${ouverte ? (meta.badge || '🎯') : '🔒'}</span>` +
+      `<span class="infos"><span class="t">Mission ${i + 1} · ${m.titre}</span><br>` +
+      `<span class="s">${meta.sousTitre || ''}</span></span>` +
+      `<span class="statut ${faite ? 'ok' : ouverte ? 'attente' : 'gris'}">` +
+      `${faite ? '✓ réussie' : ouverte ? '▶ jouer' : 'verrouillée'}</span>`;
+    if (ouverte) carte.addEventListener('click', () => allerMission(i));
+    cont.appendChild(carte);
   });
+  const n = progression.faites.length, total = MISSIONS.length;
+  document.getElementById('m-barre').style.width = (n / total * 100) + '%';
+  document.getElementById('m-pct').textContent = Math.round(n / total * 100) + ' %';
   document.getElementById('mliste').classList.add('visible');
 }
 
@@ -1810,7 +2236,10 @@ btnResetProg.addEventListener('click', () => {
 
 // Toucher le fond sombre ferme le panneau
 for (const v of document.querySelectorAll('.voile'))
-  v.addEventListener('click', e => { if (e.target === v) v.classList.remove('visible'); });
+  v.addEventListener('click', e => {
+    // le QCM ne se ferme pas par simple clic à côté (parcours guidé)
+    if (e.target === v && v.id !== 'mqcm') v.classList.remove('visible');
+  });
 
 // ---- Indice ----
 document.getElementById('btn-indice').addEventListener('click', () => {

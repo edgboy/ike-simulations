@@ -5,6 +5,35 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v3.2.0 — 2026-07-18
+
+⚡ **Le circuit électrique migre vers la structure Labo-Bénin** (1ʳᵉ des 6 migrations)
+et 🧲 **prototype R&D : l'assemblage par glisser-déposer en 3D**.
+
+**Circuit électrique — nouvelle génération pédagogique**
+- **Fiche notion** avant chaque mission : la notion en 2 paragraphes, la formule en
+  encadré, et des **pastilles lexique** cliquables (le lexique s'ouvre par-dessus sans
+  fermer la fiche) → bouton « 🚀 Commencer la mission »
+- **Lexique intégré** : 13 termes de l'électricité en langage collège
+- **QCM « Je m'évalue »** en fin de chaque mission : 31 questions au total, avec
+  correction visuelle (bonne/mauvaise réponse) et explication ; score affiché dans
+  le panneau de fin
+- **Étapes à rythme de l'élève** : chaque étape validée affiche ✓ et un bouton
+  « Continuer → » — l'élève observe son montage aussi longtemps qu'il veut
+- **Déverrouillage séquentiel** : les missions se débloquent l'une après l'autre ;
+  panneau du parcours refondu en cartes (badge, notion, statut) avec **barre de
+  progression et pourcentage**
+
+**Prototype R&D — Assemblage 3D par glisser-déposer** (`simulations/atelier-molecules/prototype-drag.html`)
+- On **glisse** les atomes depuis le bac dans la scène 3D (déplacement dans le plan
+  face caméra) ; à l'approche d'un atome compatible, un **lien fantôme** apparaît et
+  la liaison **s'aimante** au relâcher (snap)
+- Identité propre : contrairement à PhET (2D), la molécule assemblée **prend sa vraie
+  géométrie** par relaxation VSEPR ; doigt sur le vide = rotation, glisser vers le bac
+  = suppression, toucher une liaison = simple/double/triple
+- Molécule validée → bandeau + **sélecteur de vue** 🔗 bâtonnets / ⚪ compacte
+- Hors catalogue (fichier autonome de 0,61 Mo, à évaluer par l'équipe)
+
 ## v3.1.0 — 2026-07-17
 
 🎓 **Revue générale : le modèle « Apprendre / Expérimenter » entre dans toutes les simulations**

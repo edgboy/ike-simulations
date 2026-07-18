@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#6a1b9a">
+<title>Prototype R&D — Assemblage 3D · IKE Simulations</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html, body { height:100%; overflow:hidden; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background:#f4f7fb; color:#263238;
+    display:flex; flex-direction:column;
+    user-select:none; -webkit-user-select:none; touch-action:manipulation;
+  }
+
+  /* ---------- En-tête ---------- */
+  header {
+    display:flex; align-items:center; gap:8px;
+    padding:8px 12px; background:#fff; border-bottom:1px solid #e0e6ed;
+    flex:none; z-index:5;
+  }
+  header h1 { font-size:14px; font-weight:700; color:#6a1b9a; white-space:nowrap; }
+  .proto-badge {
+    background:#6a1b9a; color:#fff; font-size:10px; font-weight:800;
+    letter-spacing:.8px; text-transform:uppercase; padding:4px 10px; border-radius:11px;
+    white-space:nowrap;
+  }
+  header .spacer { flex:1; }
+  .btn {
+    border:1px solid #cfd8dc; background:#fff; color:#37474f;
+    border-radius:8px; padding:8px 10px; font-size:13px; font-weight:600;
+    cursor:pointer; white-space:nowrap; min-height:38px;
+  }
+  .btn:active { background:#f3e5f5; }
+  @media (max-width:640px) { .btn .lbl { display:none; } header h1 { display:none; } }
+
+  /* ---------- Scène ---------- */
+  #wrap { flex:1; position:relative; overflow:hidden; }
+  canvas#scene { position:absolute; inset:0; width:100%; height:100%; touch-action:none; display:block; }
+
+  /* Bandeau de réussite + sélecteur de vue */
+  #reussite {
+    position:absolute; top:12px; left:50%; transform:translateX(-50%) scale(.9);
+    display:flex; flex-direction:column; align-items:center; gap:8px;
+    opacity:0; pointer-events:none; transition:opacity .25s, transform .3s cubic-bezier(.34,1.56,.64,1);
+    z-index:6; max-width:94vw;
+  }
+  #reussite.visible { opacity:1; transform:translateX(-50%) scale(1); pointer-events:auto; }
+  #reussite .bandeau {
+    background:#2e7d32; color:#fff; font-size:15px; font-weight:800;
+    padding:10px 22px; border-radius:22px; box-shadow:0 6px 20px rgba(46,125,50,.4);
+    white-space:nowrap; max-width:94vw; overflow:hidden; text-overflow:ellipsis;
+  }
+  #reussite .vues { display:flex; gap:8px; }
+  #reussite .vues button {
+    border:2px solid #cfd8dc; background:#fff; color:#37474f;
+    border-radius:10px; padding:8px 14px; font-size:12.5px; font-weight:800; cursor:pointer;
+  }
+  #reussite .vues button.actif { border-color:#6a1b9a; background:#f3e5f5; color:#6a1b9a; }
+
+  /* Objectifs suggérés */
+  #objectifs {
+    position:absolute; top:12px; left:10px; z-index:4;
+    background:rgba(255,255,255,.94); border:1px solid #cfd8dc; border-radius:12px;
+    padding:9px 12px; font-size:12px; color:#546e7a;
+    box-shadow:0 3px 12px rgba(0,0,0,.12);
+  }
+  #objectifs .titre { font-size:10.5px; font-weight:800; text-transform:uppercase;
+    letter-spacing:.5px; color:#6a1b9a; margin-bottom:4px; }
+  #objectifs .obj { display:flex; align-items:center; gap:6px; line-height:1.7; font-weight:600; }
+  #objectifs .obj.fait { color:#2e7d32; }
+
+  #toast {
+    position:absolute; bottom:14px; left:50%;
+    transform:translateX(-50%) translateY(10px) scale(.92);
+    background:#37474f; color:#fff; font-size:13.5px; font-weight:700;
+    padding:10px 18px; border-radius:20px; opacity:0; pointer-events:none;
+    transition:opacity .25s, transform .3s; z-index:7; white-space:nowrap; max-width:94vw;
+  }
+  #toast.visible { opacity:1; transform:translateX(-50%) translateY(0) scale(1); }
+  #toast.rouge { background:#c62828; }
+
+  /* ---------- Bac à atomes (drag source + corbeille) ---------- */
+  nav#bac {
+    flex:none; display:flex; justify-content:center; align-items:center; gap:9px;
+    padding:9px 10px calc(9px + env(safe-area-inset-bottom));
+    background:#fff; border-top:1px solid #e0e6ed; z-index:5;
+    transition:background .15s;
+  }
+  nav#bac.corbeille { background:#ffebee; }
+  nav#bac .indication {
+    position:absolute; pointer-events:none; font-size:12px; font-weight:800;
+    color:#c62828; opacity:0; transition:opacity .15s;
+  }
+  nav#bac.corbeille .indication { opacity:1; }
+  nav#bac.corbeille .abtn, nav#bac.corbeille .sep { opacity:.25; }
+  .abtn {
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    width:54px; height:54px; flex:none; border-radius:16px;
+    border:2px solid rgba(0,0,0,.14); cursor:grab; line-height:1.15;
+    font-size:17px; font-weight:800; touch-action:none;
+  }
+  .abtn small { font-size:9px; font-weight:700; opacity:.8; }
+  .sep { width:1px; height:34px; background:#e0e6ed; flex:none; margin:0 3px; }
+  #btn-vider {
+    height:54px; padding:0 13px; border-radius:16px; border:2px solid #ffcdd2;
+    background:#ffebee; color:#c62828; font-size:12.5px; font-weight:800;
+    cursor:pointer; white-space:nowrap; flex:none;
+  }
+
+  /* ---------- Guide ---------- */
+  .voile {
+    position:fixed; inset:0; background:rgba(38,50,56,.6);
+    display:none; align-items:center; justify-content:center; z-index:20; padding:16px;
+  }
+  .voile.visible { display:flex; }
+  .voile .carte {
+    position:relative; background:#fff; border-radius:16px; padding:22px;
+    max-width:430px; width:100%; max-height:86vh; overflow-y:auto;
+    box-shadow:0 10px 40px rgba(0,0,0,.35);
+  }
+  .fermer-x {
+    position:absolute; top:8px; right:10px; border:none; background:none;
+    font-size:20px; line-height:1; color:#90a4ae; cursor:pointer; padding:6px 8px;
+  }
+  .voile h2 { font-size:18px; color:#6a1b9a; margin-bottom:14px; }
+  .voile .go {
+    width:100%; border:none; background:#6a1b9a; color:#fff; font-size:15px; font-weight:700;
+    padding:12px; border-radius:10px; cursor:pointer; margin-top:6px;
+  }
+  .etape { display:flex; gap:11px; margin-bottom:13px; align-items:flex-start; }
+  .etape .num {
+    flex:none; width:25px; height:25px; border-radius:50%; background:#f3e5f5;
+    color:#6a1b9a; font-size:12.5px; font-weight:800;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .etape .txt { font-size:13.5px; line-height:1.5; color:#37474f; }
+  .etape .txt b { color:#263238; }
+
+  /* ---------- Thème sombre ---------- */
+  body.sombre { background:#0f1620; color:#eceff1; }
+  body.sombre header, body.sombre nav#bac { background:#1c262e; border-color:#2c3a45; }
+  body.sombre nav#bac.corbeille { background:#3a1f22; }
+  body.sombre header h1 { color:#ce93d8; }
+  body.sombre .btn { background:#22303a; border-color:#3a4a56; color:#cfd8dc; }
+  body.sombre .sep { background:#2c3a45; }
+  body.sombre #btn-vider { background:#3a1f22; border-color:#7a3b40; color:#ef9a9a; }
+  body.sombre #objectifs { background:rgba(28,38,46,.95); border-color:#3a4a56; color:#b0bec5; }
+  body.sombre #objectifs .titre { color:#ce93d8; }
+  body.sombre #reussite .vues button { background:#22303a; border-color:#3a4a56; color:#cfd8dc; }
+  body.sombre #reussite .vues button.actif { border-color:#ce93d8; background:#3a2a42; color:#ce93d8; }
+  body.sombre .voile .carte { background:#1c262e; }
+  body.sombre .voile h2 { color:#ce93d8; }
+  body.sombre .etape .num { background:#3a2a42; color:#ce93d8; }
+  body.sombre .etape .txt { color:#cfd8dc; }
+  body.sombre .etape .txt b { color:#eceff1; }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="proto-badge">Prototype R&D</span>
+  <h1>Assemblage 3D par glisser-déposer</h1>
+  <div class="spacer"></div>
+  <button class="btn" id="btn-theme">🌙</button>
+  <button class="btn" id="btn-aide">❓<span class="lbl"> Guide</span></button>
+</header>
+
+<div id="wrap">
+  <canvas id="scene"></canvas>
+  <div id="objectifs"></div>
+  <div id="reussite">
+    <div class="bandeau" id="reussite-texte"></div>
+    <div class="vues">
+      <button id="vue-batonnets" class="actif">🔗 Bâtonnets</button>
+      <button id="vue-compacte">⚪ Compacte</button>
+    </div>
+  </div>
+  <div id="toast"></div>
+</div>
+
+<nav id="bac">
+  <span class="indication">🗑 Relâche ici pour supprimer l'atome</span>
+</nav>
+
+<div id="aide" class="voile">
+  <div class="carte">
+    <button class="fermer-x" id="btn-fermer-aide">✕</button>
+    <h2>🧲 Assemble en glissant !</h2>
+    <div class="etape">
+      <span class="num">1</span>
+      <span class="txt"><b>Fais glisser un atome</b> depuis le bac du bas jusque dans la scène.</span>
+    </div>
+    <div class="etape">
+      <span class="num">2</span>
+      <span class="txt"><b>Approche-le d'un autre atome</b> : un lien fantôme apparaît…
+        relâche, et la liaison se crée toute seule (aimantation) !</span>
+    </div>
+    <div class="etape">
+      <span class="num">3</span>
+      <span class="txt"><b>Touche une liaison</b> pour la passer en double puis triple.
+        <b>Glisse un atome vers le bac</b> pour le supprimer.</span>
+    </div>
+    <div class="etape">
+      <span class="num">4</span>
+      <span class="txt">Molécule complète ? Elle est <b>validée</b>, prend sa vraie forme 3D,
+        et tu peux basculer entre les vues <b>🔗 bâtonnets</b> et <b>⚪ compacte</b>.</span>
+    </div>
+    <button class="go" id="btn-go-aide">Essayer !</button>
+  </div>
+</div>
+
+<script>
+/*__THREE_JS_ICI__*/
+</script>
+<script>
+'use strict';
+/* =====================================================================
+   PROTOTYPE R&D — assemblage de molécules par GLISSER-DÉPOSER en 3D
+   ---------------------------------------------------------------------
+   Identité IKE (≠ PhET, qui assemble à plat) : on glisse les atomes
+   dans l'espace ; à l'approche, la liaison s'aimante (snap) ; puis la
+   relaxation VSEPR replie la molécule dans sa VRAIE géométrie 3D.
+   • doigt sur un atome  → on déplace l'atome (plan parallèle à l'écran)
+   • doigt sur le vide   → on fait tourner la scène
+   • toucher une liaison → simple ⇄ double ⇄ triple
+   • glisser vers le bac → suppression
+   ===================================================================== */
+
+/* ---------- 1. Chimie ---------- */
+
+const ATOMES = {
+  H: { nom:'Hydrogène', couleur:0xf2f2f2, css:'#f2f2f2', txt:'#263238', r:0.32, valence:1, electrons:1 },
+  C: { nom:'Carbone',   couleur:0x455a64, css:'#455a64', txt:'#fff',    r:0.72, valence:4, electrons:4 },
+  N: { nom:'Azote',     couleur:0x42a5f5, css:'#42a5f5', txt:'#fff',    r:0.71, valence:3, electrons:5 },
+  O: { nom:'Oxygène',   couleur:0xef5350, css:'#ef5350', txt:'#fff',    r:0.66, valence:2, electrons:6 },
+};
+const ORDRE_ATOMES = ['H', 'C', 'N', 'O'];
+const CONNUES = {
+  'H₂':'le dihydrogène', 'O₂':'le dioxygène', 'N₂':'le diazote',
+  'H₂O':'l’eau', 'H₂O₂':'l’eau oxygénée', 'CO₂':'le dioxyde de carbone',
+  'CH₄':'le méthane', 'NH₃':'l’ammoniac', 'C₂H₆':'l’éthane',
+  'C₂H₄':'l’éthène', 'C₂H₂':'l’éthyne', 'CH₄O':'le méthanol', 'CH₂O':'le méthanal',
+};
+const OBJECTIFS = ['H₂O', 'O₂', 'CH₄', 'NH₃', 'CO₂'];
+
+const IND = ['₀','₁','₂','₃','₄','₅','₆','₇','₈','₉'];
+const indice = n => n <= 1 ? '' : String(n).split('').map(c => IND[+c]).join('');
+const FORMULES_USAGE = { 'H₃N': 'NH₃' };
+
+const etat = {
+  atomes: [],     // { sym, x, y, z, vx, vy, vz }
+  liaisons: [],   // { a, b, ordre }
+  vue: 'batonnets',
+  theme: 'clair',
+  construites: new Set(),
+};
+
+const ordreDe = i => etat.liaisons.filter(l => l.a === i || l.b === i).reduce((s, l) => s + l.ordre, 0);
+const librePour = i => ATOMES[etat.atomes[i].sym].valence - ordreDe(i);
+const nbDoublets = i => {
+  const a = etat.atomes[i];
+  if (a.sym === 'H') return 0;
+  return Math.max(0, Math.round((ATOMES[a.sym].electrons - ordreDe(i)) / 2));
+};
+const brasLibres = () => etat.atomes.reduce((s, a, i) => s + librePour(i), 0);
+
+function formule() {
+  const c = {};
+  for (const a of etat.atomes) c[a.sym] = (c[a.sym] || 0) + 1;
+  const cles = Object.keys(c).sort();
+  const ordre = [];
+  if (c.C) ordre.push('C');
+  if (c.H) ordre.push('H');
+  for (const k of cles) if (k !== 'C' && k !== 'H') ordre.push(k);
+  const brute = ordre.map(k => k + indice(c[k])).join('');
+  return FORMULES_USAGE[brute] || brute;
+}
+function estConnexe() {
+  const n = etat.atomes.length;
+  if (n === 0) return false;
+  if (n === 1) return true;
+  const adj = etat.atomes.map(() => []);
+  for (const l of etat.liaisons) { adj[l.a].push(l.b); adj[l.b].push(l.a); }
+  const vus = new Set([0]); const pile = [0];
+  while (pile.length) for (const v of adj[pile.pop()]) if (!vus.has(v)) { vus.add(v); pile.push(v); }
+  return vus.size === n;
+}
+
+/* ---------- 2. Relaxation VSEPR (moteur validé de l'atelier) ---------- */
+
+const L_DOUBLET = 0.6;
+const K_LIAISON = 34, K_REP = 5.2, K_REP_DBL = 7.5, AMORTI = 0.82, CUTOFF = 8;
+let doubletsPos = [];
+
+function relaxer(dt, indexEpingle) {
+  const A = etat.atomes;
+  const n = A.length;
+  if (!n) { doubletsPos = []; return; }
+  const attendus = [];
+  A.forEach((a, i) => { for (let k = 0; k < nbDoublets(i); k++) attendus.push(i); });
+  if (doubletsPos.length !== attendus.length ||
+      doubletsPos.some((d, k) => d.parent !== attendus[k])) {
+    doubletsPos = attendus.map(i => ({
+      parent: i,
+      x: A[i].x + (Math.random() - .5), y: A[i].y + (Math.random() - .5), z: A[i].z + (Math.random() - .5),
+      vx: 0, vy: 0, vz: 0,
+    }));
+  }
+  const P = [...A.map(a => ({ ...a, dbl: false })), ...doubletsPos.map(d => ({ ...d, dbl: true }))];
+  const ressorts = etat.liaisons.map(l => ({
+    i: l.a, j: l.b,
+    L0: (ATOMES[A[l.a].sym].r + ATOMES[A[l.b].sym].r) * (l.ordre === 1 ? 1.5 : l.ordre === 2 ? 1.35 : 1.25),
+  }));
+  doubletsPos.forEach((d, k) => ressorts.push({ i: d.parent, j: n + k, L0: L_DOUBLET }));
+  const voisins = P.map(() => new Set());
+  for (const r of ressorts) { voisins[r.i].add(r.j); voisins[r.j].add(r.i); }
+  const lies = new Set(ressorts.map(r => Math.min(r.i, r.j) + ':' + Math.max(r.i, r.j)));
+  const doubletAgit = (i, j) => {
+    const a = P[i], b = P[j];
+    if (a.dbl && b.dbl) return a.parent === b.parent;
+    const d = a.dbl ? a : b, autre = a.dbl ? j : i;
+    return voisins[d.parent].has(autre);
+  };
+  const f = P.map(() => ({ x: 0, y: 0, z: 0 }));
+  for (const r of ressorts) {
+    const a = P[r.i], b = P[r.j];
+    let dx = b.x - a.x, dy = b.y - a.y, dz = b.z - a.z;
+    const L = Math.hypot(dx, dy, dz) || 1e-6;
+    const F = K_LIAISON * (L - r.L0);
+    dx /= L; dy /= L; dz /= L;
+    f[r.i].x += F * dx; f[r.i].y += F * dy; f[r.i].z += F * dz;
+    f[r.j].x -= F * dx; f[r.j].y -= F * dy; f[r.j].z -= F * dz;
+  }
+  for (let i = 0; i < P.length; i++) {
+    for (let j = i + 1; j < P.length; j++) {
+      if (lies.has(i + ':' + j)) continue;
+      const a = P[i], b = P[j];
+      if ((a.dbl || b.dbl) && !doubletAgit(i, j)) continue;
+      let dx = b.x - a.x, dy = b.y - a.y, dz = b.z - a.z;
+      let L = Math.hypot(dx, dy, dz) || 1e-6;
+      if (L > CUTOFF) continue;
+      L = Math.max(L, 0.45);
+      const F = ((a.dbl || b.dbl) ? K_REP_DBL : K_REP) / (L * L);
+      dx /= L; dy /= L; dz /= L;
+      f[i].x -= F * dx; f[i].y -= F * dy; f[i].z -= F * dz;
+      f[j].x += F * dx; f[j].y += F * dy; f[j].z += F * dz;
+    }
+  }
+  const h = Math.min(dt, 0.05);
+  for (let i = 0; i < P.length; i++) {
+    if (i === indexEpingle) continue;                   // l'atome tenu au doigt ne bouge pas
+    const cible = i < n ? A[i] : doubletsPos[i - n];
+    cible.vx = (cible.vx + f[i].x * h) * AMORTI;
+    cible.vy = (cible.vy + f[i].y * h) * AMORTI;
+    cible.vz = (cible.vz + f[i].z * h) * AMORTI;
+    cible.x += cible.vx * h; cible.y += cible.vy * h; cible.z += cible.vz * h;
+  }
+  if (indexEpingle === null || indexEpingle === undefined) {
+    // recentrage doux (jamais pendant un glisser : le doigt fait foi)
+    let cx = 0, cy = 0, cz = 0;
+    for (const a of A) { cx += a.x; cy += a.y; cz += a.z; }
+    cx /= n; cy /= n; cz /= n;
+    for (const p of [...A, ...doubletsPos]) { p.x -= cx * h; p.y -= cy * h; p.z -= cz * h; }
+  }
+}
+
+/* ---------- 3. Scène 3D ---------- */
+
+const canvas = document.getElementById('scene');
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+camera.position.set(0, 0, 9);
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+const lum = new THREE.DirectionalLight(0xffffff, 0.8);
+lum.position.set(3, 4, 5); scene.add(lum);
+const groupe = new THREE.Group(); scene.add(groupe);
+
+const ECHELLE = 1.5;
+const geoCache = {}, matCache = {};
+const geoSphere = r => {
+  const k = r.toFixed(2);
+  if (!geoCache[k]) geoCache[k] = new THREE.SphereGeometry(r, 24, 16);
+  return geoCache[k];
+};
+const matAtome = sym => {
+  if (!matCache[sym]) matCache[sym] = new THREE.MeshPhongMaterial({ color: ATOMES[sym].couleur, shininess: 60 });
+  return matCache[sym];
+};
+const geoCyl = new THREE.CylinderGeometry(0.085, 0.085, 1, 10);
+const matLiaison = new THREE.MeshPhongMaterial({ color: 0x9e9e9e });
+const matFantome = new THREE.MeshPhongMaterial({ color: 0xffca28, transparent: true, opacity: 0.55 });
+
+let meshAtomes = [], meshLiaisons = [];
+const fantome = new THREE.Mesh(geoCyl, matFantome);
+fantome.visible = false;
+scene.add(fantome);   // dans le repère monde (indépendant de la rotation du groupe)
+
+function construireScene() {
+  while (groupe.children.length) groupe.remove(groupe.children[0]);
+  meshAtomes = []; meshLiaisons = [];
+  const compacte = etat.vue === 'compacte';
+  etat.atomes.forEach((a, i) => {
+    const r = ATOMES[a.sym].r * ECHELLE * (compacte ? 1.7 : 1);
+    const m = new THREE.Mesh(geoSphere(r), matAtome(a.sym).clone());
+    m.userData = { type: 'atome', i };
+    groupe.add(m); meshAtomes.push(m);
+  });
+  if (!compacte) etat.liaisons.forEach((l, k) => {
+    for (let b = 0; b < l.ordre; b++) {
+      const m = new THREE.Mesh(geoCyl, matLiaison);
+      m.userData = { type: 'liaison', k, b };
+      groupe.add(m); meshLiaisons.push(m);
+    }
+  });
+  verifierReussite();
+  majObjectifs();
+}
+
+function placerMeshes(surbrillance) {
+  etat.atomes.forEach((a, i) => {
+    if (!meshAtomes[i]) return;
+    meshAtomes[i].position.set(a.x, a.y, a.z);
+    const em = i === drag.index ? 0x333300 : (i === surbrillance ? 0x224422 : 0x000000);
+    meshAtomes[i].material.emissive.setHex(em);
+  });
+  let idx = 0;
+  for (const l of etat.liaisons) {
+    const A = etat.atomes[l.a], B = etat.atomes[l.b];
+    if (!A || !B) continue;
+    const pa = new THREE.Vector3(A.x, A.y, A.z), pb = new THREE.Vector3(B.x, B.y, B.z);
+    const dir = new THREE.Vector3().subVectors(pb, pa);
+    const L = dir.length();
+    const perp = new THREE.Vector3(0, 1, 0).cross(dir).normalize();
+    if (perp.lengthSq() < 0.01) perp.set(1, 0, 0);
+    for (let b = 0; b < l.ordre; b++) {
+      const m = meshLiaisons[idx++];
+      if (!m) continue;
+      const off = (b - (l.ordre - 1) / 2) * 0.24;
+      m.position.copy(pa).add(pb).multiplyScalar(0.5).addScaledVector(perp, off);
+      m.scale.y = L;
+      m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.clone().normalize());
+    }
+  }
+}
+
+function redimensionner() {
+  const wrap = document.getElementById('wrap');
+  const w = wrap.clientWidth, h = wrap.clientHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+}
+
+/* ---------- 4. Glisser-déposer 3D ---------- */
+
+const rayon = new THREE.Raycaster();
+const ndc = new THREE.Vector2();
+const planDrag = new THREE.Plane();
+const ptMonde = new THREE.Vector3();
+
+const drag = { index: null, orbite: false, depX: 0, depY: 0, x: 0, y: 0, cible: null, bouge: false };
+const pointeurs = new Map();
+let distPince = 0;
+
+function ndcDepuis(e) {
+  const r = canvas.getBoundingClientRect();
+  ndc.x = ((e.clientX - r.left) / r.width) * 2 - 1;
+  ndc.y = -((e.clientY - r.top) / r.height) * 2 + 1;
+}
+
+// Position du pointeur projetée sur le plan de drag → coordonnées LOCALES du groupe
+function pointeurVersLocal(e) {
+  ndcDepuis(e);
+  rayon.setFromCamera(ndc, camera);
+  if (!rayon.ray.intersectPlane(planDrag, ptMonde)) return null;
+  return groupe.worldToLocal(ptMonde.clone());
+}
+
+canvas.addEventListener('pointerdown', e => {
+  e.preventDefault();
+  canvas.setPointerCapture(e.pointerId);
+  pointeurs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (pointeurs.size === 2) {
+    const [a, b] = [...pointeurs.values()];
+    distPince = Math.hypot(a.x - b.x, a.y - b.y);
+    drag.index = null; drag.orbite = false;
+    fantome.visible = false;
+    return;
+  }
+  drag.depX = drag.x = e.clientX; drag.depY = drag.y = e.clientY;
+  drag.bouge = false;
+  ndcDepuis(e);
+  rayon.setFromCamera(ndc, camera);
+  const hits = rayon.intersectObjects(groupe.children)
+    .filter(h => h.object.userData.type === 'atome' || h.object.userData.type === 'liaison');
+  if (hits.length && hits[0].object.userData.type === 'atome') {
+    // doigt sur un atome → GLISSER cet atome dans le plan face caméra
+    drag.index = hits[0].object.userData.i;
+    drag.orbite = false;
+    const posMonde = meshAtomes[drag.index].getWorldPosition(new THREE.Vector3());
+    const normale = camera.getWorldDirection(new THREE.Vector3());
+    planDrag.setFromNormalAndCoplanarPoint(normale, posMonde);
+  } else {
+    // vide (ou liaison, gérée au relâcher) → ORBITE
+    drag.index = null;
+    drag.orbite = true;
+  }
+});
+
+canvas.addEventListener('pointermove', e => {
+  if (!pointeurs.has(e.pointerId)) return;
+  pointeurs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (pointeurs.size === 2) {
+    const [a, b] = [...pointeurs.values()];
+    const d = Math.hypot(a.x - b.x, a.y - b.y);
+    if (distPince > 0) camera.position.z = Math.max(4, Math.min(16, camera.position.z * distPince / d));
+    distPince = d;
+    return;
+  }
+  const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+  drag.x = e.clientX; drag.y = e.clientY;
+  if (Math.hypot(e.clientX - drag.depX, e.clientY - drag.depY) > 7) drag.bouge = true;
+
+  if (drag.index !== null) {
+    const p = pointeurVersLocal(e);
+    if (p) {
+      const a = etat.atomes[drag.index];
+      a.x = p.x; a.y = p.y; a.z = p.z;
+      a.vx = a.vy = a.vz = 0;
+    }
+    majCorbeille(e);
+    majFantome();
+  } else if (drag.orbite) {
+    groupe.rotation.y += dx * 0.011;
+    groupe.rotation.x = Math.max(-1.4, Math.min(1.4, groupe.rotation.x + dy * 0.011));
+  }
+});
+
+canvas.addEventListener('pointerup', e => {
+  pointeurs.delete(e.pointerId);
+  const etaitAtome = drag.index;
+  const aBouge = drag.bouge;
+  if (drag.index !== null) {
+    if (surLeBac(e)) {
+      retirerAtome(drag.index);
+      toast('🗑 Atome retiré');
+    } else if (drag.cible !== null) {
+      creerLiaison(drag.index, drag.cible);
+    }
+  }
+  drag.index = null; drag.orbite = false; drag.cible = null;
+  fantome.visible = false;
+  document.getElementById('bac').classList.remove('corbeille');
+  if (!aBouge) toucherSimple(e, etaitAtome);
+});
+canvas.addEventListener('pointercancel', e => {
+  pointeurs.delete(e.pointerId);
+  drag.index = null; drag.orbite = false; drag.cible = null;
+  fantome.visible = false;
+  document.getElementById('bac').classList.remove('corbeille');
+});
+canvas.addEventListener('contextmenu', e => e.preventDefault());
+
+// Toucher bref : cycler une liaison, ou nommer un atome
+function toucherSimple(e, indexAtome) {
+  ndcDepuis(e);
+  rayon.setFromCamera(ndc, camera);
+  const hits = rayon.intersectObjects(groupe.children)
+    .filter(h => h.object.userData.type === 'atome' || h.object.userData.type === 'liaison');
+  if (!hits.length) return;
+  const o = hits[0].object.userData;
+  if (o.type === 'liaison') cyclerLiaison(etat.liaisons[o.k]);
+  else if (indexAtome !== null) {
+    const a = etat.atomes[o.i];
+    toast(`${ATOMES[a.sym].nom} (${a.sym}) · ${librePour(o.i)} liaison(s) libre(s)`);
+  }
+}
+
+/* ---- Aimantation (snap) ---- */
+
+const DIST_SNAP = 1.6;   // marge au-delà du contact (unités du modèle)
+
+function meilleureCible() {
+  const i = drag.index;
+  if (i === null || librePour(i) < 1) return null;
+  const a = etat.atomes[i];
+  let cible = null, dMin = Infinity;
+  etat.atomes.forEach((b, j) => {
+    if (j === i || librePour(j) < 1) return;
+    if (etat.liaisons.some(l => (l.a === i && l.b === j) || (l.a === j && l.b === i))) return;
+    const d = Math.hypot(b.x - a.x, b.y - a.y, b.z - a.z);
+    const seuil = (ATOMES[a.sym].r + ATOMES[b.sym].r) * ECHELLE + DIST_SNAP;
+    if (d < seuil && d < dMin) { dMin = d; cible = j; }
+  });
+  return cible;
+}
+
+function majFantome() {
+  drag.cible = meilleureCible();
+  if (drag.cible === null) { fantome.visible = false; return; }
+  const A = etat.atomes[drag.index], B = etat.atomes[drag.cible];
+  const pa = groupe.localToWorld(new THREE.Vector3(A.x, A.y, A.z));
+  const pb = groupe.localToWorld(new THREE.Vector3(B.x, B.y, B.z));
+  const dir = new THREE.Vector3().subVectors(pb, pa);
+  fantome.position.copy(pa).add(pb).multiplyScalar(0.5);
+  fantome.scale.set(1.6, dir.length(), 1.6);
+  fantome.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.clone().normalize());
+  fantome.visible = true;
+}
+
+function creerLiaison(i, j) {
+  etat.liaisons.push({ a: i, b: j, ordre: 1 });
+  construireScene();
+  const fo = formule();
+  const nom = CONNUES[fo];
+  if (!(nom && brasLibres() === 0 && estConnexe()))
+    toast('🧲 Liaison créée !');
+}
+
+function cyclerLiaison(l) {
+  // ordre maximal atteignable = ordre actuel + bras encore libres de chaque côté
+  const max = l.ordre + Math.min(librePour(l.a), librePour(l.b));
+  const suivant = l.ordre >= Math.min(3, max) ? 1 : l.ordre + 1;
+  l.ordre = suivant;
+  construireScene();
+  const noms = { 1: 'simple', 2: 'double', 3: 'triple' };
+  toast(`Liaison ${noms[l.ordre]}`);
+}
+
+function retirerAtome(i) {
+  etat.liaisons = etat.liaisons.filter(l => l.a !== i && l.b !== i)
+    .map(l => ({ a: l.a > i ? l.a - 1 : l.a, b: l.b > i ? l.b - 1 : l.b, ordre: l.ordre }));
+  etat.atomes.splice(i, 1);
+  doubletsPos = [];
+  construireScene();
+}
+
+function surLeBac(e) {
+  const r = document.getElementById('bac').getBoundingClientRect();
+  return e.clientY >= r.top - 6;
+}
+function majCorbeille(e) {
+  document.getElementById('bac').classList.toggle('corbeille', surLeBac(e));
+}
+
+/* ---- Glisser un NOUVEL atome depuis le bac ---- */
+
+function demarrerDepuisBac(sym, e) {
+  if (etat.atomes.length >= 16) { toast('Assez d’atomes ! 🗑 Vider pour recommencer.', true); return; }
+  // plan de drag : face caméra, passant par l'origine de la scène
+  const normale = camera.getWorldDirection(new THREE.Vector3());
+  planDrag.setFromNormalAndCoplanarPoint(normale, new THREE.Vector3(0, 0, 0));
+  const p = pointeurVersLocal(e) || new THREE.Vector3(0, 0, 0);
+  etat.atomes.push({ sym, x: p.x, y: p.y, z: p.z, vx: 0, vy: 0, vz: 0 });
+  construireScene();
+  drag.index = etat.atomes.length - 1;
+  drag.orbite = false;
+  drag.bouge = true;
+  drag.depX = drag.x = e.clientX; drag.depY = drag.y = e.clientY;
+  pointeurs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  canvas.setPointerCapture(e.pointerId);
+}
+
+const bac = document.getElementById('bac');
+for (const sym of ORDRE_ATOMES) {
+  const A = ATOMES[sym];
+  const b = document.createElement('button');
+  b.className = 'abtn';
+  b.style.background = A.css; b.style.color = A.txt;
+  b.innerHTML = `${sym}<small>${A.valence} liaison${A.valence > 1 ? 's' : ''}</small>`;
+  b.addEventListener('pointerdown', e => { e.preventDefault(); demarrerDepuisBac(sym, e); });
+  bac.appendChild(b);
+}
+const sep = document.createElement('div'); sep.className = 'sep'; bac.appendChild(sep);
+const bVider = document.createElement('button');
+bVider.id = 'btn-vider'; bVider.textContent = '🗑 Vider';
+bVider.addEventListener('click', () => {
+  etat.atomes = []; etat.liaisons = []; doubletsPos = [];
+  construireScene();
+});
+bac.appendChild(bVider);
+
+/* ---------- 5. Validation & vues ---------- */
+
+function verifierReussite() {
+  const el = document.getElementById('reussite');
+  const fo = formule();
+  const nom = CONNUES[fo];
+  const complete = nom && etat.atomes.length > 1 && brasLibres() === 0 && estConnexe();
+  if (complete) {
+    document.getElementById('reussite-texte').textContent = `✨ ${fo} — c’est ${nom} !`;
+    el.classList.add('visible');
+    if (!etat.construites.has(fo)) {
+      etat.construites.add(fo);
+      try { localStorage.setItem('ike-proto-construites', JSON.stringify([...etat.construites])); } catch (er) {}
+    }
+  } else {
+    el.classList.remove('visible');
+  }
+}
+
+function majObjectifs() {
+  const el = document.getElementById('objectifs');
+  const l = ['<div class="titre">🎯 À construire</div>'];
+  for (const f of OBJECTIFS) {
+    const fait = etat.construites.has(f);
+    l.push(`<div class="obj${fait ? ' fait' : ''}">${fait ? '✅' : '⬜'} ${f}</div>`);
+  }
+  el.innerHTML = l.join('');
+}
+
+document.getElementById('vue-batonnets').addEventListener('click', () => changerVue('batonnets'));
+document.getElementById('vue-compacte').addEventListener('click', () => changerVue('compacte'));
+function changerVue(v) {
+  etat.vue = v;
+  document.getElementById('vue-batonnets').classList.toggle('actif', v === 'batonnets');
+  document.getElementById('vue-compacte').classList.toggle('actif', v === 'compacte');
+  construireScene();
+}
+
+/* ---------- 6. Boucle, messages, thème ---------- */
+
+let tPrec = 0;
+function boucle(t) {
+  const dt = Math.min(0.05, (t - tPrec) / 1000 || 0.016);
+  tPrec = t;
+  relaxer(dt, drag.index);
+  placerMeshes(drag.cible);
+  if (drag.index === null && !drag.orbite) groupe.rotation.y += 0.18 * dt;
+  renderer.render(scene, camera);
+  requestAnimationFrame(boucle);
+}
+
+let toastTimer = null;
+function toast(msg, rouge) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.toggle('rouge', !!rouge);
+  t.classList.add('visible');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('visible'), 2200);
+}
+
+const aide = document.getElementById('aide');
+document.getElementById('btn-aide').addEventListener('click', () => aide.classList.add('visible'));
+document.getElementById('btn-fermer-aide').addEventListener('click', () => aide.classList.remove('visible'));
+document.getElementById('btn-go-aide').addEventListener('click', () => {
+  aide.classList.remove('visible');
+  try { localStorage.setItem('ike-proto-guide', '1'); } catch (e) {}
+});
+
+function appliquerTheme() {
+  document.body.classList.toggle('sombre', etat.theme === 'sombre');
+  document.getElementById('btn-theme').textContent = etat.theme === 'sombre' ? '☀️' : '🌙';
+}
+document.getElementById('btn-theme').addEventListener('click', () => {
+  etat.theme = etat.theme === 'sombre' ? 'clair' : 'sombre';
+  try { localStorage.setItem('ike-theme', etat.theme); } catch (e) {}
+  appliquerTheme();
+});
+try {
+  const memo = localStorage.getItem('ike-theme');
+  if (memo === 'sombre' || memo === 'clair') etat.theme = memo;
+  else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
+    etat.theme = 'sombre';
+  const c = JSON.parse(localStorage.getItem('ike-proto-construites') || '[]');
+  c.forEach(f => etat.construites.add(f));
+} catch (e) {}
+
+/* ---------- Démarrage ---------- */
+window.addEventListener('resize', redimensionner);
+redimensionner();
+appliquerTheme();
+construireScene();
+requestAnimationFrame(boucle);
+try {
+  if (!localStorage.getItem('ike-proto-guide')) aide.classList.add('visible');
+} catch (e) { aide.classList.add('visible'); }
+</script>
+</body>
+</html>
