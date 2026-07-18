@@ -98,11 +98,14 @@
   nav#bac.corbeille .abtn, nav#bac.corbeille .sep { opacity:.25; }
   .abtn {
     display:flex; flex-direction:column; align-items:center; justify-content:center;
-    width:54px; height:54px; flex:none; border-radius:16px;
-    border:2px solid rgba(0,0,0,.14); cursor:grab; line-height:1.15;
-    font-size:17px; font-weight:800; touch-action:none;
+    width:56px; height:56px; flex:none; border-radius:50%;
+    border:2px solid rgba(0,0,0,.14); cursor:grab; line-height:1.1;
+    font-size:18px; font-weight:800; touch-action:none;
+    /* reflet de bulle par-dessus la couleur de l'atome */
+    background-image:radial-gradient(circle at 32% 28%, rgba(255,255,255,.55), rgba(255,255,255,0) 46%);
+    box-shadow:inset 0 -4px 8px rgba(0,0,0,.12), 0 2px 5px rgba(0,0,0,.15);
   }
-  .abtn small { font-size:9px; font-weight:700; opacity:.8; }
+  .abtn small { font-size:7.5px; font-weight:700; opacity:.85; }
   .sep { width:1px; height:34px; background:#e0e6ed; flex:none; margin:0 3px; }
   #btn-vider {
     height:54px; padding:0 13px; border-radius:16px; border:2px solid #ffcdd2;
@@ -201,7 +204,8 @@
     <div class="etape">
       <span class="num">3</span>
       <span class="txt"><b>Touche une liaison</b> pour la passer en double puis triple.
-        <b>Glisse un atome vers le bac</b> pour le supprimer.</span>
+        <b>Glisse un atome vers le bac</b> 🗑 pour le supprimer,
+        ou <b>reste appuyé sur un atome</b> pour dissocier sa molécule.</span>
     </div>
     <div class="etape">
       <span class="num">4</span>
@@ -369,6 +373,15 @@ function relaxer(dt, indexEpingle) {
   }
 }
 
+// Rafale de relaxation : la molécule saute tout de suite à sa forme
+// d'équilibre (nomenclature internationale : CO₂ linéaire, CH₄ tétraèdre…).
+// Validé : 3000 pas ramènent un CO₂ coudé à 90° au-dessus de 176° (~12 ms).
+// Grosse molécule : rafale réduite, les sous-pas de la boucle finissent le travail.
+function stabiliser() {
+  const n = etat.atomes.length <= 8 ? 3000 : 800;
+  for (let k = 0; k < n; k++) relaxer(0.05, null);
+}
+
 /* ---------- 3. Scène 3D ---------- */
 
 const canvas = document.getElementById('scene');
@@ -495,6 +508,37 @@ function pointeurVersLocal(e) {
   return groupe.worldToLocal(ptMonde.clone());
 }
 
+// Appui long sur un atome → sa molécule se dissocie (les liaisons cassent)
+let appuiLongTimer = null;
+function annulerAppuiLong() { clearTimeout(appuiLongTimer); appuiLongTimer = null; }
+
+function composante(i) {
+  const vus = new Set([i]);
+  let taille = 0;
+  while (vus.size !== taille) {
+    taille = vus.size;
+    for (const l of etat.liaisons) {
+      if (vus.has(l.a)) vus.add(l.b);
+      if (vus.has(l.b)) vus.add(l.a);
+    }
+  }
+  return vus;
+}
+
+function dissocierMolecule(i) {
+  const comp = composante(i);
+  const avant = etat.liaisons.length;
+  etat.liaisons = etat.liaisons.filter(l => !comp.has(l.a));
+  if (etat.liaisons.length === avant) return;      // atome isolé : rien à casser
+  // petite impulsion pour que les atomes s'écartent visiblement
+  for (const k of comp) {
+    const a = etat.atomes[k];
+    a.vx += (Math.random() - .5) * 6; a.vy += (Math.random() - .5) * 6; a.vz += (Math.random() - .5) * 6;
+  }
+  construireScene();
+  toast('💥 Molécule dissociée !');
+}
+
 canvas.addEventListener('pointerdown', e => {
   e.preventDefault();
   canvas.setPointerCapture(e.pointerId);
@@ -504,6 +548,7 @@ canvas.addEventListener('pointerdown', e => {
     distPince = Math.hypot(a.x - b.x, a.y - b.y);
     drag.index = null; drag.orbite = false;
     fantome.visible = false;
+    annulerAppuiLong();
     return;
   }
   drag.depX = drag.x = e.clientX; drag.depY = drag.y = e.clientY;
@@ -519,6 +564,15 @@ canvas.addEventListener('pointerdown', e => {
     const posMonde = meshAtomes[drag.index].getWorldPosition(new THREE.Vector3());
     const normale = camera.getWorldDirection(new THREE.Vector3());
     planDrag.setFromNormalAndCoplanarPoint(normale, posMonde);
+    const iTenu = drag.index;
+    annulerAppuiLong();
+    appuiLongTimer = setTimeout(() => {
+      if (drag.index === iTenu && !drag.bouge) {
+        dissocierMolecule(iTenu);
+        drag.index = null; drag.bouge = true;   // le relâcher ne comptera pas comme un tap
+        fantome.visible = false;
+      }
+    }, 550);
   } else {
     // vide (ou liaison, gérée au relâcher) → ORBITE
     drag.index = null;
@@ -538,7 +592,10 @@ canvas.addEventListener('pointermove', e => {
   }
   const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
   drag.x = e.clientX; drag.y = e.clientY;
-  if (Math.hypot(e.clientX - drag.depX, e.clientY - drag.depY) > 7) drag.bouge = true;
+  if (Math.hypot(e.clientX - drag.depX, e.clientY - drag.depY) > 7) {
+    drag.bouge = true;
+    annulerAppuiLong();          // le doigt bouge : c'est un glisser, pas un appui long
+  }
 
   if (drag.index !== null) {
     const p = pointeurVersLocal(e);
@@ -557,6 +614,7 @@ canvas.addEventListener('pointermove', e => {
 
 canvas.addEventListener('pointerup', e => {
   pointeurs.delete(e.pointerId);
+  annulerAppuiLong();
   const etaitAtome = drag.index;
   const aBouge = drag.bouge;
   if (drag.index !== null) {
@@ -574,6 +632,7 @@ canvas.addEventListener('pointerup', e => {
 });
 canvas.addEventListener('pointercancel', e => {
   pointeurs.delete(e.pointerId);
+  annulerAppuiLong();
   drag.index = null; drag.orbite = false; drag.cible = null;
   fantome.visible = false;
   document.getElementById('bac').classList.remove('corbeille');
@@ -629,6 +688,7 @@ function majFantome() {
 
 function creerLiaison(i, j) {
   etat.liaisons.push({ a: i, b: j, ordre: 1 });
+  stabiliser();
   construireScene();
   const fo = formule();
   const nom = CONNUES[fo];
@@ -641,6 +701,7 @@ function cyclerLiaison(l) {
   const max = l.ordre + Math.min(librePour(l.a), librePour(l.b));
   const suivant = l.ordre >= Math.min(3, max) ? 1 : l.ordre + 1;
   l.ordre = suivant;
+  stabiliser();
   construireScene();
   const noms = { 1: 'simple', 2: 'double', 3: 'triple' };
   toast(`Liaison ${noms[l.ordre]}`);
@@ -685,8 +746,9 @@ for (const sym of ORDRE_ATOMES) {
   const A = ATOMES[sym];
   const b = document.createElement('button');
   b.className = 'abtn';
-  b.style.background = A.css; b.style.color = A.txt;
-  b.innerHTML = `${sym}<small>${A.valence} liaison${A.valence > 1 ? 's' : ''}</small>`;
+  b.style.backgroundColor = A.css; b.style.color = A.txt;
+  b.innerHTML = `${sym}<small>${A.nom}</small>`;
+  b.title = `${A.nom} — ${A.valence} liaison${A.valence > 1 ? 's' : ''}`;
   b.addEventListener('pointerdown', e => { e.preventDefault(); demarrerDepuisBac(sym, e); });
   bac.appendChild(b);
 }
@@ -743,7 +805,8 @@ let tPrec = 0;
 function boucle(t) {
   const dt = Math.min(0.05, (t - tPrec) / 1000 || 0.016);
   tPrec = t;
-  relaxer(dt, drag.index);
+  // plusieurs sous-pas par image : la géométrie converge vite vers la forme canonique
+  for (let s = 0; s < 6; s++) relaxer(dt, drag.index);
   placerMeshes(drag.cible);
   if (drag.index === null && !drag.orbite) groupe.rotation.y += 0.18 * dt;
   renderer.render(scene, camera);

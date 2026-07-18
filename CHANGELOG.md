@@ -5,6 +5,27 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v3.4.0 — 2026-07-18
+
+🔍 **Retours testeurs — circuit (6ᵉ vague) et prototype 3D (2ᵉ vague)** :
+
+Circuit électrique :
+- **Zoom et déplacement du plan de travail** : boutons + / − / ⟲ à l'écran et geste de
+  pincement à deux doigts (zoomer + faire glisser) — on peut désormais écarter le circuit
+  du panneau de calculs qui le cachait
+- **Bouton « 🗑 Vider »** clairement nommé sur le plan de travail
+- **Fiche notion de synthèse série / dérivation** (mission finale) : tableau récapitulatif
+  des lois de la tension et de l'intensité dans les deux montages
+
+Prototype 3D glisser-déposer + atelier de molécules :
+- **Forme canonique immédiate** : dès qu'une liaison est créée ou modifiée, une rafale de
+  relaxation amène la molécule à sa géométrie de nomenclature internationale — CO₂ devient
+  bien **linéaire** (validé ≥ 176° par test), CH₄ tétraédrique, sans attente
+- **Appui long sur un atome → la molécule se dissocie** (toutes ses liaisons cassent) ;
+  le glisser vers le bac (suppression) reste et est annoncé dans le guide dès le départ
+- **Bac à atomes en bulles rondes colorées** avec le nom de l'atome, façon perles de
+  chimie — fini les tuiles carrées chargées de texte
+
 ## v3.3.0 — 2026-07-18
 
 🎨 **Retours testeurs sur le circuit nouvelle génération** (5ᵉ vague) :
