@@ -1,0 +1,337 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1536" height="1260" viewBox="0 0 1536 1260">
+  <defs>
+    <filter id="softShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="12" flood-color="#3A3632" flood-opacity="0.08" />
+    </filter>
+    <linearGradient id="cardBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="100%" stop-color="#FAFAF8" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1536" height="1260" fill="#F7F5F0" />
+
+  <!-- Helper: Color card -->
+  <g id="colorCard" transform="translate(40, 40)">
+    <!-- Card shadow/background -->
+    <rect x="0" y="0" width="360" height="210" rx="20" fill="url(#cardBg)" filter="url(#softShadow)" />
+    <!-- Main color -->
+    <rect x="0" y="0" width="360" height="140" rx="20" fill="#C4D94E" />
+    <rect x="0" y="120" width="360" height="90" rx="0" fill="#C4D94E" />
+    <rect x="0" y="120" width="360" height="20" fill="#C4D94E" />
+    <rect x="0" y="140" width="360" height="70" rx="0 0 20 20" fill="#C4D94E" />
+    <!-- Label + hex -->
+    <text x="20" y="34" font-family="Inter, sans-serif" font-size="14" font-weight="700"
+      fill="#3A3632">Primary</text>
+    <text x="300" y="34" font-family="Inter, sans-serif" font-size="13" font-weight="600"
+      fill="#3A3632" text-anchor="end">#C4D94E</text>
+    <!-- Tint/shade strip -->
+    <rect x="20" y="156" width="32" height="36" rx="6" fill="#F3F7DB" />
+    <rect x="56" y="156" width="32" height="36" rx="6" fill="#E6EFB4" />
+    <rect x="92" y="156" width="32" height="36" rx="6" fill="#D6E586" />
+    <rect x="128" y="156" width="32" height="36" rx="6" fill="#C4D94E" />
+    <rect x="164" y="156" width="32" height="36" rx="6" fill="#C4D94E" />
+    <rect x="200" y="156" width="32" height="36" rx="6" fill="#9FAF43" />
+    <rect x="236" y="156" width="32" height="36" rx="6" fill="#7E8A39" />
+    <rect x="272" y="156" width="32" height="36" rx="6" fill="#636C32" />
+    <rect x="308" y="156" width="32" height="36" rx="6" fill="#4C522B" />
+  </g>
+
+  <!-- Secondary color card -->
+  <g transform="translate(40, 270)">
+    <rect x="0" y="0" width="360" height="210" rx="20" fill="url(#cardBg)" filter="url(#softShadow)" />
+    <rect x="0" y="0" width="360" height="140" rx="20" fill="#5BC5F2" />
+    <rect x="0" y="120" width="360" height="90" rx="0" fill="#5BC5F2" />
+    <rect x="0" y="140" width="360" height="70" rx="0 0 20 20" fill="#5BC5F2" />
+    <text x="20" y="34" font-family="Inter, sans-serif" font-size="14" font-weight="700"
+      fill="#3A3632">Secondary</text>
+    <text x="300" y="34" font-family="Inter, sans-serif" font-size="13" font-weight="600"
+      fill="#3A3632" text-anchor="end">#5BC5F2</text>
+    <rect x="20" y="156" width="32" height="36" rx="6" fill="#D6F0FB" />
+    <rect x="56" y="156" width="32" height="36" rx="6" fill="#ADE2F7" />
+    <rect x="92" y="156" width="32" height="36" rx="6" fill="#84D3F4" />
+    <rect x="128" y="156" width="32" height="36" rx="6" fill="#5BC5F2" />
+    <rect x="164" y="156" width="32" height="36" rx="6" fill="#4694BE" />
+    <rect x="200" y="156" width="32" height="36" rx="6" fill="#31638A" />
+    <rect x="236" y="156" width="32" height="36" rx="6" fill="#1C3256" />
+    <rect x="272" y="156" width="32" height="36" rx="6" fill="#0F1F3B" />
+    <rect x="308" y="156" width="32" height="36" rx="6" fill="#060F26" />
+  </g>
+
+  <!-- Tertiary color card -->
+  <g transform="translate(40, 500)">
+    <rect x="0" y="0" width="360" height="210" rx="20" fill="url(#cardBg)" filter="url(#softShadow)" />
+    <rect x="0" y="0" width="360" height="140" rx="20" fill="#F7A430" />
+    <rect x="0" y="120" width="360" height="90" rx="0" fill="#F7A430" />
+    <rect x="0" y="140" width="360" height="70" rx="0 0 20 20" fill="#F7A430" />
+    <text x="20" y="34" font-family="Inter, sans-serif" font-size="14" font-weight="700"
+      fill="#3A3632">Tertiary</text>
+    <text x="300" y="34" font-family="Inter, sans-serif" font-size="13" font-weight="600"
+      fill="#3A3632" text-anchor="end">#F7A430</text>
+    <rect x="20" y="156" width="32" height="36" rx="6" fill="#FDE9C8" />
+    <rect x="56" y="156" width="32" height="36" rx="6" fill="#FBD397" />
+    <rect x="92" y="156" width="32" height="36" rx="6" fill="#F9BD66" />
+    <rect x="128" y="156" width="32" height="36" rx="6" fill="#F7A430" />
+    <rect x="164" y="156" width="32" height="36" rx="6" fill="#C27D24" />
+    <rect x="200" y="156" width="32" height="36" rx="6" fill="#8D5618" />
+    <rect x="236" y="156" width="32" height="36" rx="6" fill="#582F0C" />
+    <rect x="272" y="156" width="32" height="36" rx="6" fill="#3C1E07" />
+    <rect x="308" y="156" width="32" height="36" rx="6" fill="#200F03" />
+  </g>
+
+  <!-- Destructive color card -->
+  <g transform="translate(40, 730)">
+    <rect x="0" y="0" width="360" height="210" rx="20" fill="url(#cardBg)" filter="url(#softShadow)" />
+    <rect x="0" y="0" width="360" height="140" rx="20" fill="#E83A4B" />
+    <rect x="0" y="120" width="360" height="90" rx="0" fill="#E83A4B" />
+    <rect x="0" y="140" width="360" height="70" rx="0 0 20 20" fill="#E83A4B" />
+    <text x="20" y="34" font-family="Inter, sans-serif" font-size="14" font-weight="700"
+      fill="#FFFFFF">Destructive</text>
+    <text x="300" y="34" font-family="Inter, sans-serif" font-size="13" font-weight="600"
+      fill="#FFFFFF" text-anchor="end">#E83A4B</text>
+    <rect x="20" y="156" width="32" height="36" rx="6" fill="#FDE2E5" />
+    <rect x="56" y="156" width="32" height="36" rx="6" fill="#FBB8BE" />
+    <rect x="92" y="156" width="32" height="36" rx="6" fill="#F68E97" />
+    <rect x="128" y="156" width="32" height="36" rx="6" fill="#E83A4B" />
+    <rect x="164" y="156" width="32" height="36" rx="6" fill="#E83A4B" />
+    <rect x="200" y="156" width="32" height="36" rx="6" fill="#C22F3D" />
+    <rect x="236" y="156" width="32" height="36" rx="6" fill="#9C2430" />
+    <rect x="272" y="156" width="32" height="36" rx="6" fill="#761A24" />
+    <rect x="308" y="156" width="32" height="36" rx="6" fill="#501018" />
+  </g>
+
+  <!-- Neutral color card -->
+  <g transform="translate(40, 960)">
+    <rect x="0" y="0" width="360" height="254" rx="20" fill="url(#cardBg)" filter="url(#softShadow)" />
+    <rect x="0" y="0" width="360" height="140" rx="20" fill="#3A3632" />
+    <rect x="0" y="120" width="360" height="134" rx="0" fill="#3A3632" />
+    <rect x="0" y="140" width="360" height="114" rx="0 0 20 20" fill="#3A3632" />
+    <text x="20" y="34" font-family="Inter, sans-serif" font-size="14" font-weight="700"
+      fill="#FFFFFF">Neutral</text>
+    <text x="300" y="34" font-family="Inter, sans-serif" font-size="13" font-weight="600"
+      fill="#FFFFFF" text-anchor="end">#3A3632</text>
+    <rect x="20" y="156" width="32" height="36" rx="6" fill="#E8E6E3" />
+    <rect x="56" y="156" width="32" height="36" rx="6" fill="#CFCBC6" />
+    <rect x="92" y="156" width="32" height="36" rx="6" fill="#B6B0A9" />
+    <rect x="128" y="156" width="32" height="36" rx="6" fill="#3A3632" fill-opacity="0.5" />
+    <rect x="164" y="156" width="32" height="36" rx="6" fill="#857B70" />
+    <rect x="200" y="156" width="32" height="36" rx="6" fill="#3A3632" fill-opacity="0.6" />
+    <rect x="236" y="156" width="32" height="36" rx="6" fill="#534D45" />
+    <rect x="272" y="156" width="32" height="36" rx="6" fill="#3A3632" />
+    <rect x="308" y="156" width="32" height="36" rx="6" fill="#211F1C" />
+    <!-- Additional neutrals -->
+    <rect x="20" y="198" width="156" height="24" rx="6" fill="#3A3632" fill-opacity="0.6" />
+    <rect x="184" y="198" width="156" height="24" rx="6" fill="#3A3632" fill-opacity="0.5" />
+  </g>
+
+  <!-- Typography section -->
+  <g transform="translate(440, 40)">
+    <rect x="0" y="0" width="460" height="360" rx="20" fill="url(#cardBg)" filter="url(#softShadow)" />
+    <text x="30" y="40" font-family="Inter, sans-serif" font-size="12" font-weight="600"
+      fill="#3A3632" fill-opacity="0.5" letter-spacing="1">HEADLINE</text>
+    <text x="340" y="40" font-family="Inter, sans-serif" font-size="12" font-weight="500"
+      fill="#3A3632" fill-opacity="0.5">Baloo 2</text>
+    <text x="30" y="150" font-family="'Baloo 2', 'Nunito', 'Quicksand', sans-serif" font-size="120"
+      font-weight="800" fill="#3A3632">Aa</text>
+
+    <text x="30" y="230" font-family="Inter, sans-serif" font-size="12" font-weight="600"
+      fill="#3A3632" fill-opacity="0.5" letter-spacing="1">BODY</text>
+    <text x="340" y="230" font-family="Inter, sans-serif" font-size="12" font-weight="500"
+      fill="#3A3632" fill-opacity="0.5">Inter</text>
+    <text x="30" y="310" font-family="Inter, sans-serif" font-size="72" font-weight="400"
+      fill="#3A3632">Aa</text>
+
+    <text x="30" y="410" font-family="Inter, sans-serif" font-size="12" font-weight="600"
+      fill="#3A3632" fill-opacity="0.5" letter-spacing="1">LABEL</text>
+    <text x="340" y="410" font-family="Inter, sans-serif" font-size="12" font-weight="500"
+      fill="#3A3632" fill-opacity="0.5">Inter</text>
+    <text x="30" y="470" font-family="Inter, sans-serif" font-size="36" font-weight="500"
+      fill="#3A3632" fill-opacity="0.6">Aa</text>
+  </g>
+
+  <!-- Color usage bars -->
+  <g transform="translate(440, 420)">
+    <rect x="0" y="0" width="460" height="260" rx="20" fill="url(#cardBg)" filter="url(#softShadow)" />
+    <text x="30" y="45" font-family="Inter, sans-serif" font-size="12" font-weight="600"
+      fill="#3A3632" fill-opacity="0.5" letter-spacing="1">COLOR USAGE</text>
+    <rect x="30" y="80" width="400" height="12" rx="6" fill="#C4D94E" />
+    <rect x="30" y="80" width="180" height="12" rx="6" fill="#C4D94E" />
+    <rect x="30" y="110" width="400" height="12" rx="6" fill="#5BC5F2" />
+    <rect x="30" y="110" width="260" height="12" rx="6" fill="#5BC5F2" />
+    <rect x="30" y="140" width="400" height="12" rx="6" fill="#F7A430" />
+    <rect x="30" y="140" width="120" height="12" rx="6" fill="#F7A430" />
+    <rect x="30" y="170" width="400" height="12" rx="6" fill="#E83A4B" />
+    <rect x="30" y="170" width="90" height="12" rx="6" fill="#E83A4B" />
+    <rect x="30" y="200" width="400" height="12" rx="6" fill="#3A3632" />
+    <rect x="30" y="200" width="320" height="12" rx="6" fill="#3A3632" />
+    <text x="30" y="235" font-family="Inter, sans-serif" font-size="12" fill="#3A3632" fill-opacity="0.6">Primary ·
+      Secondary · Tertiary · Destructive · Neutral</text>
+  </g>
+
+  <!-- Buttons -->
+  <g transform="translate(940, 40)">
+    <rect x="0" y="0" width="556" height="220" rx="20" fill="url(#cardBg)" filter="url(#softShadow)" />
+    <text x="30" y="40" font-family="Inter, sans-serif" font-size="12" font-weight="600"
+      fill="#3A3632" fill-opacity="0.5" letter-spacing="1">BUTTONS</text>
+    <rect x="30" y="70" width="110" height="44" rx="12" fill="#C4D94E" />
+    <text x="85" y="98" font-family="Inter, sans-serif" font-size="14" font-weight="600"
+      fill="#3A3632" text-anchor="middle">Primary</text>
+    <rect x="155" y="70" width="110" height="44" rx="12" fill="#5BC5F2" />
+    <text x="210" y="98" font-family="Inter, sans-serif" font-size="14" font-weight="600"
+      fill="#3A3632" text-anchor="middle">Secondary</text>
+    <rect x="280" y="70" width="110" height="44" rx="12" fill="#3A3632" />
+    <text x="335" y="98" font-family="Inter, sans-serif" font-size="14" font-weight="600"
+      fill="#FFFFFF" text-anchor="middle">Inverted</text>
+    <rect x="405" y="70" width="110" height="44" rx="12" fill="#FFFFFF" stroke="#3A3632"
+      stroke-width="2" />
+    <text x="460" y="98" font-family="Inter, sans-serif" font-size="14" font-weight="600"
+      fill="#3A3632" text-anchor="middle">Outlined</text>
+
+    <!-- Icon buttons -->
+    <rect x="30" y="140" width="48" height="48" rx="12" fill="#C4D94E" />
+    <path
+      d="M51 156 L57 156 L57 162 L63 162 L63 168 L57 168 L57 174 L51 174 L51 168 L45 168 L45 162 L51 162 Z"
+      fill="#3A3632" />
+    <rect x="90" y="140" width="48" height="48" rx="12" fill="#5BC5F2" />
+    <circle cx="114" cy="158" r="6" fill="#3A3632" />
+    <path d="M102 172 Q114 160 126 172" stroke="#3A3632" stroke-width="3" fill="none"
+      stroke-linecap="round" />
+    <rect x="150" y="140" width="48" height="48" rx="12" fill="#F7A430" />
+    <path d="M162 158 L174 158 M168 152 L168 164" stroke="#3A3632" stroke-width="3"
+      stroke-linecap="round" />
+    <rect x="210" y="140" width="48" height="48" rx="12" fill="#3A3632" />
+    <path d="M222 156 L234 156 M222 164 L234 164 M222 172 L234 172" stroke="#FFFFFF"
+      stroke-width="2" stroke-linecap="round" />
+  </g>
+
+  <!-- Input + nav -->
+  <g transform="translate(940, 280)">
+    <rect x="0" y="0" width="556" height="260" rx="20" fill="url(#cardBg)" filter="url(#softShadow)" />
+    <text x="30" y="40" font-family="Inter, sans-serif" font-size="12" font-weight="600"
+      fill="#3A3632" fill-opacity="0.5" letter-spacing="1">INPUT + NAVIGATION</text>
+    <!-- Search input -->
+    <rect x="30" y="70" width="496" height="56" rx="16" fill="#FFFFFF" stroke="#D3CFC8"
+      stroke-width="2" />
+    <circle cx="60" cy="98" r="10" stroke="#3A3632" stroke-opacity="0.5" stroke-width="2" fill="none" />
+    <line x1="68" y1="106" x2="74" y2="112" stroke="#3A3632" stroke-opacity="0.5" stroke-width="2" stroke-linecap="round" />
+    <text x="90" y="103" font-family="Inter, sans-serif" font-size="16" fill="#3A3632" fill-opacity="0.5">Search</text>
+    <!-- Bottom nav -->
+    <rect x="30" y="160" width="496" height="72" rx="24" fill="#FFFFFF" stroke="#D3CFC8"
+      stroke-width="2" />
+    <rect x="30" y="160" width="496" height="72" rx="24" fill="#FFFFFF" />
+    <!-- Home icon active -->
+    <rect x="70" y="172" width="64" height="48" rx="14" fill="#C4D94E" fill-opacity="0.15" />
+    <path d="M96 184 L102 184 L102 194 L96 194 Z" fill="#C4D94E" />
+    <path d="M90 188 L99 180 L108 188" stroke="#C4D94E" stroke-width="2" stroke-linecap="round"
+      stroke-linejoin="round" fill="none" />
+    <!-- Search icon -->
+    <circle cx="275" cy="196" r="10" stroke="#3A3632" stroke-opacity="0.6" stroke-width="2" fill="none" />
+    <line x1="283" y1="204" x2="289" y2="210" stroke="#3A3632" stroke-opacity="0.6" stroke-width="2"
+      stroke-linecap="round" />
+    <!-- Profile icon -->
+    <circle cx="435" cy="188" r="6" stroke="#3A3632" stroke-opacity="0.6" stroke-width="2" fill="none" />
+    <path d="M423 204 Q435 192 447 204" stroke="#3A3632" stroke-opacity="0.6" stroke-width="2" fill="none"
+      stroke-linecap="round" />
+  </g>
+
+  <!-- Labels + chips -->
+  <g transform="translate(440, 700)">
+    <rect x="0" y="0" width="460" height="284" rx="20" fill="url(#cardBg)" filter="url(#softShadow)" />
+    <text x="30" y="40" font-family="Inter, sans-serif" font-size="12" font-weight="600"
+      fill="#3A3632" fill-opacity="0.5" letter-spacing="1">LABELS + CHIPS</text>
+    <rect x="30" y="70" width="90" height="36" rx="18" fill="#C4D94E" />
+    <text x="75" y="93" font-family="Inter, sans-serif" font-size="13" font-weight="600"
+      fill="#3A3632" text-anchor="middle">Label</text>
+    <rect x="135" y="70" width="90" height="36" rx="18" fill="#5BC5F2" />
+    <text x="180" y="93" font-family="Inter, sans-serif" font-size="13" font-weight="600"
+      fill="#3A3632" text-anchor="middle">Label</text>
+    <rect x="240" y="70" width="90" height="36" rx="18" fill="#F7A430" />
+    <text x="285" y="93" font-family="Inter, sans-serif" font-size="13" font-weight="600"
+      fill="#3A3632" text-anchor="middle">Label</text>
+    <rect x="345" y="70" width="90" height="36" rx="18" fill="#3A3632" />
+    <text x="390" y="93" font-family="Inter, sans-serif" font-size="13" font-weight="600"
+      fill="#FFFFFF" text-anchor="middle">Label</text>
+
+    <!-- Outlined chips -->
+    <rect x="30" y="125" width="90" height="36" rx="18" fill="#FFFFFF" stroke="#D3CFC8"
+      stroke-width="1" />
+    <text x="75" y="148" font-family="Inter, sans-serif" font-size="13" font-weight="600"
+      fill="#3A3632" text-anchor="middle">Label</text>
+    <rect x="135" y="125" width="90" height="36" rx="18" fill="#FFFFFF" stroke="#D3CFC8"
+      stroke-width="1" />
+    <text x="180" y="148" font-family="Inter, sans-serif" font-size="13" font-weight="600"
+      fill="#3A3632" text-anchor="middle">Label</text>
+    <rect x="240" y="125" width="90" height="36" rx="18" fill="#FFFFFF" stroke="#D3CFC8"
+      stroke-width="1" />
+    <text x="285" y="148" font-family="Inter, sans-serif" font-size="13" font-weight="600"
+      fill="#3A3632" text-anchor="middle">Label</text>
+
+    <!-- Cards -->
+    <rect x="30" y="185" width="200" height="70" rx="16" fill="#FFFFFF" stroke="#D3CFC8"
+      stroke-width="2" />
+    <rect x="48" y="205" width="36" height="30" rx="8" fill="#C4D94E" fill-opacity="0.2" />
+    <rect x="95" y="205" width="110" height="10" rx="5" fill="#3A3632" />
+    <rect x="95" y="222" width="80" height="8" rx="4" fill="#3A3632" fill-opacity="0.5" />
+    <rect x="250" y="185" width="200" height="70" rx="16" fill="#FFFFFF" stroke="#D3CFC8"
+      stroke-width="2" />
+    <rect x="268" y="205" width="36" height="30" rx="8" fill="#5BC5F2" fill-opacity="0.2" />
+    <rect x="315" y="205" width="110" height="10" rx="5" fill="#3A3632" />
+    <rect x="315" y="222" width="80" height="8" rx="4" fill="#3A3632" fill-opacity="0.5" />
+  </g>
+
+  <!-- Elevation / shadows scale -->
+  <g transform="translate(940, 560)">
+    <rect x="0" y="0" width="556" height="160" rx="20" fill="url(#cardBg)" filter="url(#softShadow)" />
+    <text x="30" y="40" font-family="Inter, sans-serif" font-size="12" font-weight="600"
+      fill="#3A3632" fill-opacity="0.5" letter-spacing="1">PAPER ELEVATION</text>
+    <rect x="30" y="70" width="100" height="60" rx="12" fill="#FFFFFF" stroke="#D3CFC8"
+      stroke-width="1" />
+    <rect x="155" y="70" width="100" height="60" rx="12" fill="#FFFFFF" filter="url(#softShadow)" />
+    <rect x="280" y="70" width="100" height="60" rx="12" fill="#FFFFFF" filter="url(#softShadow)"
+      transform="translate(0, -6)" />
+    <text x="80" y="155" font-family="Inter, sans-serif" font-size="11" fill="#3A3632" fill-opacity="0.6"
+      text-anchor="middle">Flat</text>
+    <text x="205" y="155" font-family="Inter, sans-serif" font-size="11" fill="#3A3632" fill-opacity="0.6"
+      text-anchor="middle">Soft</text>
+    <text x="330" y="155" font-family="Inter, sans-serif" font-size="11" fill="#3A3632" fill-opacity="0.6"
+      text-anchor="middle">Raised</text>
+  </g>
+
+  <!-- Summary palette strip at bottom -->
+  <g transform="translate(940, 981)">
+    <rect x="0" y="0" width="556" height="279" rx="20" fill="url(#cardBg)" filter="url(#softShadow)" />
+    <text x="30" y="40" font-family="Inter, sans-serif" font-size="12" font-weight="600"
+      fill="#3A3632" fill-opacity="0.5" letter-spacing="1">ALITOUÉ LYCÉEN — TOKENS</text>
+    <text x="30" y="80" font-family="Inter, sans-serif" font-size="14" font-weight="600"
+      fill="#3A3632">Primary</text>
+    <text x="120" y="80" font-family="Inter, sans-serif" font-size="14" fill="#3A3632" fill-opacity="0.6">#C4D94E</text>
+    <rect x="460" y="66" width="66" height="22" rx="6" fill="#C4D94E" />
+
+    <text x="30" y="115" font-family="Inter, sans-serif" font-size="14" font-weight="600"
+      fill="#3A3632">Secondary</text>
+    <text x="120" y="115" font-family="Inter, sans-serif" font-size="14" fill="#3A3632" fill-opacity="0.6">#5BC5F2</text>
+    <rect x="460" y="101" width="66" height="22" rx="6" fill="#5BC5F2" />
+
+    <text x="30" y="150" font-family="Inter, sans-serif" font-size="14" font-weight="600"
+      fill="#3A3632">Tertiary</text>
+    <text x="120" y="150" font-family="Inter, sans-serif" font-size="14" fill="#3A3632" fill-opacity="0.6">#F7A430</text>
+    <rect x="460" y="136" width="66" height="22" rx="6" fill="#F7A430" />
+
+    <text x="30" y="185" font-family="Inter, sans-serif" font-size="14" font-weight="600"
+      fill="#3A3632">Destructive</text>
+    <text x="120" y="185" font-family="Inter, sans-serif" font-size="14" fill="#3A3632" fill-opacity="0.6">#E83A4B</text>
+    <rect x="460" y="171" width="66" height="22" rx="6" fill="#E83A4B" />
+
+    <text x="30" y="220" font-family="Inter, sans-serif" font-size="14" font-weight="600"
+      fill="#3A3632">Neutral</text>
+    <text x="120" y="220" font-family="Inter, sans-serif" font-size="14" fill="#3A3632" fill-opacity="0.6">#3A3632</text>
+    <rect x="460" y="206" width="66" height="22" rx="6" fill="#3A3632" />
+
+    <text x="30" y="255" font-family="Inter, sans-serif" font-size="14" font-weight="600"
+      fill="#3A3632">Background</text>
+    <text x="120" y="255" font-family="Inter, sans-serif" font-size="14" fill="#3A3632" fill-opacity="0.6">#F7F5F0</text>
+    <rect x="460" y="241" width="66" height="22" rx="6" fill="#F7F5F0" stroke="#D3CFC8"
+      stroke-width="1" />
+  </g>
+</svg>

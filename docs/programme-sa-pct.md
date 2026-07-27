@@ -55,9 +55,17 @@ chaque simulation sur le programme officiel béninois (APC).
 
 ## Correspondance simulations ↔ SA
 
-| Simulation | SA couvertes |
+> ⚠️ Ce tableau dit ce qu'une simulation **touche**, pas ce qu'elle **couvre**. Le
+> dépouillement du guide officiel de 6ᵉ (voir [recensement-6e-spct.md](recensement-6e-spct.md))
+> montre que la couverture réelle est bien plus partielle : la SA2 (fabrication d'une lampe
+> de poche) est une SA **technologique** que le circuit électrique ne traite pas, et la
+> SA4 demande de construire un alambic, pas d'observer des paliers de température.
+> Le catalogue de la page d'accueil fait foi : il liste activité par activité ce qui existe
+> et ce qui reste à construire.
+
+| Simulation | SA touchées |
 |---|---|
-| ⚡ Circuit électrique | 6ème SA1 (courant électrique), 6ème SA2 (lampe de poche), 4ème SA1 (appareils de mesure), 5ème SA2 (dangers/court-circuit) |
+| ⚡ Circuit électrique | 6ème SA1 (courant électrique), 4ème SA1 (appareils de mesure), 5ème SA2 (dangers/court-circuit) |
 | 🔍 Banc d'optique | 5ème SA4 (propagation rectiligne, ombres), 4ème SA5-6 (propagation, chambre noire), 3ème SA6 (lentilles, optique au service de l'homme) |
 | 🧊 États de la matière | 6ème SA4 (états de l'eau), 5ème SA3 (structure de la matière), 5ème SA5 (propriétés des gaz) |
 | 🔥 Combustions vives | 6ème SA3 (combustions vives) — pont vers 3ème SA5 (hydrocarbures) |

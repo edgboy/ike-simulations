@@ -5,6 +5,38 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v4.0.0 — 2026-07-28
+
+🎨 **Nouvelle identité et nouvelle organisation du site.**
+
+Le catalogue en onglets laisse place à une navigation **matière → classe → situation
+d'apprentissage → activité**, et le site adopte le design system Labo-Bénin
+(voir `docs/references/design-system-lyceen.md`).
+
+- **Page d'accueil refondue** : sensation *paper* (surfaces claires, ombres douces,
+  couleurs vives employées avec parcimonie), titres en **Baloo 2**, texte en **Inter** —
+  polices servies localement depuis `assets/polices/`, donc toujours hors connexion
+- **Une couleur par matière** pour l'identification visuelle : PCT bleu, Maths orange,
+  SVT vert d'eau. Le lime reste la couleur de la plateforme (boutons, marque)
+- **Le catalogue est la feuille de route** : chaque SA du programme affiche toutes ses
+  activités, celles à venir marquées « bientôt ». On voit d'un coup d'œil ce qui est
+  couvert et ce qui manque — 3 activités sur 26 en PCT 6ᵉ aujourd'hui
+- **Progression réelle** lue depuis chaque simulation : pourcentage par activité, barre de
+  couverture par classe, et un bloc « Reprendre » qui ramène à la simulation la plus avancée
+- **Recherche** sur tout le programme, activités à venir comprises, insensible aux accents
+- **Navigation par ancre** (`#/pct/6e`) : le bouton Retour du navigateur fonctionne, et un
+  lien direct vers une classe se partage
+- **Thème sombre** complet, partagé avec les simulations (clé `ike-theme`)
+- Feuille de style partagée `assets/labo.css` (jetons, composants, thèmes), réutilisable
+  par les simulations lors de leur migration
+
+📚 **Dépouillement intégral du guide officiel de 6ᵉ SPCT** (115 pages) →
+`docs/recensement-6e-spct.md` : les 6 SA, leurs activités expérimentales et les
+**26 simulations** qu'on peut en tirer. Constat structurant : 3 SA sur 6 relèvent de la
+démarche **technologique** (fabriquer un objet qui marche) et la plus longue de l'année
+(SA5, 26 h) de la **prise de position** — deux familles que le gabarit actuel ne sait pas
+encore traiter.
+
 ## v3.4.0 — 2026-07-18
 
 🔍 **Retours testeurs — circuit (6ᵉ vague) et prototype 3D (2ᵉ vague)** :

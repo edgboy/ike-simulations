@@ -1,0 +1,204 @@
+/* ============================================================================
+   Design system Labo-Bénin — d'après docs/references/design-system-lyceen.md
+   Sensation « paper » : surfaces claires, ombres douces, couleurs vives rares.
+   Le lime est la couleur de la plateforme ; chaque matière porte son accent.
+   ========================================================================== */
+
+:root {
+  /* Palette de marque */
+  --primary: #C4D94E;
+  --secondary: #5BC5F2;
+  --tertiary: #F7A430;
+  --destructive: #E83A4B;
+  --success: #2A9D8F;
+
+  --neutral: #3A3632;
+  --background: #F7F5F0;
+  --surface: #FFFFFF;
+  --surface-muted: #F0EEE9;
+  --border: #D3CFC8;
+  --border-strong: #B0ABA3;
+  --ring: #5BC5F2;
+
+  /* Accent de la section courante — repeint par [data-matiere] */
+  --accent: var(--primary);
+  --accent-doux: #F3F7DB;
+
+  /* Typographie */
+  --font-display: 'Baloo 2', 'Segoe UI', system-ui, sans-serif;
+  --font-body: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+
+  /* Espacements — base 8 px */
+  --space-1: 4px;  --space-2: 8px;  --space-3: 12px; --space-4: 16px;
+  --space-5: 24px; --space-6: 32px; --space-7: 48px; --space-8: 64px;
+
+  /* Rayons */
+  --radius-sm: 8px; --radius-md: 12px; --radius-lg: 16px;
+  --radius-xl: 24px; --radius-full: 9999px;
+
+  /* Élévation paper — trois niveaux, jamais plus */
+  --shadow-soft: 0 4px 16px rgba(58, 54, 50, .05);
+  --shadow-raised: 0 6px 20px rgba(58, 54, 50, .06);
+
+  /* Transitions */
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 350ms;
+  --ease: cubic-bezier(.4, 0, .2, 1);
+}
+
+/* ---- Accents par matière (identification visuelle) ---- */
+[data-matiere="pct"]   { --accent: #5BC5F2; --accent-doux: #D6F0FB; }
+[data-matiere="maths"] { --accent: #F7A430; --accent-doux: #FDE9C8; }
+[data-matiere="svt"]   { --accent: #7ECFB0; --accent-doux: #DCF2EA; }
+
+/* ---- Thème sombre (clé partagée 'ike-theme') ---- */
+body.sombre {
+  --neutral: #ECEFF1;
+  --background: #14181C;
+  --surface: #1C232A;
+  --surface-muted: #232C34;
+  --border: #333E47;
+  --border-strong: #4A5762;
+  --shadow-soft: 0 4px 16px rgba(0, 0, 0, .28);
+  --shadow-raised: 0 6px 20px rgba(0, 0, 0, .34);
+}
+body.sombre [data-matiere="pct"]   { --accent-doux: #17323F; }
+body.sombre [data-matiere="maths"] { --accent-doux: #3A2B14; }
+body.sombre [data-matiere="svt"]   { --accent-doux: #17332A; }
+
+/* ============================ Base ====================================== */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.55;
+  color: var(--neutral);
+  background: var(--background);
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+  transition: background var(--duration-normal) var(--ease);
+}
+
+h1, h2, h3, h4 { font-family: var(--font-display); margin: 0; line-height: 1.2; }
+h1 { font-size: 34px; font-weight: 800; }
+h2 { font-size: 24px; font-weight: 800; }
+h3 { font-size: 20px; font-weight: 700; }
+h4 { font-size: 18px; font-weight: 700; }
+p  { margin: 0; }
+
+/* Un seul style de focus pour tout le site */
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* ============================ Composants ================================ */
+
+/* ---- Bouton ---- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
+  min-height: 44px; padding: 0 20px;
+  border: none; border-radius: var(--radius-lg);
+  font-family: var(--font-body); font-size: 14px; font-weight: 600;
+  color: var(--neutral); background: var(--primary);
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease),
+              border-color var(--duration-fast) var(--ease);
+}
+.btn:hover   { filter: brightness(.94); }
+.btn:active  { filter: brightness(.88); }
+.btn[disabled], .btn.desactive { opacity: .5; cursor: not-allowed; filter: none; }
+
+.btn-secondaire { background: var(--secondary); }
+.btn-accent     { background: var(--accent); }
+.btn-contour {
+  background: var(--surface);
+  border: 2px solid var(--neutral);
+  padding: 0 18px;
+}
+.btn-contour:hover { background: var(--surface-muted); filter: none; }
+.btn-fantome { background: transparent; }
+.btn-fantome:hover { background: var(--surface-muted); filter: none; }
+
+/* ---- Carte ---- */
+.carte {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  box-shadow: var(--shadow-soft);
+}
+a.carte, .carte-clic {
+  display: block; text-decoration: none; color: inherit; cursor: pointer;
+  transition: border-color var(--duration-fast) var(--ease),
+              background var(--duration-fast) var(--ease);
+}
+a.carte:hover, .carte-clic:hover {
+  border-color: var(--border-strong);
+  background: var(--surface-muted);
+}
+.carte-plate { box-shadow: none; }
+.carte-selection { border: 2px solid var(--accent); background: var(--accent-doux); }
+
+/* ---- Badge / chip ---- */
+.badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  height: 28px; padding: 0 12px;
+  border-radius: var(--radius-full);
+  font-size: 12px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase;
+  color: var(--neutral); background: var(--surface-muted);
+  white-space: nowrap;
+}
+.badge-accent  { background: var(--accent); }
+.badge-primaire { background: var(--primary); }
+.badge-chaud   { background: var(--tertiary); }
+.badge-contour { background: transparent; border: 1px solid var(--border); }
+
+/* ---- Barre de progression ---- */
+.progression {
+  height: 8px; border-radius: var(--radius-full);
+  background: var(--surface-muted); overflow: hidden;
+}
+.progression > i {
+  display: block; height: 100%; width: 0;
+  background: var(--accent); border-radius: inherit;
+  transition: width var(--duration-slow) var(--ease);
+}
+
+/* ---- Champ de recherche ---- */
+.champ {
+  display: flex; align-items: center; gap: var(--space-2);
+  height: 48px; padding: 0 var(--space-4);
+  background: var(--surface);
+  border: 2px solid var(--border); border-radius: var(--radius-md);
+  transition: border-color var(--duration-fast) var(--ease);
+}
+.champ:hover { border-color: var(--border-strong); }
+.champ:focus-within { border-color: var(--border-strong); box-shadow: var(--shadow-soft); }
+.champ input {
+  flex: 1; min-width: 0; border: none; outline: none; background: none;
+  font-family: var(--font-body); font-size: 15px; color: var(--neutral);
+}
+
+/* ---- Utilitaires ---- */
+.pile { display: flex; flex-direction: column; }
+.ligne { display: flex; align-items: center; }
+.grandir { flex: 1; }
+.discret { color: var(--neutral); opacity: .62; }
+.etiquette {
+  font-size: 12px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase;
+  color: var(--neutral); opacity: .55;
+}
+
+/* Le mouvement est un confort, jamais une information */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    transition-duration: .01ms !important;
+  }
+}

@@ -2,263 +2,775 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#0d47a1">
-<title>IKE Simulations — Sciences et maths au collège</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Labo-Bénin — simulations pour le collège</title>
+<meta name="description" content="Simulations interactives de sciences pour le collège béninois : physique, chimie, technologie, mathématiques et SVT, alignées sur le programme officiel.">
+<meta name="theme-color" content="#F7F5F0">
+<link rel="stylesheet" href="assets/polices.css">
+<link rel="stylesheet" href="assets/labo.css">
 <style>
-  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-  body {
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-    background:#f4f7fb; color:#263238; min-height:100vh;
-    display:flex; flex-direction:column;
+  /* ===================== Structure de page ===================== */
+  .enveloppe { max-width: 1080px; margin: 0 auto; padding: 0 var(--space-4); }
+
+  header.tete {
+    position: sticky; top: 0; z-index: 20;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+  .tete-in { display: flex; align-items: center; gap: var(--space-3); min-height: 64px; }
+  .marque { display: flex; align-items: center; gap: 10px; text-decoration: none; color: inherit; }
+  .pastille {
+    width: 38px; height: 38px; flex: none; border-radius: var(--radius-md);
+    background: var(--primary);
+    display: grid; place-items: center;
+    font-family: var(--font-display); font-weight: 800; font-size: 19px; color: var(--neutral);
+  }
+  .marque b { font-family: var(--font-display); font-size: 20px; font-weight: 800; display: block; }
+  .marque .sous { font-size: 11.5px; opacity: .6; display: block; margin-top: -3px; }
+  .tete-actions { margin-left: auto; display: flex; align-items: center; gap: var(--space-2); }
+  .icone-btn {
+    width: 44px; height: 44px; flex: none;
+    display: grid; place-items: center;
+    background: none; border: none; border-radius: var(--radius-md);
+    font-size: 19px; cursor: pointer; color: var(--neutral);
+    transition: background var(--duration-fast) var(--ease);
+  }
+  .icone-btn:hover { background: var(--surface-muted); }
+
+  /* ===================== Fil d'Ariane ===================== */
+  .fil { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; padding: var(--space-4) 0 0; font-size: 13px; }
+  .fil:empty { display: none; }
+  .fil button {
+    background: none; border: none; padding: 4px 8px; margin-left: -8px;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-body); font-size: 13px; font-weight: 600;
+    color: var(--neutral); opacity: .65; cursor: pointer;
+  }
+  .fil button:hover { background: var(--surface-muted); opacity: 1; }
+  .fil .sep { opacity: .4; }
+  .fil .ici { font-weight: 600; }
+
+  /* ===================== Hero ===================== */
+  .hero { padding: var(--space-6) 0 var(--space-5); }
+  .hero h1 { max-width: 16ch; }
+  .hero h1 em {
+    font-style: normal; background: var(--primary);
+    padding: 0 8px; border-radius: var(--radius-sm);
+  }
+  .hero p { margin-top: var(--space-3); max-width: 58ch; font-size: 15.5px; opacity: .75; }
+  .hero .champ { margin-top: var(--space-5); max-width: 440px; }
+
+  /* ===================== Reprendre ===================== */
+  #reprendre { display: none; margin-bottom: var(--space-5); }
+  #reprendre.visible { display: block; }
+  .reprise { display: flex; align-items: center; gap: var(--space-4); background: var(--accent-doux); }
+  .reprise .ico { font-size: 30px; line-height: 1; flex: none; }
+  .reprise .txt { flex: 1; min-width: 0; }
+  .reprise h4 { font-size: 16px; margin: 2px 0 1px; }
+  .reprise .progression { margin-top: 8px; max-width: 260px; }
+
+  /* ===================== Grilles ===================== */
+  .section-titre { display: flex; align-items: baseline; gap: var(--space-3); margin: var(--space-6) 0 var(--space-4); }
+  .section-titre h2 { font-size: 22px; }
+  .grille { display: grid; gap: var(--space-4); }
+  .grille-matieres { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+  .grille-classes  { grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
+  .grille-reperes  { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+
+  .repere { display: flex; flex-direction: column; gap: 6px; background: var(--surface-muted); border-color: transparent; }
+  .repere .ico { font-size: 24px; line-height: 1; }
+  .repere b { font-family: var(--font-display); font-size: 16px; font-weight: 700; }
+  .repere span:last-child { font-size: 13px; opacity: .7; line-height: 1.5; }
+
+  .c-matiere { display: flex; flex-direction: column; gap: var(--space-3); border-top: 4px solid var(--accent); }
+  .c-matiere .haut { display: flex; align-items: center; gap: var(--space-3); }
+  .c-matiere .emoji {
+    width: 48px; height: 48px; flex: none; border-radius: var(--radius-md);
+    background: var(--accent-doux); display: grid; place-items: center; font-size: 25px;
+  }
+  .c-matiere h3 { flex: 1; }
+  .c-matiere .desc { font-size: 13.5px; opacity: .7; }
+  .c-matiere .pied { display: flex; align-items: center; gap: var(--space-2); margin-top: auto; padding-top: var(--space-2); }
+
+  .c-classe { display: flex; flex-direction: column; gap: var(--space-2); }
+  .c-classe .niveau { font-family: var(--font-display); font-size: 30px; font-weight: 800; line-height: 1.1; }
+  .c-classe .quoi { font-size: 13px; opacity: .7; }
+  /* la barre se cale en bas : les cartes restent alignées quelle que soit la description */
+  .c-classe .progression { margin-top: auto; }
+  .c-classe .compte { font-size: 12px; opacity: .6; margin-top: 4px; }
+
+  /* ===================== Couverture du programme ===================== */
+  #couverture-classe { margin-bottom: var(--space-6); }
+  .couverture {
+    display: flex; align-items: center; gap: var(--space-4);
+    padding: var(--space-4) var(--space-5);
+    background: var(--accent-doux); border-color: transparent;
+  }
+  .couverture .txt { flex: 1; min-width: 0; font-size: 14px; }
+  .couverture b { font-family: var(--font-display); font-size: 17px; font-weight: 800; }
+  .couverture .progression { width: 180px; flex: none; }
+
+  /* ===================== Bloc situation d'apprentissage ===================== */
+  .sa { margin-bottom: var(--space-5); }
+  .sa-tete { display: flex; align-items: center; gap: var(--space-3); padding: 0 var(--space-1) var(--space-3); }
+  .sa-num {
+    height: 34px; flex: none; padding: 0 10px; border-radius: var(--radius-sm);
+    background: var(--accent-doux);
+    display: grid; place-items: center;
+    font-family: var(--font-display); font-weight: 800; font-size: 13.5px;
+  }
+  .sa-tete h3 { flex: 1; font-size: 17px; }
+  .sa-tete .heures { font-size: 12px; opacity: .55; white-space: nowrap; }
+  .sa-liste { display: grid; gap: var(--space-2); }
+
+  .sim {
+    display: flex; align-items: center; gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    background: var(--surface);
+    border: 1px solid var(--border); border-radius: var(--radius-md);
+    text-decoration: none; color: inherit;
+    transition: border-color var(--duration-fast) var(--ease), background var(--duration-fast) var(--ease);
+  }
+  a.sim:hover { border-color: var(--border-strong); background: var(--surface-muted); }
+  .sim .ico { font-size: 22px; line-height: 1; flex: none; width: 28px; text-align: center; }
+  .sim .corps { flex: 1; min-width: 0; display: block; }
+  .sim .nom { font-weight: 600; font-size: 14.5px; display: block; }
+  .sim .quoi { font-size: 12.5px; opacity: .65; line-height: 1.45; margin-top: 2px; display: block; }
+  .sim .etat { flex: none; display: flex; align-items: center; gap: var(--space-2); }
+  .sim .mini { width: 74px; }
+  .sim.bientot { border-style: dashed; background: transparent; }
+  .sim.bientot .ico, .sim.bientot .corps { opacity: .55; }
+  .sim .etiquette { display: block; margin-bottom: 1px; }
+
+  #resultats { display: none; }
+  #resultats.visible { display: block; }
+  .vide { padding: var(--space-6) 0; text-align: center; opacity: .6; font-size: 14px; }
+
+  footer.pied {
+    margin-top: var(--space-8); padding: var(--space-5) 0 var(--space-6);
+    border-top: 1px solid var(--border);
+    font-size: 12.5px; opacity: .65;
+    display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center;
   }
 
-  /* ---------- En-tête compact ---------- */
-  header {
-    background:linear-gradient(160deg,#0d47a1 0%,#1565c0 55%,#1e88e5 100%);
-    color:#fff; padding:22px 20px 20px;
-  }
-  .hcontenu {
-    max-width:900px; margin:0 auto;
-    display:flex; align-items:center; gap:14px; flex-wrap:wrap;
-  }
-  header .logo { font-size:34px; line-height:1; filter:drop-shadow(0 3px 10px rgba(255,202,40,.45)); }
-  header .titres { flex:1; min-width:200px; }
-  header h1 { font-size:23px; font-weight:800; letter-spacing:.4px; }
-  header h1 span { font-weight:300; opacity:.9; }
-  header p.tagline {
-    margin-top:3px; font-size:13px; line-height:1.5; color:rgba(255,255,255,.85);
-  }
-  .badge {
-    background:#ffca28; color:#5d4037; white-space:nowrap;
-    font-size:11px; font-weight:800; letter-spacing:.8px; text-transform:uppercase;
-    padding:5px 12px; border-radius:12px;
-  }
+  .vue { display: none; }
+  .vue.active { display: block; animation: apparait var(--duration-normal) var(--ease); }
+  @keyframes apparait { from { opacity: 0 } to { opacity: 1 } }
 
-  /* ---------- Onglets ---------- */
-  .onglets {
-    position:sticky; top:0; z-index:10;
-    background:#fff; border-bottom:1px solid #e0e6ed;
-    box-shadow:0 1px 8px rgba(13,71,161,.06);
-  }
-  .onglets-in {
-    max-width:900px; margin:0 auto; padding:0 16px;
-    display:flex; gap:4px; overflow-x:auto;
-  }
-  .onglet {
-    display:flex; align-items:center; gap:7px;
-    border:none; background:none; cursor:pointer;
-    padding:14px 14px 12px; font-size:14px; font-weight:700; color:#78909c;
-    border-bottom:3px solid transparent; white-space:nowrap;
-    transition:color .15s, border-color .15s;
-  }
-  .onglet:hover { color:#37474f; }
-  .onglet[aria-selected="true"] { color:#1565c0; border-bottom-color:#1565c0; }
-  .onglet .n {
-    background:#eceff1; color:#546e7a; font-size:11px; font-weight:800;
-    border-radius:9px; padding:2px 7px; min-width:20px; text-align:center;
-  }
-  .onglet[aria-selected="true"] .n { background:#e3f2fd; color:#1565c0; }
-  .onglet:focus-visible { outline:2px solid #1565c0; outline-offset:-3px; border-radius:6px; }
-
-  /* ---------- Grille de cartes ---------- */
-  main { flex:1; max-width:900px; width:100%; margin:0 auto; padding:20px 16px 32px; }
-  .panneau[hidden] { display:none; }
-  .grille { display:grid; grid-template-columns:repeat(auto-fill, minmax(228px, 1fr)); gap:12px; }
-
-  .carte {
-    background:#fff; border:1px solid #e0e6ed; border-radius:14px; padding:15px;
-    display:flex; flex-direction:column; gap:6px; text-decoration:none; color:inherit;
-    transition:transform .15s, box-shadow .15s, border-color .15s;
-  }
-  a.carte:hover, a.carte:focus-visible {
-    transform:translateY(-3px); box-shadow:0 8px 22px rgba(13,71,161,.13);
-    border-color:#bbdefb; outline:none;
-  }
-  .carte .haut { display:flex; align-items:center; gap:9px; }
-  .carte .ico { font-size:25px; line-height:1; }
-  .carte h3 { font-size:15px; font-weight:700; flex:1; }
-  .carte p { font-size:12.5px; color:#546e7a; line-height:1.5; flex:1; }
-  .carte .bas { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:2px; }
-  .carte .niveau { font-size:10.5px; font-weight:700; color:#1565c0; }
-  .carte .lancer {
-    background:#1565c0; color:#fff; white-space:nowrap;
-    font-size:12px; font-weight:700; padding:7px 14px; border-radius:8px;
-  }
-  .carte.bientot { opacity:.6; }
-  .carte.bientot .lancer { background:#cfd8dc; color:#546e7a; }
-  .carte.bientot .niveau { color:#90a4ae; }
-
-  .note {
-    margin-top:20px; background:#e3f2fd; border:1px solid #bbdefb; border-radius:12px;
-    padding:12px 14px; font-size:13px; line-height:1.55; color:#0d47a1;
-  }
-
-  footer {
-    text-align:center; font-size:11.5px; color:#90a4ae; padding:16px;
-    border-top:1px solid #e0e6ed; background:#fff; line-height:1.7;
-  }
-
-  /* ---------- Thème sombre automatique ---------- */
-  @media (prefers-color-scheme: dark) {
-    body { background:#10181f; color:#eceff1; }
-    .onglets { background:#1c262e; border-color:#2c3a45; box-shadow:0 1px 8px rgba(0,0,0,.3); }
-    .onglet { color:#78909c; }
-    .onglet:hover { color:#cfd8dc; }
-    .onglet[aria-selected="true"] { color:#64b5f6; border-bottom-color:#64b5f6; }
-    .onglet .n { background:#26313a; color:#90a4ae; }
-    .onglet[aria-selected="true"] .n { background:#0d2c4f; color:#64b5f6; }
-    .carte { background:#1c262e; border-color:#2c3a45; }
-    .carte h3 { color:#eceff1; }
-    .carte p { color:#b0bec5; }
-    .carte .niveau { color:#64b5f6; }
-    .carte.bientot .lancer { background:#3a4a56; color:#b0bec5; }
-    a.carte:hover, a.carte:focus-visible { box-shadow:0 8px 22px rgba(0,0,0,.5); border-color:#1a4a7a; }
-    .note { background:#0d2c4f; border-color:#1a4a7a; color:#bbdefb; }
-    footer { background:#1c262e; border-color:#2c3a45; color:#78909c; }
+  @media (max-width: 560px) {
+    h1 { font-size: 27px; }
+    .hero { padding: var(--space-5) 0 var(--space-4); }
+    .sim .mini { display: none; }
+    .marque .sous { display: none; }
+    .reprise { flex-wrap: wrap; }
   }
 </style>
 </head>
 <body>
 
-<header>
-  <div class="hcontenu">
-    <div class="logo">⚡</div>
-    <div class="titres">
-      <h1>IKE <span>Simulations</span></h1>
-      <p class="tagline">
-        Simulations interactives pour le collège — légères, en français,
-        sur téléphone et hors-ligne.
-      </p>
+<header class="tete">
+  <div class="enveloppe tete-in">
+    <a class="marque" href="#" id="lien-marque">
+      <span class="pastille" aria-hidden="true">L</span>
+      <span>
+        <b>Labo-Bénin</b>
+        <span class="sous">Simulations pour le collège</span>
+      </span>
+    </a>
+    <div class="tete-actions">
+      <button class="icone-btn" id="btn-theme" title="Thème clair ou sombre" aria-label="Changer de thème">🌙</button>
     </div>
-    <div class="badge">Version de test</div>
   </div>
 </header>
 
-<nav class="onglets">
-  <div class="onglets-in" role="tablist" aria-label="Matières">
-    <button class="onglet" role="tab" aria-selected="true" aria-controls="p-pct" id="t-pct">
-      🔬 Physique-Chimie <span class="n">5</span>
-    </button>
-    <button class="onglet" role="tab" aria-selected="false" aria-controls="p-maths" id="t-maths">
-      📐 Mathématiques <span class="n">1</span>
-    </button>
-    <button class="onglet" role="tab" aria-selected="false" aria-controls="p-svt" id="t-svt">
-      🌱 SVT <span class="n">0</span>
-    </button>
-  </div>
-</nav>
+<main class="enveloppe">
 
-<main>
-  <div class="panneau" id="p-pct" role="tabpanel" aria-labelledby="t-pct">
-    <div class="grille">
-      <a class="carte" href="simulations/circuit-electrique/index.html">
-        <div class="haut"><span class="ico">💡</span><h3>Circuit électrique</h3></div>
-        <p>Construis des circuits, mesure I et U, vérifie la loi d'Ohm — série,
-           parallèle et court-circuit. 15 missions.</p>
-        <div class="bas"><span class="niveau">PCT · 6ᵉ · 4ᵉ</span><span class="lancer">Lancer ▶</span></div>
-      </a>
-      <a class="carte" href="simulations/optique/index.html">
-        <div class="haut"><span class="ico">🔍</span><h3>Banc d'optique</h3></div>
-        <p>Rayons, ombres, chambre noire, lentille convergente et loupe.
-           Formules expliquées en direct. 12 missions.</p>
-        <div class="bas"><span class="niveau">PCT · 5ᵉ → 3ᵉ</span><span class="lancer">Lancer ▶</span></div>
-      </a>
-      <a class="carte" href="simulations/etats-matiere/index.html">
-        <div class="haut"><span class="ico">🧊</span><h3>États de la matière</h3></div>
-        <p>Chauffe et comprime 70 molécules : fusion, ébullition, paliers de
-           température… et le piston qui saute ! 13 missions.</p>
-        <div class="bas"><span class="niveau">Chimie · 6ᵉ · 5ᵉ</span><span class="lancer">Lancer ▶</span></div>
-      </a>
-      <a class="carte" href="simulations/combustions/index.html">
-        <div class="haut"><span class="ico">🔥</span><h3>Combustions vives</h3></div>
-        <p>Bougie sous cloche, jauge d'O₂, eau de chaux et triangle du feu.
-           La flamme meurt à 15 % ! 10 missions.</p>
-        <div class="bas"><span class="niveau">Chimie · 6ᵉ</span><span class="lancer">Lancer ▶</span></div>
-      </a>
-      <a class="carte" href="simulations/molecules-3d/index.html">
-        <div class="haut"><span class="ico">⚛️</span><h3>Molécules en 3D</h3></div>
-        <p>Tourne H₂O, CO₂, CH₄… puis assemble-les toi-même à partir de leur
-           formule. Vraie 3D. 14 missions.</p>
-        <div class="bas"><span class="niveau">Chimie · 4ᵉ</span><span class="lancer">Lancer ▶</span></div>
-      </a>
+  <nav class="fil" id="fil" aria-label="Fil d'Ariane"></nav>
+
+  <!-- ================= Vue accueil ================= -->
+  <section class="vue active" id="vue-accueil">
+    <div class="hero">
+      <h1>Les sciences, ça se <em>manipule</em>.</h1>
+      <p>Des expériences interactives alignées sur le programme officiel béninois.
+         Choisis ta matière, puis ta classe : chaque situation d'apprentissage a ses activités.</p>
+      <label class="champ">
+        <span aria-hidden="true">🔍</span>
+        <input type="search" id="recherche" placeholder="Chercher une simulation, une notion…"
+               aria-label="Chercher une simulation">
+      </label>
     </div>
-  </div>
 
-  <div class="panneau" id="p-maths" role="tabpanel" aria-labelledby="t-maths" hidden>
-    <div class="grille">
-      <a class="carte" href="simulations/transformations/index.html">
-        <div class="haut"><span class="ico">🔺</span><h3>Transformations du plan</h3></div>
-        <p>Miroir, demi-tour, glissement, pivot : déplace l'axe ou le centre,
-           l'image se construit sous tes yeux. 12 missions.</p>
-        <div class="bas"><span class="niveau">Maths · 6ᵉ → 3ᵉ</span><span class="lancer">Lancer ▶</span></div>
-      </a>
-      <div class="carte bientot">
-        <div class="haut"><span class="ico">📊</span><h3>Organisation des données</h3></div>
-        <p>Tableaux d'effectifs, diagrammes, moyenne et fréquences.</p>
-        <div class="bas"><span class="niveau">Maths · 6ᵉ → 3ᵉ</span><span class="lancer">Bientôt</span></div>
+    <div id="reprendre"></div>
+    <div id="resultats"></div>
+
+    <div id="bloc-matieres">
+      <div class="section-titre"><h2>Les matières</h2></div>
+      <div class="grille grille-matieres" id="grille-matieres"></div>
+
+      <div class="section-titre"><h2>Pensé pour la classe béninoise</h2></div>
+      <div class="grille grille-reperes">
+        <div class="carte carte-plate repere">
+          <span class="ico" aria-hidden="true">📶</span>
+          <b>Sans connexion</b>
+          <span>Une fois la page ouverte, tout fonctionne hors ligne. Rien à installer.</span>
+        </div>
+        <div class="carte carte-plate repere">
+          <span class="ico" aria-hidden="true">📱</span>
+          <b>Sur le téléphone du prof</b>
+          <span>Conçu d'abord pour le tactile et les petits écrans, jusqu'au vidéoprojecteur.</span>
+        </div>
+        <div class="carte carte-plate repere">
+          <span class="ico" aria-hidden="true">📘</span>
+          <b>Le programme, pas autre chose</b>
+          <span>Chaque activité est rattachée à une situation d'apprentissage officielle.</span>
+        </div>
       </div>
     </div>
-  </div>
+  </section>
 
-  <div class="panneau" id="p-svt" role="tabpanel" aria-labelledby="t-svt" hidden>
-    <div class="grille">
-      <div class="carte bientot">
-        <div class="haut"><span class="ico">🌿</span><h3>Besoins des végétaux</h3></div>
-        <p>Lumière, eau, sels minéraux : des expériences de plusieurs semaines,
-           en quelques minutes.</p>
-        <div class="bas"><span class="niveau">SVT · 5ᵉ</span><span class="lancer">Bientôt</span></div>
-      </div>
-      <div class="carte bientot">
-        <div class="haut"><span class="ico">🛡️</span><h3>Réactions immunitaires</h3></div>
-        <p>Microbes, barrières, phagocytose, anticorps et vaccination.</p>
-        <div class="bas"><span class="niveau">SVT · 3ᵉ</span><span class="lancer">Bientôt</span></div>
-      </div>
+  <!-- ================= Vue matière ================= -->
+  <section class="vue" id="vue-matiere">
+    <div class="hero">
+      <h1 id="titre-matiere"></h1>
+      <p id="desc-matiere"></p>
     </div>
-  </div>
+    <div class="grille grille-classes" id="grille-classes"></div>
+  </section>
 
-  <div class="note">
-    🙏 <b>Vos retours sont précieux !</b> Cette version de test sert à recueillir vos impressions :
-    clarté des consignes, facilité des gestes (surtout sur téléphone), vocabulaire, idées de missions…
-    Notez tout ce qui vous gêne ou vous manque, même un détail.
-  </div>
+  <!-- ================= Vue classe ================= -->
+  <section class="vue" id="vue-classe">
+    <div class="hero">
+      <h1 id="titre-classe"></h1>
+      <p id="desc-classe"></p>
+    </div>
+    <div id="couverture-classe"></div>
+    <div id="liste-sa"></div>
+  </section>
+
 </main>
 
-<footer>
-  IKE Simulations · Sciences et maths au collège (Bénin)<br>
-  Gratuit et hors-ligne · Inspiré des simulations PhET · v3.4.0
+<footer class="enveloppe pied">
+  <span>Labo-Bénin · <span class="ver">v4.0.0</span></span>
+  <span>·</span>
+  <span>Programme officiel du Bénin (APC)</span>
+  <span>·</span>
+  <span>Fonctionne hors connexion</span>
 </footer>
 
 <script>
-  // Onglets : un seul panneau visible, choix mémorisé
-  const onglets = [...document.querySelectorAll('.onglet')];
+'use strict';
 
-  function activer(id) {
-    for (const o of onglets) {
-      const actif = o.id === id;
-      o.setAttribute('aria-selected', actif);
-      document.getElementById(o.getAttribute('aria-controls')).hidden = !actif;
-    }
-    try { localStorage.setItem('ike-accueil-onglet', id); } catch (e) {}
-  }
+/* ============================================================================
+   1. Catalogue — matières, classes, situations d'apprentissage, simulations.
+   Les entrées sans dossier sont la feuille de route : elles s'affichent
+   « bientôt » pour que la couverture réelle du programme reste visible.
+   ========================================================================== */
 
-  for (const o of onglets) {
-    o.addEventListener('click', () => activer(o.id));
-    // navigation au clavier (flèches), comme un vrai jeu d'onglets
-    o.addEventListener('keydown', e => {
-      const i = onglets.indexOf(o);
-      let j = null;
-      if (e.key === 'ArrowRight') j = (i + 1) % onglets.length;
-      if (e.key === 'ArrowLeft') j = (i - 1 + onglets.length) % onglets.length;
-      if (j !== null) { e.preventDefault(); onglets[j].focus(); activer(onglets[j].id); }
-    });
-  }
+// Simulations livrées : clé de progression et nombre de missions, pour lire
+// une progression réelle depuis le stockage local.
+const LIVREES = {
+  'circuit-electrique': { cle: 'ike-circuit-progression-v2', missions: 15 },
+  'combustions':        { cle: 'ike-combustion-progression', missions: 10 },
+  'etats-matiere':      { cle: 'ike-matiere-progression-v2', missions: 13 },
+  'optique':            { cle: 'ike-optique-progression',    missions: 12 },
+  'molecules-3d':       { cle: 'ike-mol3d-progression',      missions: 14 },
+  'transformations':    { cle: 'ike-transfo-progression',    missions: 12 },
+};
 
+const CATALOGUE = [
+  {
+    id: 'pct', nom: 'Physique · Chimie · Technologie', court: 'PCT', emoji: '🔬',
+    desc: "Électricité, matière, chaleur, son, environnement — et la fabrication d'objets techniques.",
+    classes: [
+      {
+        id: '6e', nom: '6ᵉ',
+        desc: "Le courant électrique, les combustions, l'eau et ses états, la pollution de l'air, le son.",
+        sa: [
+          {
+            n: 1, titre: 'Le courant électrique', heures: '12 h', cd: 'CD1',
+            sims: [
+              { dos: 'circuit-electrique', ico: '⚡', nom: 'Circuit électrique',
+                quoi: "Série, dérivation, court-circuit, piles en série et en opposition." },
+              { ico: '💡', nom: 'Allume la lampe',
+                quoi: "Relier les bornes de la pile au culot et au plot : la lampe s'allume, ou pas." },
+              { ico: '✏️', nom: 'Du réel au schéma',
+                quoi: "Reconnaître chaque composant et composer le schéma normalisé du circuit." },
+              { ico: '🧭', nom: 'Sens du courant et matériaux',
+                quoi: "La DEL révèle le sens du courant ; trier conducteurs et isolants." },
+              { ico: '🔋', nom: 'Trouve la bonne pile',
+                quoi: "Sous-tension, tension d'usage, surtension — jusqu'à faire griller la lampe." },
+              { ico: '🎡', nom: 'Le tourniquet de Vignon',
+                quoi: "Inverser la pile pour faire tourner le moteur dans l'autre sens." },
+            ],
+          },
+          {
+            n: 2, titre: "Fabrication d'une lampe de poche", heures: '12 h', cd: 'CD2',
+            sims: [
+              { ico: '🔦', nom: 'Fabrique ta lampe de poche',
+                quoi: "Boîtier, piles, ressort, lame de contact, réflecteur : monter, puis allumer." },
+              { ico: '🛠️', nom: 'Le dépanneur',
+                quoi: "Diagnostiquer la panne d'une lampe ou d'un éclairage de vélo, puis la réparer." },
+            ],
+          },
+          {
+            n: 3, titre: 'Quelques combustions vives', heures: '12 h', cd: 'CD1',
+            sims: [
+              { dos: 'combustions', ico: '🔥', nom: 'Combustions vives',
+                quoi: "Ce qui brûle, ce qui se forme, et comment maîtriser une flamme." },
+              { ico: '🍲', nom: 'Pourquoi mes marmites noircissent ?',
+                quoi: "Régler l'air du réchaud : flamme bleue, ou flamme jaune qui dépose de la suie." },
+              { ico: '🕯️', nom: 'La flamme de la bougie',
+                quoi: "Les trois zones, l'eau de chaux qui se trouble, le sulfate de cuivre qui bleuit." },
+              { ico: '🌬️', nom: "De quoi est fait l'air ?",
+                quoi: "La bougie sous cloche : l'eau monte d'un cinquième — le dioxygène a été consommé." },
+              { ico: '🧯', nom: 'Le triangle du feu',
+                quoi: "Activer ou éteindre : eau, sable, feuilles vertes, extincteur — et leurs pièges." },
+            ],
+          },
+          {
+            n: 4, titre: "L'eau dans ses différents états", heures: '12 h', cd: 'CD2',
+            sims: [
+              { dos: 'etats-matiere', ico: '🌡️', nom: 'États de la matière',
+                quoi: "Chauffer, refroidir, et lire les paliers de changement d'état." },
+              { ico: '⚗️', nom: 'Construis ton alambic',
+                quoi: "Assembler le distillateur et suivre l'eau changer d'état dans chaque partie." },
+              { ico: '🧊', nom: 'Fabrique de la glace',
+                quoi: "Mélange réfrigérant sel et glace, choix de l'isolant, température qui plonge." },
+              { ico: '🔄', nom: "La roue des changements d'état",
+                quoi: "Les six transformations, dont la sublimation du diiode et du camphre." },
+            ],
+          },
+          {
+            n: 5, titre: "Pollution de l'air", heures: '26 h', cd: 'CD3',
+            sims: [
+              { ico: '💬', nom: 'Qui pollue vraiment ?',
+                quoi: "Élie, Faton, Yèmi et le vieux Fignon : démêler le vrai du faux, puis prendre position." },
+              { ico: '🏘️', nom: 'Mon quartier',
+                quoi: "Repérer les sources de pollution autour de soi et agir sur la qualité de l'air." },
+              { ico: '🍳', nom: 'Le foyer le plus sain',
+                quoi: "Bois, coal-pot, pétrole ou gaz : fumée, coût, temps de cuisson, santé, forêt." },
+              { ico: '🌍', nom: "Effet de serre et couche d'ozone",
+                quoi: "Deux mécanismes souvent confondus, et leurs conséquences réelles." },
+              { ico: '🗑️', nom: 'Où va ce déchet ?',
+                quoi: "Solide, liquide, gazeux : trier, brûler ou non, et voir le résultat un an après." },
+            ],
+          },
+          {
+            n: 6, titre: "Fabrication d'un instrument de musique", heures: '12 h', cd: 'CD2',
+            sims: [
+              { ico: '🥁', nom: 'Fabrique ton tam-tam de kaléta',
+                quoi: "Caisse, membrane, tension de la ficelle : régler la hauteur du son." },
+              { ico: '〰️', nom: "Le son, c'est une vibration",
+                quoi: "La membrane au ralenti, les grains qui sautent, l'air qui se comprime." },
+              { ico: '🎸', nom: 'La corde qui chante',
+                quoi: "Longueur, tension, grosseur : ce qui change la note d'une corde." },
+              { ico: '🎶', nom: 'Le tuyau qui souffle',
+                quoi: "Flûte et bouteilles : la colonne d'air décide de la hauteur du son." },
+            ],
+          },
+        ],
+      },
+      {
+        id: '5e', nom: '5ᵉ',
+        desc: "Courant alternatif, sécurité électrique, structure de la matière, lumière, gaz, distillation.",
+        sa: [
+          { n: 1, titre: 'Le courant électrique alternatif', heures: '', cd: 'CD1',
+            sims: [{ ico: '〜', nom: 'Alternatif et continu',
+              quoi: "Comparer les deux courants et lire un oscillogramme." }] },
+          { n: 2, titre: 'Protection contre les dangers du courant', heures: '', cd: 'CD3',
+            sims: [{ ico: '🚨', nom: 'Sécurité électrique',
+              quoi: "Fusible, disjoncteur, prise de terre : éviter l'accident domestique." }] },
+          { n: 3, titre: 'Structure de la matière', heures: '', cd: 'CD1',
+            sims: [{ ico: '⚛️', nom: 'Atomes et molécules',
+              quoi: "Du corps pur au modèle particulaire de la matière." }] },
+          { n: 4, titre: 'Propagation rectiligne de la lumière', heures: '', cd: 'CD1 · CD2',
+            sims: [{ dos: 'optique', ico: '🔭', nom: "Banc d'optique",
+              quoi: "Rayons, ombres, lentilles et formation des images." }] },
+          { n: 5, titre: 'Propriétés physiques des gaz', heures: '', cd: 'CD1',
+            sims: [{ ico: '🎈', nom: 'Comprimer un gaz',
+              quoi: "Pression, volume, et ce que font les particules." }] },
+          { n: 6, titre: 'Distillation et thermomètre à alcool', heures: '', cd: 'CD1 · CD2',
+            sims: [{ ico: '🌡️', nom: 'Fabrique un thermomètre',
+              quoi: "Dilatation de l'alcool, graduation et étalonnage." }] },
+        ],
+      },
+      {
+        id: '4e', nom: '4ᵉ',
+        desc: "Loi d'Ohm, atomes et métaux, forces et poulies, molécules, lumière, chambre noire.",
+        sa: [
+          { n: 1, titre: "Mesures électriques et loi d'Ohm", heures: '', cd: 'CD2',
+            sims: [{ dos: 'circuit-electrique', ico: '⚡', nom: 'Circuit électrique',
+              quoi: "Ampèremètre, voltmètre, et relation entre tension et intensité." }] },
+          { n: 2, titre: "Structure de l'atome et métaux usuels", heures: '', cd: 'CD1',
+            sims: [{ ico: '🔩', nom: 'Reconnaître un métal',
+              quoi: "Tests simples et propriétés caractéristiques." }] },
+          { n: 3, titre: 'Interactions mécaniques, forces et poulies', heures: '', cd: 'CD1',
+            sims: [{ ico: '⚙️', nom: 'Poulies et palans',
+              quoi: "Soulever une charge lourde avec moins de force." }] },
+          { n: 4, titre: 'Étude de quelques molécules', heures: '', cd: 'CD1',
+            sims: [{ dos: 'molecules-3d', ico: '🧪', nom: 'Molécules en 3D',
+              quoi: "Construire et observer la géométrie réelle des molécules." }] },
+          { n: 5, titre: 'Propagation de la lumière', heures: '', cd: 'CD1',
+            sims: [{ dos: 'optique', ico: '🔭', nom: "Banc d'optique",
+              quoi: "Réfraction, lentilles et images." }] },
+          { n: 6, titre: 'Dynamomètre et chambre noire', heures: '', cd: 'CD2',
+            sims: [{ ico: '📷', nom: 'La chambre noire',
+              quoi: "Fabriquer, régler, et comprendre l'image renversée." }] },
+        ],
+      },
+      {
+        id: '3e', nom: '3ᵉ',
+        desc: "Équilibre et énergie, solutions aqueuses, énergie électrique, électrolyse, hydrocarbures, optique.",
+        sa: [
+          { n: 1, titre: "Équilibre d'un solide et conversion d'énergie", heures: '', cd: 'CD1',
+            sims: [{ ico: '⚖️', nom: 'Équilibre et leviers',
+              quoi: "Moments, points d'appui et conversions d'énergie." }] },
+          { n: 2, titre: 'Réactions chimiques en solution aqueuse', heures: '', cd: 'CD1 · CD3',
+            sims: [{ ico: '🧫', nom: 'Acides et bases',
+              quoi: "pH, indicateurs colorés et réactions de neutralisation." }] },
+          { n: 3, titre: "L'énergie électrique, un besoin indispensable", heures: '', cd: 'CD1',
+            sims: [{ ico: '🏠', nom: 'La facture du foyer',
+              quoi: "Puissance, durée, énergie consommée et économies possibles." }] },
+          { n: 4, titre: "Détecteur de courant et électrolyseur", heures: '', cd: 'CD2',
+            sims: [{ ico: '🔌', nom: 'Fabrique un électrolyseur',
+              quoi: "Décomposer l'eau et recueillir les gaz aux électrodes." }] },
+          { n: 5, titre: "Combustion d'hydrocarbures et polymérisation", heures: '', cd: 'CD1 · CD3',
+            sims: [{ ico: '🛢️', nom: 'Brûler un hydrocarbure',
+              quoi: "Combustion complète ou incomplète, et le devenir des plastiques." }] },
+          { n: 6, titre: "L'optique au service de l'homme", heures: '', cd: 'CD1 · CD2',
+            sims: [{ dos: 'optique', ico: '🔭', nom: "Banc d'optique",
+              quoi: "Loupe, lunettes et appareil photo." }] },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'maths', nom: 'Mathématiques', court: 'Maths', emoji: '📐',
+    desc: "Géométrie, transformations du plan, nombres, organisation et traitement des données.",
+    classes: [
+      { id: '6e', nom: '6ᵉ', desc: "Symétries, figures, fractions et premières statistiques.",
+        sa: [
+          { n: 1, titre: 'Transformations du plan', heures: '', cd: '',
+            sims: [{ dos: 'transformations', ico: '📐', nom: 'Transformations du plan',
+              quoi: "Symétrie axiale et centrale, translation, rotation." }] },
+          { n: 2, titre: 'Organisation des données', heures: '', cd: '',
+            sims: [{ ico: '📊', nom: 'Tableaux et diagrammes',
+              quoi: "Effectifs, fréquences, moyenne et représentations graphiques." }] },
+        ] },
+      { id: '5e', nom: '5ᵉ', desc: "Symétrie centrale, triangles, proportionnalité.",
+        sa: [{ n: 1, titre: 'Symétrie centrale et figures', heures: '', cd: '',
+          sims: [{ dos: 'transformations', ico: '📐', nom: 'Transformations du plan',
+            quoi: "Construire l'image d'une figure par symétrie." }] }] },
+      { id: '4e', nom: '4ᵉ', desc: "Translation, théorème de Pythagore, calcul littéral.",
+        sa: [{ n: 1, titre: 'Translation et vecteurs', heures: '', cd: '',
+          sims: [{ dos: 'transformations', ico: '📐', nom: 'Transformations du plan',
+            quoi: "Translation et composition de transformations." }] }] },
+      { id: '3e', nom: '3ᵉ', desc: "Rotation, trigonométrie, fonctions.",
+        sa: [{ n: 1, titre: 'Rotation et configurations', heures: '', cd: '',
+          sims: [{ dos: 'transformations', ico: '📐', nom: 'Transformations du plan',
+            quoi: "Rotation, angles et invariants." }] }] },
+    ],
+  },
+  {
+    id: 'svt', nom: 'Sciences de la Vie et de la Terre', court: 'SVT', emoji: '🌱',
+    desc: "Le vivant, le corps humain, l'environnement et les ressources naturelles.",
+    classes: [
+      { id: '6e', nom: '6ᵉ', desc: "Le monde vivant qui nous entoure.",
+        sa: [{ n: 1, titre: 'Le peuplement du milieu', heures: '', cd: '',
+          sims: [{ ico: '🐾', nom: 'Qui vit ici ?',
+            quoi: "Observer un milieu et classer ceux qui l'habitent." }] }] },
+      { id: '5e', nom: '5ᵉ', desc: "Nutrition des plantes, respiration, sols.",
+        sa: [{ n: 1, titre: 'Les besoins des végétaux', heures: '', cd: '',
+          sims: [{ ico: '🌿', nom: 'Besoins des végétaux',
+            quoi: "Lumière, eau, sels minéraux : réussir à faire pousser une plante." }] }] },
+      { id: '4e', nom: '4ᵉ', desc: "Reproduction, géologie, activité interne du globe.",
+        sa: [{ n: 1, titre: 'La Terre qui bouge', heures: '', cd: '',
+          sims: [{ ico: '🌋', nom: 'Séismes et volcans',
+            quoi: "Plaques, failles et éruptions." }] }] },
+      { id: '3e', nom: '3ᵉ', desc: "Immunité, hérédité, santé.",
+        sa: [{ n: 1, titre: 'Réactions immunitaires', heures: '', cd: '',
+          sims: [{ ico: '🦠', nom: 'Réactions immunitaires',
+            quoi: "Microbes, barrières, phagocytose, anticorps et vaccination." }] }] },
+    ],
+  },
+];
+
+/* ============================================================================
+   2. Progression réelle, lue dans le stockage local des simulations
+   ========================================================================== */
+
+function progressionDe(dossier) {
+  const info = LIVREES[dossier];
+  if (!info) return null;
   try {
-    const memo = localStorage.getItem('ike-accueil-onglet');
-    if (memo && document.getElementById(memo)) activer(memo);
-  } catch (e) {}
-</script>
+    const brut = localStorage.getItem(info.cle);
+    if (!brut) return { faites: 0, total: info.missions, pct: 0 };
+    const d = JSON.parse(brut);
+    const faites = Array.isArray(d.faites) ? d.faites.length : 0;
+    return { faites, total: info.missions, pct: Math.min(100, Math.round(faites / info.missions * 100)) };
+  } catch (e) {
+    return { faites: 0, total: info.missions, pct: 0 };
+  }
+}
 
+const estLivree = s => !!(s.dos && LIVREES[s.dos]);
+const lienDe = s => 'simulations/' + s.dos + '/index.html';
+const simsDe = classe => classe.sa.reduce((t, sa) => t.concat(sa.sims), []);
+
+// Une même simulation peut servir dans plusieurs classes (le banc d'optique
+// couvre la 5ᵉ, la 4ᵉ et la 3ᵉ) : on compte les activités distinctes.
+const cleSim = s => s.dos || s.nom;
+function compter(sims) {
+  const vues = new Set(), livrees = new Set();
+  for (const s of sims) {
+    vues.add(cleSim(s));
+    if (estLivree(s)) livrees.add(s.dos);
+  }
+  return { livrees: livrees.size, total: vues.size };
+}
+const compteClasse = classe => compter(simsDe(classe));
+const compteMatiere = mat => compter(mat.classes.reduce((t, c) => t.concat(simsDe(c)), []));
+
+/* ============================================================================
+   3. Rendu
+   ========================================================================== */
+
+const $ = id => document.getElementById(id);
+const echapper = t => String(t).replace(/[&<>"]/g, c =>
+  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+const barre = pct => `<span class="progression"><i style="width:${pct}%"></i></span>`;
+
+function ligneSim(s, etiquette) {
+  const livree = estLivree(s);
+  const p = livree ? progressionDe(s.dos) : null;
+  const etat = livree
+    ? `<span class="etat">
+         ${p.faites ? `<span class="badge badge-accent">${p.pct} %</span>`
+                    : '<span class="badge">Nouveau</span>'}
+         <span class="mini">${barre(p.pct)}</span>
+       </span>`
+    : '<span class="etat"><span class="badge badge-contour">Bientôt</span></span>';
+  const corps = `
+    <span class="ico" aria-hidden="true">${s.ico}</span>
+    <span class="corps">
+      ${etiquette ? `<span class="etiquette">${echapper(etiquette)}</span>` : ''}
+      <span class="nom">${echapper(s.nom)}</span>
+      <span class="quoi">${echapper(s.quoi)}</span>
+    </span>${etat}`;
+  return livree
+    ? `<a class="sim" href="${lienDe(s)}">${corps}</a>`
+    : `<div class="sim bientot">${corps}</div>`;
+}
+
+function rendreAccueil() {
+  $('grille-matieres').innerHTML = CATALOGUE.map(m => {
+    const n = compteMatiere(m);
+    return `
+      <div class="carte c-matiere carte-clic" data-matiere="${m.id}" data-aller="${m.id}"
+           role="link" tabindex="0" aria-label="${echapper(m.nom)}">
+        <span class="haut">
+          <span class="emoji" aria-hidden="true">${m.emoji}</span>
+          <h3>${echapper(m.court)}</h3>
+        </span>
+        <p class="desc">${echapper(m.desc)}</p>
+        <span class="pied">
+          <span class="badge badge-accent">${n.livrees} en ligne</span>
+          <span class="discret" style="font-size:12.5px">${n.total} au programme</span>
+        </span>
+      </div>`;
+  }).join('');
+  rendreReprise();
+}
+
+function rendreReprise() {
+  // La simulation la plus avancée parmi celles déjà commencées
+  let meilleure = null;
+  for (const m of CATALOGUE) for (const c of m.classes) for (const s of simsDe(c)) {
+    if (!estLivree(s)) continue;
+    const p = progressionDe(s.dos);
+    if (p.faites && (!meilleure || p.faites > meilleure.p.faites))
+      meilleure = { s, p, mat: m.id, classe: c.nom };
+  }
+  const zone = $('reprendre');
+  if (!meilleure) { zone.classList.remove('visible'); zone.innerHTML = ''; return; }
+  const { s, p, mat, classe } = meilleure;
+  zone.innerHTML = `
+    <div class="carte reprise" data-matiere="${mat}">
+      <span class="ico" aria-hidden="true">${s.ico}</span>
+      <span class="txt">
+        <span class="etiquette">Reprendre</span>
+        <h4>${echapper(s.nom)}</h4>
+        <span class="discret" style="font-size:12.5px">${classe} · ${p.faites} mission${p.faites > 1 ? 's' : ''} sur ${p.total}</span>
+        ${barre(p.pct)}
+      </span>
+      <a class="btn" href="${lienDe(s)}">Continuer</a>
+    </div>`;
+  zone.classList.add('visible');
+}
+
+function rendreMatiere(mat) {
+  $('vue-matiere').dataset.matiere = mat.id;
+  $('titre-matiere').textContent = mat.nom;
+  $('desc-matiere').textContent = mat.desc;
+  $('grille-classes').innerHTML = mat.classes.map(c => {
+    const n = compteClasse(c);
+    const pct = n.total ? Math.round(n.livrees / n.total * 100) : 0;
+    return `
+      <div class="carte c-classe carte-clic" data-aller="${mat.id}/${c.id}"
+           role="link" tabindex="0" aria-label="${echapper(mat.court + ' ' + c.nom)}">
+        <span class="niveau">${c.nom}</span>
+        <span class="quoi">${echapper(c.desc)}</span>
+        ${barre(pct)}
+        <span class="compte">${n.livrees} sur ${n.total} disponibles</span>
+      </div>`;
+  }).join('');
+}
+
+function rendreClasse(mat, classe) {
+  $('vue-classe').dataset.matiere = mat.id;
+  $('titre-classe').textContent = `${mat.court} · ${classe.nom}`;
+  $('desc-classe').textContent = classe.desc;
+
+  const n = compteClasse(classe);
+  const pct = n.total ? Math.round(n.livrees / n.total * 100) : 0;
+  $('couverture-classe').innerHTML = `
+    <div class="carte carte-plate couverture">
+      <span class="txt">
+        <span class="etiquette">Couverture du programme</span>
+        <b>${n.livrees} activité${n.livrees > 1 ? 's' : ''} sur ${n.total}</b>
+        <span class="discret"> · ${classe.sa.length} situation${classe.sa.length > 1 ? 's' : ''} d'apprentissage</span>
+      </span>
+      ${barre(pct)}
+    </div>`;
+
+  $('liste-sa').innerHTML = classe.sa.map(sa => {
+    const notes = [sa.heures, sa.cd].filter(Boolean).join(' · ');
+    return `
+      <section class="sa">
+        <div class="sa-tete">
+          <span class="sa-num" aria-hidden="true">SA${sa.n}</span>
+          <h3>${echapper(sa.titre)}</h3>
+          ${notes ? `<span class="heures">${notes}</span>` : ''}
+        </div>
+        <div class="sa-liste">${sa.sims.map(s => ligneSim(s)).join('')}</div>
+      </section>`;
+  }).join('');
+}
+
+/* ============================================================================
+   4. Navigation par ancre — le bouton Retour du navigateur fonctionne
+   ========================================================================== */
+
+function montrer(vue) {
+  for (const v of document.querySelectorAll('.vue')) v.classList.toggle('active', v.id === vue);
+}
+
+function rendreFil(mat, classe) {
+  if (!mat) { $('fil').innerHTML = ''; return; }
+  const bouts = ['<button data-aller="">Accueil</button>', '<span class="sep">›</span>'];
+  bouts.push(classe
+    ? `<button data-aller="${mat.id}">${echapper(mat.court)}</button><span class="sep">›</span><span class="ici">${echapper(classe.nom)}</span>`
+    : `<span class="ici">${echapper(mat.court)}</span>`);
+  $('fil').innerHTML = bouts.join('');
+}
+
+function router() {
+  const route = decodeURIComponent(location.hash.replace(/^#\/?/, '')).split('/').filter(Boolean);
+  const mat = CATALOGUE.find(m => m.id === route[0]);
+  const classe = mat && route[1] ? mat.classes.find(c => c.id === route[1]) : null;
+
+  if (mat && classe) { rendreClasse(mat, classe); montrer('vue-classe'); }
+  else if (mat)      { rendreMatiere(mat);        montrer('vue-matiere'); }
+  else               { vider(); rendreAccueil();  montrer('vue-accueil'); }
+
+  rendreFil(mat, classe);
+  document.body.dataset.matiere = mat ? mat.id : '';
+  window.scrollTo(0, 0);
+}
+
+const aller = cible => { location.hash = cible ? '#/' + cible : '#'; };
+
+document.addEventListener('click', e => {
+  const cible = e.target.closest('[data-aller]');
+  if (!cible) return;
+  e.preventDefault();
+  aller(cible.dataset.aller);
+});
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  const cible = e.target.closest('.carte-clic[data-aller]');
+  if (!cible) return;
+  e.preventDefault();
+  aller(cible.dataset.aller);
+});
+$('lien-marque').addEventListener('click', e => { e.preventDefault(); aller(''); });
+window.addEventListener('hashchange', router);
+
+/* ============================================================================
+   5. Recherche — sur toutes les simulations, livrées comme à venir
+   ========================================================================== */
+
+const INDEX = [];
+for (const m of CATALOGUE) for (const c of m.classes) for (const sa of c.sa) for (const s of sa.sims)
+  INDEX.push({ s, mat: m, classe: c, sa });
+
+const sansAccent = t => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+
+function vider() {
+  const champ = $('recherche');
+  if (champ) champ.value = '';
+  $('resultats').classList.remove('visible');
+  $('resultats').innerHTML = '';
+  $('bloc-matieres').style.display = '';
+}
+
+$('recherche').addEventListener('input', e => {
+  const q = sansAccent(e.target.value.trim());
+  const zone = $('resultats');
+  if (q.length < 2) {
+    zone.classList.remove('visible'); zone.innerHTML = '';
+    $('bloc-matieres').style.display = '';
+    return;
+  }
+  $('bloc-matieres').style.display = 'none';
+  zone.classList.add('visible');
+  const trouves = INDEX.filter(t =>
+    sansAccent(`${t.s.nom} ${t.s.quoi} ${t.sa.titre} ${t.mat.nom} ${t.classe.nom}`).includes(q));
+  if (!trouves.length) {
+    zone.innerHTML = `<p class="vide">Rien trouvé pour « ${echapper(e.target.value)} ».</p>`;
+    return;
+  }
+  zone.innerHTML = `
+    <div class="section-titre"><h2>${trouves.length} résultat${trouves.length > 1 ? 's' : ''}</h2></div>
+    <div class="sa-liste">
+      ${trouves.map(t => `<div data-matiere="${t.mat.id}">
+         ${ligneSim(t.s, `${t.mat.court} · ${t.classe.nom} · SA${t.sa.n}`)}
+       </div>`).join('')}
+    </div>`;
+});
+
+/* ============================================================================
+   6. Thème — clé partagée avec les simulations
+   ========================================================================== */
+
+const btnTheme = $('btn-theme');
+function appliquerTheme(sombre) {
+  document.body.classList.toggle('sombre', sombre);
+  btnTheme.textContent = sombre ? '☀️' : '🌙';
+  document.querySelector('meta[name=theme-color]')
+    .setAttribute('content', sombre ? '#14181C' : '#F7F5F0');
+  try { localStorage.setItem('ike-theme', sombre ? 'sombre' : 'clair'); } catch (e) {}
+}
+btnTheme.addEventListener('click', () => appliquerTheme(!document.body.classList.contains('sombre')));
+
+try {
+  const enregistre = localStorage.getItem('ike-theme');
+  appliquerTheme(enregistre ? enregistre === 'sombre'
+    : window.matchMedia('(prefers-color-scheme: dark)').matches);
+} catch (e) { appliquerTheme(false); }
+
+router();
+</script>
 </body>
 </html>
