@@ -250,7 +250,7 @@
 </main>
 
 <footer class="enveloppe pied">
-  <span>Labo-Bénin · <span class="ver">v4.0.0</span></span>
+  <span>Labo-Bénin · <span class="ver">v4.1.0</span></span>
   <span>·</span>
   <span>Programme officiel du Bénin (APC)</span>
   <span>·</span>
@@ -269,6 +269,7 @@
 // Simulations livrées : clé de progression et nombre de missions, pour lire
 // une progression réelle depuis le stockage local.
 const LIVREES = {
+  'lampe-de-poche':     { cle: 'ike-lampe-progression',      missions: 6, champ: 'faits' },
   'circuit-electrique': { cle: 'ike-circuit-progression-v2', missions: 15 },
   'combustions':        { cle: 'ike-combustion-progression', missions: 10 },
   'etats-matiere':      { cle: 'ike-matiere-progression-v2', missions: 13 },
@@ -306,7 +307,7 @@ const CATALOGUE = [
           {
             n: 2, titre: "Fabrication d'une lampe de poche", heures: '12 h', cd: 'CD2',
             sims: [
-              { ico: '🔦', nom: 'Fabrique ta lampe de poche',
+              { dos: 'lampe-de-poche', ico: '🔦', nom: 'Fabrique ta lampe de poche',
                 quoi: "Boîtier, piles, ressort, lame de contact, réflecteur : monter, puis allumer." },
               { ico: '🛠️', nom: 'Le dépanneur',
                 quoi: "Diagnostiquer la panne d'une lampe ou d'un éclairage de vélo, puis la réparer." },
@@ -506,7 +507,8 @@ function progressionDe(dossier) {
     const brut = localStorage.getItem(info.cle);
     if (!brut) return { faites: 0, total: info.missions, pct: 0 };
     const d = JSON.parse(brut);
-    const faites = Array.isArray(d.faites) ? d.faites.length : 0;
+    const liste = d[info.champ || 'faites'];
+    const faites = Array.isArray(liste) ? liste.length : 0;
     return { faites, total: info.missions, pct: Math.min(100, Math.round(faites / info.missions * 100)) };
   } catch (e) {
     return { faites: 0, total: info.missions, pct: 0 };

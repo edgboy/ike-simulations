@@ -5,6 +5,36 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v4.1.0 — 2026-07-28
+
+🔦 **Nouveau gabarit : l'atelier de fabrication** — et sa première simulation,
+**« Fabrique ta lampe de poche »** (PCT 6ᵉ, SA2).
+
+Trois des six SA de 6ᵉ relèvent de la **démarche technologique** (CD2) : on n'y explique
+pas un phénomène, on fabrique un objet qui marche. Ce gabarit était le trou le plus large
+du catalogue ; il est prototypé ici sur la lampe de poche, la SA la plus proche de ce que
+le moteur électrique sait déjà faire.
+
+- **Plusieurs assemblages réussissent** — c'est la différence de fond avec les simulations
+  d'observation. On n'évalue plus juste/faux mais **portée, autonomie, solidité, finition**.
+  Un test exhaustif le vérifie : 192 assemblages éclairent correctement, 5 seulement
+  satisfont le défi final
+- **Les choix ont des conséquences réelles** : le boîtier (tube PVC, bambou, boîte de
+  conserve, carton) décide du nombre de piles, de la solidité et du poids ; les grosses
+  piles durent 5 fois plus longtemps mais triplent la masse ; le réflecteur double la portée
+- **Les erreurs du programme sont vécues, pas racontées** : sans contact arrière le circuit
+  reste ouvert ; une lame rigide ne touche pas la pile si le boîtier n'est pas plein (le
+  ressort, lui, rattrape le jeu) ; 4,5 V sur une ampoule 2,5 V **fait griller le filament** ;
+  une pile retournée s'oppose aux autres et la lampe faiblit — l'adaptation
+  générateur / récepteur de la SA1 (sous-tension, tension d'usage, surtension) est ainsi
+  couverte au passage
+- **6 défis** dont « La lampe de Jean », le réinvestissement du guide : 5 km de vélo la nuit,
+  donc 8 m de portée, 8 heures d'autonomie, une lampe solide et finie
+- Le bandeau rappelle les cinq temps de la démarche technologique : explorer, choisir,
+  fabriquer, tester, améliorer
+- Physique validée par tests avant l'écriture de l'interface (tensions, courants,
+  autonomies et portées calculés, pas décoratifs)
+
 ## v4.0.0 — 2026-07-28
 
 🎨 **Nouvelle identité et nouvelle organisation du site.**

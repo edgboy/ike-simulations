@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fabrique ta lampe de poche — Labo-Bénin</title>
+<meta name="theme-color" content="#F7F5F0">
+<!-- Polices du site si présentes ; sinon repli sur les polices du système -->
+<link rel="stylesheet" href="../../assets/polices.css">
+<style>
+/* ===== Jetons du design system Labo-Bénin (intégrés : fichier autonome) ===== */
+:root {
+  --primary:#C4D94E; --accent:#5BC5F2; --accent-doux:#D6F0FB;
+  --tertiary:#F7A430; --destructive:#E83A4B; --success:#2A9D8F;
+  --neutral:#3A3632; --background:#F7F5F0; --surface:#FFFFFF; --surface-muted:#F0EEE9;
+  --border:#D3CFC8; --border-strong:#B0ABA3; --ring:#5BC5F2;
+  --font-display:'Baloo 2','Segoe UI',system-ui,sans-serif;
+  --font-body:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;
+  --radius-sm:8px; --radius-md:12px; --radius-lg:16px; --radius-full:9999px;
+  --shadow-soft:0 4px 16px rgba(58,54,50,.05);
+  --shadow-raised:0 6px 20px rgba(58,54,50,.06);
+  --ease:cubic-bezier(.4,0,.2,1);
+  --metal:#B0ABA3; --cuivre:#C9885A;
+}
+body.sombre {
+  --neutral:#ECEFF1; --background:#14181C; --surface:#1C232A; --surface-muted:#232C34;
+  --border:#333E47; --border-strong:#4A5762; --accent-doux:#17323F;
+  --shadow-soft:0 4px 16px rgba(0,0,0,.28); --shadow-raised:0 6px 20px rgba(0,0,0,.34);
+  --metal:#8A9299;
+}
+
+*,*::before,*::after { box-sizing:border-box; }
+body {
+  margin:0; font-family:var(--font-body); font-size:16px; color:var(--neutral);
+  background:var(--background); overflow:hidden;
+  height:100dvh; display:flex; flex-direction:column;
+  -webkit-tap-highlight-color:transparent; -webkit-text-size-adjust:100%;
+}
+h1,h2,h3,h4 { font-family:var(--font-display); margin:0; line-height:1.2; }
+:focus-visible { outline:2px solid var(--ring); outline-offset:2px; border-radius:var(--radius-sm); }
+
+/* ============================ En-tête ============================ */
+header {
+  display:flex; align-items:center; gap:10px; flex:none;
+  padding:8px 12px; background:var(--surface); border-bottom:1px solid var(--border);
+}
+header h1 { font-size:16px; font-weight:800; }
+header .sous { font-size:11px; opacity:.6; margin-top:-2px; }
+.retour {
+  display:grid; place-items:center; width:40px; height:40px; flex:none;
+  border:none; background:none; border-radius:var(--radius-md);
+  font-size:19px; color:inherit; text-decoration:none; cursor:pointer;
+}
+.retour:hover { background:var(--surface-muted); }
+.tete-fin { margin-left:auto; display:flex; gap:4px; align-items:center; }
+.icone-btn {
+  width:40px; height:40px; display:grid; place-items:center;
+  border:none; background:none; border-radius:var(--radius-md);
+  font-size:18px; color:inherit; cursor:pointer;
+}
+.icone-btn:hover { background:var(--surface-muted); }
+
+/* ===================== Bandeau de la démarche ===================== */
+#demarche {
+  flex:none; display:flex; gap:4px; padding:7px 12px; overflow-x:auto;
+  background:var(--surface); border-bottom:1px solid var(--border);
+  scrollbar-width:none;
+}
+#demarche::-webkit-scrollbar { display:none; }
+.etape {
+  display:flex; align-items:center; gap:5px; flex:none;
+  padding:4px 10px; border-radius:var(--radius-full);
+  font-size:11.5px; font-weight:600; letter-spacing:.03em;
+  background:var(--surface-muted); color:var(--neutral); opacity:.5;
+  transition:opacity .25s var(--ease), background .25s var(--ease);
+}
+.etape.active { opacity:1; background:var(--accent); }
+.etape.faite { opacity:.85; background:var(--accent-doux); }
+.etape .n { font-family:var(--font-display); font-weight:800; }
+
+/* ============================ Atelier ============================ */
+main { flex:1; min-height:0; display:flex; flex-direction:column; }
+/* L'atelier porte le bilan : celui-ci ne doit jamais recouvrir le bac de matériaux */
+#atelier { flex:1; min-height:0; position:relative; display:flex; }
+#plan { flex:1; min-height:0; width:100%; display:block; touch-action:manipulation; }
+
+/* Emplacements */
+.slot { cursor:pointer; }
+.slot .zone {
+  fill:transparent; stroke:var(--border-strong); stroke-width:2;
+  stroke-dasharray:6 5; rx:6;
+}
+.slot:hover .zone, .slot:focus-visible .zone { stroke:var(--accent); fill:var(--accent-doux); }
+.slot.plein .zone { stroke:none; fill:none; }
+.slot.attendu .zone { stroke:var(--accent); animation:respire 1.6s infinite; }
+@keyframes respire { 50% { stroke-opacity:.35; } }
+.etiq-slot {
+  font-family:var(--font-body); font-size:10.5px; font-weight:600;
+  fill:var(--neutral); opacity:.5; text-anchor:middle; pointer-events:none;
+}
+.pcs { pointer-events:none; }
+.txt-piece {
+  font-family:var(--font-body); font-size:11px; font-weight:700;
+  fill:var(--neutral); text-anchor:middle; pointer-events:none;
+}
+.retirer { cursor:pointer; }
+.retirer circle { fill:var(--border-strong); transition:fill .15s var(--ease); }
+.retirer:hover circle, .retirer:focus-visible circle { fill:var(--destructive); }
+.retirer text { fill:#fff; font-size:13px; font-weight:700; text-anchor:middle; font-family:var(--font-body); }
+
+/* ============================ Bilan ============================ */
+#bilan {
+  position:absolute; left:10px; right:10px; bottom:10px; z-index:6;
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-raised); padding:13px 15px;
+  display:none; max-width:520px; margin:0 auto;
+}
+/* Pendant le bilan, la lampe remonte : l'élève doit voir ce qu'il vient de fabriquer */
+#atelier.avec-bilan #plan { align-self:flex-start; max-height:46%; }
+#bilan.visible { display:block; animation:monte .3s var(--ease); }
+@keyframes monte { from { opacity:0; transform:translateY(10px); } }
+#bilan .verdict { display:flex; align-items:center; gap:9px; margin-bottom:4px; }
+#bilan .verdict .em { font-size:24px; line-height:1; }
+#bilan .verdict h3 { font-size:16px; flex:1; }
+#bilan .phrase { font-size:13px; opacity:.75; line-height:1.5; margin:0 0 10px; }
+.jauges { display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:9px 14px; }
+.jauge .haut { display:flex; justify-content:space-between; font-size:11.5px; margin-bottom:3px; }
+.jauge .haut b { font-weight:600; }
+.jauge .haut span { opacity:.65; }
+.barre { height:7px; border-radius:var(--radius-full); background:var(--surface-muted); overflow:hidden; }
+.barre i { display:block; height:100%; background:var(--accent); border-radius:inherit; transition:width .5s var(--ease); }
+.barre.faible i { background:var(--tertiary); }
+.barre.mauvais i { background:var(--destructive); }
+#bilan .actions { display:flex; gap:8px; margin-top:12px; }
+
+/* ============================ Bac ============================ */
+#bac {
+  flex:none; background:var(--surface); border-top:1px solid var(--border);
+  padding:8px 0 calc(8px + env(safe-area-inset-bottom));
+  max-height:38dvh; overflow-y:auto;
+}
+.groupe { padding:0 12px 8px; }
+.groupe > .titre {
+  display:flex; align-items:center; gap:6px;
+  font-size:11px; font-weight:600; letter-spacing:.05em; text-transform:uppercase;
+  opacity:.55; margin-bottom:6px;
+}
+.groupe > .titre .ok { color:var(--success); opacity:1; }
+.choix { display:flex; gap:7px; overflow-x:auto; padding-bottom:2px; scrollbar-width:none; }
+.choix::-webkit-scrollbar { display:none; }
+.piece {
+  flex:none; min-width:104px; max-width:150px; min-height:56px;
+  display:flex; flex-direction:column; justify-content:center; gap:2px;
+  padding:8px 11px; text-align:left;
+  background:var(--surface); border:2px solid var(--border); border-radius:var(--radius-md);
+  font-family:var(--font-body); color:var(--neutral); cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+.piece:hover { border-color:var(--border-strong); background:var(--surface-muted); }
+.piece.pose { border-color:var(--accent); background:var(--accent-doux); }
+.piece b { font-size:12.5px; font-weight:600; }
+.piece span { font-size:10.5px; opacity:.65; line-height:1.35; }
+.piece[disabled] { opacity:.4; cursor:not-allowed; }
+
+/* ============================ Barre d'action ============================ */
+#actions {
+  flex:none; display:flex; gap:8px; align-items:center;
+  padding:8px 12px calc(8px + env(safe-area-inset-bottom));
+  background:var(--surface); border-top:1px solid var(--border);
+}
+.btn {
+  display:inline-flex; align-items:center; justify-content:center; gap:7px;
+  min-height:44px; padding:0 18px; border:none; border-radius:var(--radius-lg);
+  font-family:var(--font-body); font-size:14px; font-weight:600;
+  color:var(--neutral); background:var(--primary); cursor:pointer;
+  transition:filter .15s var(--ease);
+}
+.btn:hover { filter:brightness(.94); }
+.btn:active { filter:brightness(.88); }
+.btn[disabled] { opacity:.5; cursor:not-allowed; filter:none; }
+.btn-contour { background:var(--surface); border:2px solid var(--neutral); }
+.btn-contour:hover { background:var(--surface-muted); filter:none; }
+.btn-fantome { background:transparent; }
+.btn-fantome:hover { background:var(--surface-muted); filter:none; }
+#defi-courant {
+  flex:1; min-width:0; font-size:12.5px; line-height:1.35;
+}
+#defi-courant b { display:block; font-size:13px; font-weight:600; }
+#defi-courant span { opacity:.65; font-size:11.5px; }
+
+/* ============================ Toast ============================ */
+#toast {
+  /* en haut : le bas de l'écran est occupé par le bilan et la barre d'action */
+  position:fixed; left:50%; top:104px; transform:translateX(-50%);
+  max-width:calc(100vw - 32px); padding:10px 16px; z-index:30;
+  background:var(--neutral); color:var(--background);
+  border-radius:var(--radius-full); font-size:13px; font-weight:600;
+  opacity:0; pointer-events:none; transition:opacity .2s var(--ease);
+  text-align:center;
+}
+#toast.visible { opacity:1; }
+#toast.alerte { background:var(--destructive); color:#fff; }
+
+/* ============================ Voiles ============================ */
+.voile {
+  position:fixed; inset:0; z-index:40; display:none;
+  background:rgba(38,50,56,.55); padding:16px;
+  overflow-y:auto; -webkit-overflow-scrolling:touch;
+}
+.voile.visible { display:flex; align-items:center; justify-content:center; }
+.carte-modale {
+  position:relative; width:100%; max-width:460px; margin:auto;
+  background:var(--surface); border-radius:var(--radius-lg); padding:22px 20px;
+  box-shadow:var(--shadow-raised);
+}
+.carte-modale h2 { font-size:20px; margin-bottom:10px; padding-right:30px; }
+.carte-modale p { font-size:13.5px; line-height:1.6; opacity:.8; margin:0 0 10px; }
+.fermer-x {
+  position:absolute; top:8px; right:10px; width:36px; height:36px;
+  border:none; background:none; font-size:20px; color:inherit; cursor:pointer;
+  border-radius:var(--radius-md);
+}
+.fermer-x:hover { background:var(--surface-muted); }
+.d-carte {
+  display:flex; align-items:center; gap:11px; width:100%; text-align:left;
+  padding:11px 13px; margin-bottom:8px;
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md);
+  font-family:var(--font-body); color:inherit; cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+.d-carte:hover { border-color:var(--border-strong); background:var(--surface-muted); }
+.d-carte .num {
+  width:30px; height:30px; flex:none; border-radius:var(--radius-sm);
+  display:grid; place-items:center; background:var(--accent-doux);
+  font-family:var(--font-display); font-weight:800; font-size:13px;
+}
+.d-carte.fait .num { background:var(--success); color:#fff; }
+.d-carte .txt { flex:1; min-width:0; }
+.d-carte .txt b { display:block; font-size:13.5px; font-weight:600; }
+.d-carte .txt span { font-size:11.5px; opacity:.65; line-height:1.4; }
+.aide-etape { display:flex; gap:10px; margin-bottom:11px; }
+.aide-etape .num {
+  width:24px; height:24px; flex:none; border-radius:var(--radius-full);
+  display:grid; place-items:center; background:var(--accent-doux);
+  font-family:var(--font-display); font-weight:800; font-size:12px;
+}
+.aide-etape .t { font-size:13px; line-height:1.5; opacity:.85; }
+.aide-etape .t b { opacity:1; }
+
+@media (min-width:820px) {
+  main { flex-direction:row; }
+  #atelier { flex:1; }
+  #atelier.avec-bilan #plan { align-self:auto; max-height:none; }
+  #bac { max-height:none; width:300px; border-top:none; border-left:1px solid var(--border); }
+}
+@media (prefers-reduced-motion:reduce) {
+  *,*::before,*::after { animation-duration:.01ms !important; transition-duration:.01ms !important; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <a class="retour" href="../../index.html#/pct/6e" title="Retour au catalogue" aria-label="Retour">←</a>
+  <div>
+    <h1>Fabrique ta lampe de poche</h1>
+    <div class="sous">PCT · 6ᵉ · SA2 — démarche technologique</div>
+  </div>
+  <div class="tete-fin">
+    <button class="icone-btn" id="btn-defis" title="Les défis" aria-label="Les défis">🎯</button>
+    <button class="icone-btn" id="btn-aide" title="Comment faire" aria-label="Comment faire">❓</button>
+    <button class="icone-btn" id="btn-theme" title="Thème" aria-label="Changer de thème">🌙</button>
+  </div>
+</header>
+
+<nav id="demarche" aria-label="Étapes de la démarche technologique">
+  <span class="etape" data-etape="0"><span class="n">1</span> Explorer</span>
+  <span class="etape" data-etape="1"><span class="n">2</span> Choisir</span>
+  <span class="etape" data-etape="2"><span class="n">3</span> Fabriquer</span>
+  <span class="etape" data-etape="3"><span class="n">4</span> Tester</span>
+  <span class="etape" data-etape="4"><span class="n">5</span> Améliorer</span>
+</nav>
+
+<main>
+  <div id="atelier">
+    <svg id="plan" viewBox="0 0 660 300" preserveAspectRatio="xMidYMid meet" role="img"
+         aria-label="Vue en coupe de la lampe de poche en cours de montage"></svg>
+    <div id="bilan" role="status" aria-live="polite"></div>
+  </div>
+
+  <div id="bac"></div>
+</main>
+
+<div id="actions">
+  <div id="defi-courant"></div>
+  <button class="btn btn-fantome" id="btn-vider">🗑 Tout enlever</button>
+  <button class="btn" id="btn-tester">💡 Tester</button>
+</div>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<div class="voile" id="v-defis">
+  <div class="carte-modale">
+    <button class="fermer-x" data-ferme="v-defis" aria-label="Fermer">✕</button>
+    <h2>🎯 Les défis</h2>
+    <p>Chaque défi se réussit avec <b>plusieurs assemblages différents</b> : à toi de trouver le tien.</p>
+    <div id="liste-defis"></div>
+  </div>
+</div>
+
+<div class="voile" id="v-aide">
+  <div class="carte-modale">
+    <button class="fermer-x" data-ferme="v-aide" aria-label="Fermer">✕</button>
+    <h2>🔦 Comment fabriquer</h2>
+    <div class="aide-etape"><span class="num">1</span><span class="t">
+      <b>Choisis un boîtier</b> dans le bac. C'est lui qui décide combien de piles tiennent
+      à l'intérieur, et si ta lampe résistera aux chocs.</span></div>
+    <div class="aide-etape"><span class="num">2</span><span class="t">
+      <b>Touche une pièce du bac</b> pour la monter. Touche une pièce déjà montée pour l'enlever.
+      Touche une pile pour <b>la retourner</b> : le sens compte !</span></div>
+    <div class="aide-etape"><span class="num">3</span><span class="t">
+      <b>N'oublie pas le contact arrière</b> : sans lui, le courant ne peut pas revenir à la pile
+      et rien ne s'allume.</span></div>
+    <div class="aide-etape"><span class="num">4</span><span class="t">
+      <b>Appuie sur Tester.</b> Tu verras si ça éclaire, combien de temps ça tiendra,
+      et si ta lampe est solide. Puis améliore-la.</span></div>
+    <p style="margin-top:14px">Il n'y a <b>pas une seule bonne réponse</b> : une lampe légère,
+      une lampe qui dure longtemps et une lampe solide ne se fabriquent pas pareil.</p>
+    <button class="btn" style="width:100%" data-ferme="v-aide">J'ai compris</button>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+/* ============================================================================
+   1. Le matériel — celui que le guide officiel cite, trouvable au Bénin
+   ========================================================================== */
+
+const BOITIERS = {
+  pvc:      { nom:'Tube PVC', detail:'3 piles rondes · léger · étanche',
+              piles:3, type:'ronde', solidite:3, masse:60, couleur:'#9AA5AD' },
+  bambou:   { nom:'Bambou', detail:'2 piles rondes · très solide · local',
+              piles:2, type:'ronde', solidite:5, masse:80, couleur:'#B98A4B' },
+  conserve: { nom:'Boîte de conserve', detail:'1 pile plate · solide · lourde',
+              piles:1, type:'plate', solidite:4, masse:90, couleur:'#AFB6BB' },
+  carton:   { nom:'Tube en carton', detail:'2 piles rondes · gratuit · fragile',
+              piles:2, type:'ronde', solidite:1, masse:25, couleur:'#C8A97E' },
+};
+const PILES = {
+  r6:    { nom:'Pile ronde R6', detail:'1,5 V · dure peu', type:'ronde', u:1.5, mah:1500, r:.30, masse:24 },
+  r20:   { nom:'Grosse pile R20', detail:'1,5 V · dure longtemps · lourde', type:'ronde', u:1.5, mah:8000, r:.20, masse:140 },
+  plate: { nom:'Pile plate', detail:'4,5 V · pour boîtier plat', type:'plate', u:4.5, mah:6000, r:.35, masse:130 },
+};
+const AMPOULES = {
+  a25: { nom:'Ampoule 2,5 V', detail:'petite lampe', un:2.5, inom:.30 },
+  a38: { nom:'Ampoule 3,8 V', detail:'lampe courante', un:3.8, inom:.30 },
+  a60: { nom:'Ampoule 6 V', detail:'grosse lampe', un:6.0, inom:.45 },
+};
+const CONTACTS = {
+  ressort: { nom:'Ressort', detail:'rattrape le jeu · amortit les chocs', amorti:2 },
+  lame:    { nom:'Lame métallique', detail:'rigide : il faut remplir le boîtier', amorti:0 },
+};
+const REFLECTEURS = {
+  alu:   { nom:'Réflecteur alu', detail:'papier d’aluminium · récupération', gain:2.2 },
+  blanc: { nom:'Fond blanc', detail:'peinture claire', gain:1.5 },
+};
+const VITRES = { plastique:{ nom:'Vitre plastique', detail:'protège l’ampoule' } };
+const INTERRUPTEURS = { simple:{ nom:'Interrupteur', detail:'allumer et éteindre' } };
+
+/* ============================================================================
+   2. Le moteur — validé par tests avant d'écrire l'interface
+   ========================================================================== */
+
+function evaluer(m) {
+  const b = BOITIERS[m.boitier];
+  const r = { ok:false, pannes:[] };
+  if (!b) { r.pannes.push('Il te faut d’abord un boîtier.'); return r; }
+  if (!m.piles.length) r.pannes.push('Il n’y a aucune pile : rien ne fournit le courant.');
+  if (!m.ampoule) r.pannes.push('Il n’y a pas d’ampoule.');
+  if (!m.contact) r.pannes.push('Pas de contact au fond : le courant ne peut pas revenir à la pile, le circuit est ouvert.');
+  // Une lame rigide n'atteint la pile que si le boîtier est plein ; le ressort rattrape le jeu.
+  if (m.contact === 'lame' && m.piles.length && m.piles.length < b.piles)
+    r.pannes.push('La lame est rigide et ne touche pas la pile : remplis le boîtier, ou mets un ressort.');
+
+  const u = m.piles.reduce((s, p) => s + PILES[p.modele].u * p.sens, 0);
+  const umax = m.piles.reduce((s, p) => s + PILES[p.modele].u, 0);
+  const rint = m.piles.reduce((s, p) => s + PILES[p.modele].r, 0);
+  r.tension = Math.round(u * 100) / 100;
+  r.inversees = m.piles.filter(p => p.sens < 0).length;
+  if (m.piles.length > 1 && Math.abs(u) < .1)
+    r.pannes.push('Les piles sont tête-bêche : leurs tensions s’annulent, il ne reste rien.');
+  else if (m.piles.length && u < 0)
+    r.pannes.push('Les piles sont montées à l’envers : le + doit regarder vers l’ampoule.');
+
+  if (r.pannes.length) return r;
+
+  const a = AMPOULES[m.ampoule];
+  const rlampe = a.un / a.inom;                    // résistance à chaud
+  const i = u / (rlampe + rint);
+  const rapport = (i * rlampe) / a.un;             // tension reçue ÷ tension nominale
+
+  // Une pile à l'envers laisse parfois la lampe s'allumer : il faut le dire quand même
+  if (r.inversees) r.perte = Math.round((umax - u) * 100) / 100;
+  r.courant = i;
+  r.rapport = Math.round(rapport * 100) / 100;
+  r.grille = rapport > 1.2;
+  r.sousTension = rapport < .8;
+  r.ok = !r.grille;
+
+  // Le flux d'une lampe à incandescence varie très vite avec la tension
+  const eclat = r.grille ? 0 : Math.pow(Math.min(rapport, 1.2), 3.5);
+  const capacite = Math.min.apply(null, m.piles.map(p => PILES[p.modele].mah));
+  const gain = m.reflecteur ? REFLECTEURS[m.reflecteur].gain : 1;
+
+  r.eclat = eclat;
+  r.portee = Math.round(eclat * gain * 2.5 * 10) / 10;
+  r.heures = r.grille ? 0 : Math.round(capacite / 1000 / i * 10) / 10;
+  r.masse = b.masse + m.piles.reduce((s, p) => s + PILES[p.modele].masse, 0);
+  r.solidite = Math.max(1, Math.min(10,
+    b.solidite + (m.contact ? CONTACTS[m.contact].amorti : 0) + (m.vitre ? 1 : 0)));
+  r.finition = (m.interrupteur ? 3 : 0) + (m.vitre ? 3 : 0) + (m.reflecteur ? 3 : 0) + 1;
+  return r;
+}
+
+/* ============================================================================
+   3. Les défis — plusieurs assemblages réussissent chacun d'eux
+   ========================================================================== */
+
+const DEFIS = [
+  { titre:'Que ça s’allume !', but:'Fabrique une lampe qui éclaire, même faiblement.',
+    test:(r) => r.ok && r.portee > 0 },
+  { titre:'Bien réglée', but:'L’ampoule doit recevoir la tension qu’il lui faut : ni trop peu, ni trop.',
+    test:(r) => r.ok && !r.sousTension && !r.grille },
+  { titre:'Le bon contact', but:'Réussis une lampe qui éclaire avec une lame métallique au fond.',
+    test:(r, m) => r.ok && !r.sousTension && m.contact === 'lame' },
+  { titre:'Loin devant', but:'Porte la lumière à 6 mètres au moins.',
+    test:(r) => r.ok && r.portee >= 6 },
+  { titre:'Toute la nuit', but:'Ta lampe doit tenir 8 heures sans s’éteindre.',
+    test:(r) => r.ok && r.heures >= 8 },
+  { titre:'La lampe de Jean', but:'Jean fait 5 km de vélo la nuit : il lui faut 8 m de portée, 8 heures, une lampe solide et finie.',
+    test:(r, m) => r.ok && r.portee >= 8 && r.heures >= 8 && r.solidite >= 6 && m.interrupteur && m.vitre },
+];
+
+/* ============================================================================
+   4. État
+   ========================================================================== */
+
+const etat = {
+  boitier:null, piles:[], ampoule:null, contact:null,
+  reflecteur:null, vitre:null, interrupteur:null,
+  defi:0, faits:[], teste:false, ampouleGrillee:false,
+};
+
+const CLE = 'ike-lampe-progression';
+function sauver() {
+  try { localStorage.setItem(CLE, JSON.stringify({ defi:etat.defi, faits:etat.faits })); } catch (e) {}
+}
+function charger() {
+  try {
+    const d = JSON.parse(localStorage.getItem(CLE));
+    if (d && Array.isArray(d.faits)) { etat.faits = d.faits; etat.defi = d.defi || 0; }
+  } catch (e) {}
+}
+
+const $ = id => document.getElementById(id);
+const maquette = () => ({
+  boitier:etat.boitier, piles:etat.piles, ampoule:etat.ampoule, contact:etat.contact,
+  reflecteur:etat.reflecteur, vitre:etat.vitre, interrupteur:etat.interrupteur,
+});
+
+/* ============================================================================
+   5. Dessin du plan de montage (SVG)
+   ========================================================================== */
+
+const plan = $('plan');
+const NS = 'http://www.w3.org/2000/svg';
+const el = (nom, attrs, texte) => {
+  const n = document.createElementNS(NS, nom);
+  for (const k in attrs) n.setAttribute(k, attrs[k]);
+  if (texte != null) n.textContent = texte;
+  return n;
+};
+
+// Géométrie du boîtier en coupe
+const G = { x0:60, x1:455, y0:105, y1:195, tete:545, vitre:556 };
+
+function slotsPiles() {
+  const b = BOITIERS[etat.boitier];
+  if (!b) return [];
+  const x = G.x0 + 46, large = G.x1 - x - 40;
+  const l = large / b.piles;
+  return Array.from({ length:b.piles }, (_, i) => ({ x:x + i * l, l, i }));
+}
+
+function dessiner() {
+  plan.textContent = '';
+  const b = BOITIERS[etat.boitier];
+  const r = evaluer(maquette());
+  const allume = etat.teste && r.ok && r.portee > 0;
+
+  // --- Faisceau lumineux (derrière tout le reste) ---
+  if (allume) {
+    const inten = Math.min(1, r.eclat * (etat.reflecteur ? REFLECTEURS[etat.reflecteur].gain : 1) / 2.6);
+    const ouv = etat.reflecteur ? 46 : 96;
+    const grad = el('linearGradient', { id:'g-faisceau', x1:'0', x2:'1' });
+    grad.appendChild(el('stop', { offset:'0', 'stop-color':'#FFE082', 'stop-opacity':(.85 * inten).toFixed(2) }));
+    grad.appendChild(el('stop', { offset:'1', 'stop-color':'#FFE082', 'stop-opacity':'0' }));
+    const defs = el('defs'); defs.appendChild(grad); plan.appendChild(defs);
+    plan.appendChild(el('polygon', {
+      points:`${G.vitre},130 660,${150 - ouv} 660,${150 + ouv} ${G.vitre},170`,
+      fill:'url(#g-faisceau)',
+    }));
+    plan.appendChild(el('text', {
+      x:640, y:150 - ouv - 8, 'text-anchor':'end', class:'etiq-slot',
+    }, `${r.portee} m`));
+  }
+
+  if (!b) {
+    plan.appendChild(el('text', {
+      x:330, y:140, 'text-anchor':'middle', class:'txt-piece', style:'font-size:15px',
+    }, 'Choisis d’abord un boîtier'));
+    plan.appendChild(el('text', {
+      x:330, y:164, 'text-anchor':'middle', class:'etiq-slot',
+    }, 'C’est lui qui décide combien de piles tiennent dedans.'));
+    return;
+  }
+
+  // --- Corps du boîtier ---
+  plan.appendChild(el('rect', {
+    x:G.x0, y:G.y0, width:G.x1 - G.x0, height:G.y1 - G.y0, rx:10,
+    fill:b.couleur, 'fill-opacity':.30, stroke:b.couleur, 'stroke-width':3,
+  }));
+  // Tête (cône du réflecteur)
+  plan.appendChild(el('polygon', {
+    points:`${G.x1},${G.y0} ${G.tete},88 ${G.tete},212 ${G.x1},${G.y1}`,
+    fill:b.couleur, 'fill-opacity':.30, stroke:b.couleur, 'stroke-width':3,
+  }));
+  plan.appendChild(el('text', { x:G.x0 + 6, y:G.y0 - 12, class:'etiq-slot', 'text-anchor':'start' }, b.nom));
+
+  // --- Réflecteur ---
+  if (etat.reflecteur) {
+    plan.appendChild(el('polygon', {
+      points:`${G.x1 + 4},${G.y0 + 8} ${G.tete - 4},96 ${G.tete - 4},204 ${G.x1 + 4},${G.y1 - 8}`,
+      fill:etat.reflecteur === 'alu' ? '#E6E9EB' : '#FFFFFF',
+      stroke:'var(--border-strong)', 'stroke-width':1.5,
+    }));
+  }
+  ajouterSlot('reflecteur', G.x1 + 6, 108, G.tete - G.x1 - 12, 84, 'Réflecteur', !!etat.reflecteur);
+
+  // --- Vitre ---
+  if (etat.vitre) {
+    plan.appendChild(el('rect', {
+      x:G.tete - 2, y:92, width:8, height:116, rx:3,
+      fill:'#B3E5FC', 'fill-opacity':.55, stroke:'#81D4FA', 'stroke-width':2,
+    }));
+  }
+
+  // --- Contact arrière ---
+  const cx = G.x0 + 8, cl = 34;
+  if (etat.contact === 'ressort') {
+    let d = `M ${cx + 4} 150`;
+    for (let k = 0; k < 6; k++) d += ` l 5 ${k % 2 ? 16 : -16}`;
+    plan.appendChild(el('path', { d, fill:'none', stroke:'var(--metal)', 'stroke-width':3.5, 'stroke-linecap':'round' }));
+  } else if (etat.contact === 'lame') {
+    plan.appendChild(el('rect', { x:cx + 8, y:118, width:7, height:64, rx:2, fill:'var(--metal)' }));
+  }
+  ajouterSlot('contact', cx, 116, cl, 68, 'Contact', !!etat.contact);
+
+  // --- Piles ---
+  const sl = slotsPiles();
+  sl.forEach(s => {
+    const p = etat.piles[s.i];
+    if (p) {
+      const pil = PILES[p.modele];
+      const w = s.l - 8, x = s.x + 4;
+      plan.appendChild(el('rect', {
+        x, y:122, width:w, height:56, rx:5,
+        fill:'#4A5762', stroke:'#2F3A44', 'stroke-width':2,
+      }));
+      // borne + du côté indiqué par le sens
+      const bx = p.sens > 0 ? x + w : x;
+      plan.appendChild(el('rect', {
+        x:p.sens > 0 ? bx - 2 : bx - 5, y:138, width:7, height:24, rx:2, fill:'var(--cuivre)',
+      }));
+      plan.appendChild(el('text', { x:x + w / 2, y:154, class:'txt-piece', fill:'#fff' },
+        (p.sens > 0 ? '− ▸ +' : '+ ◂ −')));
+      plan.appendChild(el('text', { x:x + w / 2, y:194, class:'etiq-slot' }, pil.u.toString().replace('.', ',') + ' V'));
+      // bouton retirer
+      const g = el('g', { class:'retirer', 'data-retire':'pile:' + s.i, role:'button', tabindex:'0',
+        'aria-label':'Retirer cette pile' });
+      g.appendChild(el('circle', { cx:x + w - 9, cy:113, r:10 }));
+      g.appendChild(el('text', { x:x + w - 9, y:118 }, '✕'));
+      plan.appendChild(g);
+      // zone de retournement
+      const z = el('rect', { x, y:122, width:w, height:56, rx:5, fill:'transparent',
+        class:'slot', 'data-tourne':s.i, role:'button', tabindex:'0',
+        'aria-label':'Retourner la pile' });
+      z.style.cursor = 'pointer';
+      plan.appendChild(z);
+    } else {
+      ajouterSlot('pile:' + s.i, s.x + 4, 122, s.l - 8, 56, 'Pile', false);
+    }
+  });
+
+  // --- Ampoule ---
+  const ax = G.x1 - 34;
+  if (etat.ampoule) {
+    const grillee = etat.teste && r.grille;
+    plan.appendChild(el('rect', { x:ax + 6, y:140, width:16, height:20, fill:'var(--metal)' }));
+    plan.appendChild(el('circle', {
+      cx:ax + 34, cy:150, r:18,
+      fill:grillee ? '#6D6259' : (allume ? '#FFE082' : '#ECEFF1'),
+      stroke:grillee ? '#4E443C' : '#B0ABA3', 'stroke-width':2,
+    }));
+    plan.appendChild(el('path', {
+      d:`M ${ax + 26} 150 l 5 -6 l 5 12 l 5 -6`, fill:'none',
+      stroke:grillee ? '#3A3632' : '#8D6E32', 'stroke-width':2,
+    }));
+    if (grillee) plan.appendChild(el('text', { x:ax + 34, y:196, class:'etiq-slot' }, 'grillée'));
+  }
+  ajouterSlot('ampoule', ax, 128, 60, 44, 'Ampoule', !!etat.ampoule);
+
+  // --- Interrupteur (sur le dessus) ---
+  const ix = (G.x0 + G.x1) / 2 - 26;
+  if (etat.interrupteur) {
+    plan.appendChild(el('rect', { x:ix, y:82, width:52, height:22, rx:6,
+      fill:'var(--surface)', stroke:'var(--border-strong)', 'stroke-width':2 }));
+    plan.appendChild(el('line', { x1:ix + 10, y1:93, x2:ix + 32, y2:allume ? 93 : 86,
+      stroke:'var(--neutral)', 'stroke-width':3, 'stroke-linecap':'round' }));
+    plan.appendChild(el('circle', { cx:ix + 10, cy:93, r:3, fill:'var(--neutral)' }));
+  }
+  ajouterSlot('interrupteur', ix, 80, 52, 26, 'Bouton', !!etat.interrupteur);
+}
+
+function ajouterSlot(id, x, y, w, h, texte, plein) {
+  const g = el('g', { class:'slot' + (plein ? ' plein' : ''), 'data-slot':id });
+  g.appendChild(el('rect', { x, y, width:w, height:h, rx:6, class:'zone' }));
+  if (!plein) {
+    g.appendChild(el('rect', { x, y, width:w, height:h, fill:'transparent' }));
+    g.appendChild(el('text', { x:x + w / 2, y:y + h / 2 + 4, class:'etiq-slot' }, texte));
+  }
+  plan.appendChild(g);
+}
+
+/* ============================================================================
+   6. Le bac de matériaux
+   ========================================================================== */
+
+const GROUPES = [
+  { cle:'boitier', titre:'Boîtier', source:BOITIERS },
+  { cle:'pile', titre:'Piles', source:PILES },
+  { cle:'ampoule', titre:'Ampoule', source:AMPOULES },
+  { cle:'contact', titre:'Contact arrière', source:CONTACTS },
+  { cle:'interrupteur', titre:'Interrupteur', source:INTERRUPTEURS },
+  { cle:'reflecteur', titre:'Réflecteur', source:REFLECTEURS },
+  { cle:'vitre', titre:'Vitre', source:VITRES },
+];
+
+function rendreBac() {
+  const b = BOITIERS[etat.boitier];
+  $('bac').innerHTML = GROUPES.map(gr => {
+    const fait = gr.cle === 'pile' ? etat.piles.length > 0 : !!etat[gr.cle];
+    const boutons = Object.keys(gr.source).map(id => {
+      const o = gr.source[id];
+      let pose = false, off = false, note = o.detail;
+      if (gr.cle === 'pile') {
+        pose = etat.piles.some(p => p.modele === id);
+        off = !b || o.type !== b.type || etat.piles.length >= b.piles;
+        if (b && o.type !== b.type) note = 'ne rentre pas dans ce boîtier';
+        else if (b && etat.piles.length >= b.piles) note = 'le boîtier est plein';
+      } else {
+        pose = etat[gr.cle] === id;
+        off = !b && gr.cle !== 'boitier';
+      }
+      return `<button class="piece${pose ? ' pose' : ''}" data-pose="${gr.cle}:${id}"
+        ${off && !pose ? 'disabled' : ''}>
+        <b>${o.nom}</b><span>${note}</span></button>`;
+    }).join('');
+    const compte = gr.cle === 'pile' && b ? ` <span class="ok">${etat.piles.length}/${b.piles}</span>` : '';
+    return `<div class="groupe">
+      <div class="titre">${gr.titre}${fait ? ' <span class="ok">✓</span>' : ''}${compte}</div>
+      <div class="choix">${boutons}</div>
+    </div>`;
+  }).join('');
+}
+
+/* ============================================================================
+   7. Actions
+   ========================================================================== */
+
+function poser(cle, id) {
+  const b = BOITIERS[etat.boitier];
+  if (cle === 'boitier') {
+    if (etat.boitier === id) return;
+    etat.boitier = id;
+    etat.piles = [];                       // le nouveau boîtier n'accueille pas les mêmes piles
+    toast('Boîtier : ' + BOITIERS[id].nom + ' — ' + BOITIERS[id].piles
+      + ' pile' + (BOITIERS[id].piles > 1 ? 's' : '') + ' maximum');
+  } else if (cle === 'pile') {
+    if (!b) return toast('Choisis d’abord un boîtier.', true);
+    if (PILES[id].type !== b.type) return toast('Cette pile ne rentre pas dans ce boîtier.', true);
+    if (etat.piles.length >= b.piles) return toast('Le boîtier est déjà plein.', true);
+    etat.piles.push({ modele:id, sens:1 });
+  } else {
+    if (!b) return toast('Choisis d’abord un boîtier.', true);
+    etat[cle] = etat[cle] === id ? null : id;
+  }
+  etat.teste = false;
+  majTout();
+}
+
+function retirer(cible) {
+  const [quoi, index] = cible.split(':');
+  if (quoi === 'pile') etat.piles.splice(+index, 1);
+  else etat[quoi] = null;
+  etat.teste = false;
+  majTout();
+}
+
+function tourner(i) {
+  etat.piles[i].sens *= -1;
+  etat.teste = false;
+  majTout();
+  toast(etat.piles[i].sens > 0 ? 'Pile remise dans le bon sens' : 'Pile retournée : le + est à gauche');
+}
+
+function tester() {
+  const m = maquette();
+  const r = evaluer(m);
+  etat.teste = true;
+  majEtapes();
+  dessiner();
+  afficherBilan(r, m);
+
+  if (r.ok && r.portee > 0) {
+    const d = DEFIS[etat.defi];
+    if (d && d.test(r, m) && etat.faits.indexOf(etat.defi) === -1) {
+      etat.faits.push(etat.defi);
+      sauver();
+      setTimeout(() => toast('🎉 Défi réussi : ' + d.titre), 700);
+    }
+  }
+}
+
+function vider() {
+  etat.boitier = null; etat.piles = []; etat.ampoule = null; etat.contact = null;
+  etat.reflecteur = null; etat.vitre = null; etat.interrupteur = null;
+  etat.teste = false;
+  cacherBilan();
+  majTout();
+}
+
+/* ============================================================================
+   8. Bilan
+   ========================================================================== */
+
+function jauge(nom, valeur, max, unite, seuilFaible) {
+  const pct = Math.max(0, Math.min(100, valeur / max * 100));
+  const classe = valeur === 0 ? ' mauvais' : (valeur < seuilFaible ? ' faible' : '');
+  return `<div class="jauge">
+    <div class="haut"><b>${nom}</b><span>${valeur}${unite}</span></div>
+    <div class="barre${classe}"><i style="width:${pct}%"></i></div>
+  </div>`;
+}
+
+function afficherBilan(r, m) {
+  const z = $('bilan');
+  if (r.pannes.length) {
+    z.innerHTML = `
+      <div class="verdict"><span class="em">🔌</span><h3>Ça ne s’allume pas</h3></div>
+      <p class="phrase">${r.pannes[0]}</p>
+      <div class="actions"><button class="btn btn-contour" data-ferme-bilan>Je corrige</button></div>`;
+  } else if (r.grille) {
+    z.innerHTML = `
+      <div class="verdict"><span class="em">💥</span><h3>L’ampoule a grillé !</h3></div>
+      <p class="phrase">Tes piles donnent <b>${fnb(r.tension)} V</b> à une ampoule prévue pour
+        <b>${fnb(AMPOULES[m.ampoule].un)} V</b>. C’est une <b>surtension</b> : le filament ne l’a pas
+        supporté. Prends une ampoule plus forte, ou enlève une pile.</p>
+      <div class="actions"><button class="btn" data-ferme-bilan>Recommencer</button></div>`;
+  } else {
+    const faible = r.sousTension;
+    const un = fnb(AMPOULES[m.ampoule].un);
+    // Une pile retournée est la cause la plus fréquente d'une lampe qui éclaire mal
+    const alerteSens = r.inversees
+      ? `<br><b>⚠️ ${r.inversees === 1 ? 'Une pile est retournée' : r.inversees + ' piles sont retournées'}</b> :
+         elle${r.inversees > 1 ? 's s’opposent' : ' s’oppose'} aux autres et te fait perdre
+         <b>${fnb(r.perte)} V</b>. Touche-la pour la remettre dans le bon sens.`
+      : '';
+    z.innerHTML = `
+      <div class="verdict">
+        <span class="em">${faible ? '🔅' : '🔦'}</span>
+        <h3>${faible ? 'Elle éclaire faiblement' : 'Elle éclaire bien !'}</h3>
+      </div>
+      <p class="phrase">${faible
+        ? `Tes piles ne donnent que <b>${fnb(r.tension)} V</b> à une ampoule prévue pour
+           <b>${un} V</b> : elle est en <b>sous-tension</b> et rougeoie.`
+        : `Tes piles donnent <b>${fnb(r.tension)} V</b> à une ampoule prévue pour <b>${un} V</b> :
+           c’est sa <b>tension d’usage</b>, elle brille normalement. ${etat.reflecteur
+           ? 'Le réflecteur concentre le faisceau.' : 'Sans réflecteur, la lumière part dans tous les sens.'}`
+        }${alerteSens}</p>
+      <div class="jauges">
+        ${jauge('Portée', r.portee, 12, ' m', 4)}
+        ${jauge('Autonomie', r.heures, 30, ' h', 6)}
+        ${jauge('Solidité', r.solidite, 10, '/10', 4)}
+        ${jauge('Finition', r.finition, 10, '/10', 5)}
+      </div>
+      <div class="actions">
+        <button class="btn btn-contour" data-ferme-bilan>Améliorer</button>
+      </div>`;
+  }
+  z.classList.add('visible');
+  $('atelier').classList.add('avec-bilan');
+}
+
+function cacherBilan() {
+  $('bilan').classList.remove('visible');
+  $('atelier').classList.remove('avec-bilan');
+}
+
+const fnb = n => String(n).replace('.', ',');
+
+/* ============================================================================
+   9. Démarche, défis, mise à jour
+   ========================================================================== */
+
+function majEtapes() {
+  const nb = [!!etat.boitier, !!etat.boitier && (etat.piles.length > 0 || !!etat.ampoule),
+    !!etat.contact && etat.piles.length > 0 && !!etat.ampoule, etat.teste,
+    etat.teste && etat.faits.length > 0];
+  document.querySelectorAll('.etape').forEach((e, i) => {
+    e.classList.toggle('faite', nb[i]);
+    e.classList.toggle('active', nb[i] && !nb[i + 1]);
+  });
+}
+
+function majDefi() {
+  const d = DEFIS[etat.defi];
+  const fait = etat.faits.indexOf(etat.defi) !== -1;
+  $('defi-courant').innerHTML = d
+    ? `<b>${fait ? '✅ ' : '🎯 '}${d.titre}</b><span>${d.but}</span>`
+    : '<b>Atelier libre</b><span>Fabrique la lampe que tu veux.</span>';
+}
+
+function rendreDefis() {
+  $('liste-defis').innerHTML = DEFIS.map((d, i) => {
+    const fait = etat.faits.indexOf(i) !== -1;
+    return `<button class="d-carte${fait ? ' fait' : ''}" data-defi="${i}">
+      <span class="num">${fait ? '✓' : i + 1}</span>
+      <span class="txt"><b>${d.titre}</b><span>${d.but}</span></span>
+    </button>`;
+  }).join('') + `<button class="d-carte" data-defi="libre">
+      <span class="num">∞</span>
+      <span class="txt"><b>Atelier libre</b><span>Sans objectif : essaie ce que tu veux.</span></span>
+    </button>`;
+}
+
+function majTout() {
+  dessiner();
+  rendreBac();
+  majEtapes();
+  majDefi();
+}
+
+/* ============================================================================
+   10. Interactions
+   ========================================================================== */
+
+$('bac').addEventListener('click', e => {
+  const b = e.target.closest('[data-pose]');
+  if (!b || b.disabled) return;
+  const [cle, id] = b.dataset.pose.split(':');
+  poser(cle, id);
+});
+
+plan.addEventListener('click', e => {
+  const ret = e.target.closest('[data-retire]');
+  if (ret) { retirer(ret.dataset.retire); return; }
+  const tou = e.target.closest('[data-tourne]');
+  if (tou) { tourner(+tou.dataset.tourne); return; }
+  const s = e.target.closest('[data-slot]');
+  if (!s) return;
+  const cible = s.dataset.slot;
+  if (s.classList.contains('plein')) { retirer(cible); return; }
+  // Emplacement vide : on indique quoi y mettre
+  const noms = { contact:'un ressort ou une lame', ampoule:'une ampoule',
+    reflecteur:'un réflecteur', interrupteur:'un interrupteur' };
+  toast('Choisis ' + (cible.startsWith('pile') ? 'une pile' : (noms[cible] || 'une pièce')) + ' dans le bac.');
+});
+plan.addEventListener('keydown', e => {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  const c = e.target.closest('[data-retire],[data-tourne]');
+  if (!c) return;
+  e.preventDefault();
+  if (c.dataset.retire) retirer(c.dataset.retire); else tourner(+c.dataset.tourne);
+});
+
+$('btn-tester').addEventListener('click', tester);
+$('btn-vider').addEventListener('click', vider);
+
+$('btn-defis').addEventListener('click', () => { rendreDefis(); ouvrir('v-defis'); });
+$('btn-aide').addEventListener('click', () => ouvrir('v-aide'));
+
+$('liste-defis').addEventListener('click', e => {
+  const b = e.target.closest('[data-defi]');
+  if (!b) return;
+  etat.defi = b.dataset.defi === 'libre' ? -1 : +b.dataset.defi;
+  sauver();
+  majDefi();
+  fermer('v-defis');
+});
+
+document.addEventListener('click', e => {
+  const f = e.target.closest('[data-ferme]');
+  if (f) fermer(f.dataset.ferme);
+  if (e.target.closest('[data-ferme-bilan]')) cacherBilan();
+});
+for (const v of document.querySelectorAll('.voile')) {
+  v.addEventListener('click', e => { if (e.target === v) fermer(v.id); });
+}
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  for (const v of document.querySelectorAll('.voile.visible')) fermer(v.id);
+});
+
+const ouvrir = id => $(id).classList.add('visible');
+const fermer = id => $(id).classList.remove('visible');
+
+let minuteurToast = null;
+function toast(msg, alerte) {
+  const t = $('toast');
+  t.innerHTML = msg;
+  t.classList.toggle('alerte', !!alerte);
+  t.classList.add('visible');
+  clearTimeout(minuteurToast);
+  minuteurToast = setTimeout(() => t.classList.remove('visible'), 2600);
+}
+
+/* ---- Thème, partagé avec le reste du site ---- */
+const btnTheme = $('btn-theme');
+function appliquerTheme(sombre) {
+  document.body.classList.toggle('sombre', sombre);
+  btnTheme.textContent = sombre ? '☀️' : '🌙';
+  document.querySelector('meta[name=theme-color]')
+    .setAttribute('content', sombre ? '#14181C' : '#F7F5F0');
+  try { localStorage.setItem('ike-theme', sombre ? 'sombre' : 'clair'); } catch (e) {}
+  if (etat.boitier !== undefined) dessiner();
+}
+btnTheme.addEventListener('click', () => appliquerTheme(!document.body.classList.contains('sombre')));
+try {
+  const t = localStorage.getItem('ike-theme');
+  appliquerTheme(t ? t === 'sombre' : window.matchMedia('(prefers-color-scheme: dark)').matches);
+} catch (e) { appliquerTheme(false); }
+
+/* ---- Démarrage ---- */
+charger();
+majTout();
+try {
+  if (!localStorage.getItem('ike-lampe-vu')) {
+    ouvrir('v-aide');
+    localStorage.setItem('ike-lampe-vu', '1');
+  }
+} catch (e) {}
+</script>
+</body>
+</html>
