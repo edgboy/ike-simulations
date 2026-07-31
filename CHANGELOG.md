@@ -5,6 +5,42 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v4.2.0 — 2026-07-28
+
+🧭 **Retours testeurs sur l'atelier de fabrication** — guidage et disposition entièrement repris.
+
+**Le bac permanent est supprimé.** C'était la cause des deux problèmes signalés : il mangeait
+la moitié de l'écran en portrait, rendait la lampe presque invisible en paysage, imposait un
+défilement horizontal pénible à la souris sur PC — et ne laissait plus de place pour guider.
+
+- **On touche l'emplacement, pas une barre** : chaque emplacement de la lampe (boîtier, piles,
+  ampoule, contact, interrupteur, réflecteur, vitre) s'ouvre sur une feuille ne montrant que
+  **ses** variantes, en grille, avec le rôle du composant expliqué en tête. Plus aucun
+  défilement horizontal, dans aucun format
+- **La lampe récupère l'écran** : elle occupe 56 % de la surface en paysage, contre une bande
+  résiduelle auparavant. Sur grand écran, la mission passe en colonne à gauche
+- **La barre de mission remonte en haut** de l'écran
+
+🎓 **Guidage pas à pas, comme demandé pour des élèves de 6ᵉ** :
+
+- Chaque mission se décompose en **étapes cochables** : « choisis un boîtier », « glisse au
+  moins une pile », « visse une ampoule », « pose un contact au fond », « appuie sur Tester ».
+  L'étape en cours est en gras, les précédentes barrées
+- **L'emplacement à remplir clignote en bleu sur la lampe**, et le bouton Tester s'anime
+  quand c'est lui qu'on attend
+- Une **astuce** accompagne chaque mission, et la feuille de choix signale l'option
+  **conseillée** au regard de la mission en cours
+- **Les missions se suivent** : chacune déverrouille la suivante
+- **QCM « Je m'évalue » après chaque mission réussie** (10 questions au total), avec icônes
+  ✔️ / ❌ et explication de ce qui rendait la réponse fausse
+- **Lexique de 15 mots** (circuit, générateur, récepteur, bornes, tension d'usage,
+  sous-tension, surtension, piles en série, en opposition, filament, culot et plot, ressort,
+  autonomie, démarche technologique), atteignable à tout moment
+- **Guide d'accueil** au premier lancement, en cinq points
+
+Correctifs d'affichage : les étiquettes « Ampoule » et « Réflecteur » se chevauchaient ;
+zones tactiles agrandies pour le doigt.
+
 ## v4.1.0 — 2026-07-28
 
 🔦 **Nouveau gabarit : l'atelier de fabrication** — et sa première simulation,
