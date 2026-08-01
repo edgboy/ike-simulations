@@ -5,6 +5,26 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v4.3.1 — 2026-08-01
+
+💡 **L'ampoule était au mauvais endroit** — retour testeur, et ce n'était pas qu'un détail de dessin.
+
+Elle était logée dans le **corps** du boîtier, avec le réflecteur placé devant elle. Or sur une
+vraie lampe de poche, l'ampoule se visse dans la **tête**, au creux du réflecteur qui l'entoure.
+Un élève de 6ᵉ pouvait donc mémoriser un schéma faux — et surtout, la disposition contredisait
+la notion même que la mission « Loin devant » cherche à installer : **le réflecteur ne renvoie la
+lumière vers l'avant que parce qu'il entoure l'ampoule**.
+
+- La **tête est allongée** pour loger la douille, l'ampoule et le réflecteur
+- L'**ampoule est placée au foyer**, à l'entrée de l'entonnoir, culot vissé dans la douille
+- Le **réflecteur est dessiné en deux parois évasées qui entourent l'ampoule**, au lieu d'un
+  panneau posé devant elle
+- Le **fil de retour** rejoint la douille à l'entrée de la tête
+- Les textes suivent : le rôle de l'ampoule précise qu'elle se loge dans la tête « et jamais dans
+  le corps où logent les piles » ; celui du réflecteur explique que c'est **parce qu'il entoure
+  l'ampoule** qu'il porte plus loin ; l'explication du QCM du réflecteur le redit ; une entrée
+  **« Tête de la lampe »** entre au lexique (douille, réflecteur, vitre)
+
 ## v4.3.0 — 2026-08-01
 
 🔁 **Retours testeurs : le passage d'une mission à l'autre** — c'était le point noir, il est repris

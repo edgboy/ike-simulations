@@ -573,10 +573,10 @@ const INTERRUPTEURS = { simple:{ nom:'Interrupteur', detail:'pour allumer et ét
 const ROLES = {
   boitier: "Le boîtier est le corps de la lampe : il tient toutes les pièces ensemble et protège les piles. Sa taille décide du nombre de piles que tu peux mettre.",
   pile: "La pile est le générateur : c'est elle qui pousse le courant dans le circuit. Plusieurs piles bout à bout, le + de l'une contre le − de l'autre, additionnent leurs tensions.",
-  ampoule: "L'ampoule est le récepteur : elle transforme le courant en lumière. Chaque ampoule porte une tension écrite dessus — c'est celle qu'il lui faut pour bien briller.",
+  ampoule: "L'ampoule est le récepteur : elle transforme le courant en lumière. Elle se visse dans la <b>tête</b> de la lampe, au creux du réflecteur, et jamais dans le corps où logent les piles. Chaque ampoule porte une tension écrite dessus — c'est celle qu'il lui faut pour bien briller.",
   contact: "Au fond du boîtier, une pièce en métal ramène le courant vers la pile. Sans elle, le circuit reste ouvert et rien ne s'allume.",
   interrupteur: "L'interrupteur ouvre et ferme le circuit à volonté. Fermé, le courant passe ; ouvert, c'est comme si on coupait le fil avec des ciseaux.",
-  reflecteur: "Le réflecteur est une surface brillante placée derrière l'ampoule. Il renvoie vers l'avant la lumière qui partirait en arrière : le faisceau porte bien plus loin.",
+  reflecteur: "Le réflecteur est une surface brillante qui <b>entoure l'ampoule</b> dans la tête de la lampe. C'est parce qu'il l'entoure qu'il peut renvoyer vers l'avant la lumière partie en arrière ou sur les côtés : le faisceau porte bien plus loin.",
   vitre: "La vitre ferme l'avant de la lampe. Elle laisse passer la lumière tout en protégeant l'ampoule des chocs et de la poussière.",
 };
 
@@ -593,6 +593,7 @@ const LEXIQUE = [
   { mot:'Piles en opposition', def:"Une pile retournée par rapport aux autres : elle pousse dans l'autre sens et <em>annule</em> une partie de la tension. La lampe faiblit ou s'éteint." },
   { mot:'Filament', def:"Le fil très fin à l'intérieur de l'ampoule. Le courant le chauffe jusqu'à ce qu'il devienne blanc et éclaire." },
   { mot:'Culot et plot', def:"Les deux contacts de l'ampoule : le <em>culot</em> est la partie vissée sur le côté, le <em>plot</em> est le point au bout. Le courant entre par l'un et sort par l'autre." },
+  { mot:'Tête de la lampe', def:"L'avant de la lampe, en forme d'entonnoir. C'est là que se logent la <em>douille</em> qui reçoit l'ampoule, le <em>réflecteur</em> qui l'entoure, et la vitre qui ferme le tout." },
   { mot:'Ressort', def:"Une pièce métallique qui se détend. Au fond du boîtier, il pousse les piles et garde le contact même s'il reste un peu de place." },
   { mot:'Autonomie', def:"Le temps que la lampe peut éclairer avant que les piles soient vides. Les grosses piles durent plus longtemps." },
   { mot:'Démarche technologique', def:"La façon de travailler de l'ingénieur : explorer les possibilités, choisir, fabriquer, tester, puis améliorer." },
@@ -668,7 +669,7 @@ const MISSIONS = [
     etapes:[
       { t:'Choisis un <b>boîtier</b> : c’est le corps de ta lampe', cible:'boitier', fait:() => !!etat.boitier },
       { t:'Glisse au moins une <b>pile</b> à l’intérieur', cible:'pile', fait:() => etat.piles.length > 0 },
-      { t:'Visse une <b>ampoule</b> à l’avant', cible:'ampoule', fait:() => !!etat.ampoule },
+      { t:'Visse une <b>ampoule</b> dans la tête de la lampe', cible:'ampoule', fait:() => !!etat.ampoule },
       { t:'Pose un <b>contact</b> au fond pour fermer le circuit', cible:'contact', fait:() => !!etat.contact },
       { t:'Appuie sur <b>Tester ma lampe</b>', cible:'tester', fait:() => etat.teste },
     ],
@@ -749,7 +750,7 @@ const MISSIONS = [
                'À empêcher l’ampoule de chauffer',
                'À augmenter la tension de la pile'],
         bonne:0,
-        expl:"Le réflecteur est une surface brillante : la lumière qui partait vers l’arrière <b>rebondit</b> et repart vers l’avant. Le faisceau porte bien plus loin, sans user les piles davantage." },
+        expl:"Le réflecteur entoure l’ampoule : la lumière qui partait vers l’arrière <b>rebondit</b> sur ses parois et repart vers l’avant. Le faisceau porte bien plus loin, sans user les piles davantage. C’est pour cela que l’ampoule se loge au creux du réflecteur, et non dans le corps de la lampe." },
     ],
   },
   {
@@ -868,13 +869,13 @@ const el = (nom, attrs, texte) => {
   return n;
 };
 
-const G = { x0:60, x1:455, y0:110, y1:216, tete:545, centre:154 };
+const G = { x0:60, x1:455, y0:110, y1:216, tete:575, centre:154 };
 
 function slotsPiles() {
   const b = BOITIERS[etat.boitier];
   if (!b) return [];
   // on s'arrête avant l'ampoule, qui occupe l'avant du corps
-  const x = G.x0 + 46, large = G.x1 - x - 108;
+  const x = G.x0 + 46, large = G.x1 - x - 46;
   const l = large / b.piles;
   return Array.from({ length:b.piles }, (_, i) => ({ x:x + i * l, l, i }));
 }
@@ -897,9 +898,9 @@ function dessiner() {
     grad.appendChild(el('stop', { offset:'1', 'stop-color':'#FFE082', 'stop-opacity':'0' }));
     defs.appendChild(grad); plan.appendChild(defs);
     plan.appendChild(el('polygon', {
-      points:`556,134 660,${G.centre - ouv} 660,${G.centre + ouv} 556,174`, fill:'url(#g-faisceau)',
+      points:`588,134 660,${G.centre - ouv} 660,${G.centre + ouv} 588,174`, fill:'url(#g-faisceau)',
     }));
-    plan.appendChild(el('text', { x:648, y:G.centre - ouv - 8, 'text-anchor':'end', class:'etiq-slot' },
+    plan.appendChild(el('text', { x:652, y:G.centre - ouv - 8, 'text-anchor':'end', class:'etiq-slot' },
       r.portee + ' m'));
   }
 
@@ -925,7 +926,7 @@ function dessiner() {
 
   // --- Fil de retour : il fait partie du boîtier, l'élève ne le choisit pas.
   // C'est par lui que le courant revient du culot de l'ampoule jusqu'au contact du fond.
-  const yFil = G.y1 - 12, xFilD = G.x1 - 78;
+  const yFil = G.y1 - 12, xFilD = G.x1 - 6;
   plan.appendChild(el('path', {
     d:`M ${G.x0 + 20} ${G.centre + 4} L ${G.x0 + 20} ${yFil} L ${xFilD} ${yFil} L ${xFilD} ${G.centre + 6}`,
     fill:'none', stroke:allume ? '#E8A05C' : 'var(--cuivre)',
@@ -934,7 +935,7 @@ function dessiner() {
   plan.appendChild(el('text', { x:(G.x0 + 20 + xFilD) / 2, y:yFil - 6, class:'etiq-slot' },
     'fil de retour'));
   plan.appendChild(el('polygon', {
-    points:`${G.x1},${G.y0} ${G.tete},93 ${G.tete},233 ${G.x1},${G.y1}`,
+    points:`${G.x1},${G.y0} ${G.tete},88 ${G.tete},238 ${G.x1},${G.y1}`,
     fill:b.couleur, 'fill-opacity':.30, stroke:b.couleur, 'stroke-width':3,
   }));
   const etiqB = el('text', { x:G.x0 + 4, y:G.y0 - 12, class:'etiq-slot', 'text-anchor':'start' }, b.nom);
@@ -945,22 +946,27 @@ function dessiner() {
   zb.appendChild(el('rect', { x:G.x0, y:G.y0 - 26, width:150, height:22, fill:'transparent' }));
   plan.appendChild(zb);
 
-  // --- Réflecteur ---
+  // --- Réflecteur : deux parois évasées qui ENTOURENT l'ampoule.
+  // C'est parce qu'il l'entoure qu'il renvoie vers l'avant la lumière partie en arrière.
   if (etat.reflecteur) {
-    plan.appendChild(el('polygon', {
-      points:`${G.x1 + 4},${G.y0 + 8} ${G.tete - 4},101 ${G.tete - 4},225 ${G.x1 + 4},${G.y1 - 8}`,
-      fill:etat.reflecteur === 'alu' ? '#E6E9EB' : '#FFFFFF',
-      stroke:'var(--border-strong)', 'stroke-width':1.5,
-    }));
+    const teinte = etat.reflecteur === 'alu' ? '#E6E9EB' : '#FFFFFF';
+    for (const sens of [-1, 1]) {
+      plan.appendChild(el('polygon', {
+        points:`${G.x1 + 6},${G.centre + sens * 20} ${G.tete - 6},${G.centre + sens * 70} ` +
+               `${G.tete - 6},${G.centre + sens * 60} ${G.x1 + 6},${G.centre + sens * 12}`,
+        fill:teinte, stroke:'var(--border-strong)', 'stroke-width':1.5,
+      }));
+    }
   }
-  ajouterSlot('reflecteur', G.x1 + 8, 114, G.tete - G.x1 - 16, 92, 'Réflecteur', !!etat.reflecteur, vise);
+  // Sa zone de choix occupe l'avant de la tête, devant l'ampoule
+  ajouterSlot('reflecteur', G.x1 + 52, 116, 70, 76, 'Réflecteur', !!etat.reflecteur, vise);
 
   // --- Vitre ---
   if (etat.vitre) {
-    plan.appendChild(el('rect', { x:G.tete - 2, y:97, width:8, height:130, rx:3,
+    plan.appendChild(el('rect', { x:G.tete - 2, y:90, width:8, height:146, rx:3,
       fill:'#B3E5FC', 'fill-opacity':.55, stroke:'#81D4FA', 'stroke-width':2 }));
   }
-  ajouterSlot('vitre', G.tete + 10, 120, 34, 78, 'Vitre', !!etat.vitre, vise);
+  ajouterSlot('vitre', G.tete + 12, 122, 34, 74, 'Vitre', !!etat.vitre, vise);
 
   // --- Contact arrière ---
   const cx = G.x0 + 8;
@@ -1002,20 +1008,21 @@ function dessiner() {
     }
   });
 
-  // --- Ampoule ---
-  const ax = G.x1 - 100;
+  // --- Ampoule : dans la TÊTE, au foyer du réflecteur, comme sur une vraie lampe ---
+  const ax = G.x1 - 4;
   if (etat.ampoule) {
     const grillee = etat.teste && r.grille;
-    plan.appendChild(el('rect', { x:ax + 6, y:144, width:16, height:20, fill:'var(--metal)' }));
-    plan.appendChild(el('circle', { cx:ax + 34, cy:G.centre, r:18,
+    // culot vissé dans la douille, à l'entrée de la tête
+    plan.appendChild(el('rect', { x:ax, y:G.centre - 11, width:18, height:22, rx:2, fill:'var(--metal)' }));
+    plan.appendChild(el('circle', { cx:ax + 34, cy:G.centre, r:17,
       fill:grillee ? '#6D6259' : (allume ? '#FFE082' : '#ECEFF1'),
       stroke:grillee ? '#4E443C' : '#B0ABA3', 'stroke-width':2 }));
     plan.appendChild(el('path', { d:`M ${ax + 26} ${G.centre} l 5 -6 l 5 12 l 5 -6`, fill:'none',
       stroke:grillee ? '#3A3632' : '#8D6E32', 'stroke-width':2 }));
-    plan.appendChild(el('text', { x:ax + 34, y:190, class:'etiq-slot' },
+    plan.appendChild(el('text', { x:ax + 34, y:G.centre + 42, class:'etiq-slot' },
       grillee ? 'grillée' : String(AMPOULES[etat.ampoule].un).replace('.', ',') + ' V'));
   }
-  ajouterSlot('ampoule', ax - 2, 126, 92, 58, 'Ampoule', !!etat.ampoule, vise);
+  ajouterSlot('ampoule', ax - 4, G.centre - 27, 58, 54, 'Ampoule', !!etat.ampoule, vise);
 
   // --- Interrupteur, sur le dessus ---
   const ix = (G.x0 + G.x1) / 2 - 26;
