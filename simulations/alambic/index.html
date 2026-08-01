@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Fabrique ta lampe de poche — Labo-Bénin</title>
+<title>Construis ton alambic — Labo-Bénin</title>
 <meta name="theme-color" content="#F7F5F0">
 <link rel="stylesheet" href="../../assets/polices.css">
 <style>
@@ -424,6 +424,31 @@ main { flex:1; min-height:0; display:flex; flex-direction:column; }
 @media (prefers-reduced-motion:reduce) {
   *,*::before,*::after { animation-duration:.01ms !important; transition-duration:.01ms !important; }
 }
+
+/* ===================== Propre à l'alambic ===================== */
+.flamme { animation:vacille .5s infinite alternate; transform-origin:center bottom; }
+@keyframes vacille { to { transform:scaleY(1.14) scaleX(.94); } }
+.bulle { animation:monteBulle 1.5s infinite ease-in; }
+@keyframes monteBulle { from { transform:translateY(0); opacity:.9; } to { transform:translateY(-42px); opacity:0; } }
+.goutte { animation:tombe 1.8s infinite ease-in; }
+@keyframes tombe { from { transform:translateY(0); opacity:1; } to { transform:translateY(46px); opacity:.2; } }
+.etat-eau {
+  font-family:var(--font-body); font-size:10.5px; font-weight:700;
+  text-anchor:middle; pointer-events:none;
+}
+.chgt-etat {
+  font-family:var(--font-body); font-size:10px; font-weight:600;
+  fill:var(--accent); text-anchor:middle; pointer-events:none;
+}
+#legende-etats {
+  position:absolute; left:10px; top:8px; z-index:4;
+  display:flex; gap:10px; flex-wrap:wrap;
+  padding:7px 11px; border-radius:var(--radius-md);
+  background:var(--surface); border:1px solid var(--border); box-shadow:var(--shadow-soft);
+  font-size:11px; font-weight:600;
+}
+#legende-etats[hidden] { display:none; }
+#legende-etats i { display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:4px; }
 </style>
 </head>
 <body>
@@ -432,12 +457,12 @@ main { flex:1; min-height:0; display:flex; flex-direction:column; }
   <header>
     <a class="icone-btn" href="../../index.html#/pct/6e" title="Retour au catalogue" aria-label="Retour">←</a>
     <div>
-      <h1>Fabrique ta lampe de poche</h1>
-      <div class="sous">PCT · 6ᵉ · SA2</div>
+      <h1>Construis ton alambic</h1>
+      <div class="sous">PCT · 6ᵉ · SA4</div>
     </div>
     <div class="tete-fin">
       <button class="icone-btn" id="btn-missions" title="Les missions" aria-label="Les missions">🎯</button>
-      <button class="icone-btn" id="btn-lexique" title="Lexique" aria-label="Lexique des composants">📖</button>
+      <button class="icone-btn" id="btn-lexique" title="Lexique" aria-label="Lexique">📖</button>
       <button class="icone-btn" id="btn-aide" title="Comment jouer" aria-label="Comment jouer">❓</button>
       <button class="icone-btn" id="btn-theme" title="Thème" aria-label="Changer de thème">🌙</button>
     </div>
@@ -461,18 +486,22 @@ main { flex:1; min-height:0; display:flex; flex-direction:column; }
 
 <main>
   <div id="atelier">
-    <svg id="plan" viewBox="0 0 660 320" preserveAspectRatio="xMidYMid meet" role="img"
-         aria-label="Vue en coupe de la lampe de poche en cours de montage"></svg>
+    <svg id="plan" viewBox="0 0 660 340" preserveAspectRatio="xMidYMid meet" role="img"
+         aria-label="Vue en coupe de l'alambic en cours de montage"></svg>
+    <div id="legende-etats" hidden>
+      <span><i style="background:#5BC5F2"></i>liquide</span>
+      <span><i style="background:#CFD8DC"></i>vapeur (gaz)</span>
+    </div>
     <button id="btn-mesures" hidden>📊 <span>Voir les mesures</span></button>
     <div id="bilan" role="status" aria-live="polite"></div>
   </div>
   <div id="actions">
     <button class="btn btn-fantome" id="btn-vider">🗑 Tout enlever</button>
-    <button class="btn" id="btn-tester">💡 Tester ma lampe</button>
+    <button class="btn" id="btn-tester">🔥 Allumer le feu</button>
   </div>
 </main>
 
-<div id="feuille" role="dialog" aria-modal="true" aria-label="Choisir un composant">
+<div id="feuille" role="dialog" aria-modal="true" aria-label="Choisir un élément">
   <div class="f-carte" id="f-carte"></div>
 </div>
 
@@ -492,8 +521,8 @@ main { flex:1; min-height:0; display:flex; flex-direction:column; }
 <div class="voile" id="v-lexique">
   <div class="carte-modale">
     <button class="fermer-x" data-ferme="v-lexique" aria-label="Fermer">✕</button>
-    <h2>📖 Les mots de la lampe</h2>
-    <p>À quoi sert chaque morceau de ta lampe de poche ?</p>
+    <h2>📖 Les mots de la distillation</h2>
+    <p>Ce qui arrive à l'eau, et comment on le nomme.</p>
     <div id="liste-lexique"></div>
   </div>
 </div>
@@ -501,24 +530,22 @@ main { flex:1; min-height:0; display:flex; flex-direction:column; }
 <div class="voile" id="v-aide">
   <div class="carte-modale">
     <button class="fermer-x" data-ferme="v-aide" aria-label="Fermer">✕</button>
-    <h2>🔦 Bienvenue à l'atelier !</h2>
-    <p>Tu vas fabriquer une vraie lampe de poche, comme dans le programme de 6ᵉ.
-       Voici comment on s'y prend.</p>
+    <h2>⚗️ Bienvenue à l'atelier !</h2>
+    <p>Tu vas construire un <b>alambic</b> : l'appareil qui fait bouillir un liquide,
+       puis refroidit sa vapeur pour la récupérer goutte à goutte.
+       C'est ce qu'on fait depuis toujours au village pour distiller le vin de palme.</p>
     <div class="g-etape"><span class="num">1</span><span class="t">
-      <b>Suis les étapes de la mission</b>, en haut de l'écran. L'étape en cours est écrite
-      en gras, et l'endroit où poser la pièce <b>clignote en bleu</b> sur la lampe.</span></div>
+      <b>Suis les étapes de la mission</b>, en haut de l'écran. L'endroit où poser la pièce
+      <b>clignote en bleu</b> sur le plan.</span></div>
     <div class="g-etape"><span class="num">2</span><span class="t">
-      <b>Touche l'emplacement qui clignote.</b> Une liste s'ouvre avec les pièces possibles,
-      et ce que chacune sait faire. Choisis-en une : elle se pose toute seule.</span></div>
+      <b>Touche l'emplacement qui clignote.</b> Une liste s'ouvre avec ce qu'on peut y mettre,
+      et ce que chaque objet sait faire.</span></div>
     <div class="g-etape"><span class="num">3</span><span class="t">
-      <b>Touche une pièce déjà posée</b> pour l'enlever. Touche une pile pour
-      <b>la retourner</b> — le sens du + et du − compte beaucoup !</span></div>
+      <b>Appuie sur « Allumer le feu ».</b> Regarde alors <b>l'état de l'eau</b> dans chaque
+      partie : liquide dans la chaudière, vapeur dans le tuyau, à nouveau liquide dans le flacon.</span></div>
     <div class="g-etape"><span class="num">4</span><span class="t">
-      <b>Appuie sur « Tester ma lampe ».</b> Tu verras si elle éclaire, jusqu'où porte
-      sa lumière, combien de temps elle tiendra, et si elle est solide.</span></div>
-    <div class="g-etape"><span class="num">5</span><span class="t">
-      Un mot que tu ne connais pas ? Ouvre le <b>📖 lexique</b> en haut :
-      chaque pièce y est expliquée.</span></div>
+      Attention à la <b>sécurité</b> : une chaudière fermée sans sortie pour la vapeur,
+      c'est dangereux.</span></div>
     <button class="btn btn-large" data-ferme="v-aide">Commencer !</button>
   </div>
 </div>
@@ -538,269 +565,269 @@ main { flex:1; min-height:0; display:flex; flex-direction:column; }
    1. Le matériel — celui que le guide officiel cite, trouvable au Bénin
    ========================================================================== */
 
-const BOITIERS = {
-  pvc:      { nom:'Tube PVC', detail:'3 piles rondes · léger · résiste à l’eau',
-              piles:3, type:'ronde', solidite:3, masse:60, couleur:'#9AA5AD' },
-  bambou:   { nom:'Bambou', detail:'2 piles rondes · très solide · pousse ici',
-              piles:2, type:'ronde', solidite:5, masse:80, couleur:'#B98A4B' },
-  conserve: { nom:'Boîte de conserve', detail:'1 pile plate · solide · un peu lourde',
-              piles:1, type:'plate', solidite:4, masse:90, couleur:'#AFB6BB' },
-  carton:   { nom:'Tube en carton', detail:'2 piles rondes · gratuit · fragile',
-              piles:2, type:'ronde', solidite:1, masse:25, couleur:'#C8A97E' },
+const FOYERS = {
+  bois:    { nom:'Feu de bois', detail:'gratuit · chauffe lentement · beaucoup de fumée', p:2500, rendement:.15 },
+  petrole: { nom:'Réchaud à pétrole', detail:'courant à la maison · chauffe bien', p:1500, rendement:.45 },
+  gaz:     { nom:'Réchaud à gaz', detail:'le plus rapide · le plus cher', p:2000, rendement:.55 },
 };
-const PILES = {
-  r6:    { nom:'Pile ronde R6', detail:'1,5 V · légère · dure peu', type:'ronde', u:1.5, mah:1500, r:.30, masse:24 },
-  r20:   { nom:'Grosse pile R20', detail:'1,5 V · dure très longtemps · lourde', type:'ronde', u:1.5, mah:8000, r:.20, masse:140 },
-  plate: { nom:'Pile plate', detail:'4,5 V à elle seule · boîtier plat', type:'plate', u:4.5, mah:6000, r:.35, masse:130 },
+const CHAUDIERES = {
+  marmite:  { nom:'Marmite en aluminium', detail:'ferme bien · résiste au feu', etanche:.95, sur:true, couleur:'#AFB6BB' },
+  conserve: { nom:'Grosse boîte de conserve', detail:'récupération · ferme moins bien', etanche:.85, sur:true, couleur:'#C0B49E' },
+  bidon:    { nom:'Bidon en plastique', detail:'ne va pas sur le feu', etanche:.90, sur:false, couleur:'#9FC8DC' },
 };
-const AMPOULES = {
-  a25: { nom:'Ampoule 2,5 V', detail:'pour 2 piles rondes', un:2.5, inom:.30 },
-  a38: { nom:'Ampoule 3,8 V', detail:'pour 3 piles rondes ou 1 pile plate', un:3.8, inom:.30 },
-  a60: { nom:'Ampoule 6 V', detail:'demande plus que ce que tu as ici', un:6.0, inom:.45 },
+const CONTENUS = {
+  claire: { nom:'Eau claire', detail:'pour comprendre ce qui se passe' },
+  salee:  { nom:'Eau salée', detail:'pour voir ce que la distillation sépare' },
+  plante: { nom:'Feuilles odorantes et eau', detail:'citronnelle, basilic… pour l’huile essentielle' },
 };
-const CONTACTS = {
-  ressort: { nom:'Ressort', detail:'se détend pour toucher la pile même s’il reste de la place', amorti:2 },
-  lame:    { nom:'Lame métallique', detail:'toute droite : ne touche que si le boîtier est plein', amorti:0 },
+const CHAPITEAUX = {
+  ajuste: { nom:'Couvercle ajusté et luté', detail:'bouché à la pâte : presque rien ne fuit', etanche:.95 },
+  simple: { nom:'Couvercle simple posé', detail:'de la vapeur s’échappe sur les côtés', etanche:.70 },
 };
-const REFLECTEURS = {
-  alu:   { nom:'Réflecteur en alu', detail:'papier d’aluminium récupéré · renvoie la lumière devant', gain:2.2 },
-  blanc: { nom:'Fond peint en blanc', detail:'renvoie un peu la lumière', gain:1.5 },
+const TUBES = {
+  cuivre: { nom:'Tuyau de cuivre', detail:'conduit bien la chaleur · ne brûle pas', tient:true, gout:false },
+  verre:  { nom:'Tube de verre', detail:'on voit la vapeur passer · fragile', tient:true, gout:false },
+  roseau: { nom:'Roseau creux', detail:'gratuit, mais la vapeur brûlante le noircit', tient:false, gout:true },
 };
-const VITRES = { plastique:{ nom:'Vitre en plastique', detail:'protège l’ampoule des chocs et de la poussière' } };
-const INTERRUPTEURS = { simple:{ nom:'Interrupteur', detail:'pour allumer et éteindre sans démonter' } };
+const REFRIGERANTS = {
+  bac:   { nom:'Serpentin dans un bac d’eau froide', detail:'le tuyau serpente dans l’eau : refroidit très bien', efficacite:.95 },
+  linge: { nom:'Linge mouillé autour du tuyau', detail:'simple, mais refroidit moitié moins', efficacite:.55 },
+};
+const RECIPIENTS = {
+  verre:     { nom:'Flacon en verre', detail:'ne craint pas la chaleur', tient:true, garde:1 },
+  plastique: { nom:'Bouteille en plastique', detail:'se déforme sous la vapeur chaude', tient:false, garde:.8 },
+};
 
-// Ce que l'élève doit comprendre de chaque emplacement (feuille de choix + lexique)
 const ROLES = {
-  boitier: "Le boîtier est le corps de la lampe : il tient toutes les pièces ensemble et protège les piles. Sa taille décide du nombre de piles que tu peux mettre.",
-  pile: "La pile est le générateur : c'est elle qui pousse le courant dans le circuit. Plusieurs piles bout à bout, le + de l'une contre le − de l'autre, additionnent leurs tensions.",
-  ampoule: "L'ampoule est le récepteur : elle transforme le courant en lumière. Elle se visse dans la <b>tête</b> de la lampe, au creux du réflecteur, et jamais dans le corps où logent les piles. Chaque ampoule porte une tension écrite dessus — c'est celle qu'il lui faut pour bien briller.",
-  contact: "Au fond du boîtier, une pièce en métal ramène le courant vers la pile. Sans elle, le circuit reste ouvert et rien ne s'allume.",
-  interrupteur: "L'interrupteur ouvre et ferme le circuit à volonté. Fermé, le courant passe ; ouvert, c'est comme si on coupait le fil avec des ciseaux.",
-  reflecteur: "Le réflecteur est une surface brillante qui <b>entoure l'ampoule</b> dans la tête de la lampe. C'est parce qu'il l'entoure qu'il peut renvoyer vers l'avant la lumière partie en arrière ou sur les côtés : le faisceau porte bien plus loin.",
-  vitre: "La vitre ferme l'avant de la lampe. Elle laisse passer la lumière tout en protégeant l'ampoule des chocs et de la poussière.",
+  foyer: "La source de chaleur chauffe la chaudière. C'est elle qui donne à l'eau l'énergie nécessaire pour se transformer en vapeur.",
+  chaudiere: "La chaudière (ou cucurbite) est le récipient où l'on met le liquide à distiller. Elle doit résister au feu et bien fermer, pour que la vapeur ne parte pas n'importe où.",
+  contenu: "Ce que tu verses dans la chaudière. La distillation ne fait passer que l'eau à l'état de vapeur : tout ce qui ne s'évapore pas — le sel, la terre — reste au fond.",
+  chapiteau: "Le chapiteau ferme la chaudière et rassemble la vapeur vers le tuyau. Sans lui, la vapeur s'échappe dans la cuisine et il ne reste rien à recueillir.",
+  tube: "Le tuyau conduit la vapeur hors de la chaudière jusqu'au réfrigérant. Il doit supporter la vapeur brûlante sans se dégrader.",
+  refrigerant: "Le réfrigérant refroidit la vapeur pour qu'elle redevienne liquide : c'est la <b>condensation</b>. Plus il refroidit, plus tu récupères de gouttes.",
+  recipient: "Le flacon recueille le distillat, ce liquide pur qui sort goutte à goutte au bout du tuyau.",
 };
 
 const LEXIQUE = [
-  { mot:'Circuit électrique', def:"Le chemin fermé que suit le courant : il part d'une borne de la pile, traverse l'ampoule, et revient à l'autre borne. Si le chemin est coupé quelque part, plus rien ne s'allume." },
-  { mot:'Générateur', def:"L'appareil qui fournit le courant. Ici, c'est la <em>pile</em>." },
-  { mot:'Récepteur', def:"L'appareil qui reçoit le courant et le transforme en autre chose. Ici, l'<em>ampoule</em> le transforme en lumière." },
-  { mot:'Bornes de la pile', def:"Les deux extrémités de la pile : la borne <em>+</em> et la borne <em>−</em>. Le courant sort par le + et revient par le −." },
-  { mot:'Tension (en volts)', def:"La « force » avec laquelle la pile pousse le courant. On la mesure en volts (V). Une pile ronde donne 1,5 V ; une pile plate, 4,5 V." },
-  { mot:'Tension d’usage', def:"La tension écrite sur l'ampoule : celle qu'il lui faut pour éclairer normalement, sans s'abîmer." },
-  { mot:'Sous-tension', def:"L'ampoule reçoit moins que sa tension d'usage : elle rougeoie faiblement au lieu de briller." },
-  { mot:'Surtension', def:"L'ampoule reçoit trop : son filament chauffe trop fort et <em>grille</em>. La lampe est fichue." },
-  { mot:'Piles en série', def:"Des piles posées bout à bout, le + de l'une contre le − de la suivante. Leurs tensions s'additionnent : 2 piles de 1,5 V donnent 3 V." },
-  { mot:'Piles en opposition', def:"Une pile retournée par rapport aux autres : elle pousse dans l'autre sens et <em>annule</em> une partie de la tension. La lampe faiblit ou s'éteint." },
-  { mot:'Filament', def:"Le fil très fin à l'intérieur de l'ampoule. Le courant le chauffe jusqu'à ce qu'il devienne blanc et éclaire." },
-  { mot:'Culot et plot', def:"Les deux contacts de l'ampoule : le <em>culot</em> est la partie vissée sur le côté, le <em>plot</em> est le point au bout. Le courant entre par l'un et sort par l'autre." },
-  { mot:'Tête de la lampe', def:"L'avant de la lampe, en forme d'entonnoir. C'est là que se logent la <em>douille</em> qui reçoit l'ampoule, le <em>réflecteur</em> qui l'entoure, et la vitre qui ferme le tout." },
-  { mot:'Ressort', def:"Une pièce métallique qui se détend. Au fond du boîtier, il pousse les piles et garde le contact même s'il reste un peu de place." },
-  { mot:'Autonomie', def:"Le temps que la lampe peut éclairer avant que les piles soient vides. Les grosses piles durent plus longtemps." },
-  { mot:'Démarche technologique', def:"La façon de travailler de l'ingénieur : explorer les possibilités, choisir, fabriquer, tester, puis améliorer." },
+  { mot:'Alambic', def:"L'appareil qui sert à distiller : il fait bouillir un liquide, puis refroidit la vapeur pour la récupérer. On l'utilise au village pour distiller le vin de palme." },
+  { mot:'Distillation', def:"Faire bouillir un liquide puis refroidir sa vapeur pour la recueillir. Elle <em>sépare</em> : seule l'eau part en vapeur, ce qui ne s'évapore pas reste au fond." },
+  { mot:'Chaudière', def:"Le récipient posé sur le feu, où l'on met le liquide à distiller. On l'appelle aussi <em>cucurbite</em>." },
+  { mot:'Chapiteau', def:"Le couvercle qui ferme la chaudière et rassemble la vapeur vers le tuyau." },
+  { mot:'Réfrigérant', def:"La partie qui refroidit la vapeur. Souvent un <em>serpentin</em> : un tuyau enroulé qui passe dans un bac d'eau froide." },
+  { mot:'Distillat', def:"Le liquide qu'on recueille au bout du tuyau. En distillant de l'eau salée, le distillat est de l'eau douce." },
+  { mot:'Les trois états de l’eau', def:"<em>Solide</em> (la glace), <em>liquide</em> (l'eau du robinet), <em>gazeux</em> (la vapeur d'eau, invisible). C'est la même eau à chaque fois : seule sa forme change." },
+  { mot:'Vaporisation', def:"Le passage de l'état <em>liquide</em> à l'état <em>gazeux</em>. Dans l'alambic, elle a lieu dans la chaudière, sur le feu." },
+  { mot:'Condensation (liquéfaction)', def:"Le passage de l'état <em>gazeux</em> à l'état <em>liquide</em>. Dans l'alambic, elle a lieu dans le réfrigérant, au contact du froid." },
+  { mot:'Ébullition', def:"Le bouillonnement d'un liquide qu'on chauffe. L'eau pure bout à <em>100 °C</em> et ne monte pas plus haut, même si on chauffe davantage : la chaleur sert alors à fabriquer de la vapeur." },
+  { mot:'Fusion et solidification', def:"La glace qui fond devient liquide : c'est la <em>fusion</em>. L'eau qui gèle devient solide : c'est la <em>solidification</em>." },
+  { mot:'Sublimation', def:"Le passage direct du <em>solide</em> au <em>gazeux</em>, sans passer par le liquide. C'est ce que font le camphre et le diiode." },
+  { mot:'Entraînement à la vapeur', def:"La vapeur qui traverse des plantes emporte avec elle leurs parfums. En la refroidissant, on recueille leur <em>huile essentielle</em>." },
+  { mot:'Buée', def:"Les fines gouttes qui se déposent sur une surface froide : c'est de la vapeur d'eau qui vient de se condenser." },
 ];
 
 /* ============================================================================
    2. Le moteur — validé par tests avant l'écriture de l'interface
    ========================================================================== */
 
+const C_EAU = 4185, L_VAP = 2260000, MASSE = .5, T0 = 25, T_EB = 100, DUREE = 900;
+
 function evaluer(m) {
-  const b = BOITIERS[m.boitier];
-  const r = { ok:false, pannes:[] };
-  if (!b) { r.pannes.push('Il te faut d’abord un boîtier.'); return r; }
-  if (!m.piles.length) r.pannes.push('Il n’y a aucune pile : rien ne fournit le courant.');
-  if (!m.ampoule) r.pannes.push('Il n’y a pas d’ampoule : rien ne peut éclairer.');
-  if (!m.contact) r.pannes.push('Pas de contact au fond : le courant ne peut pas revenir à la pile, le circuit reste ouvert.');
-  // Une lame rigide n'atteint la pile que si le boîtier est plein ; le ressort rattrape le jeu.
-  if (m.contact === 'lame' && m.piles.length && m.piles.length < b.piles)
-    r.pannes.push('La lame est toute droite et ne touche pas la pile : remplis le boîtier, ou remplace-la par un ressort.');
+  const r = { pannes:[], dangers:[] };
+  const f = FOYERS[m.foyer], ch = CHAUDIERES[m.chaudiere];
 
-  const u = m.piles.reduce((s, p) => s + PILES[p.modele].u * p.sens, 0);
-  const umax = m.piles.reduce((s, p) => s + PILES[p.modele].u, 0);
-  const rint = m.piles.reduce((s, p) => s + PILES[p.modele].r, 0);
-  r.tension = Math.round(u * 100) / 100;
-  r.inversees = m.piles.filter(p => p.sens < 0).length;
-  if (m.piles.length > 1 && Math.abs(u) < .1)
-    r.pannes.push('Les piles sont tête-bêche : leurs tensions s’annulent, il ne reste rien.');
-  else if (m.piles.length && u < 0)
-    r.pannes.push('Les piles sont montées à l’envers : le + doit regarder vers l’ampoule.');
-
+  if (!ch) r.pannes.push('Il n’y a pas de chaudière : aucun récipient pour chauffer le liquide.');
+  if (ch && !m.contenu) r.pannes.push('La chaudière est vide : il n’y a rien à distiller.');
+  if (!f) r.pannes.push('Il n’y a pas de source de chaleur : rien ne chauffe.');
+  if (ch && !ch.sur && f) r.dangers.push('Un bidon en plastique fond sur le feu : il ne faut jamais le poser dessus.');
   if (r.pannes.length) return r;
 
-  const a = AMPOULES[m.ampoule];
-  const rlampe = a.un / a.inom;                    // résistance à chaud
-  const i = u / (rlampe + rint);
-  const rapport = (i * rlampe) / a.un;             // tension reçue ÷ tension d'usage
+  // --- Thermique d'abord : une casserole d'eau sur le feu bout, couvercle ou pas ---
+  const pUtile = f.p * f.rendement;
+  const tChauffe = MASSE * C_EAU * (T_EB - T0) / pUtile;
+  r.tempsEbullition = Math.round(tChauffe / 6) / 10;
+  r.bout = tChauffe < DUREE;
+  r.temperature = r.bout ? T_EB : Math.round(T0 + pUtile * DUREE / (MASSE * C_EAU));
+  if (!r.bout) {
+    r.pannes.push(`En 15 minutes, l’eau ne monte qu’à ${r.temperature} °C : elle n’atteint jamais l’ébullition.`);
+    return r;
+  }
 
-  if (r.inversees) r.perte = Math.round((umax - u) * 100) / 100;
-  r.courant = i;
-  r.rapport = Math.round(rapport * 100) / 100;
-  r.grille = rapport > 1.2;
-  r.sousTension = rapport < .8;
-  r.ok = !r.grille;
+  // --- Puis la distillation : ce qui manque empêche de RECUEILLIR, pas de bouillir ---
+  if (!m.chapiteau) {
+    r.pannes.push('Mais sans chapiteau, la vapeur s’échappe dans la cuisine : il ne reste rien à recueillir.');
+    return r;
+  }
+  if (!m.tube) {
+    r.dangers.push('Chaudière fermée sans tuyau : la vapeur ne peut pas sortir et la pression monte. Très dangereux.');
+    r.pannes.push('Il faut un tuyau pour conduire la vapeur hors de la chaudière.');
+    return r;
+  }
+  const tube = TUBES[m.tube];
+  if (!tube.tient) r.dangers.push('Le roseau se carbonise au contact de la vapeur brûlante.');
+  if (!m.refrigerant) {
+    r.pannes.push('La vapeur sort bien du tuyau, mais rien ne la refroidit : elle part en fumée sans redevenir liquide.');
+    return r;
+  }
+  if (!m.recipient) {
+    r.pannes.push('Il n’y a pas de flacon au bout du tuyau : le distillat tombe par terre.');
+    return r;
+  }
 
-  // Le flux d'une lampe à incandescence varie très vite avec la tension
-  const eclat = r.grille ? 0 : Math.pow(Math.min(rapport, 1.2), 3.5);
-  const capacite = Math.min.apply(null, m.piles.map(p => PILES[p.modele].mah));
-  const gain = m.reflecteur ? REFLECTEURS[m.reflecteur].gain : 1;
+  const masseVaporisee = Math.min(pUtile * (DUREE - tChauffe) / L_VAP, MASSE * .9);
+  const etancheite = ch.etanche * CHAPITEAUX[m.chapiteau].etanche;
+  const rec = RECIPIENTS[m.recipient];
 
-  r.eclat = eclat;
-  r.portee = Math.round(eclat * gain * 2.5 * 10) / 10;
-  r.heures = r.grille ? 0 : Math.round(capacite / 1000 / i * 10) / 10;
-  r.masse = b.masse + m.piles.reduce((s, p) => s + PILES[p.modele].masse, 0);
-  r.solidite = Math.max(1, Math.min(10,
-    b.solidite + (m.contact ? CONTACTS[m.contact].amorti : 0) + (m.vitre ? 1 : 0)));
-  r.finition = (m.interrupteur ? 3 : 0) + (m.vitre ? 3 : 0) + (m.reflecteur ? 3 : 0) + 1;
+  r.temperature = T_EB;
+  r.vapeur = Math.round(masseVaporisee * 1000);
+  r.distillat = Math.round(masseVaporisee * 1000 * etancheite * REFRIGERANTS[m.refrigerant].efficacite * rec.garde);
+  r.rendement = Math.round(r.distillat / (MASSE * 1000) * 100);
+  r.perteVapeur = r.vapeur - r.distillat;
+
+  r.notePurete = 100;
+  if (tube.gout) { r.notePurete = 60; r.gout = 'Le roseau noirci donne au distillat un goût de fumée.'; }
+  if (!rec.tient) {
+    r.notePurete = Math.min(r.notePurete, 70);
+    r.dangers.push('La bouteille en plastique se déforme sous la vapeur chaude.');
+  }
+  r.pur = r.notePurete === 100;
+  r.sel = m.contenu === 'salee';
+  r.essence = m.contenu === 'plante';
+  r.securite = Math.max(1, 10 - r.dangers.length * 4);
+  r.ok = r.distillat > 0;
   return r;
 }
 
 /* ============================================================================
-   3. Les missions — chacune guidée pas à pas, puis vérifiée par un QCM
+   3. Les missions
    ========================================================================== */
 
-const plein = () => etat.boitier && etat.piles.length === BOITIERS[etat.boitier].piles;
-const monte = () => !!etat.boitier && etat.piles.length > 0 && !!etat.ampoule && !!etat.contact;
+const aChaudiere = () => !!etat.chaudiere && !!etat.contenu;
+const monteJusquAuTube = () => aChaudiere() && !!etat.foyer && !!etat.chapiteau && !!etat.tube;
 
 const MISSIONS = [
   {
-    titre:'Que ça s’allume !',
-    acquis:'Pour qu’une lampe s’allume, le courant doit faire un <b>tour complet</b> : il sort de la pile, traverse l’ampoule, et revient à la pile par le contact du fond.',
-    but:'Fabrique une lampe qui éclaire, même faiblement.',
-    indice:"Une lampe s’allume quand le courant peut faire tout le tour : il sort de la pile, traverse l’ampoule, et revient à la pile par le contact du fond.",
+    titre:'Fais bouillir l’eau',
+    but:'Chauffe de l’eau jusqu’à l’ébullition et regarde jusqu’où monte la température.',
+    acquis:'L’eau pure bout à <b>100 °C</b>. Ensuite, elle ne chauffe plus : toute la chaleur sert à la transformer en <b>vapeur</b>.',
+    indice:"Il te faut trois choses seulement : un récipient qui va sur le feu, de l'eau dedans, et une source de chaleur.",
     etapes:[
-      { t:'Choisis un <b>boîtier</b> : c’est le corps de ta lampe', cible:'boitier', fait:() => !!etat.boitier },
-      { t:'Glisse au moins une <b>pile</b> à l’intérieur', cible:'pile', fait:() => etat.piles.length > 0 },
-      { t:'Visse une <b>ampoule</b> dans la tête de la lampe', cible:'ampoule', fait:() => !!etat.ampoule },
-      { t:'Pose un <b>contact</b> au fond pour fermer le circuit', cible:'contact', fait:() => !!etat.contact },
-      { t:'Appuie sur <b>Tester ma lampe</b>', cible:'tester', fait:() => etat.teste },
+      { t:'Choisis une <b>chaudière</b> qui va sur le feu', cible:'chaudiere', fait:() => !!etat.chaudiere },
+      { t:'Verse de l’<b>eau</b> dedans', cible:'contenu', fait:() => !!etat.contenu },
+      { t:'Installe une <b>source de chaleur</b> dessous', cible:'foyer', fait:() => !!etat.foyer },
+      { t:'Appuie sur <b>Allumer le feu</b>', cible:'tester', fait:() => etat.teste },
     ],
-    test:(r) => r.ok && r.portee > 0,
+    test:(r) => r.bout === true,
     qcm:[
-      { q:'Pourquoi faut-il une pièce en métal au fond du boîtier ?',
-        choix:['Pour que le courant puisse revenir à la pile et faire le tour complet',
-               'Pour que la lampe soit plus lourde',
-               'Pour décorer le fond de la lampe'],
-        bonne:0,
-        expl:"Le courant doit faire un <b>tour complet</b> : il part de la pile, traverse l’ampoule, et doit revenir à la pile. Sans contact au fond, le chemin est coupé : c’est un circuit ouvert." },
-      { q:'Dans une lampe de poche, qui est le générateur ?',
-        choix:['La pile', 'L’ampoule', 'Le boîtier'],
-        bonne:0,
-        expl:"La <b>pile</b> est le générateur : elle fournit le courant. L’ampoule, elle, est le récepteur : elle reçoit le courant et le transforme en lumière." },
+      { q:'À quelle température l’eau pure se met-elle à bouillir ?',
+        choix:['100 °C', '50 °C', '200 °C'], bonne:0,
+        expl:"L’eau pure bout à <b>100 °C</b>. Une fois cette température atteinte, elle n’augmente plus : la chaleur sert à transformer l’eau liquide en vapeur." },
+      { q:'Comment s’appelle le passage de l’état liquide à l’état gazeux ?',
+        choix:['La vaporisation', 'La condensation', 'La fusion'], bonne:0,
+        expl:"C’est la <b>vaporisation</b>. Le chemin inverse — du gaz vers le liquide — s’appelle la <b>condensation</b>." },
     ],
   },
   {
-    titre:'Bien réglée',
-    acquis:'Chaque ampoule a une <b>tension d’usage</b> écrite dessus. Trop peu, elle rougeoie (sous-tension) ; trop, elle grille (surtension).',
-    but:'L’ampoule doit recevoir la tension qu’il lui faut : ni trop peu, ni trop.',
-    indice:"Additionne tes piles : chaque pile ronde donne 1,5 V, la pile plate en donne 4,5 V à elle seule. Puis choisis l’ampoule dont la tension écrite dessus est la plus proche.",
+    titre:'Attrape la vapeur',
+    but:'Ferme la chaudière et conduis la vapeur dehors, sans la laisser filer.',
+    acquis:'Le <b>chapiteau</b> rassemble la vapeur et le <b>tuyau</b> la conduit. Une chaudière fermée <b>doit toujours</b> avoir une sortie, sinon la pression monte.',
+    indice:"La vapeur monte : il faut un couvercle pour la rassembler, et un tuyau pour lui montrer le chemin. Sans sortie, la pression devient dangereuse.",
     etapes:[
-      { t:'Monte une lampe complète (boîtier, piles, ampoule, contact)', cible:null, fait:monte },
-      { t:'Compte la tension de tes piles : <b>1,5 V chacune</b>', cible:'pile', fait:() => etat.piles.length > 0 },
-      { t:'Choisis l’<b>ampoule</b> dont la tension est la plus proche', cible:'ampoule', fait:() => !!etat.ampoule },
-      { t:'Teste : elle doit briller <b>normalement</b>', cible:'tester', fait:() => etat.teste },
+      { t:'Monte la chaudière avec son liquide et le feu', cible:null, fait:() => aChaudiere() && !!etat.foyer },
+      { t:'Pose un <b>chapiteau</b> pour fermer la chaudière', cible:'chapiteau', fait:() => !!etat.chapiteau },
+      { t:'Branche un <b>tuyau</b> pour conduire la vapeur', cible:'tube', fait:() => !!etat.tube },
+      { t:'Allume le feu et observe', cible:'tester', fait:() => etat.teste },
     ],
-    test:(r) => r.ok && !r.sousTension && !r.grille,
+    test:(r, m) => r.bout && !!m.chapiteau && !!m.tube && !r.dangers.length,
     qcm:[
-      { q:'Tu mets 3 piles rondes de 1,5 V bout à bout. Quelle tension donnent-elles ensemble ?',
-        choix:['4,5 V', '1,5 V', '0,5 V'],
-        bonne:0,
-        expl:"Des piles <b>en série</b> additionnent leurs tensions : 1,5 + 1,5 + 1,5 = <b>4,5 V</b>." },
-      { q:'Que se passe-t-il si on branche une ampoule de 2,5 V sur 4,5 V ?',
-        choix:['Elle grille : c’est une surtension',
-               'Elle éclaire faiblement : c’est une sous-tension',
-               'Elle éclaire normalement'],
-        bonne:0,
-        expl:"L’ampoule reçoit bien plus que sa tension d’usage : son filament chauffe trop et <b>grille</b>. C’est une <b>surtension</b>." },
+      { q:'Pourquoi une chaudière fermée doit-elle toujours avoir une sortie ?',
+        choix:['Parce que la vapeur prend beaucoup de place : sans sortie, la pression monte et c’est dangereux',
+               'Parce que le feu a besoin d’air', 'Pour qu’on puisse voir l’eau bouillir'], bonne:0,
+        expl:"En se vaporisant, l’eau occupe <b>bien plus de place</b> qu’à l’état liquide. Si elle ne peut pas sortir, la pression augmente dans la chaudière : le couvercle peut être projeté. On laisse toujours une sortie." },
     ],
   },
   {
-    titre:'Le bon contact',
-    acquis:'Le <b>ressort</b> se détend et garde le contact même s’il reste de la place. La <b>lame</b>, elle, est rigide : le boîtier doit être plein.',
-    but:'Réussis une lampe qui éclaire en utilisant une lame métallique au fond.',
-    indice:"La lame est rigide : elle ne se détend pas comme un ressort. Si tu laisses de la place vide dans le boîtier, elle ne touchera jamais la pile. Remplis le boîtier !",
+    titre:'Transforme la vapeur en gouttes',
+    but:'Refroidis la vapeur pour qu’elle redevienne liquide, et recueille les gouttes.',
+    acquis:'Au contact du froid, la vapeur redevient liquide : c’est la <b>condensation</b>. C’est elle qui remplit le flacon.',
+    indice:"La vapeur ne redevient liquide que si on la refroidit. Fais passer le tuyau dans quelque chose de froid, et place un flacon à la sortie.",
     etapes:[
-      { t:'Choisis un boîtier et note combien de piles il accepte', cible:'boitier', fait:() => !!etat.boitier },
-      { t:'<b>Remplis-le complètement</b> de piles', cible:'pile', fait:plein },
-      { t:'Mets une <b>lame métallique</b> au fond', cible:'contact', fait:() => etat.contact === 'lame' },
-      { t:'Ajoute une ampoule adaptée, puis teste', cible:'ampoule', fait:() => !!etat.ampoule },
+      { t:'Reprends ton montage jusqu’au tuyau', cible:null, fait:monteJusquAuTube },
+      { t:'Installe un <b>réfrigérant</b> pour refroidir la vapeur', cible:'refrigerant', fait:() => !!etat.refrigerant },
+      { t:'Place un <b>flacon</b> au bout du tuyau', cible:'recipient', fait:() => !!etat.recipient },
+      { t:'Allume le feu et recueille le distillat', cible:'tester', fait:() => etat.teste },
     ],
-    test:(r, m) => r.ok && !r.sousTension && m.contact === 'lame',
+    test:(r) => r.ok && r.distillat > 0,
     qcm:[
-      { q:'Pourquoi le ressort marche-t-il même quand le boîtier n’est pas plein ?',
-        choix:['Parce qu’il se détend et va toucher la pile',
-               'Parce qu’il produit du courant tout seul',
-               'Parce qu’il est plus léger que la lame'],
-        bonne:0,
-        expl:"Un <b>ressort se détend</b> : il pousse les piles et garde le contact même s’il reste de la place. Une lame droite, elle, ne bouge pas." },
+      { q:'Dans quelle partie de l’alambic la vapeur redevient-elle liquide ?',
+        choix:['Dans le réfrigérant, au contact du froid', 'Dans la chaudière, sur le feu',
+               'Dans le chapiteau'], bonne:0,
+        expl:"C’est dans le <b>réfrigérant</b> : la vapeur y perd sa chaleur et se <b>condense</b> en gouttes. Dans la chaudière, c’est le contraire qui se produit — l’eau s’y vaporise." },
+      { q:'Dans quel état est l’eau à l’intérieur du tuyau ?',
+        choix:['Gazeux : c’est de la vapeur', 'Liquide', 'Solide'], bonne:0,
+        expl:"Entre la chaudière et le réfrigérant, l’eau circule à l’état <b>gazeux</b>. Elle ne redevient liquide qu’au contact du froid." },
     ],
   },
   {
-    titre:'Loin devant',
-    acquis:'Le <b>réflecteur</b> renvoie vers l’avant la lumière qui partait en arrière. La lampe porte deux fois plus loin, sans user les piles davantage.',
-    but:'Fais porter la lumière de ta lampe jusqu’à 6 mètres.',
-    indice:"Sans rien derrière l’ampoule, la moitié de la lumière part vers l’arrière et se perd. Une surface brillante la renvoie vers l’avant.",
+    titre:'De l’eau salée à l’eau douce',
+    but:'Distille de l’eau salée et recueille au moins 100 mL d’eau douce.',
+    acquis:'La distillation <b>sépare</b> : seule l’eau part en vapeur. Le sel, lui, ne s’évapore pas et reste au fond de la chaudière.',
+    indice:"Verse de l'eau salée dans la chaudière et distille normalement. Le sel ne s'évapore pas : il ne peut pas suivre la vapeur dans le tuyau.",
     etapes:[
-      { t:'Monte une lampe qui éclaire normalement', cible:null, fait:monte },
-      { t:'Ajoute un <b>réflecteur</b> derrière l’ampoule', cible:'reflecteur', fait:() => !!etat.reflecteur },
-      { t:'Teste et regarde la <b>portée</b> en mètres', cible:'tester', fait:() => etat.teste },
+      { t:'Verse de l’<b>eau salée</b> dans la chaudière', cible:'contenu', fait:() => etat.contenu === 'salee' },
+      { t:'Monte l’alambic en entier', cible:null,
+        fait:() => monteJusquAuTube() && !!etat.refrigerant && !!etat.recipient },
+      { t:'Distille au moins <b>100 mL</b>', cible:'tester', fait:() => etat.teste },
     ],
-    test:(r) => r.ok && r.portee >= 6,
+    test:(r, m) => r.ok && m.contenu === 'salee' && r.distillat >= 100,
     qcm:[
-      { q:'À quoi sert le réflecteur derrière l’ampoule ?',
-        choix:['À renvoyer vers l’avant la lumière qui partait en arrière',
-               'À empêcher l’ampoule de chauffer',
-               'À augmenter la tension de la pile'],
-        bonne:0,
-        expl:"Le réflecteur entoure l’ampoule : la lumière qui partait vers l’arrière <b>rebondit</b> sur ses parois et repart vers l’avant. Le faisceau porte bien plus loin, sans user les piles davantage. C’est pour cela que l’ampoule se loge au creux du réflecteur, et non dans le corps de la lampe." },
+      { q:'Après avoir distillé de l’eau salée, où se trouve le sel ?',
+        choix:['Au fond de la chaudière : il ne s’évapore pas',
+               'Dans le flacon, avec l’eau distillée', 'Il a disparu en fumée'], bonne:0,
+        expl:"Le sel <b>ne se vaporise pas</b> à 100 °C : il ne peut pas suivre la vapeur. Il reste au fond de la chaudière, et le distillat recueilli est de l’<b>eau douce</b>." },
     ],
   },
   {
-    titre:'Toute la nuit',
-    acquis:'À tension égale, une <b>grosse pile</b> contient beaucoup plus d’énergie : elle éclaire bien plus longtemps, mais elle est lourde.',
-    but:'Ta lampe doit pouvoir éclairer 8 heures sans s’arrêter.',
-    indice:"Toutes les piles ne se valent pas : à tension égale, une grosse pile contient beaucoup plus d’énergie qu’une petite. Elle est simplement plus lourde.",
+    titre:'Le meilleur rendement',
+    but:'Améliore ton alambic pour recueillir au moins 250 mL sur les 500 mL de départ.',
+    acquis:'Le rendement dépend de <b>trois choses</b> : la chaleur reçue, l’étanchéité du montage, et la qualité du refroidissement.',
+    indice:"Trois leviers : un feu qui chauffe fort, un couvercle qui ne laisse rien fuir, et un refroidissement efficace. Un serpentin dans l'eau froide vaut bien mieux qu'un linge mouillé.",
     etapes:[
-      { t:'Monte une lampe qui éclaire normalement', cible:null, fait:monte },
-      { t:'Remplace tes piles par des piles qui <b>durent longtemps</b>', cible:'pile',
-        fait:() => etat.piles.length > 0 && etat.piles.every(p => p.modele !== 'r6') },
-      { t:'Teste et regarde l’<b>autonomie</b> en heures', cible:'tester', fait:() => etat.teste },
+      { t:'Choisis la <b>source de chaleur la plus efficace</b>', cible:'foyer', fait:() => etat.foyer === 'gaz' },
+      { t:'Ferme bien la chaudière : <b>couvercle luté</b>', cible:'chapiteau', fait:() => etat.chapiteau === 'ajuste' },
+      { t:'Refroidis au mieux : <b>serpentin dans l’eau froide</b>', cible:'refrigerant', fait:() => etat.refrigerant === 'bac' },
+      { t:'Complète le montage et distille', cible:'tester', fait:() => etat.teste },
     ],
-    test:(r) => r.ok && r.heures >= 8,
+    test:(r) => r.ok && r.distillat >= 250,
     qcm:[
-      { q:'Deux piles donnent 1,5 V chacune, mais l’une est bien plus grosse. Quelle différence ?',
-        choix:['La grosse contient plus d’énergie : la lampe éclairera plus longtemps',
-               'La grosse pousse le courant plus fort',
-               'Aucune différence, elles ont la même tension'],
-        bonne:0,
-        expl:"La tension (1,5 V) dit avec quelle force la pile pousse ; la <b>quantité d’énergie</b> stockée dit combien de temps elle tiendra. Une grosse pile a la même force, mais beaucoup plus de réserve." },
+      { q:'Pourquoi un serpentin dans un bac d’eau froide récupère-t-il plus qu’un simple linge mouillé ?',
+        choix:['Parce qu’il refroidit la vapeur bien mieux : presque toute se condense',
+               'Parce qu’il fait bouillir l’eau plus vite',
+               'Parce qu’il empêche le sel de passer'], bonne:0,
+        expl:"Le serpentin offre un <b>long trajet dans l’eau froide</b> : la vapeur a le temps de perdre toute sa chaleur et se condense presque entièrement. Avec un linge, une partie de la vapeur ressort encore en gaz et se perd." },
     ],
   },
   {
-    titre:'La lampe de Jean',
-    acquis:'Fabriquer, c’est <b>choisir entre des qualités</b> : légèreté, portée, autonomie, solidité. L’ingénieur teste, puis améliore.',
-    but:'Jean fait 5 km de vélo la nuit. Il lui faut 8 m de portée, 8 h d’autonomie, une lampe solide et bien finie.',
-    indice:"Reprends tout ce que tu as appris : un boîtier résistant, de grosses piles, l’ampoule qui correspond, un réflecteur, une vitre pour protéger, et un interrupteur pour ne pas gaspiller.",
+    titre:'L’huile essentielle',
+    but:'Distille des feuilles odorantes pour extraire leur parfum, avec un montage sans danger.',
+    acquis:'La vapeur qui traverse des plantes emporte leurs parfums : c’est l’<b>entraînement à la vapeur</b>, la méthode des huiles essentielles.',
+    indice:"Mets des feuilles odorantes et de l'eau dans la chaudière. Évite le roseau et la bouteille en plastique : ils abîmeraient ton huile.",
     etapes:[
-      { t:'Choisis un <b>boîtier solide</b>', cible:'boitier', fait:() => !!etat.boitier },
-      { t:'Mets des piles qui <b>durent longtemps</b>', cible:'pile',
-        fait:() => etat.piles.length > 0 && etat.piles.every(p => p.modele !== 'r6') },
-      { t:'Ampoule adaptée et contact au fond', cible:'ampoule', fait:() => !!etat.ampoule && !!etat.contact },
-      { t:'Ajoute un <b>réflecteur</b> pour voir loin', cible:'reflecteur', fait:() => !!etat.reflecteur },
-      { t:'Ajoute une <b>vitre</b> qui protège l’ampoule', cible:'vitre', fait:() => !!etat.vitre },
-      { t:'Ajoute un <b>interrupteur</b>', cible:'interrupteur', fait:() => !!etat.interrupteur },
-      { t:'Teste : tout doit être au vert', cible:'tester', fait:() => etat.teste },
+      { t:'Mets des <b>feuilles odorantes</b> et de l’eau', cible:'contenu', fait:() => etat.contenu === 'plante' },
+      { t:'Choisis un tuyau qui ne donne <b>aucun goût</b>', cible:'tube',
+        fait:() => !!etat.tube && !TUBES[etat.tube].gout },
+      { t:'Recueille dans un <b>flacon en verre</b>', cible:'recipient', fait:() => etat.recipient === 'verre' },
+      { t:'Complète le montage et distille 150 mL', cible:'tester', fait:() => etat.teste },
     ],
-    test:(r, m) => r.ok && r.portee >= 8 && r.heures >= 8 && r.solidite >= 6 && m.interrupteur && m.vitre,
+    test:(r, m) => r.ok && m.contenu === 'plante' && r.distillat >= 150 && r.pur && !r.dangers.length,
     qcm:[
-      { q:'Pourquoi Jean a-t-il besoin d’un interrupteur sur sa lampe ?',
-        choix:['Pour éteindre quand il n’en a pas besoin et économiser ses piles',
-               'Pour que la lampe éclaire plus loin',
-               'Pour rendre la lampe plus solide'],
-        bonne:0,
-        expl:"L’interrupteur <b>ouvre le circuit</b> quand on veut : le courant ne passe plus, les piles ne s’usent plus. Sans lui, il faudrait démonter la lampe pour l’éteindre." },
-      { q:'Qu’est-ce qui, dans la démarche technologique, vient après « fabriquer » ?',
-        choix:['Tester, puis améliorer', 'Ranger le matériel', 'Recommencer à zéro'],
-        bonne:0,
-        expl:"La démarche de l’ingénieur : explorer, choisir, fabriquer, <b>tester</b>, puis <b>améliorer</b>. On teste toujours ce qu’on a fabriqué, et on s’en sert pour faire mieux." },
+      { q:'Comment le parfum des feuilles arrive-t-il dans le flacon ?',
+        choix:['La vapeur d’eau traverse les feuilles et emporte leur parfum avec elle',
+               'Le parfum coule directement des feuilles', 'Le feu fait fondre le parfum'], bonne:0,
+        expl:"C’est l’<b>entraînement à la vapeur</b> : en traversant les plantes, la vapeur se charge de leurs essences, puis les dépose dans le distillat au moment de se condenser." },
+      { q:'Pourquoi ne pas utiliser un roseau comme tuyau pour une huile essentielle ?',
+        choix:['Il se carbonise et donne un goût de fumée au distillat',
+               'Il est trop court', 'Il coûte trop cher'], bonne:0,
+        expl:"La vapeur sort à 100 °C : le roseau <b>noircit</b> et communique un goût de brûlé. Le cuivre et le verre, eux, ne changent rien au produit." },
     ],
   },
 ];
@@ -810,12 +837,12 @@ const MISSIONS = [
    ========================================================================== */
 
 const etat = {
-  boitier:null, piles:[], ampoule:null, contact:null,
-  reflecteur:null, vitre:null, interrupteur:null,
+  foyer:null, chaudiere:null, contenu:null, chapiteau:null,
+  tube:null, refrigerant:null, recipient:null,
   mission:0, faites:[], teste:false, libre:false, resultat:null, repliFait:false,
 };
 
-const CLE = 'ike-lampe-progression';
+const CLE = 'ike-alambic-progression';
 function sauver() {
   try { localStorage.setItem(CLE, JSON.stringify({ mission:etat.mission, faits:etat.faites })); } catch (e) {}
 }
@@ -831,24 +858,25 @@ function charger() {
 
 const $ = id => document.getElementById(id);
 const maquette = () => ({
-  boitier:etat.boitier, piles:etat.piles, ampoule:etat.ampoule, contact:etat.contact,
-  reflecteur:etat.reflecteur, vitre:etat.vitre, interrupteur:etat.interrupteur,
+  foyer:etat.foyer, chaudiere:etat.chaudiere, contenu:etat.contenu, chapiteau:etat.chapiteau,
+  tube:etat.tube, refrigerant:etat.refrigerant, recipient:etat.recipient,
 });
 const missionCourante = () => etat.libre ? null : MISSIONS[etat.mission];
 const deverrouillee = i => i === 0 || etat.faites.indexOf(i - 1) !== -1 || etat.faites.indexOf(i) !== -1;
 
-// Certaines étapes visent « la lampe complète » : on éclaire alors la première pièce
-// qui manque, pour que quelque chose clignote toujours quelque part.
+// Étape « monte l'alambic » : on éclaire la première pièce qui manque
 function cibleEffective(e) {
   if (e.cible) return e.cible;
-  if (!etat.boitier) return 'boitier';
-  if (!etat.piles.length) return 'pile';
-  if (!etat.ampoule) return 'ampoule';
-  if (!etat.contact) return 'contact';
+  if (!etat.chaudiere) return 'chaudiere';
+  if (!etat.contenu) return 'contenu';
+  if (!etat.foyer) return 'foyer';
+  if (!etat.chapiteau) return 'chapiteau';
+  if (!etat.tube) return 'tube';
+  if (!etat.refrigerant) return 'refrigerant';
+  if (!etat.recipient) return 'recipient';
   return 'tester';
 }
 
-// Première étape non terminée : c'est elle qu'on met en avant et dont on éclaire l'emplacement
 function etapeCourante() {
   const m = missionCourante();
   if (!m) return null;
@@ -869,192 +897,216 @@ const el = (nom, attrs, texte) => {
   return n;
 };
 
-const G = { x0:60, x1:455, y0:110, y1:216, tete:575, centre:154 };
+// Repères : chaudière à gauche sur son feu, réfrigérant au centre, flacon à droite
+const G = {
+  chX:78, chX2:196, chY:158, chY2:262,      // chaudière
+  feuY:266,                                  // dessus du foyer
+  tubeY:132,                                 // hauteur du tuyau horizontal
+  refX:312, refX2:452, refY:150, refY2:250,  // bac réfrigérant
+  sortieY:236,                               // hauteur de sortie vers le flacon
+  flX:492, flX2:566, flY:238, flY2:306,      // flacon
+};
 
-function slotsPiles() {
-  const b = BOITIERS[etat.boitier];
-  if (!b) return [];
-  // on s'arrête avant l'ampoule, qui occupe l'avant du corps
-  const x = G.x0 + 46, large = G.x1 - x - 46;
-  const l = large / b.piles;
-  return Array.from({ length:b.piles }, (_, i) => ({ x:x + i * l, l, i }));
-}
+const COUL_LIQUIDE = '#5BC5F2', COUL_VAPEUR = '#CFD8DC';
 
 function dessiner() {
   plan.textContent = '';
-  const b = BOITIERS[etat.boitier];
   const r = evaluer(maquette());
-  const allume = etat.teste && r.ok && r.portee > 0;
+  const chauffe = etat.teste && !r.pannes.length;
+  const distille = chauffe && r.distillat > 0;
   const ec = etapeCourante();
   const vise = ec ? cibleEffective(ec.e) : null;
+  $('legende-etats').hidden = !chauffe;
 
-  // --- Faisceau lumineux, derrière tout le reste ---
-  if (allume) {
-    const inten = Math.min(1, r.eclat * (etat.reflecteur ? REFLECTEURS[etat.reflecteur].gain : 1) / 2.6);
-    const ouv = etat.reflecteur ? 46 : 96;
-    const defs = el('defs');
-    const grad = el('linearGradient', { id:'g-faisceau', x1:'0', x2:'1' });
-    grad.appendChild(el('stop', { offset:'0', 'stop-color':'#FFE082', 'stop-opacity':(.85 * inten).toFixed(2) }));
-    grad.appendChild(el('stop', { offset:'1', 'stop-color':'#FFE082', 'stop-opacity':'0' }));
-    defs.appendChild(grad); plan.appendChild(defs);
-    plan.appendChild(el('polygon', {
-      points:`588,134 660,${G.centre - ouv} 660,${G.centre + ouv} 588,174`, fill:'url(#g-faisceau)',
-    }));
-    plan.appendChild(el('text', { x:652, y:G.centre - ouv - 8, 'text-anchor':'end', class:'etiq-slot' },
-      r.portee + ' m'));
-  }
+  const ch = CHAUDIERES[etat.chaudiere];
 
-  if (!b) {
-    // Rien encore : on montre un grand emplacement pour le boîtier
-    const g = el('g', { class:'slot' + (vise === 'boitier' ? ' vise' : ''), 'data-slot':'boitier',
-      role:'button', tabindex:'0', 'aria-label':'Choisir un boîtier' });
-    g.appendChild(el('rect', { x:140, y:110, width:380, height:110, class:'zone' }));
-    g.appendChild(el('rect', { x:140, y:110, width:380, height:110, fill:'transparent' }));
-    g.appendChild(el('text', { x:330, y:158, class:'txt-piece', style:'font-size:15px' },
-      'Touche ici pour choisir un boîtier'));
-    g.appendChild(el('text', { x:330, y:182, class:'etiq-slot' },
-      'C’est le corps de ta lampe : il décide combien de piles tiennent dedans.'));
-    plan.appendChild(g);
-    return;
-  }
-
-  // --- Corps du boîtier ---
-  plan.appendChild(el('rect', {
-    x:G.x0, y:G.y0, width:G.x1 - G.x0, height:G.y1 - G.y0, rx:10,
-    fill:b.couleur, 'fill-opacity':.30, stroke:b.couleur, 'stroke-width':3,
-  }));
-
-  // --- Fil de retour : il fait partie du boîtier, l'élève ne le choisit pas.
-  // C'est par lui que le courant revient du culot de l'ampoule jusqu'au contact du fond.
-  const yFil = G.y1 - 12, xFilD = G.x1 - 6;
-  plan.appendChild(el('path', {
-    d:`M ${G.x0 + 20} ${G.centre + 4} L ${G.x0 + 20} ${yFil} L ${xFilD} ${yFil} L ${xFilD} ${G.centre + 6}`,
-    fill:'none', stroke:allume ? '#E8A05C' : 'var(--cuivre)',
-    'stroke-width':allume ? 4 : 3, 'stroke-linecap':'round', 'stroke-linejoin':'round',
-  }));
-  plan.appendChild(el('text', { x:(G.x0 + 20 + xFilD) / 2, y:yFil - 6, class:'etiq-slot' },
-    'fil de retour'));
-  plan.appendChild(el('polygon', {
-    points:`${G.x1},${G.y0} ${G.tete},88 ${G.tete},238 ${G.x1},${G.y1}`,
-    fill:b.couleur, 'fill-opacity':.30, stroke:b.couleur, 'stroke-width':3,
-  }));
-  const etiqB = el('text', { x:G.x0 + 4, y:G.y0 - 12, class:'etiq-slot', 'text-anchor':'start' }, b.nom);
-  plan.appendChild(etiqB);
-  // le boîtier reste changeable : zone cliquable sur son étiquette
-  const zb = el('g', { class:'slot plein', 'data-slot':'boitier', role:'button', tabindex:'0',
-    'aria-label':'Changer de boîtier' });
-  zb.appendChild(el('rect', { x:G.x0, y:G.y0 - 26, width:150, height:22, fill:'transparent' }));
-  plan.appendChild(zb);
-
-  // --- Réflecteur : deux parois évasées qui ENTOURENT l'ampoule.
-  // C'est parce qu'il l'entoure qu'il renvoie vers l'avant la lumière partie en arrière.
-  if (etat.reflecteur) {
-    const teinte = etat.reflecteur === 'alu' ? '#E6E9EB' : '#FFFFFF';
-    for (const sens of [-1, 1]) {
-      plan.appendChild(el('polygon', {
-        points:`${G.x1 + 6},${G.centre + sens * 20} ${G.tete - 6},${G.centre + sens * 70} ` +
-               `${G.tete - 6},${G.centre + sens * 60} ${G.x1 + 6},${G.centre + sens * 12}`,
-        fill:teinte, stroke:'var(--border-strong)', 'stroke-width':1.5,
-      }));
-    }
-  }
-  // Sa zone de choix occupe l'avant de la tête, devant l'ampoule
-  ajouterSlot('reflecteur', G.x1 + 52, 116, 70, 76, 'Réflecteur', !!etat.reflecteur, vise);
-
-  // --- Vitre ---
-  if (etat.vitre) {
-    plan.appendChild(el('rect', { x:G.tete - 2, y:90, width:8, height:146, rx:3,
-      fill:'#B3E5FC', 'fill-opacity':.55, stroke:'#81D4FA', 'stroke-width':2 }));
-  }
-  ajouterSlot('vitre', G.tete + 12, 122, 34, 74, 'Vitre', !!etat.vitre, vise);
-
-  // --- Contact arrière ---
-  const cx = G.x0 + 8;
-  if (etat.contact === 'ressort') {
-    let d = `M ${cx + 4} ${G.centre}`;
-    for (let k = 0; k < 6; k++) d += ` l 5 ${k % 2 ? 16 : -16}`;
-    plan.appendChild(el('path', { d, fill:'none', stroke:'var(--metal)', 'stroke-width':3.5, 'stroke-linecap':'round' }));
-  } else if (etat.contact === 'lame') {
-    plan.appendChild(el('rect', { x:cx + 8, y:124, width:7, height:62, rx:2, fill:'var(--metal)' }));
-  }
-  ajouterSlot('contact', cx - 2, 120, 38, 70, 'Contact', !!etat.contact, vise);
-
-  // --- Piles ---
-  slotsPiles().forEach(s => {
-    const p = etat.piles[s.i];
-    if (p) {
-      const w = s.l - 8, x = s.x + 4;
-      plan.appendChild(el('rect', { x, y:122, width:w, height:60, rx:5,
-        fill:'#4A5762', stroke:'#2F3A44', 'stroke-width':2 }));
-      const bx = p.sens > 0 ? x + w : x;
-      plan.appendChild(el('rect', { x:p.sens > 0 ? bx - 2 : bx - 5, y:140, width:7, height:24, rx:2,
-        fill:'var(--cuivre)' }));
-      plan.appendChild(el('text', { x:x + w / 2, y:146, class:'txt-piece', fill:'#fff' },
-        p.sens > 0 ? '− ▸ +' : '+ ◂ −'));
-      plan.appendChild(el('text', { x:x + w / 2, y:169, class:'txt-piece', fill:'#fff', style:'opacity:.75' },
-        String(PILES[p.modele].u).replace('.', ',') + ' V'));
-      const z = el('rect', { x, y:122, width:w, height:60, rx:5, fill:'transparent',
-        class:'slot', 'data-tourne':s.i, role:'button', tabindex:'0',
-        'aria-label':'Retourner la pile' });
-      z.style.cursor = 'pointer';
-      plan.appendChild(z);
-      const g = el('g', { class:'retirer', 'data-retire':'pile:' + s.i, role:'button', tabindex:'0',
-        'aria-label':'Retirer cette pile' });
-      g.appendChild(el('circle', { cx:x + w - 9, cy:114, r:10 }));
-      g.appendChild(el('text', { x:x + w - 9, y:119 }, '✕'));
-      plan.appendChild(g);
+  /* ---- Foyer ---- */
+  if (etat.foyer) {
+    const f = etat.foyer;
+    plan.appendChild(el('rect', { x:G.chX - 14, y:G.feuY + 26, width:(G.chX2 - G.chX) + 28, height:9, rx:4,
+      fill:'#8D6E63' }));
+    if (f === 'bois') {
+      for (const dx of [-8, 12]) plan.appendChild(el('rect', {
+        x:(G.chX + G.chX2) / 2 + dx - 20, y:G.feuY + 16, width:44, height:7, rx:3,
+        fill:'#795548', transform:`rotate(${dx > 0 ? 8 : -8} ${(G.chX + G.chX2) / 2} ${G.feuY + 20})` }));
     } else {
-      ajouterSlot('pile:' + s.i, s.x + 4, 122, s.l - 8, 60, 'Pile', false, vise === 'pile' ? 'pile' : vise);
+      plan.appendChild(el('rect', { x:G.chX + 10, y:G.feuY + 12, width:G.chX2 - G.chX - 20, height:16, rx:4,
+        fill:'#78909C' }));
     }
-  });
+    // flammes, seulement quand le feu est allumé
+    if (chauffe) {
+      for (let k = 0; k < 5; k++) {
+        const x = G.chX + 14 + k * ((G.chX2 - G.chX - 28) / 4);
+        const g = el('g', { class:'flamme', style:`animation-delay:${k * .09}s` });
+        g.appendChild(el('path', {
+          d:`M ${x} ${G.feuY + 14} q -7 -12 0 -22 q 7 10 0 22 z`,
+          fill:k % 2 ? '#FFB300' : '#FF7043',
+        }));
+        plan.appendChild(g);
+      }
+    }
+    plan.appendChild(el('text', { x:(G.chX + G.chX2) / 2, y:G.feuY + 48, class:'etiq-slot' },
+      FOYERS[f].nom));
+  }
+  ajouterSlot('foyer', G.chX - 16, G.feuY + 2, (G.chX2 - G.chX) + 32, 36,
+    'Source de chaleur', !!etat.foyer, vise);
 
-  // --- Ampoule : dans la TÊTE, au foyer du réflecteur, comme sur une vraie lampe ---
-  const ax = G.x1 - 4;
-
-  // Liaison « aller » : la borne + de la dernière pile rejoint le plot de l'ampoule.
-  // Sans elle, le courant n'aurait aucun chemin visible pour ARRIVER à l'ampoule.
-  const posees = slotsPiles().slice(0, etat.piles.length);
-  if (posees.length) {
-    const fin = posees[posees.length - 1];
+  /* ---- Chaudière et son contenu ---- */
+  if (ch) {
     plan.appendChild(el('path', {
-      d:`M ${fin.x + fin.l - 4} ${G.centre} L ${ax + 4} ${G.centre}`,
-      fill:'none', stroke:allume ? '#E8A05C' : 'var(--cuivre)',
-      'stroke-width':allume ? 4 : 3, 'stroke-linecap':'round',
+      d:`M ${G.chX} ${G.chY} L ${G.chX} ${G.chY2 - 10} q 0 10 10 10 L ${G.chX2 - 10} ${G.chY2} ` +
+        `q 10 0 10 -10 L ${G.chX2} ${G.chY}`,
+      fill:ch.couleur, 'fill-opacity':.28, stroke:ch.couleur, 'stroke-width':3, 'stroke-linejoin':'round',
     }));
-  }
-  if (etat.ampoule) {
-    const grillee = etat.teste && r.grille;
-    // culot vissé dans la douille, à l'entrée de la tête
-    plan.appendChild(el('rect', { x:ax, y:G.centre - 11, width:18, height:22, rx:2, fill:'var(--metal)' }));
-    plan.appendChild(el('circle', { cx:ax + 34, cy:G.centre, r:17,
-      fill:grillee ? '#6D6259' : (allume ? '#FFE082' : '#ECEFF1'),
-      stroke:grillee ? '#4E443C' : '#B0ABA3', 'stroke-width':2 }));
-    plan.appendChild(el('path', { d:`M ${ax + 26} ${G.centre} l 5 -6 l 5 12 l 5 -6`, fill:'none',
-      stroke:grillee ? '#3A3632' : '#8D6E32', 'stroke-width':2 }));
-    plan.appendChild(el('text', { x:ax + 34, y:G.centre + 42, class:'etiq-slot' },
-      grillee ? 'grillée' : String(AMPOULES[etat.ampoule].un).replace('.', ',') + ' V'));
-  }
-  ajouterSlot('ampoule', ax - 4, G.centre - 27, 58, 54, 'Ampoule', !!etat.ampoule, vise);
+    plan.appendChild(el('text', { x:G.chX, y:G.chY - 56, class:'etiq-slot', 'text-anchor':'start' }, ch.nom));
 
-  // --- Interrupteur, sur le dessus ---
-  const ix = (G.x0 + G.x1) / 2 - 26;
-  if (etat.interrupteur) {
-    plan.appendChild(el('rect', { x:ix, y:84, width:52, height:22, rx:6,
-      fill:'var(--surface)', stroke:'var(--border-strong)', 'stroke-width':2 }));
-    plan.appendChild(el('line', { x1:ix + 10, y1:95, x2:ix + 32, y2:allume ? 95 : 88,
-      stroke:'var(--neutral)', 'stroke-width':3, 'stroke-linecap':'round' }));
-    plan.appendChild(el('circle', { cx:ix + 10, cy:95, r:3, fill:'var(--neutral)' }));
+    if (etat.contenu) {
+      const yEau = G.chY + 44;
+      plan.appendChild(el('path', {
+        d:`M ${G.chX + 3} ${yEau} L ${G.chX + 3} ${G.chY2 - 11} q 0 8 8 8 L ${G.chX2 - 11} ${G.chY2 - 3} ` +
+          `q 8 0 8 -8 L ${G.chX2 - 3} ${yEau} z`,
+        fill:COUL_LIQUIDE, 'fill-opacity':.55,
+      }));
+      if (etat.contenu === 'plante') for (let k = 0; k < 4; k++)
+        plan.appendChild(el('ellipse', { cx:G.chX + 24 + k * 32, cy:yEau + 26 + (k % 2) * 12, rx:11, ry:5,
+          fill:'#66BB6A', 'fill-opacity':.85, transform:`rotate(${k % 2 ? 18 : -14} ${G.chX + 24 + k * 32} ${yEau + 26})` }));
+      if (etat.contenu === 'salee' && chauffe) for (let k = 0; k < 9; k++)
+        plan.appendChild(el('circle', { cx:G.chX + 16 + k * 14, cy:G.chY2 - 9, r:2.2, fill:'#EFEBE9' }));
+      // bulles d'ébullition
+      if (chauffe && r.bout) for (let k = 0; k < 6; k++) {
+        const g = el('g', { class:'bulle', style:`animation-delay:${k * .22}s` });
+        g.appendChild(el('circle', { cx:G.chX + 20 + k * 19, cy:G.chY2 - 16, r:3 + (k % 3), fill:'#fff', 'fill-opacity':.7 }));
+        plan.appendChild(g);
+      }
+      if (chauffe) plan.appendChild(el('text', {
+        x:(G.chX + G.chX2) / 2, y:G.chY2 - 30, class:'etat-eau', fill:'#0F5C7A' }, 'LIQUIDE'));
+      plan.appendChild(el('text', { x:(G.chX + G.chX2) / 2, y:G.chY + 30, class:'etiq-slot' },
+        CONTENUS[etat.contenu].nom));
+    }
+    // thermomètre
+    if (chauffe) {
+      const tx = G.chX2 + 12;
+      plan.appendChild(el('rect', { x:tx, y:G.chY + 6, width:9, height:64, rx:4.5,
+        fill:'var(--surface)', stroke:'var(--border-strong)', 'stroke-width':1.5 }));
+      const h = Math.max(6, Math.min(58, (r.temperature - 20) / 80 * 58));
+      plan.appendChild(el('rect', { x:tx + 2, y:G.chY + 68 - h, width:5, height:h, rx:2.5,
+        fill:r.temperature >= 100 ? '#E83A4B' : '#F7A430' }));
+      plan.appendChild(el('text', { x:tx + 4, y:G.chY + 84, class:'etat-eau', fill:'var(--neutral)' },
+        r.temperature + ' °C'));
+    }
   }
-  ajouterSlot('interrupteur', ix, 82, 52, 26, 'Bouton', !!etat.interrupteur, vise);
+  ajouterSlot('chaudiere', G.chX, G.chY, G.chX2 - G.chX, G.chY2 - G.chY, 'Chaudière', !!ch, vise);
+  if (ch) ajouterSlot('contenu', G.chX + 6, G.chY + 46, G.chX2 - G.chX - 12, G.chY2 - G.chY - 52,
+    'Que distiller ?', !!etat.contenu, vise);
+
+  /* ---- Chapiteau ---- */
+  if (etat.chapiteau) {
+    plan.appendChild(el('path', {
+      d:`M ${G.chX - 6} ${G.chY} L ${G.chX + 26} ${G.chY - 26} L ${G.chX2 - 26} ${G.chY - 26} L ${G.chX2 + 6} ${G.chY} z`,
+      fill:ch ? ch.couleur : '#AFB6BB', 'fill-opacity':.6,
+      stroke:'var(--border-strong)', 'stroke-width':2.5, 'stroke-linejoin':'round',
+    }));
+    plan.appendChild(el('text', { x:(G.chX + G.chX2) / 2 - 34, y:G.chY - 8, class:'etiq-slot' },
+      'chapiteau'));
+    if (etat.chapiteau === 'ajuste') plan.appendChild(el('rect', {
+      x:G.chX - 8, y:G.chY - 4, width:(G.chX2 - G.chX) + 16, height:6, rx:3, fill:'#A1887F' }));
+  }
+  ajouterSlot('chapiteau', G.chX + 8, G.chY - 30, G.chX2 - G.chX - 16, 30, 'Chapiteau', !!etat.chapiteau, vise);
+
+  /* ---- Tuyau ---- */
+  if (etat.tube) {
+    const t = etat.tube;
+    const coul = t === 'cuivre' ? '#C9885A' : (t === 'verre' ? '#90A4AE' : '#8D6E63');
+    plan.appendChild(el('path', {
+      d:`M ${(G.chX + G.chX2) / 2} ${G.chY - 24} L ${(G.chX + G.chX2) / 2} ${G.tubeY} L ${G.refX + 26} ${G.tubeY}`,
+      fill:'none', stroke:coul, 'stroke-width':7, 'stroke-linecap':'round', 'stroke-linejoin':'round',
+    }));
+    if (chauffe && r.bout) plan.appendChild(el('text', {
+      x:((G.chX + G.chX2) / 2 + G.refX + 26) / 2, y:G.tubeY - 11, class:'etat-eau', fill:'#546E7A' },
+      'VAPEUR (GAZ)'));
+    if (chauffe && r.bout) plan.appendChild(el('text', {
+      x:G.chX + 4, y:G.chY - 38, class:'chgt-etat', 'text-anchor':'start' }, '↑ vaporisation'));
+  }
+  ajouterSlot('tube', G.chX2 + 16, G.tubeY - 18, 116, 36, 'Tuyau', !!etat.tube, vise);
+
+  /* ---- Réfrigérant ---- */
+  if (etat.refrigerant) {
+    const coul = etat.tube === 'cuivre' ? '#C9885A' : (etat.tube === 'verre' ? '#90A4AE' : '#8D6E63');
+    if (etat.refrigerant === 'bac') {
+      plan.appendChild(el('rect', { x:G.refX, y:G.refY, width:G.refX2 - G.refX, height:G.refY2 - G.refY, rx:8,
+        fill:'#B3E5FC', 'fill-opacity':.5, stroke:'#4FC3F7', 'stroke-width':3 }));
+      plan.appendChild(el('text', { x:(G.refX + G.refX2) / 2, y:G.refY + 16, class:'etiq-slot' }, 'eau froide'));
+      // Serpentin : des allers-retours qui restent à l'intérieur du bac,
+      // pour que la vapeur ait le temps de se refroidir avant de sortir
+      const xg = G.refX + 20, xd = G.refX2 - 20, y0 = G.refY + 20;
+      const d = `M ${G.refX + 26} ${G.tubeY} L ${G.refX + 26} ${y0} L ${xd} ${y0}` +
+        ` L ${xd} ${y0 + 22} L ${xg} ${y0 + 22}` +
+        ` L ${xg} ${y0 + 44} L ${xd} ${y0 + 44}` +
+        ` L ${xd} ${G.sortieY} L ${G.flX + 22} ${G.sortieY}`;
+      plan.appendChild(el('path', { d, fill:'none', stroke:coul, 'stroke-width':6,
+        'stroke-linecap':'round', 'stroke-linejoin':'round' }));
+    } else {
+      plan.appendChild(el('path', {
+        d:`M ${G.refX + 26} ${G.tubeY} L ${G.refX + 26} ${G.sortieY} L ${G.flX + 22} ${G.sortieY}`,
+        fill:'none', stroke:coul, 'stroke-width':6, 'stroke-linecap':'round', 'stroke-linejoin':'round' }));
+      for (let k = 0; k < 4; k++) plan.appendChild(el('rect', {
+        x:G.refX + 12, y:G.refY + 30 + k * 34, width:30, height:14, rx:7,
+        fill:'#B0BEC5', 'fill-opacity':.75 }));
+      plan.appendChild(el('text', { x:(G.refX + G.refX2) / 2 + 10, y:G.refY + 16, class:'etiq-slot' },
+        'linge mouillé'));
+    }
+    if (chauffe && r.bout) {
+      plan.appendChild(el('text', { x:(G.refX + G.refX2) / 2, y:G.refY2 + 20, class:'chgt-etat' },
+        '↓ condensation'));
+    }
+  }
+  ajouterSlot('refrigerant', G.refX, G.refY, G.refX2 - G.refX, G.refY2 - G.refY,
+    'Réfrigérant', !!etat.refrigerant, vise);
+
+  /* ---- Flacon ---- */
+  if (etat.recipient) {
+    const plastique = etat.recipient === 'plastique';
+    plan.appendChild(el('path', {
+      d:`M ${G.flX} ${G.flY} L ${G.flX} ${G.flY2 - 10} q 0 10 10 10 L ${G.flX2 - 10} ${G.flY2} ` +
+        `q 10 0 10 -10 L ${G.flX2} ${G.flY}`,
+      fill:'none', stroke:plastique ? '#B0BEC5' : '#90A4AE', 'stroke-width':3, 'stroke-linejoin':'round',
+    }));
+    if (distille) {
+      const hMax = G.flY2 - G.flY - 14;
+      const h = Math.max(8, Math.min(hMax, r.distillat / 450 * hMax));
+      plan.appendChild(el('path', {
+        d:`M ${G.flX + 3} ${G.flY2 - 3 - h} L ${G.flX + 3} ${G.flY2 - 11} q 0 8 8 8 L ${G.flX2 - 11} ${G.flY2 - 3} ` +
+          `q 8 0 8 -8 L ${G.flX2 - 3} ${G.flY2 - 3 - h} z`,
+        fill:COUL_LIQUIDE, 'fill-opacity':.65,
+      }));
+      plan.appendChild(el('text', { x:(G.flX + G.flX2) / 2, y:G.flY2 - 12, class:'etat-eau', fill:'#0F5C7A' },
+        'LIQUIDE'));
+      plan.appendChild(el('text', { x:(G.flX + G.flX2) / 2, y:G.flY2 + 20, class:'etiq-slot' },
+        r.distillat + ' mL'));
+      // gouttes qui tombent du tuyau
+      for (let k = 0; k < 3; k++) {
+        const g = el('g', { class:'goutte', style:`animation-delay:${k * .55}s` });
+        g.appendChild(el('ellipse', { cx:G.flX + 22, cy:G.sortieY + 6, rx:3.5, ry:5, fill:COUL_LIQUIDE }));
+        plan.appendChild(g);
+      }
+    }
+  }
+  ajouterSlot('recipient', G.flX, G.flY, G.flX2 - G.flX, G.flY2 - G.flY, 'Flacon', !!etat.recipient, vise);
+
+
+  // Avertissement de sécurité, bien visible sur le plan
+  if (etat.teste && r.dangers.length) {
+    plan.appendChild(el('text', { x:330, y:26, class:'chgt-etat',
+      style:'fill:var(--destructive);font-size:12px;font-weight:700' }, '⚠️ ' + r.dangers[0]));
+  }
 }
 
 function ajouterSlot(id, x, y, w, h, texte, plein, vise) {
-  const base = id.split(':')[0];
-  const surligne = !plein && vise === base;
+  const surligne = !plein && vise === id;
   const g = el('g', {
     class:'slot' + (plein ? ' plein' : '') + (surligne ? ' vise' : ''),
     'data-slot':id, role:'button', tabindex:plein ? '-1' : '0',
-    'aria-label':(plein ? 'Enlever : ' : 'Choisir : ') + texte,
+    'aria-label':(plein ? 'Changer : ' : 'Choisir : ') + texte,
   });
   g.appendChild(el('rect', { x, y, width:w, height:h, class:'zone' }));
   g.appendChild(el('rect', { x, y, width:w, height:h, fill:'transparent' }));
@@ -1063,37 +1115,29 @@ function ajouterSlot(id, x, y, w, h, texte, plein, vise) {
 }
 
 /* ============================================================================
-   6. Feuille de choix d'un composant
+   6. Feuille de choix
    ========================================================================== */
 
 const SOURCES = {
-  boitier:{ titre:'Le boîtier', ico:'📦', source:BOITIERS },
-  pile:{ titre:'Les piles', ico:'🔋', source:PILES },
-  ampoule:{ titre:'L’ampoule', ico:'💡', source:AMPOULES },
-  contact:{ titre:'Le contact du fond', ico:'🔗', source:CONTACTS },
-  interrupteur:{ titre:'L’interrupteur', ico:'🎚️', source:INTERRUPTEURS },
-  reflecteur:{ titre:'Le réflecteur', ico:'🪞', source:REFLECTEURS },
-  vitre:{ titre:'La vitre', ico:'🪟', source:VITRES },
+  chaudiere:{ titre:'La chaudière', ico:'🥘', source:CHAUDIERES },
+  contenu:{ titre:'Que distiller ?', ico:'💧', source:CONTENUS },
+  foyer:{ titre:'La source de chaleur', ico:'🔥', source:FOYERS },
+  chapiteau:{ titre:'Le chapiteau', ico:'🎩', source:CHAPITEAUX },
+  tube:{ titre:'Le tuyau', ico:'🧵', source:TUBES },
+  refrigerant:{ titre:'Le réfrigérant', ico:'❄️', source:REFRIGERANTS },
+  recipient:{ titre:'Le flacon', ico:'🫙', source:RECIPIENTS },
 };
 
-// Ce que la mission en cours conseille de poser à cet emplacement
 function conseilPour(cle) {
   const m = missionCourante();
   if (!m) return null;
-  if (cle === 'contact' && m.titre === 'Le bon contact') return 'lame';
-  if (cle === 'ampoule') {
-    const u = etat.piles.reduce((s, p) => s + PILES[p.modele].u * p.sens, 0);
-    if (u > 0) {
-      let meilleur = null, ecart = Infinity;
-      for (const id in AMPOULES) {
-        const e = Math.abs(AMPOULES[id].un - u);
-        if (e < ecart) { ecart = e; meilleur = id; }
-      }
-      return meilleur;
-    }
-  }
-  if (cle === 'pile' && (m.titre === 'Toute la nuit' || m.titre === 'La lampe de Jean'))
-    return etat.boitier && BOITIERS[etat.boitier].type === 'plate' ? 'plate' : 'r20';
+  if (cle === 'foyer' && m.titre === 'Le meilleur rendement') return 'gaz';
+  if (cle === 'chapiteau' && m.titre === 'Le meilleur rendement') return 'ajuste';
+  if (cle === 'refrigerant' && m.titre === 'Le meilleur rendement') return 'bac';
+  if (cle === 'contenu' && m.titre === 'De l’eau salée à l’eau douce') return 'salee';
+  if (cle === 'contenu' && m.titre === 'L’huile essentielle') return 'plante';
+  if (cle === 'tube' && m.titre === 'L’huile essentielle') return 'cuivre';
+  if (cle === 'recipient' && m.titre === 'L’huile essentielle') return 'verre';
   return null;
 }
 
@@ -1102,17 +1146,12 @@ let feuilleOuverte = null;
 function ouvrirFeuille(cle) {
   const s = SOURCES[cle];
   if (!s) return;
-  const b = BOITIERS[etat.boitier];
   const conseil = conseilPour(cle);
   const options = Object.keys(s.source).map(id => {
     const o = s.source[id];
     let off = false, note = o.detail;
-    if (cle === 'pile') {
-      if (!b) { off = true; note = 'choisis d’abord un boîtier'; }
-      else if (o.type !== b.type) { off = true; note = 'ne rentre pas dans ce boîtier'; }
-      else if (etat.piles.length >= b.piles) { off = true; note = 'le boîtier est déjà plein'; }
-    } else if (cle !== 'boitier' && !b) { off = true; note = 'choisis d’abord un boîtier'; }
-    const pose = cle === 'pile' ? etat.piles.some(p => p.modele === id) : etat[cle] === id;
+    if (cle === 'contenu' && !etat.chaudiere) { off = true; note = 'choisis d’abord une chaudière'; }
+    const pose = etat[cle] === id;
     return `<button class="option${pose ? ' pose' : ''}${conseil === id && !off ? ' conseil' : ''}"
       data-choix="${cle}:${id}" ${off ? 'disabled' : ''}>
       <b>${o.nom}</b><span>${note}</span></button>`;
@@ -1138,20 +1177,9 @@ function fermerFeuille() {
    ========================================================================== */
 
 function poser(cle, id) {
-  const b = BOITIERS[etat.boitier];
-  if (cle === 'boitier') {
-    if (etat.boitier !== id) {
-      etat.boitier = id;
-      etat.piles = [];                   // un autre boîtier n'accueille pas les mêmes piles
-      toast(BOITIERS[id].nom + ' : ' + BOITIERS[id].piles
-        + ' pile' + (BOITIERS[id].piles > 1 ? 's' : '') + ' au maximum');
-    }
-  } else if (cle === 'pile') {
-    if (!b || PILES[id].type !== b.type || etat.piles.length >= b.piles) return;
-    etat.piles.push({ modele:id, sens:1 });
-  } else {
-    etat[cle] = etat[cle] === id ? null : id;
-  }
+  // Rechoisir la pièce déjà en place ne la retire pas : on retire en la touchant sur le plan
+  if (etat[cle] === id) { fermerFeuille(); return; }
+  etat[cle] = id;
   etat.teste = false;
   etat.resultat = null;
   oublierMesures();
@@ -1161,44 +1189,31 @@ function poser(cle, id) {
   majTout();
 }
 
-// Sur téléphone, le plan de la mission laisse la place à la lampe dès qu'on se met au travail.
-// Une seule fois par mission : si l'élève rouvre le plan, on ne le contrarie plus.
+function retirer(cle) {
+  etat[cle] = null;
+  if (cle === 'chaudiere') etat.contenu = null;   // plus de chaudière, plus de contenu
+  etat.teste = false;
+  etat.resultat = null;
+  oublierMesures();
+  cacherBilan();
+  majTout();
+}
+
+function vider() {
+  etat.foyer = null; etat.chaudiere = null; etat.contenu = null; etat.chapiteau = null;
+  etat.tube = null; etat.refrigerant = null; etat.recipient = null;
+  etat.teste = false;
+  etat.resultat = null;
+  oublierMesures();
+  cacherBilan();
+  majTout();
+}
+
 function replierSiPetitEcran() {
   if (etat.repliFait || window.innerWidth >= 880) return;
   etat.repliFait = true;
   $('mission').classList.remove('ouvert');
   $('m-plier').setAttribute('aria-expanded', 'false');
-}
-
-function retirer(cible) {
-  const [quoi, index] = cible.split(':');
-  if (quoi === 'pile') etat.piles.splice(+index, 1);
-  else etat[quoi] = null;
-  etat.teste = false;
-  etat.resultat = null;
-  oublierMesures();
-  cacherBilan();
-  majTout();
-}
-
-function tourner(i) {
-  etat.piles[i].sens *= -1;
-  etat.teste = false;
-  etat.resultat = null;
-  oublierMesures();
-  cacherBilan();
-  majTout();
-  toast(etat.piles[i].sens > 0 ? 'Pile remise dans le bon sens' : 'Pile retournée : son + regarde vers l’arrière');
-}
-
-function vider() {
-  etat.boitier = null; etat.piles = []; etat.ampoule = null; etat.contact = null;
-  etat.reflecteur = null; etat.vitre = null; etat.interrupteur = null;
-  etat.teste = false;
-  etat.resultat = null;
-  oublierMesures();
-  cacherBilan();
-  majTout();
 }
 
 function tester() {
@@ -1210,21 +1225,19 @@ function tester() {
   majMission();
 
   const mis = missionCourante();
-  const gagne = mis && r.ok && mis.test(r, m);
+  const gagne = mis && mis.test(r, m);
   if (gagne && etat.faites.indexOf(etat.mission) === -1) {
     etat.faites.push(etat.mission);
     sauver();
   }
-  // Le panneau s'ouvre seul quand il apporte quelque chose : un diagnostic à lire,
-  // ou la réussite à célébrer. Sinon, le bouton « Mesures » clignote et l'élève décide.
   $('btn-mesures').hidden = false;
-  if (r.pannes.length || r.grille || gagne) {
+  if (r.pannes.length || r.dangers.length || gagne) {
     $('btn-mesures').classList.remove('appelle');
     afficherBilan(r, m, gagne);
   } else {
     cacherBilan();
     $('btn-mesures').classList.add('appelle');
-    toast('Ta lampe est testée : touche 📊 pour voir ses mesures');
+    toast('Le feu est allumé : touche 📊 pour voir ce que tu as recueilli');
   }
 }
 
@@ -1245,49 +1258,41 @@ function afficherBilan(r, m, gagne) {
   const croix = '<button class="reduire" data-ferme-bilan aria-label="Réduire">✕</button>';
   if (r.pannes.length) {
     z.innerHTML = `
-      <div class="verdict"><span class="em">🔌</span><h3>Ça ne s’allume pas</h3>${croix}</div>
-      <p class="phrase">${r.pannes[0]}</p>
-      <div class="actions"><button class="btn btn-contour" data-ferme-bilan>Je corrige</button></div>`;
-  } else if (r.grille) {
-    z.innerHTML = `
-      <div class="verdict"><span class="em">💥</span><h3>L’ampoule a grillé !</h3>${croix}</div>
-      <p class="phrase">Tes piles donnent <b>${fnb(r.tension)} V</b> à une ampoule prévue pour
-        <b>${fnb(AMPOULES[m.ampoule].un)} V</b>. C’est une <b>surtension</b> : le filament n’a pas tenu.
-        Prends une ampoule plus forte, ou enlève une pile.</p>
-      <div class="actions"><button class="btn" data-ferme-bilan>Recommencer</button></div>`;
+      <div class="verdict">
+        <span class="em">${gagne ? '🎉' : (r.bout ? '💨' : '🌡️')}</span>
+        <h3>${gagne ? 'Mission réussie !' : (r.bout ? 'Rien ne coule' : 'L’eau ne bout pas')}</h3>${croix}</div>
+      <p class="phrase">${r.bout
+        ? `L’eau a bouilli à <b>100 °C</b> en ${fnb(r.tempsEbullition)} min. ` : ''}${r.pannes[0]}</p>
+      ${r.dangers.length ? `<div class="objectif" style="background:rgba(232,58,75,.12)">⚠️ <b>Danger :</b> ${r.dangers[0]}</div>` : ''}
+      ${gagne
+        ? `<div class="actions"><button class="btn btn-large" id="btn-continuer">Continuer →</button></div>`
+        : `<div class="actions"><button class="btn btn-contour" data-ferme-bilan>Je corrige</button></div>`}`;
   } else {
-    const faible = r.sousTension;
-    const un = fnb(AMPOULES[m.ampoule].un);
-    const alerteSens = r.inversees
-      ? `<br><b>⚠️ ${r.inversees === 1 ? 'Une pile est retournée' : r.inversees + ' piles sont retournées'}</b> :
-         elle${r.inversees > 1 ? 's s’opposent' : ' s’oppose'} aux autres et te fait perdre
-         <b>${fnb(r.perte)} V</b>. Touche-la pour la remettre dans le bon sens.`
-      : '';
     const mis = missionCourante();
+    const quoi = r.essence ? 'd’huile essentielle' : (r.sel ? 'd’eau douce' : 'd’eau distillée');
     z.innerHTML = `
-      <div class="verdict"><span class="em">${gagne ? '🎉' : (faible ? '🔅' : '🔦')}</span>
-        <h3>${gagne ? 'Mission réussie !' : (faible ? 'Elle éclaire faiblement' : 'Elle éclaire bien !')}</h3>
-        ${croix}</div>
-      <p class="phrase">${faible
-        ? `Tes piles ne donnent que <b>${fnb(r.tension)} V</b> à une ampoule prévue pour <b>${un} V</b> :
-           elle est en <b>sous-tension</b> et rougeoie.`
-        : `Tes piles donnent <b>${fnb(r.tension)} V</b> à une ampoule prévue pour <b>${un} V</b> :
-           c’est sa <b>tension d’usage</b>, elle brille normalement.`}${alerteSens}</p>
+      <div class="verdict"><span class="em">${gagne ? '🎉' : '⚗️'}</span>
+        <h3>${gagne ? 'Mission réussie !' : 'Ton alambic tourne'}</h3>${croix}</div>
+      <p class="phrase">L’eau a bouilli à <b>100 °C</b> en ${fnb(r.tempsEbullition)} min.
+        Tu as recueilli <b>${r.distillat} mL</b> ${quoi}
+${r.sel ? ' — <b>le sel est resté au fond de la chaudière</b>' : ''}${r.perteVapeur > 40
+          ? `, mais <b>${r.perteVapeur} mL</b> de vapeur se sont perdus.` : '.'}
+        ${r.gout ? '<br>⚠️ ' + r.gout : ''}</p>
+      ${r.dangers.length ? `<div class="objectif" style="background:rgba(232,58,75,.12)">⚠️ <b>Danger :</b> ${r.dangers[0]}</div>` : ''}
       <div class="jauges">
-        ${jauge('Portée', r.portee, 12, ' m', 4)}
-        ${jauge('Autonomie', r.heures, 30, ' h', 6)}
-        ${jauge('Solidité', r.solidite, 10, '/10', 4)}
-        ${jauge('Finition', r.finition, 10, '/10', 5)}
+        ${jauge('Distillat', r.distillat, 450, ' mL', 100)}
+        ${jauge('Rendement', r.rendement, 100, ' %', 25)}
+        ${jauge('Pureté', r.notePurete, 100, '/100', 80)}
+        ${jauge('Sécurité', r.securite, 10, '/10', 6)}
       </div>
       ${gagne
-        ? `<div class="actions"><button class="btn btn-large" id="btn-continuer">
-             Continuer →</button></div>`
+        ? `<div class="actions"><button class="btn btn-large" id="btn-continuer">Continuer →</button></div>`
         : `${mis ? `<div class="objectif">🎯 <b>Il te reste à faire :</b> ${mis.but}</div>` : ''}
            <div class="actions"><button class="btn btn-contour" data-ferme-bilan>Améliorer</button></div>`}`;
   }
   z.classList.add('visible');
   $('atelier').classList.add('avec-bilan');
-  $('toast').classList.remove('visible');   // le panneau prend la place du message
+  $('toast').classList.remove('visible');
   const cont = $('btn-continuer');
   if (cont) cont.addEventListener('click', () => { cacherBilan(); ouvrirQcm(); });
 }
@@ -1296,26 +1301,23 @@ function cacherBilan() {
   $('bilan').classList.remove('visible');
   $('atelier').classList.remove('avec-bilan');
 }
-
-// Le bouton « Mesures » disparaît dès que l'assemblage change
 function oublierMesures() {
   const b = $('btn-mesures');
   b.hidden = true;
   b.classList.remove('appelle');
 }
-
 const fnb = n => String(n).replace('.', ',');
 
 /* ============================================================================
-   9. QCM — « Je m'évalue » après chaque mission réussie
+   9. QCM et passage de mission
    ========================================================================== */
 
-let qcm = { liste:[], n:0, justes:0 };
+let qcm = { liste:[], n:0 };
 
 function ouvrirQcm() {
   const m = MISSIONS[etat.mission];
-  if (!m || !m.qcm || !m.qcm.length) { missionSuivante(); return; }
-  qcm = { liste:m.qcm, n:0, justes:0 };
+  if (!m || !m.qcm || !m.qcm.length) { ouvrirPassage(); return; }
+  qcm = { liste:m.qcm, n:0 };
   rendreQcm();
   $('v-qcm').classList.add('visible');
 }
@@ -1333,13 +1335,11 @@ function rendreQcm() {
 
 function repondre(i) {
   const q = qcm.liste[qcm.n];
-  const boutons = $('q-choix').querySelectorAll('.q-choix');
-  boutons.forEach((b, k) => {
+  $('q-choix').querySelectorAll('.q-choix').forEach((b, k) => {
     b.disabled = true;
     if (k === q.bonne) { b.classList.add('bon'); b.textContent = '✔️ ' + b.textContent; }
     else if (k === i) { b.classList.add('mauvais'); b.textContent = '❌ ' + b.textContent; }
   });
-  if (i === q.bonne) qcm.justes++;
   const e = $('q-expl');
   e.innerHTML = q.expl;
   e.classList.add('visible');
@@ -1352,30 +1352,25 @@ function repondre(i) {
   });
 }
 
-/* ---- Écran de passage : on annonce clairement la mission suivante ---- */
 function ouvrirPassage() {
   const finie = MISSIONS[etat.mission];
   const suivante = MISSIONS[etat.mission + 1];
   $('passage-carte').innerHTML = `
     <div class="p-fanion">
       <span class="rond">✅</span>
-      <span><b>Mission ${etat.mission + 1} réussie !</b>
-        <span>${finie.titre}</span></span>
+      <span><b>Mission ${etat.mission + 1} réussie !</b><span>${finie.titre}</span></span>
     </div>
     <div class="p-acquis">📘 <b>Ce que tu as appris :</b> ${finie.acquis}</div>
     ${suivante
       ? `<div class="p-suite">
            <div class="etiq">Mission ${etat.mission + 2} sur ${MISSIONS.length}</div>
-           <b>${suivante.titre}</b>
-           <span>${suivante.but}</span>
+           <b>${suivante.titre}</b><span>${suivante.but}</span>
          </div>
          <button class="btn btn-large" id="btn-passer">Commencer la mission ${etat.mission + 2} →</button>
-         <p class="p-neuf">🔧 Tu repars d'un établi vide : on fabrique une nouvelle lampe.</p>`
-      : `<div class="p-suite">
-           <div class="etiq">Bravo</div>
+         <p class="p-neuf">🔧 Tu repars d'un plan de travail vide : on remonte un alambic.</p>`
+      : `<div class="p-suite"><div class="etiq">Bravo</div>
            <b>Tu as terminé les 6 missions !</b>
-           <span>L'atelier libre s'ouvre : fabrique la lampe que tu veux, sans consigne.</span>
-         </div>
+           <span>L'atelier libre s'ouvre : distille ce que tu veux, sans consigne.</span></div>
          <button class="btn btn-large" id="btn-passer">Ouvrir l'atelier libre →</button>`}`;
   $('v-passage').classList.add('visible');
   $('btn-passer').addEventListener('click', () => {
@@ -1388,12 +1383,9 @@ function missionSuivante() {
   if (etat.mission < MISSIONS.length - 1) etat.mission++;
   else etat.libre = true;
   sauver();
-  vider();            // chaque mission repart d'un établi vide : on refabrique une lampe
-  ouvrirEtapes();     // et on redéploie le guidage pour la nouvelle mission
+  vider();
+  ouvrirEtapes();
 }
-
-// Déplie le bandeau des étapes : au début d'une mission, l'élève doit voir le plan
-function ovrirDepart() { ouvrirEtapes(); }
 
 function ouvrirEtapes() {
   etat.repliFait = false;
@@ -1411,7 +1403,7 @@ function majMission() {
     $('m-num').textContent = '∞';
     $('m-rang').textContent = 'Sans consigne';
     $('m-titre').textContent = 'Atelier libre';
-    $('m-but').textContent = 'Fabrique la lampe que tu veux et teste-la.';
+    $('m-but').textContent = 'Monte l’alambic que tu veux et distille.';
     $('etapes').innerHTML = '';
     $('m-jauge').style.width = '100%';
     $('btn-tester').classList.remove('appelle');
@@ -1427,7 +1419,6 @@ function majMission() {
   const nbFaites = m.etapes.filter(e => e.fait()).length;
   $('m-jauge').style.width = Math.round(nbFaites / m.etapes.length * 100) + '%';
 
-  // Replié, une seule étape reste affichée : celle en cours, ou la dernière si tout est fait
   const iMontrer = ec ? ec.i : m.etapes.length - 1;
   $('etapes').innerHTML = m.etapes.map((e, i) => {
     const f = e.fait();
@@ -1436,7 +1427,6 @@ function majMission() {
       <span class="coche">✓</span><span class="t">${e.t}</span></div>`;
   }).join('') + (m.indice ? `<div class="m-indice">💡 <b>Astuce :</b> ${m.indice}</div>` : '');
 
-  // Le bouton Tester s'anime quand c'est lui qu'on attend
   $('btn-tester').classList.toggle('appelle', !!(ec && cibleEffective(ec.e) === 'tester'));
 }
 
@@ -1452,8 +1442,7 @@ function rendreMissions() {
       ${etat.faites.length === MISSIONS.length ? '' : 'disabled'}>
       <span class="num">${etat.faites.length === MISSIONS.length ? '∞' : '🔒'}</span>
       <span class="txt"><b>Atelier libre</b><span>${etat.faites.length === MISSIONS.length
-        ? 'Fabrique ce que tu veux, sans consigne.'
-        : 'Réussis les 6 missions pour l’ouvrir.'}</span></span></button>`;
+        ? 'Distille ce que tu veux, sans consigne.' : 'Réussis les 6 missions pour l’ouvrir.'}</span></span></button>`;
 }
 
 function majTout() {
@@ -1466,21 +1455,16 @@ function majTout() {
    ========================================================================== */
 
 plan.addEventListener('click', e => {
-  const ret = e.target.closest('[data-retire]');
-  if (ret) { retirer(ret.dataset.retire); return; }
-  const tou = e.target.closest('[data-tourne]');
-  if (tou) { tourner(+tou.dataset.tourne); return; }
   const s = e.target.closest('[data-slot]');
   if (!s) return;
   const cible = s.dataset.slot;
-  const base = cible.split(':')[0];
-  // Emplacement occupé (hors boîtier et piles) : on l'enlève ; sinon on ouvre le choix
-  if (s.classList.contains('plein') && base !== 'boitier') retirer(cible);
-  else ouvrirFeuille(base);
+  // Chaudière et contenu restent modifiables ; les autres pièces s'enlèvent au toucher
+  if (s.classList.contains('plein') && cible !== 'chaudiere' && cible !== 'contenu') retirer(cible);
+  else ouvrirFeuille(cible);
 });
 plan.addEventListener('keydown', e => {
   if (e.key !== 'Enter' && e.key !== ' ') return;
-  const c = e.target.closest('[data-retire],[data-tourne],[data-slot]');
+  const c = e.target.closest('[data-slot]');
   if (!c) return;
   e.preventDefault();
   c.dispatchEvent(new MouseEvent('click', { bubbles:true }));
@@ -1520,7 +1504,7 @@ $('liste-missions').addEventListener('click', e => {
   if (b.dataset.mission === 'libre') etat.libre = true;
   else { etat.libre = false; etat.mission = +b.dataset.mission; }
   sauver();
-  vider();            // on change de mission : établi neuf, comme entre deux missions
+  vider();
   ouvrirEtapes();
   fermer('v-missions');
 });
@@ -1545,7 +1529,6 @@ document.addEventListener('click', e => {
   if (f) fermer(f.dataset.ferme);
   if (e.target.closest('[data-ferme-bilan]')) cacherBilan();
 });
-// Le QCM et l'écran de passage ne se ferment pas par mégarde : ils portent le fil du parcours
 const ancres = ['v-qcm', 'v-passage'];
 for (const v of document.querySelectorAll('.voile')) {
   v.addEventListener('click', e => { if (e.target === v && ancres.indexOf(v.id) === -1) fermer(v.id); });
@@ -1588,14 +1571,15 @@ try {
 
 /* ---- Démarrage ---- */
 charger();
-ovrirDepart();
+ouvrirEtapes();
 majTout();
 try {
-  if (!localStorage.getItem('ike-lampe-vu')) {
+  if (!localStorage.getItem('ike-alambic-vu')) {
     ouvrir('v-aide');
-    localStorage.setItem('ike-lampe-vu', '1');
+    localStorage.setItem('ike-alambic-vu', '1');
   }
 } catch (e) { ouvrir('v-aide'); }
+
 </script>
 </body>
 </html>

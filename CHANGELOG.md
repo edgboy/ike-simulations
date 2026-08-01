@@ -5,6 +5,41 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v4.4.0 — 2026-08-01
+
+⚗️ **Nouvelle simulation : « Construis ton alambic »** (PCT 6ᵉ, SA4) — deuxième atelier de
+fabrication, et remise de la SA4 dans l'axe du programme.
+
+Le recensement du guide officiel avait montré que la SA4 était **hors cible** : notre simulation
+« États de la matière » fait observer des paliers de température, alors que le programme demande
+de **fabriquer un distillateur** et de dire dans quel état est l'eau **dans chaque partie**.
+C'est désormais couvert.
+
+- **Sept éléments à choisir**, tous cités par le guide : source de chaleur (feu de bois, réchaud
+  à pétrole, réchaud à gaz), chaudière (marmite, boîte de conserve, bidon), contenu, chapiteau,
+  tuyau (cuivre, verre, roseau), réfrigérant (serpentin dans l'eau froide, linge mouillé), flacon
+- **L'état de l'eau est écrit dans chaque partie** pendant la distillation — LIQUIDE dans la
+  chaudière, VAPEUR (GAZ) dans le tuyau, LIQUIDE dans le flacon — avec les changements d'état
+  nommés à l'endroit où ils se produisent : **↑ vaporisation** sur le feu, **↓ condensation** au
+  réfrigérant. C'est le cœur de la SA4
+- **Physique calculée**, validée par 15 tests avant l'écriture de l'interface : montée à 100 °C
+  (2,4 min au gaz, 7 min au feu de bois), palier d'ébullition, chaleur latente de vaporisation,
+  rendement selon l'étanchéité et la qualité du refroidissement. 72 montages sûrs dépassent 100 mL
+- **La sécurité est vécue**, comme y insiste le guide : une chaudière fermée sans tuyau de sortie
+  déclenche un avertissement de surpression ; un bidon en plastique fond sur le feu ; un roseau
+  se carbonise et donne un goût de fumée au distillat
+- **6 missions** : faire bouillir l'eau → attraper la vapeur → la transformer en gouttes →
+  distiller de l'eau salée (le sel reste au fond) → chercher le meilleur rendement →
+  **extraire une huile essentielle** par entraînement à la vapeur, le réinvestissement du guide
+- **10 questions de QCM** et un **lexique de 14 mots** (alambic, chaudière, chapiteau, réfrigérant,
+  distillat, les trois états, vaporisation, condensation, ébullition, fusion, sublimation,
+  entraînement à la vapeur, buée)
+
+🔌 **Lampe de poche** — retour testeur : il manquait la **liaison entre la borne + de la dernière
+pile et le plot de l'ampoule**. Le fil de retour existait, mais rien ne montrait par où le courant
+*arrive* à l'ampoule : le circuit paraissait ouvert. Le conducteur est maintenant tracé, et
+s'épaissit avec le fil de retour quand la lampe éclaire.
+
 ## v4.3.1 — 2026-08-01
 
 💡 **L'ampoule était au mauvais endroit** — retour testeur, et ce n'était pas qu'un détail de dessin.
