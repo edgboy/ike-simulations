@@ -5,6 +5,44 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v4.3.0 — 2026-08-01
+
+🔁 **Retours testeurs : le passage d'une mission à l'autre** — c'était le point noir, il est repris
+en entier.
+
+Le diagnostic des testeurs était juste : l'établi restait garni entre deux missions, et **tout le
+reste en découlait**. La barre de progression paraissait déjà pleine, les étapes de la mission
+suivante s'affichaient barrées d'office (l'assemblage précédent les satisfaisait), et rien
+n'annonçait le changement de mission.
+
+- **Écran de passage** entre deux missions : « Mission 1 réussie », ce que l'élève vient
+  d'apprendre, puis l'annonce de la suivante avec son numéro, son titre, son but, et un bouton
+  **« Commencer la mission 2 → »**. Le CTA manquant est là
+- **Chaque mission repart d'un établi vide** : on refabrique une lampe, comme le demandaient
+  les testeurs. Progression à zéro, aucune étape barrée d'avance
+- **Le numéro de mission est affiché en permanence** : « Mission 2 sur 6 »
+- **Bouton « Recommencer tout le parcours »** rétabli, dans la fenêtre des missions
+
+📊 **Le panneau de mesures ne masque plus la lampe** (proposition des testeurs, adoptée) :
+
+- Après un test, un bouton **« 📊 Voir les mesures » clignote** sur le plan de travail ; l'élève
+  l'ouvre quand il veut. La lampe reste visible
+- Le panneau ne s'ouvre de lui-même que lorsqu'il apporte quelque chose : une **panne à
+  diagnostiquer**, une **ampoule grillée**, ou une **mission réussie** — et il porte alors une
+  **croix pour le réduire**
+- Quand la lampe éclaire sans satisfaire la mission, le panneau rappelle **ce qu'il reste à faire**
+
+🔌 **Le fil de retour est dessiné** dans le boîtier, du contact du fond au culot de l'ampoule.
+Il fait partie du boîtier — l'élève ne le choisit pas — et s'épaissit quand la lampe éclaire :
+on voit enfin par où le courant revient, notion pourtant présente au lexique.
+
+📱 **Mobile** : le plan de la mission se replie tout seul dès la première pièce posée, pour rendre
+la place à la lampe ; seule l'étape en cours reste affichée, et un bouton la redéploie. La lampe
+occupe 49 % de l'écran en portrait, 56 % en paysage, 69 % sur PC.
+
+Correctif de guidage : les étapes visant « une lampe complète » n'avaient pas de cible, donc
+**rien ne clignotait** ; elles pointent maintenant vers la première pièce manquante.
+
 ## v4.2.0 — 2026-07-28
 
 🧭 **Retours testeurs sur l'atelier de fabrication** — guidage et disposition entièrement repris.

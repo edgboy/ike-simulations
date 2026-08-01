@@ -68,18 +68,25 @@ header .sous { font-size:10.5px; opacity:.6; }
 .m-titres { flex:1; min-width:0; }
 .m-titres b { display:block; font-size:14px; font-weight:600; line-height:1.2; }
 .m-titres span { font-size:11.5px; opacity:.65; line-height:1.35; display:block; }
+.m-rang {
+  font-size:10.5px !important; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--accent); opacity:1 !important; margin-bottom:1px;
+}
 .m-plier {
   width:34px; height:34px; flex:none; border:none; background:none; cursor:pointer;
   border-radius:var(--radius-sm); font-size:14px; color:inherit;
   transition:transform .2s var(--ease);
 }
+.m-plier:hover { background:var(--surface-muted); }
 #mission.ouvert .m-plier { transform:rotate(180deg); }
+/* Replié, on ne montre que l'étape en cours : la lampe reste visible */
+#mission:not(.ouvert) .etape:not(.a-montrer) { display:none; }
+#mission:not(.ouvert) .m-indice { display:none; }
 .m-jauge { height:5px; border-radius:var(--radius-full); background:var(--surface-muted); margin-top:8px; overflow:hidden; }
 .m-jauge i { display:block; height:100%; background:var(--accent); transition:width .4s var(--ease); }
 
 /* ---- Liste des étapes : le guidage pas à pas ---- */
-#etapes { display:none; margin-top:10px; }
-#mission.ouvert #etapes { display:block; }
+#etapes { margin-top:9px; }
 .etape {
   display:flex; align-items:flex-start; gap:9px; padding:5px 0;
   font-size:13px; line-height:1.4;
@@ -132,6 +139,22 @@ main { flex:1; min-height:0; display:flex; flex-direction:column; }
 .retirer:hover circle, .retirer:focus-visible circle { fill:var(--destructive); }
 .retirer text { fill:#fff; font-size:13px; font-weight:700; text-anchor:middle; font-family:var(--font-body); }
 
+/* ============ Bouton d'accès aux mesures, sur le plan de travail ============ */
+#btn-mesures {
+  position:absolute; right:12px; bottom:12px; z-index:5;
+  display:flex; align-items:center; gap:7px;
+  min-height:44px; padding:0 16px;
+  background:var(--surface); color:var(--neutral);
+  border:2px solid var(--border-strong); border-radius:var(--radius-full);
+  box-shadow:var(--shadow-raised);
+  font-family:var(--font-body); font-size:13.5px; font-weight:600; cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+#btn-mesures:hover { background:var(--surface-muted); border-color:var(--neutral); }
+#btn-mesures[hidden] { display:none; }
+#btn-mesures.appelle { border-color:var(--accent); animation:appelleMesures 1.4s infinite; }
+@keyframes appelleMesures { 50% { box-shadow:0 0 0 8px var(--accent-doux), var(--shadow-raised); } }
+
 /* ============================ Bilan ============================ */
 #bilan {
   position:absolute; left:8px; right:8px; bottom:8px; z-index:6;
@@ -145,6 +168,16 @@ main { flex:1; min-height:0; display:flex; flex-direction:column; }
 #bilan .verdict { display:flex; align-items:center; gap:9px; margin-bottom:4px; }
 #bilan .verdict .em { font-size:23px; line-height:1; }
 #bilan .verdict h3 { font-size:16px; flex:1; }
+#bilan .reduire {
+  width:32px; height:32px; flex:none; margin:-4px -6px 0 0;
+  border:none; background:none; border-radius:var(--radius-sm);
+  font-size:17px; color:inherit; cursor:pointer; opacity:.6;
+}
+#bilan .reduire:hover { background:var(--surface-muted); opacity:1; }
+#bilan .objectif {
+  margin-top:10px; padding:9px 11px; border-radius:var(--radius-md);
+  background:var(--accent-doux); font-size:12.5px; line-height:1.5;
+}
 #bilan .phrase { font-size:12.5px; opacity:.78; line-height:1.5; margin:0 0 10px; }
 .jauges { display:grid; grid-template-columns:repeat(auto-fit,minmax(115px,1fr)); gap:8px 14px; }
 .jauge .haut { display:flex; justify-content:space-between; font-size:11.5px; margin-bottom:3px; }
@@ -280,6 +313,33 @@ main { flex:1; min-height:0; display:flex; flex-direction:column; }
 .lex-entree span { font-size:12.5px; line-height:1.55; opacity:.78; }
 .lex-entree em { font-style:normal; color:var(--accent); font-weight:600; }
 
+/* Écran de passage d'une mission à la suivante */
+.p-fanion {
+  display:flex; align-items:center; gap:10px; margin-bottom:12px;
+}
+.p-fanion .rond {
+  width:44px; height:44px; flex:none; border-radius:var(--radius-full);
+  display:grid; place-items:center; background:var(--success); font-size:22px;
+}
+.p-fanion b { display:block; font-size:17px; font-family:var(--font-display); font-weight:800; }
+.p-fanion span { font-size:12px; opacity:.65; }
+.p-acquis {
+  padding:12px 14px; border-radius:var(--radius-md); background:var(--accent-doux);
+  font-size:13px; line-height:1.55; margin-bottom:14px;
+}
+.p-acquis b { font-weight:600; }
+.p-suite {
+  border:2px dashed var(--border-strong); border-radius:var(--radius-md);
+  padding:12px 14px; margin-bottom:14px;
+}
+.p-suite .etiq {
+  font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--accent); margin-bottom:3px;
+}
+.p-suite b { display:block; font-size:15px; font-family:var(--font-display); font-weight:800; }
+.p-suite span { font-size:12.5px; opacity:.7; line-height:1.45; }
+.p-neuf { font-size:12px; opacity:.6; text-align:center; margin-top:9px; line-height:1.45; }
+
 /* QCM */
 .q-question { font-size:15px; font-weight:600; line-height:1.4; margin-bottom:12px; }
 .q-choix {
@@ -344,7 +404,9 @@ main { flex:1; min-height:0; display:flex; flex-direction:column; }
   }
   header { border-bottom:1px solid var(--border); }
   #mission { border-bottom:none; padding:12px 16px; }
-  #etapes { display:block; }           /* toujours dépliée sur grand écran */
+  /* la place ne manque pas : toutes les étapes restent visibles */
+  #mission:not(.ouvert) .etape:not(.a-montrer) { display:flex; }
+  #mission:not(.ouvert) .m-indice { display:block; }
   .m-plier { display:none; }
   main { flex:1; min-width:0; }
   #actions { justify-content:center; }
@@ -381,15 +443,16 @@ main { flex:1; min-height:0; display:flex; flex-direction:column; }
     </div>
   </header>
 
-  <section id="mission" class="ouvert">
+  <section id="mission">
     <div class="m-haut">
       <span class="m-pastille" id="m-num">1</span>
       <div class="m-titres">
+        <span class="m-rang" id="m-rang">Mission 1 sur 6</span>
         <b id="m-titre">—</b>
         <span id="m-but"></span>
       </div>
-      <button class="m-plier" id="m-plier" aria-label="Afficher ou masquer les étapes"
-              aria-expanded="true">▲</button>
+      <button class="m-plier" id="m-plier" aria-label="Afficher toutes les étapes"
+              aria-expanded="false">▼</button>
     </div>
     <div class="m-jauge"><i id="m-jauge" style="width:0"></i></div>
     <div id="etapes"></div>
@@ -400,6 +463,7 @@ main { flex:1; min-height:0; display:flex; flex-direction:column; }
   <div id="atelier">
     <svg id="plan" viewBox="0 0 660 320" preserveAspectRatio="xMidYMid meet" role="img"
          aria-label="Vue en coupe de la lampe de poche en cours de montage"></svg>
+    <button id="btn-mesures" hidden>📊 <span>Voir les mesures</span></button>
     <div id="bilan" role="status" aria-live="polite"></div>
   </div>
   <div id="actions">
@@ -420,6 +484,8 @@ main { flex:1; min-height:0; display:flex; flex-direction:column; }
     <h2>🎯 Les missions</h2>
     <p>Elles se suivent : termine l'une pour ouvrir la suivante.</p>
     <div id="liste-missions"></div>
+    <button class="btn btn-fantome btn-large" id="btn-rezero"
+            style="margin-top:6px;color:var(--destructive)">↺ Recommencer tout le parcours</button>
   </div>
 </div>
 
@@ -459,6 +525,10 @@ main { flex:1; min-height:0; display:flex; flex-direction:column; }
 
 <div class="voile" id="v-qcm">
   <div class="carte-modale" id="qcm-carte"></div>
+</div>
+
+<div class="voile" id="v-passage">
+  <div class="carte-modale" id="passage-carte"></div>
 </div>
 
 <script>
@@ -592,6 +662,7 @@ const monte = () => !!etat.boitier && etat.piles.length > 0 && !!etat.ampoule &&
 const MISSIONS = [
   {
     titre:'Que ça s’allume !',
+    acquis:'Pour qu’une lampe s’allume, le courant doit faire un <b>tour complet</b> : il sort de la pile, traverse l’ampoule, et revient à la pile par le contact du fond.',
     but:'Fabrique une lampe qui éclaire, même faiblement.',
     indice:"Une lampe s’allume quand le courant peut faire tout le tour : il sort de la pile, traverse l’ampoule, et revient à la pile par le contact du fond.",
     etapes:[
@@ -617,6 +688,7 @@ const MISSIONS = [
   },
   {
     titre:'Bien réglée',
+    acquis:'Chaque ampoule a une <b>tension d’usage</b> écrite dessus. Trop peu, elle rougeoie (sous-tension) ; trop, elle grille (surtension).',
     but:'L’ampoule doit recevoir la tension qu’il lui faut : ni trop peu, ni trop.',
     indice:"Additionne tes piles : chaque pile ronde donne 1,5 V, la pile plate en donne 4,5 V à elle seule. Puis choisis l’ampoule dont la tension écrite dessus est la plus proche.",
     etapes:[
@@ -641,6 +713,7 @@ const MISSIONS = [
   },
   {
     titre:'Le bon contact',
+    acquis:'Le <b>ressort</b> se détend et garde le contact même s’il reste de la place. La <b>lame</b>, elle, est rigide : le boîtier doit être plein.',
     but:'Réussis une lampe qui éclaire en utilisant une lame métallique au fond.',
     indice:"La lame est rigide : elle ne se détend pas comme un ressort. Si tu laisses de la place vide dans le boîtier, elle ne touchera jamais la pile. Remplis le boîtier !",
     etapes:[
@@ -661,6 +734,7 @@ const MISSIONS = [
   },
   {
     titre:'Loin devant',
+    acquis:'Le <b>réflecteur</b> renvoie vers l’avant la lumière qui partait en arrière. La lampe porte deux fois plus loin, sans user les piles davantage.',
     but:'Fais porter la lumière de ta lampe jusqu’à 6 mètres.',
     indice:"Sans rien derrière l’ampoule, la moitié de la lumière part vers l’arrière et se perd. Une surface brillante la renvoie vers l’avant.",
     etapes:[
@@ -680,6 +754,7 @@ const MISSIONS = [
   },
   {
     titre:'Toute la nuit',
+    acquis:'À tension égale, une <b>grosse pile</b> contient beaucoup plus d’énergie : elle éclaire bien plus longtemps, mais elle est lourde.',
     but:'Ta lampe doit pouvoir éclairer 8 heures sans s’arrêter.',
     indice:"Toutes les piles ne se valent pas : à tension égale, une grosse pile contient beaucoup plus d’énergie qu’une petite. Elle est simplement plus lourde.",
     etapes:[
@@ -700,6 +775,7 @@ const MISSIONS = [
   },
   {
     titre:'La lampe de Jean',
+    acquis:'Fabriquer, c’est <b>choisir entre des qualités</b> : légèreté, portée, autonomie, solidité. L’ingénieur teste, puis améliore.',
     but:'Jean fait 5 km de vélo la nuit. Il lui faut 8 m de portée, 8 h d’autonomie, une lampe solide et bien finie.',
     indice:"Reprends tout ce que tu as appris : un boîtier résistant, de grosses piles, l’ampoule qui correspond, un réflecteur, une vitre pour protéger, et un interrupteur pour ne pas gaspiller.",
     etapes:[
@@ -735,7 +811,7 @@ const MISSIONS = [
 const etat = {
   boitier:null, piles:[], ampoule:null, contact:null,
   reflecteur:null, vitre:null, interrupteur:null,
-  mission:0, faites:[], teste:false, libre:false,
+  mission:0, faites:[], teste:false, libre:false, resultat:null, repliFait:false,
 };
 
 const CLE = 'ike-lampe-progression';
@@ -760,6 +836,17 @@ const maquette = () => ({
 const missionCourante = () => etat.libre ? null : MISSIONS[etat.mission];
 const deverrouillee = i => i === 0 || etat.faites.indexOf(i - 1) !== -1 || etat.faites.indexOf(i) !== -1;
 
+// Certaines étapes visent « la lampe complète » : on éclaire alors la première pièce
+// qui manque, pour que quelque chose clignote toujours quelque part.
+function cibleEffective(e) {
+  if (e.cible) return e.cible;
+  if (!etat.boitier) return 'boitier';
+  if (!etat.piles.length) return 'pile';
+  if (!etat.ampoule) return 'ampoule';
+  if (!etat.contact) return 'contact';
+  return 'tester';
+}
+
 // Première étape non terminée : c'est elle qu'on met en avant et dont on éclaire l'emplacement
 function etapeCourante() {
   const m = missionCourante();
@@ -781,7 +868,7 @@ const el = (nom, attrs, texte) => {
   return n;
 };
 
-const G = { x0:60, x1:455, y0:120, y1:210, tete:545, centre:165 };
+const G = { x0:60, x1:455, y0:110, y1:216, tete:545, centre:154 };
 
 function slotsPiles() {
   const b = BOITIERS[etat.boitier];
@@ -798,7 +885,7 @@ function dessiner() {
   const r = evaluer(maquette());
   const allume = etat.teste && r.ok && r.portee > 0;
   const ec = etapeCourante();
-  const vise = ec ? ec.e.cible : null;
+  const vise = ec ? cibleEffective(ec.e) : null;
 
   // --- Faisceau lumineux, derrière tout le reste ---
   if (allume) {
@@ -810,7 +897,7 @@ function dessiner() {
     grad.appendChild(el('stop', { offset:'1', 'stop-color':'#FFE082', 'stop-opacity':'0' }));
     defs.appendChild(grad); plan.appendChild(defs);
     plan.appendChild(el('polygon', {
-      points:`556,145 660,${G.centre - ouv} 660,${G.centre + ouv} 556,185`, fill:'url(#g-faisceau)',
+      points:`556,134 660,${G.centre - ouv} 660,${G.centre + ouv} 556,174`, fill:'url(#g-faisceau)',
     }));
     plan.appendChild(el('text', { x:648, y:G.centre - ouv - 8, 'text-anchor':'end', class:'etiq-slot' },
       r.portee + ' m'));
@@ -835,8 +922,19 @@ function dessiner() {
     x:G.x0, y:G.y0, width:G.x1 - G.x0, height:G.y1 - G.y0, rx:10,
     fill:b.couleur, 'fill-opacity':.30, stroke:b.couleur, 'stroke-width':3,
   }));
+
+  // --- Fil de retour : il fait partie du boîtier, l'élève ne le choisit pas.
+  // C'est par lui que le courant revient du culot de l'ampoule jusqu'au contact du fond.
+  const yFil = G.y1 - 12, xFilD = G.x1 - 78;
+  plan.appendChild(el('path', {
+    d:`M ${G.x0 + 20} ${G.centre + 4} L ${G.x0 + 20} ${yFil} L ${xFilD} ${yFil} L ${xFilD} ${G.centre + 6}`,
+    fill:'none', stroke:allume ? '#E8A05C' : 'var(--cuivre)',
+    'stroke-width':allume ? 4 : 3, 'stroke-linecap':'round', 'stroke-linejoin':'round',
+  }));
+  plan.appendChild(el('text', { x:(G.x0 + 20 + xFilD) / 2, y:yFil - 6, class:'etiq-slot' },
+    'fil de retour'));
   plan.appendChild(el('polygon', {
-    points:`${G.x1},${G.y0} ${G.tete},103 ${G.tete},227 ${G.x1},${G.y1}`,
+    points:`${G.x1},${G.y0} ${G.tete},93 ${G.tete},233 ${G.x1},${G.y1}`,
     fill:b.couleur, 'fill-opacity':.30, stroke:b.couleur, 'stroke-width':3,
   }));
   const etiqB = el('text', { x:G.x0 + 4, y:G.y0 - 12, class:'etiq-slot', 'text-anchor':'start' }, b.nom);
@@ -850,19 +948,19 @@ function dessiner() {
   // --- Réflecteur ---
   if (etat.reflecteur) {
     plan.appendChild(el('polygon', {
-      points:`${G.x1 + 4},${G.y0 + 8} ${G.tete - 4},111 ${G.tete - 4},219 ${G.x1 + 4},${G.y1 - 8}`,
+      points:`${G.x1 + 4},${G.y0 + 8} ${G.tete - 4},101 ${G.tete - 4},225 ${G.x1 + 4},${G.y1 - 8}`,
       fill:etat.reflecteur === 'alu' ? '#E6E9EB' : '#FFFFFF',
       stroke:'var(--border-strong)', 'stroke-width':1.5,
     }));
   }
-  ajouterSlot('reflecteur', G.x1 + 8, 124, G.tete - G.x1 - 16, 82, 'Réflecteur', !!etat.reflecteur, vise);
+  ajouterSlot('reflecteur', G.x1 + 8, 114, G.tete - G.x1 - 16, 92, 'Réflecteur', !!etat.reflecteur, vise);
 
   // --- Vitre ---
   if (etat.vitre) {
-    plan.appendChild(el('rect', { x:G.tete - 2, y:107, width:8, height:116, rx:3,
+    plan.appendChild(el('rect', { x:G.tete - 2, y:97, width:8, height:130, rx:3,
       fill:'#B3E5FC', 'fill-opacity':.55, stroke:'#81D4FA', 'stroke-width':2 }));
   }
-  ajouterSlot('vitre', G.tete + 10, 128, 34, 74, 'Vitre', !!etat.vitre, vise);
+  ajouterSlot('vitre', G.tete + 10, 120, 34, 78, 'Vitre', !!etat.vitre, vise);
 
   // --- Contact arrière ---
   const cx = G.x0 + 8;
@@ -871,36 +969,36 @@ function dessiner() {
     for (let k = 0; k < 6; k++) d += ` l 5 ${k % 2 ? 16 : -16}`;
     plan.appendChild(el('path', { d, fill:'none', stroke:'var(--metal)', 'stroke-width':3.5, 'stroke-linecap':'round' }));
   } else if (etat.contact === 'lame') {
-    plan.appendChild(el('rect', { x:cx + 8, y:133, width:7, height:64, rx:2, fill:'var(--metal)' }));
+    plan.appendChild(el('rect', { x:cx + 8, y:124, width:7, height:62, rx:2, fill:'var(--metal)' }));
   }
-  ajouterSlot('contact', cx - 2, 128, 38, 74, 'Contact', !!etat.contact, vise);
+  ajouterSlot('contact', cx - 2, 120, 38, 70, 'Contact', !!etat.contact, vise);
 
   // --- Piles ---
   slotsPiles().forEach(s => {
     const p = etat.piles[s.i];
     if (p) {
       const w = s.l - 8, x = s.x + 4;
-      plan.appendChild(el('rect', { x, y:134, width:w, height:62, rx:5,
+      plan.appendChild(el('rect', { x, y:122, width:w, height:60, rx:5,
         fill:'#4A5762', stroke:'#2F3A44', 'stroke-width':2 }));
       const bx = p.sens > 0 ? x + w : x;
-      plan.appendChild(el('rect', { x:p.sens > 0 ? bx - 2 : bx - 5, y:153, width:7, height:24, rx:2,
+      plan.appendChild(el('rect', { x:p.sens > 0 ? bx - 2 : bx - 5, y:140, width:7, height:24, rx:2,
         fill:'var(--cuivre)' }));
-      plan.appendChild(el('text', { x:x + w / 2, y:169, class:'txt-piece', fill:'#fff' },
+      plan.appendChild(el('text', { x:x + w / 2, y:146, class:'txt-piece', fill:'#fff' },
         p.sens > 0 ? '− ▸ +' : '+ ◂ −'));
-      plan.appendChild(el('text', { x:x + w / 2, y:209, class:'etiq-slot' },
+      plan.appendChild(el('text', { x:x + w / 2, y:169, class:'txt-piece', fill:'#fff', style:'opacity:.75' },
         String(PILES[p.modele].u).replace('.', ',') + ' V'));
-      const z = el('rect', { x, y:134, width:w, height:62, rx:5, fill:'transparent',
+      const z = el('rect', { x, y:122, width:w, height:60, rx:5, fill:'transparent',
         class:'slot', 'data-tourne':s.i, role:'button', tabindex:'0',
         'aria-label':'Retourner la pile' });
       z.style.cursor = 'pointer';
       plan.appendChild(z);
       const g = el('g', { class:'retirer', 'data-retire':'pile:' + s.i, role:'button', tabindex:'0',
         'aria-label':'Retirer cette pile' });
-      g.appendChild(el('circle', { cx:x + w - 9, cy:128, r:10 }));
-      g.appendChild(el('text', { x:x + w - 9, y:133 }, '✕'));
+      g.appendChild(el('circle', { cx:x + w - 9, cy:114, r:10 }));
+      g.appendChild(el('text', { x:x + w - 9, y:119 }, '✕'));
       plan.appendChild(g);
     } else {
-      ajouterSlot('pile:' + s.i, s.x + 4, 134, s.l - 8, 62, 'Pile', false, vise === 'pile' ? 'pile' : vise);
+      ajouterSlot('pile:' + s.i, s.x + 4, 122, s.l - 8, 60, 'Pile', false, vise === 'pile' ? 'pile' : vise);
     }
   });
 
@@ -908,27 +1006,27 @@ function dessiner() {
   const ax = G.x1 - 100;
   if (etat.ampoule) {
     const grillee = etat.teste && r.grille;
-    plan.appendChild(el('rect', { x:ax + 6, y:155, width:16, height:20, fill:'var(--metal)' }));
+    plan.appendChild(el('rect', { x:ax + 6, y:144, width:16, height:20, fill:'var(--metal)' }));
     plan.appendChild(el('circle', { cx:ax + 34, cy:G.centre, r:18,
       fill:grillee ? '#6D6259' : (allume ? '#FFE082' : '#ECEFF1'),
       stroke:grillee ? '#4E443C' : '#B0ABA3', 'stroke-width':2 }));
     plan.appendChild(el('path', { d:`M ${ax + 26} ${G.centre} l 5 -6 l 5 12 l 5 -6`, fill:'none',
       stroke:grillee ? '#3A3632' : '#8D6E32', 'stroke-width':2 }));
-    plan.appendChild(el('text', { x:ax + 34, y:211, class:'etiq-slot' },
+    plan.appendChild(el('text', { x:ax + 34, y:190, class:'etiq-slot' },
       grillee ? 'grillée' : String(AMPOULES[etat.ampoule].un).replace('.', ',') + ' V'));
   }
-  ajouterSlot('ampoule', ax - 2, 136, 92, 60, 'Ampoule', !!etat.ampoule, vise);
+  ajouterSlot('ampoule', ax - 2, 126, 92, 58, 'Ampoule', !!etat.ampoule, vise);
 
   // --- Interrupteur, sur le dessus ---
   const ix = (G.x0 + G.x1) / 2 - 26;
   if (etat.interrupteur) {
-    plan.appendChild(el('rect', { x:ix, y:97, width:52, height:22, rx:6,
+    plan.appendChild(el('rect', { x:ix, y:84, width:52, height:22, rx:6,
       fill:'var(--surface)', stroke:'var(--border-strong)', 'stroke-width':2 }));
-    plan.appendChild(el('line', { x1:ix + 10, y1:108, x2:ix + 32, y2:allume ? 108 : 101,
+    plan.appendChild(el('line', { x1:ix + 10, y1:95, x2:ix + 32, y2:allume ? 95 : 88,
       stroke:'var(--neutral)', 'stroke-width':3, 'stroke-linecap':'round' }));
-    plan.appendChild(el('circle', { cx:ix + 10, cy:108, r:3, fill:'var(--neutral)' }));
+    plan.appendChild(el('circle', { cx:ix + 10, cy:95, r:3, fill:'var(--neutral)' }));
   }
-  ajouterSlot('interrupteur', ix, 95, 52, 26, 'Bouton', !!etat.interrupteur, vise);
+  ajouterSlot('interrupteur', ix, 82, 52, 26, 'Bouton', !!etat.interrupteur, vise);
 }
 
 function ajouterSlot(id, x, y, w, h, texte, plein, vise) {
@@ -1036,9 +1134,21 @@ function poser(cle, id) {
     etat[cle] = etat[cle] === id ? null : id;
   }
   etat.teste = false;
+  etat.resultat = null;
+  oublierMesures();
   cacherBilan();
   fermerFeuille();
+  replierSiPetitEcran();
   majTout();
+}
+
+// Sur téléphone, le plan de la mission laisse la place à la lampe dès qu'on se met au travail.
+// Une seule fois par mission : si l'élève rouvre le plan, on ne le contrarie plus.
+function replierSiPetitEcran() {
+  if (etat.repliFait || window.innerWidth >= 880) return;
+  etat.repliFait = true;
+  $('mission').classList.remove('ouvert');
+  $('m-plier').setAttribute('aria-expanded', 'false');
 }
 
 function retirer(cible) {
@@ -1046,6 +1156,8 @@ function retirer(cible) {
   if (quoi === 'pile') etat.piles.splice(+index, 1);
   else etat[quoi] = null;
   etat.teste = false;
+  etat.resultat = null;
+  oublierMesures();
   cacherBilan();
   majTout();
 }
@@ -1053,6 +1165,8 @@ function retirer(cible) {
 function tourner(i) {
   etat.piles[i].sens *= -1;
   etat.teste = false;
+  etat.resultat = null;
+  oublierMesures();
   cacherBilan();
   majTout();
   toast(etat.piles[i].sens > 0 ? 'Pile remise dans le bon sens' : 'Pile retournée : son + regarde vers l’arrière');
@@ -1062,6 +1176,8 @@ function vider() {
   etat.boitier = null; etat.piles = []; etat.ampoule = null; etat.contact = null;
   etat.reflecteur = null; etat.vitre = null; etat.interrupteur = null;
   etat.teste = false;
+  etat.resultat = null;
+  oublierMesures();
   cacherBilan();
   majTout();
 }
@@ -1070,15 +1186,26 @@ function tester() {
   const m = maquette();
   const r = evaluer(m);
   etat.teste = true;
+  etat.resultat = r;
   dessiner();
-  afficherBilan(r, m);
   majMission();
 
   const mis = missionCourante();
-  if (mis && r.ok && mis.test(r, m) && etat.faites.indexOf(etat.mission) === -1) {
+  const gagne = mis && r.ok && mis.test(r, m);
+  if (gagne && etat.faites.indexOf(etat.mission) === -1) {
     etat.faites.push(etat.mission);
     sauver();
-    setTimeout(() => ouvrirQcm(), 900);
+  }
+  // Le panneau s'ouvre seul quand il apporte quelque chose : un diagnostic à lire,
+  // ou la réussite à célébrer. Sinon, le bouton « Mesures » clignote et l'élève décide.
+  $('btn-mesures').hidden = false;
+  if (r.pannes.length || r.grille || gagne) {
+    $('btn-mesures').classList.remove('appelle');
+    afficherBilan(r, m, gagne);
+  } else {
+    cacherBilan();
+    $('btn-mesures').classList.add('appelle');
+    toast('Ta lampe est testée : touche 📊 pour voir ses mesures');
   }
 }
 
@@ -1094,16 +1221,17 @@ function jauge(nom, valeur, max, unite, seuilFaible) {
     <div class="barre${classe}"><i style="width:${pct}%"></i></div></div>`;
 }
 
-function afficherBilan(r, m) {
+function afficherBilan(r, m, gagne) {
   const z = $('bilan');
+  const croix = '<button class="reduire" data-ferme-bilan aria-label="Réduire">✕</button>';
   if (r.pannes.length) {
     z.innerHTML = `
-      <div class="verdict"><span class="em">🔌</span><h3>Ça ne s’allume pas</h3></div>
+      <div class="verdict"><span class="em">🔌</span><h3>Ça ne s’allume pas</h3>${croix}</div>
       <p class="phrase">${r.pannes[0]}</p>
       <div class="actions"><button class="btn btn-contour" data-ferme-bilan>Je corrige</button></div>`;
   } else if (r.grille) {
     z.innerHTML = `
-      <div class="verdict"><span class="em">💥</span><h3>L’ampoule a grillé !</h3></div>
+      <div class="verdict"><span class="em">💥</span><h3>L’ampoule a grillé !</h3>${croix}</div>
       <p class="phrase">Tes piles donnent <b>${fnb(r.tension)} V</b> à une ampoule prévue pour
         <b>${fnb(AMPOULES[m.ampoule].un)} V</b>. C’est une <b>surtension</b> : le filament n’a pas tenu.
         Prends une ampoule plus forte, ou enlève une pile.</p>
@@ -1116,9 +1244,11 @@ function afficherBilan(r, m) {
          elle${r.inversees > 1 ? 's s’opposent' : ' s’oppose'} aux autres et te fait perdre
          <b>${fnb(r.perte)} V</b>. Touche-la pour la remettre dans le bon sens.`
       : '';
+    const mis = missionCourante();
     z.innerHTML = `
-      <div class="verdict"><span class="em">${faible ? '🔅' : '🔦'}</span>
-        <h3>${faible ? 'Elle éclaire faiblement' : 'Elle éclaire bien !'}</h3></div>
+      <div class="verdict"><span class="em">${gagne ? '🎉' : (faible ? '🔅' : '🔦')}</span>
+        <h3>${gagne ? 'Mission réussie !' : (faible ? 'Elle éclaire faiblement' : 'Elle éclaire bien !')}</h3>
+        ${croix}</div>
       <p class="phrase">${faible
         ? `Tes piles ne donnent que <b>${fnb(r.tension)} V</b> à une ampoule prévue pour <b>${un} V</b> :
            elle est en <b>sous-tension</b> et rougeoie.`
@@ -1130,15 +1260,29 @@ function afficherBilan(r, m) {
         ${jauge('Solidité', r.solidite, 10, '/10', 4)}
         ${jauge('Finition', r.finition, 10, '/10', 5)}
       </div>
-      <div class="actions"><button class="btn btn-contour" data-ferme-bilan>Améliorer</button></div>`;
+      ${gagne
+        ? `<div class="actions"><button class="btn btn-large" id="btn-continuer">
+             Continuer →</button></div>`
+        : `${mis ? `<div class="objectif">🎯 <b>Il te reste à faire :</b> ${mis.but}</div>` : ''}
+           <div class="actions"><button class="btn btn-contour" data-ferme-bilan>Améliorer</button></div>`}`;
   }
   z.classList.add('visible');
   $('atelier').classList.add('avec-bilan');
+  $('toast').classList.remove('visible');   // le panneau prend la place du message
+  const cont = $('btn-continuer');
+  if (cont) cont.addEventListener('click', () => { cacherBilan(); ouvrirQcm(); });
 }
 
 function cacherBilan() {
   $('bilan').classList.remove('visible');
   $('atelier').classList.remove('avec-bilan');
+}
+
+// Le bouton « Mesures » disparaît dès que l'assemblage change
+function oublierMesures() {
+  const b = $('btn-mesures');
+  b.hidden = true;
+  b.classList.remove('appelle');
 }
 
 const fnb = n => String(n).replace('.', ',');
@@ -1184,22 +1328,58 @@ function repondre(i) {
   $('q-suite').innerHTML = `<button class="btn btn-large" style="margin-top:12px" id="q-continuer">${
     dernier ? 'Mission suivante →' : 'Question suivante →'}</button>`;
   $('q-continuer').addEventListener('click', () => {
-    if (dernier) { $('v-qcm').classList.remove('visible'); missionSuivante(); }
+    if (dernier) { $('v-qcm').classList.remove('visible'); ouvrirPassage(); }
     else { qcm.n++; rendreQcm(); }
   });
 }
 
+/* ---- Écran de passage : on annonce clairement la mission suivante ---- */
+function ouvrirPassage() {
+  const finie = MISSIONS[etat.mission];
+  const suivante = MISSIONS[etat.mission + 1];
+  $('passage-carte').innerHTML = `
+    <div class="p-fanion">
+      <span class="rond">✅</span>
+      <span><b>Mission ${etat.mission + 1} réussie !</b>
+        <span>${finie.titre}</span></span>
+    </div>
+    <div class="p-acquis">📘 <b>Ce que tu as appris :</b> ${finie.acquis}</div>
+    ${suivante
+      ? `<div class="p-suite">
+           <div class="etiq">Mission ${etat.mission + 2} sur ${MISSIONS.length}</div>
+           <b>${suivante.titre}</b>
+           <span>${suivante.but}</span>
+         </div>
+         <button class="btn btn-large" id="btn-passer">Commencer la mission ${etat.mission + 2} →</button>
+         <p class="p-neuf">🔧 Tu repars d'un établi vide : on fabrique une nouvelle lampe.</p>`
+      : `<div class="p-suite">
+           <div class="etiq">Bravo</div>
+           <b>Tu as terminé les 6 missions !</b>
+           <span>L'atelier libre s'ouvre : fabrique la lampe que tu veux, sans consigne.</span>
+         </div>
+         <button class="btn btn-large" id="btn-passer">Ouvrir l'atelier libre →</button>`}`;
+  $('v-passage').classList.add('visible');
+  $('btn-passer').addEventListener('click', () => {
+    $('v-passage').classList.remove('visible');
+    missionSuivante();
+  });
+}
+
 function missionSuivante() {
-  if (etat.mission < MISSIONS.length - 1) {
-    etat.mission++;
-    sauver();
-    majTout();
-    toast('🎯 Nouvelle mission : ' + MISSIONS[etat.mission].titre);
-  } else {
-    etat.libre = true;
-    majTout();
-    toast('🏆 Toutes les missions sont réussies ! Atelier libre.');
-  }
+  if (etat.mission < MISSIONS.length - 1) etat.mission++;
+  else etat.libre = true;
+  sauver();
+  vider();            // chaque mission repart d'un établi vide : on refabrique une lampe
+  ouvrirEtapes();     // et on redéploie le guidage pour la nouvelle mission
+}
+
+// Déplie le bandeau des étapes : au début d'une mission, l'élève doit voir le plan
+function ovrirDepart() { ouvrirEtapes(); }
+
+function ouvrirEtapes() {
+  etat.repliFait = false;
+  $('mission').classList.add('ouvert');
+  $('m-plier').setAttribute('aria-expanded', 'true');
 }
 
 /* ============================================================================
@@ -1210,6 +1390,7 @@ function majMission() {
   const m = missionCourante();
   if (!m) {
     $('m-num').textContent = '∞';
+    $('m-rang').textContent = 'Sans consigne';
     $('m-titre').textContent = 'Atelier libre';
     $('m-but').textContent = 'Fabrique la lampe que tu veux et teste-la.';
     $('etapes').innerHTML = '';
@@ -1219,6 +1400,7 @@ function majMission() {
   }
   const fait = etat.faites.indexOf(etat.mission) !== -1;
   $('m-num').textContent = fait ? '✓' : (etat.mission + 1);
+  $('m-rang').textContent = `Mission ${etat.mission + 1} sur ${MISSIONS.length}`;
   $('m-titre').textContent = m.titre;
   $('m-but').textContent = m.but;
 
@@ -1226,15 +1408,17 @@ function majMission() {
   const nbFaites = m.etapes.filter(e => e.fait()).length;
   $('m-jauge').style.width = Math.round(nbFaites / m.etapes.length * 100) + '%';
 
+  // Replié, une seule étape reste affichée : celle en cours, ou la dernière si tout est fait
+  const iMontrer = ec ? ec.i : m.etapes.length - 1;
   $('etapes').innerHTML = m.etapes.map((e, i) => {
     const f = e.fait();
     const courante = ec && ec.i === i;
-    return `<div class="etape${f ? ' faite' : ''}${courante ? ' courante' : ''}">
+    return `<div class="etape${f ? ' faite' : ''}${courante ? ' courante' : ''}${i === iMontrer ? ' a-montrer' : ''}">
       <span class="coche">✓</span><span class="t">${e.t}</span></div>`;
   }).join('') + (m.indice ? `<div class="m-indice">💡 <b>Astuce :</b> ${m.indice}</div>` : '');
 
   // Le bouton Tester s'anime quand c'est lui qu'on attend
-  $('btn-tester').classList.toggle('appelle', !!(ec && ec.e.cible === 'tester'));
+  $('btn-tester').classList.toggle('appelle', !!(ec && cibleEffective(ec.e) === 'tester'));
 }
 
 function rendreMissions() {
@@ -1293,6 +1477,10 @@ $('feuille').addEventListener('click', e => {
 
 $('btn-tester').addEventListener('click', tester);
 $('btn-vider').addEventListener('click', vider);
+$('btn-mesures').addEventListener('click', () => {
+  $('btn-mesures').classList.remove('appelle');
+  if (etat.resultat) afficherBilan(etat.resultat, maquette(), false);
+});
 $('m-plier').addEventListener('click', () => {
   const m = $('mission');
   m.classList.toggle('ouvert');
@@ -1313,8 +1501,19 @@ $('liste-missions').addEventListener('click', e => {
   if (b.dataset.mission === 'libre') etat.libre = true;
   else { etat.libre = false; etat.mission = +b.dataset.mission; }
   sauver();
-  majTout();
+  vider();            // on change de mission : établi neuf, comme entre deux missions
+  ouvrirEtapes();
   fermer('v-missions');
+});
+
+$('btn-rezero').addEventListener('click', () => {
+  if (!window.confirm('Effacer toute ta progression et repartir de la mission 1 ?')) return;
+  etat.faites = []; etat.mission = 0; etat.libre = false;
+  sauver();
+  vider();
+  ouvrirEtapes();
+  fermer('v-missions');
+  toast('↺ Parcours remis à zéro');
 });
 
 $('v-qcm').addEventListener('click', e => {
@@ -1327,14 +1526,16 @@ document.addEventListener('click', e => {
   if (f) fermer(f.dataset.ferme);
   if (e.target.closest('[data-ferme-bilan]')) cacherBilan();
 });
+// Le QCM et l'écran de passage ne se ferment pas par mégarde : ils portent le fil du parcours
+const ancres = ['v-qcm', 'v-passage'];
 for (const v of document.querySelectorAll('.voile')) {
-  // le QCM ne se ferme pas par mégarde : on doit répondre
-  v.addEventListener('click', e => { if (e.target === v && v.id !== 'v-qcm') fermer(v.id); });
+  v.addEventListener('click', e => { if (e.target === v && ancres.indexOf(v.id) === -1) fermer(v.id); });
 }
 document.addEventListener('keydown', e => {
   if (e.key !== 'Escape') return;
   if (feuilleOuverte) { fermerFeuille(); return; }
-  for (const v of document.querySelectorAll('.voile.visible')) if (v.id !== 'v-qcm') fermer(v.id);
+  for (const v of document.querySelectorAll('.voile.visible'))
+    if (ancres.indexOf(v.id) === -1) fermer(v.id);
 });
 
 const ouvrir = id => $(id).classList.add('visible');
@@ -1368,6 +1569,7 @@ try {
 
 /* ---- Démarrage ---- */
 charger();
+ovrirDepart();
 majTout();
 try {
   if (!localStorage.getItem('ike-lampe-vu')) {
