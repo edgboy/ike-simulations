@@ -5,6 +5,45 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v4.13.0 — 2026-08-02
+
+🕯️ **Nouvelle simulation : La flamme de la bougie** (PCT 6ᵉ, SA3) — complément de la SA3, qui
+attendait encore deux activités du guide : les trois parties de la flamme et la composition de
+l'air. Les deux tiennent dans une seule simulation, en cinq missions.
+
+**Ce que l'élève fait**
+- **Mission 1 — Les trois parties.** Il promène un thermomètre dans la flamme ; le panneau de
+  lecture nomme la partie touchée et donne sa température. Zone sombre au cœur, grande zone
+  lumineuse, liseré bleu au bord et à la base
+- **Mission 2 — Où fait-il le plus chaud ?** Il mesure les trois parties, puis chauffe un fil de
+  cuivre : le fil ne rougit que dans le liseré bleu, à 1400 °C. Le cœur sombre est le plus froid —
+  contre-intuitif, et c'est précisément le point du programme
+- **Mission 3 — D'où vient le noir de fumée ?** Une soucoupe tenue dans la zone lumineuse se
+  couvre de carbone ; nettoyée puis tenue dans le liseré bleu, elle reste propre. Le lien est fait
+  avec la SA3 des marmites noircies
+- **Mission 4 — L'allumette qui ne brûle pas au milieu.** Posée en travers de la flamme, elle
+  ressort avec **deux marques et un milieu intact** : la flamme est creuse, elle brûle sur ses bords
+- **Mission 5 — De quoi est fait l'air ?** Bougie allumée sur l'eau, cloche posée dessus : la
+  flamme s'éteint d'elle-même et l'eau monte d'un cinquième, lu sur une graduation en cinq parts.
+  La cloche reste pleine de gaz — les quatre cinquièmes de diazote
+
+**Le modèle, validé avant l'interface**
+Seize vérifications passées sous Node avant d'écrire une ligne d'interface : position et
+température des trois parties, dépôt de carbone réservé à la zone lumineuse, allumette intacte au
+centre et brûlée aux bords, montée d'eau entre 15 et 22 % du volume. Deux d'entre elles portent sur
+l'ergonomie et non sur la physique — **chaque partie doit offrir une bande assez large pour être
+visée au doigt** sur un écran de 412 px ; c'est ce test qui a conduit à resserrer le cœur sombre
+et à affiner le fuseau.
+
+**La scène se dimensionne à la place disponible**
+Aucune dimension figée : la flamme, la bougie, la table et la cloche se recalculent à partir de la
+taille réelle du plan. Le cadrage suit même l'outil en main — l'allumette traverse la flamme de
+part en part, la scène se recentre pour qu'elle tienne entière. En paysage sur téléphone, le bac
+d'outils passe par-dessus le plan : la flamme y gagne 60 % de hauteur.
+
+Le catalogue fusionne les deux entrées prévues — « La flamme de la bougie » et « De quoi est fait
+l'air ? » — en une seule : la simulation couvre les deux activités.
+
 ## v4.12.1 — 2026-08-02
 
 📐 **Composition de la scène des combustions** — suite de la passe d'ergonomie : le panneau de

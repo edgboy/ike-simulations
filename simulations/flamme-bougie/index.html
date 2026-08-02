@@ -1,0 +1,1632 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>La flamme de la bougie — Labo-Bénin</title>
+<meta name="theme-color" content="#F7F5F0">
+<link rel="stylesheet" href="../../assets/polices.css">
+<style>
+
+/* ===== Jetons du design system Labo-Bénin (intégrés : fichier autonome) ===== */
+:root {
+  --primary:#C4D94E; --accent:#5BC5F2; --accent-doux:#D6F0FB;
+  --tertiary:#F7A430; --destructive:#E83A4B; --success:#2A9D8F;
+  --neutral:#3A3632; --background:#F7F5F0; --surface:#FFFFFF; --surface-muted:#F0EEE9;
+  --border:#D3CFC8; --border-strong:#B0ABA3; --ring:#5BC5F2;
+  --accent-texte:#0F6E93;   /* le bleu d’accent ne passe pas les 4,5 de contraste en texte */
+  --font-display:'Baloo 2','Segoe UI',system-ui,sans-serif;
+  --font-body:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;
+  --radius-sm:8px; --radius-md:12px; --radius-lg:16px; --radius-xl:24px; --radius-full:9999px;
+  --shadow-soft:0 4px 16px rgba(58,54,50,.05);
+  --shadow-raised:0 6px 20px rgba(58,54,50,.06);
+  --ease:cubic-bezier(.4,0,.2,1);
+  --metal:#B0ABA3; --cuivre:#C9885A;
+}
+body.sombre {
+  --neutral:#ECEFF1; --background:#14181C; --surface:#1C232A; --surface-muted:#232C34;
+  --border:#333E47; --border-strong:#4A5762; --accent-doux:#17323F; --accent-texte:#7FD4F5;
+  --shadow-soft:0 4px 16px rgba(0,0,0,.28); --shadow-raised:0 6px 20px rgba(0,0,0,.34);
+  --metal:#8A9299;
+}
+
+*,*::before,*::after { box-sizing:border-box; }
+body {
+  margin:0; font-family:var(--font-body); font-size:16px; color:var(--neutral);
+  background:var(--background); overflow:hidden;
+  height:100dvh; display:flex; flex-direction:column;
+  -webkit-tap-highlight-color:transparent; -webkit-text-size-adjust:100%;
+}
+h1,h2,h3,h4 { font-family:var(--font-display); margin:0; line-height:1.2; }
+p { margin:0; }
+:focus-visible { outline:2px solid var(--ring); outline-offset:2px; border-radius:var(--radius-sm); }
+
+/* ============================ En-tête ============================ */
+header {
+  display:flex; align-items:center; gap:8px; flex:none;
+  padding:6px 10px; background:var(--surface); border-bottom:1px solid var(--border);
+}
+header h1 { font-size:15px; font-weight:800; line-height:1.15; }
+header .sous { font-size:10.5px; opacity:.6; }
+.icone-btn {
+  width:40px; height:40px; flex:none; display:grid; place-items:center;
+  border:none; background:none; border-radius:var(--radius-md);
+  font-size:18px; color:inherit; cursor:pointer; text-decoration:none;
+}
+.icone-btn:hover { background:var(--surface-muted); }
+.tete-fin { margin-left:auto; display:flex; gap:2px; align-items:center; }
+
+/* ===================== Bandeau de mission (EN HAUT) ===================== */
+#mission {
+  flex:none; background:var(--surface); border-bottom:1px solid var(--border);
+  padding:8px 12px 9px;
+}
+.m-haut { display:flex; align-items:center; gap:9px; }
+.m-pastille {
+  width:30px; height:30px; flex:none; border-radius:var(--radius-sm);
+  display:grid; place-items:center; background:var(--accent-doux);
+  font-family:var(--font-display); font-weight:800; font-size:13px;
+}
+.m-titres { flex:1; min-width:0; }
+.m-titres b { display:block; font-size:14px; font-weight:600; line-height:1.2; }
+.m-titres span { font-size:11.5px; opacity:.65; line-height:1.35; display:block; }
+.m-rang {
+  font-size:10.5px !important; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--accent-texte); opacity:1 !important; margin-bottom:1px;
+}
+.m-plier {
+  width:34px; height:34px; flex:none; border:none; background:none; cursor:pointer;
+  border-radius:var(--radius-sm); font-size:14px; color:inherit;
+  transition:transform .2s var(--ease);
+}
+.m-plier:hover { background:var(--surface-muted); }
+#mission.ouvert .m-plier { transform:rotate(180deg); }
+/* Replié, on ne montre que l'étape en cours : la lampe reste visible */
+#mission:not(.ouvert) .etape:not(.a-montrer) { display:none; }
+#mission:not(.ouvert) .m-indice { display:none; }
+.m-jauge { height:5px; border-radius:var(--radius-full); background:var(--surface-muted); margin-top:8px; overflow:hidden; }
+.m-jauge i { display:block; height:100%; background:var(--accent); transition:width .4s var(--ease); }
+
+/* ---- Liste des étapes : le guidage pas à pas ---- */
+#etapes { margin-top:9px; }
+.etape {
+  display:flex; align-items:flex-start; gap:9px; padding:5px 0;
+  font-size:13px; line-height:1.4;
+}
+.etape .coche {
+  width:21px; height:21px; flex:none; margin-top:1px; border-radius:var(--radius-full);
+  display:grid; place-items:center; font-size:11px; font-weight:700;
+  border:2px solid var(--border-strong); color:transparent; background:none;
+}
+.etape.faite .coche { background:var(--success); border-color:var(--success); color:#fff; }
+.etape.faite .t { opacity:.5; text-decoration:line-through; }
+.etape.courante .coche { border-color:var(--accent-texte); animation:pulseCoche 1.5s infinite; }
+.etape.courante .t { font-weight:600; }
+@keyframes pulseCoche { 50% { box-shadow:0 0 0 5px var(--accent-doux); } }
+.etape .t { flex:1; }
+.m-indice {
+  margin-top:8px; padding:9px 11px; border-radius:var(--radius-md);
+  background:var(--accent-doux); font-size:12.5px; line-height:1.5;
+}
+.m-indice b { font-weight:600; }
+
+/* ============================ Atelier ============================ */
+main { flex:1; min-height:0; display:flex; flex-direction:column; }
+#atelier { flex:1; min-height:0; position:relative; display:flex; }
+#plan { flex:1; min-height:0; width:100%; display:block; touch-action:manipulation; }
+
+/* Emplacements sur la lampe */
+.slot { cursor:pointer; }
+.slot .zone {
+  fill:var(--surface); fill-opacity:.5; stroke:var(--border-strong); stroke-width:2;
+  stroke-dasharray:6 5; rx:7;
+}
+.slot:hover .zone, .slot:focus-visible .zone { stroke:var(--accent); fill:var(--accent-doux); fill-opacity:1; }
+.slot.plein .zone { display:none; }
+/* Surbrillance de l'emplacement attendu par l'étape en cours */
+.slot.vise .zone { stroke:var(--accent); stroke-width:3; stroke-dasharray:none;
+  fill:var(--accent-doux); fill-opacity:1; animation:viseur 1.5s infinite; }
+@keyframes viseur { 50% { stroke-opacity:.35; } }
+.slot.vise .etiq-slot { opacity:1; font-weight:700; }
+.etiq-slot {
+  font-family:var(--font-body); font-size:11px; font-weight:600;
+  fill:var(--neutral); opacity:.55; text-anchor:middle; pointer-events:none;
+}
+.txt-piece {
+  font-family:var(--font-body); font-size:11px; font-weight:700;
+  fill:var(--neutral); text-anchor:middle; pointer-events:none;
+}
+.retirer { cursor:pointer; }
+.retirer circle { fill:var(--border-strong); transition:fill .15s var(--ease); }
+.retirer:hover circle, .retirer:focus-visible circle { fill:var(--destructive); }
+.retirer text { fill:#fff; font-size:13px; font-weight:700; text-anchor:middle; font-family:var(--font-body); }
+
+/* ============ Bouton d'accès aux mesures, sur le plan de travail ============ */
+#btn-mesures {
+  position:absolute; right:12px; bottom:12px; z-index:5;
+  display:flex; align-items:center; gap:7px;
+  min-height:44px; padding:0 16px;
+  background:var(--surface); color:var(--neutral);
+  border:2px solid var(--border-strong); border-radius:var(--radius-full);
+  box-shadow:var(--shadow-raised);
+  font-family:var(--font-body); font-size:13.5px; font-weight:600; cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+#btn-mesures:hover { background:var(--surface-muted); border-color:var(--neutral); }
+#btn-mesures[hidden] { display:none; }
+#btn-mesures.appelle { border-color:var(--accent-texte); animation:appelleMesures 1.4s infinite; }
+@keyframes appelleMesures { 50% { box-shadow:0 0 0 8px var(--accent-doux), var(--shadow-raised); } }
+
+/* ============================ Bilan ============================ */
+#bilan {
+  position:absolute; left:8px; right:8px; bottom:8px; z-index:6;
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-raised); padding:13px 15px;
+  display:none; max-width:520px; margin:0 auto;
+}
+#bilan.visible { display:block; animation:monte .3s var(--ease); }
+#atelier.avec-bilan #plan { align-self:flex-start; max-height:48%; }
+@keyframes monte { from { opacity:0; transform:translateY(10px); } }
+#bilan .verdict { display:flex; align-items:center; gap:9px; margin-bottom:4px; }
+#bilan .verdict .em { font-size:23px; line-height:1; }
+#bilan .verdict h3 { font-size:16px; flex:1; }
+#bilan .reduire {
+  width:32px; height:32px; flex:none; margin:-4px -6px 0 0;
+  border:none; background:none; border-radius:var(--radius-sm);
+  font-size:17px; color:inherit; cursor:pointer; opacity:.6;
+}
+#bilan .reduire:hover { background:var(--surface-muted); opacity:1; }
+#bilan .objectif {
+  margin-top:10px; padding:9px 11px; border-radius:var(--radius-md);
+  background:var(--accent-doux); font-size:12.5px; line-height:1.5;
+}
+#bilan .phrase { font-size:12.5px; opacity:.78; line-height:1.5; margin:0 0 10px; }
+.jauges { display:grid; grid-template-columns:repeat(auto-fit,minmax(115px,1fr)); gap:8px 14px; }
+.jauge .haut { display:flex; justify-content:space-between; font-size:11.5px; margin-bottom:3px; }
+.jauge .haut b { font-weight:600; }
+.jauge .haut span { opacity:.65; }
+.barre { height:7px; border-radius:var(--radius-full); background:var(--surface-muted); overflow:hidden; }
+.barre i { display:block; height:100%; background:var(--accent); border-radius:inherit; transition:width .5s var(--ease); }
+.barre.faible i { background:var(--tertiary); }
+.barre.mauvais i { background:var(--destructive); }
+#bilan .actions { display:flex; gap:8px; margin-top:11px; }
+
+/* ============================ Barre d'action ============================ */
+#actions {
+  flex:none; display:flex; gap:8px; align-items:center; justify-content:flex-end;
+  padding:8px 12px calc(8px + env(safe-area-inset-bottom));
+  background:var(--surface); border-top:1px solid var(--border);
+}
+.btn {
+  display:inline-flex; align-items:center; justify-content:center; gap:7px;
+  min-height:44px; padding:0 18px; border:none; border-radius:var(--radius-lg);
+  font-family:var(--font-body); font-size:14px; font-weight:600;
+  color:var(--neutral); background:var(--primary); cursor:pointer;
+  transition:filter .15s var(--ease);
+}
+.btn:hover { filter:brightness(.94); }
+.btn:active { filter:brightness(.88); }
+.btn[disabled] { opacity:.45; cursor:not-allowed; filter:none; }
+.btn-contour { background:var(--surface); border:2px solid var(--neutral); }
+.btn-contour:hover { background:var(--surface-muted); filter:none; }
+.btn-fantome { background:transparent; }
+.btn-fantome:hover { background:var(--surface-muted); filter:none; }
+.btn-large { width:100%; }
+#btn-tester.appelle { animation:appelle 1.3s infinite; }
+@keyframes appelle { 50% { box-shadow:0 0 0 7px rgba(196,217,78,.35); } }
+
+/* ================== Feuille de choix d'un composant ================== */
+#feuille {
+  position:fixed; inset:0; z-index:35; display:none;
+  background:rgba(38,50,56,.5);
+}
+#feuille.visible { display:block; }
+.f-carte {
+  position:absolute; left:0; right:0; bottom:0;
+  max-height:82dvh; overflow-y:auto;
+  background:var(--surface); border-radius:var(--radius-xl) var(--radius-xl) 0 0;
+  padding:8px 16px calc(18px + env(safe-area-inset-bottom));
+  box-shadow:var(--shadow-raised);
+  animation:glisse .28s var(--ease);
+}
+@keyframes glisse { from { transform:translateY(100%); } }
+.f-poignee { width:40px; height:4px; border-radius:2px; background:var(--border); margin:2px auto 12px; }
+.f-tete { display:flex; align-items:center; gap:9px; margin-bottom:4px; }
+.f-tete h2 { font-size:18px; flex:1; }
+.f-role { font-size:12.5px; line-height:1.5; opacity:.75; margin-bottom:13px; }
+.f-liste { display:grid; gap:9px; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); }
+.option {
+  display:flex; flex-direction:column; gap:3px; text-align:left; position:relative;
+  padding:12px 13px; min-height:62px;
+  background:var(--surface); border:2px solid var(--border); border-radius:var(--radius-md);
+  font-family:var(--font-body); color:var(--neutral); cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+.option:hover { border-color:var(--border-strong); background:var(--surface-muted); }
+.option.pose { border-color:var(--accent-texte); background:var(--accent-doux); }
+.option.conseil { border-color:var(--primary); }
+.option.conseil::after {
+  content:'conseillé'; position:absolute; top:-9px; right:9px;
+  padding:1px 8px; border-radius:var(--radius-full);
+  background:var(--primary); color:var(--neutral);
+  font-size:9.5px; font-weight:700; letter-spacing:.04em; text-transform:uppercase;
+}
+.option b { font-size:13.5px; font-weight:600; }
+.option span { font-size:11.5px; opacity:.68; line-height:1.4; }
+.option[disabled] { opacity:.42; cursor:not-allowed; }
+.f-vide { text-align:center; padding:18px 0; font-size:13px; opacity:.6; }
+
+/* ============================ Voiles ============================ */
+.voile {
+  position:fixed; inset:0; z-index:40; display:none;
+  background:rgba(38,50,56,.55); padding:14px; overflow-y:auto;
+}
+.voile.visible { display:flex; align-items:center; justify-content:center; }
+.carte-modale {
+  position:relative; width:100%; max-width:470px; margin:auto;
+  background:var(--surface); border-radius:var(--radius-lg); padding:22px 20px;
+  box-shadow:var(--shadow-raised);
+}
+.carte-modale h2 { font-size:20px; margin-bottom:9px; padding-right:34px; }
+.carte-modale > p { font-size:13.5px; line-height:1.6; opacity:.8; margin-bottom:10px; }
+.fermer-x {
+  position:absolute; top:8px; right:10px; width:36px; height:36px;
+  border:none; background:none; font-size:20px; color:inherit; cursor:pointer;
+  border-radius:var(--radius-md);
+}
+.fermer-x:hover { background:var(--surface-muted); }
+
+/* Cartes de mission */
+.d-carte {
+  display:flex; align-items:center; gap:11px; width:100%; text-align:left;
+  padding:11px 13px; margin-bottom:8px;
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md);
+  font-family:var(--font-body); color:inherit; cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+.d-carte:hover:not([disabled]) { border-color:var(--border-strong); background:var(--surface-muted); }
+.d-carte[disabled] { opacity:.5; cursor:not-allowed; }
+.d-carte .num {
+  width:30px; height:30px; flex:none; border-radius:var(--radius-sm);
+  display:grid; place-items:center; background:var(--accent-doux);
+  font-family:var(--font-display); font-weight:800; font-size:13px;
+}
+.d-carte.fait .num { background:var(--success); color:#fff; }
+.d-carte .txt { flex:1; min-width:0; }
+.d-carte .txt b { display:block; font-size:13.5px; font-weight:600; }
+.d-carte .txt span { font-size:11.5px; opacity:.65; line-height:1.4; }
+
+/* Guide d'accueil */
+.g-etape { display:flex; gap:11px; margin-bottom:13px; }
+.g-etape .num {
+  width:26px; height:26px; flex:none; border-radius:var(--radius-full);
+  display:grid; place-items:center; background:var(--accent-doux);
+  font-family:var(--font-display); font-weight:800; font-size:12.5px;
+}
+.g-etape .t { font-size:13.5px; line-height:1.5; opacity:.85; flex:1; }
+.g-etape .t b { opacity:1; }
+
+/* Lexique */
+.lex-entree {
+  padding:11px 0; border-bottom:1px solid var(--border);
+}
+.lex-entree:last-child { border-bottom:none; }
+.lex-entree b { display:block; font-size:14px; font-weight:600; margin-bottom:2px; }
+.lex-entree span { font-size:12.5px; line-height:1.55; opacity:.78; }
+.lex-entree em { font-style:normal; color:var(--accent-texte); font-weight:600; }
+
+/* Écran de passage d'une mission à la suivante */
+.p-fanion {
+  display:flex; align-items:center; gap:10px; margin-bottom:12px;
+}
+.p-fanion .rond {
+  width:44px; height:44px; flex:none; border-radius:var(--radius-full);
+  display:grid; place-items:center; background:var(--success); font-size:22px;
+}
+.p-fanion b { display:block; font-size:17px; font-family:var(--font-display); font-weight:800; }
+.p-fanion span { font-size:12px; opacity:.65; }
+.p-acquis {
+  padding:12px 14px; border-radius:var(--radius-md); background:var(--accent-doux);
+  font-size:13px; line-height:1.55; margin-bottom:14px;
+}
+.p-acquis b { font-weight:600; }
+.p-suite {
+  border:2px dashed var(--border-strong); border-radius:var(--radius-md);
+  padding:12px 14px; margin-bottom:14px;
+}
+.p-suite .etiq {
+  font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--accent-texte); margin-bottom:3px;
+}
+.p-suite b { display:block; font-size:15px; font-family:var(--font-display); font-weight:800; }
+.p-suite span { font-size:12.5px; opacity:.7; line-height:1.45; }
+.p-neuf { font-size:12px; opacity:.6; text-align:center; margin-top:9px; line-height:1.45; }
+
+/* QCM */
+.q-question { font-size:15px; font-weight:600; line-height:1.4; margin-bottom:12px; }
+.q-choix {
+  display:block; width:100%; text-align:left; margin-bottom:8px;
+  padding:12px 14px; min-height:46px;
+  background:var(--surface); border:2px solid var(--border); border-radius:var(--radius-md);
+  font-family:var(--font-body); font-size:13.5px; color:var(--neutral); cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+.q-choix:hover:not([disabled]) { border-color:var(--border-strong); background:var(--surface-muted); }
+.q-choix.bon { border-color:var(--success); background:rgba(42,157,143,.12); font-weight:600; }
+.q-choix.mauvais { border-color:var(--destructive); background:rgba(232,58,75,.1); }
+.q-choix[disabled] { cursor:default; }
+.q-expl {
+  margin-top:4px; padding:11px 13px; border-radius:var(--radius-md);
+  background:var(--accent-doux); font-size:12.5px; line-height:1.55;
+  display:none;
+}
+.q-expl.visible { display:block; }
+.q-avance { font-size:11.5px; opacity:.55; margin-bottom:10px; letter-spacing:.04em; text-transform:uppercase; font-weight:600; }
+
+/* ============================ Toast ============================ */
+#toast {
+  position:fixed; left:50%; bottom:calc(70px + env(safe-area-inset-bottom));
+  transform:translateX(-50%);
+  max-width:calc(100vw - 28px); padding:10px 16px; z-index:45;
+  background:var(--neutral); color:var(--background);
+  border-radius:var(--radius-full); font-size:13px; font-weight:600;
+  opacity:0; pointer-events:none; transition:opacity .2s var(--ease); text-align:center;
+}
+#toast.visible { opacity:1; }
+#toast.alerte { background:var(--destructive); color:#fff; }
+
+/* ================= Adaptations d'écran ================= */
+
+/* Paysage sur téléphone : chaque pixel de hauteur compte */
+@media (orientation:landscape) and (max-height:520px) {
+  header { padding:3px 8px; }
+  header h1 { font-size:13px; }
+  header .sous { display:none; }
+  .icone-btn { width:34px; height:34px; font-size:16px; }
+  #mission { padding:5px 10px 6px; }
+  .m-pastille { width:24px; height:24px; font-size:11px; }
+  .m-titres b { font-size:12.5px; }
+  .m-titres span { display:none; }
+  #mission.ouvert .m-titres span { display:block; }
+  .m-jauge { margin-top:5px; }
+  #actions { padding:5px 10px calc(5px + env(safe-area-inset-bottom)); }
+  .btn { min-height:38px; padding:0 14px; font-size:13px; }
+  #atelier.avec-bilan #plan { max-height:none; }
+  #bilan { max-width:none; right:8px; left:auto; width:min(58%,420px); bottom:6px; }
+  .f-carte { max-height:96dvh; }
+}
+
+/* Écran large : la mission passe en colonne, l'atelier prend le reste */
+@media (min-width:880px) {
+  body { flex-direction:row; }
+  #colonne {
+    width:330px; flex:none; display:flex; flex-direction:column;
+    background:var(--surface); border-right:1px solid var(--border);
+    overflow-y:auto;
+  }
+  header { border-bottom:1px solid var(--border); }
+  #mission { border-bottom:none; padding:12px 16px; }
+  /* la place ne manque pas : toutes les étapes restent visibles */
+  #mission:not(.ouvert) .etape:not(.a-montrer) { display:flex; }
+  #mission:not(.ouvert) .m-indice { display:block; }
+  .m-plier { display:none; }
+  main { flex:1; min-width:0; }
+  #actions { justify-content:center; }
+  #bilan { left:16px; right:16px; }
+  .f-carte {
+    position:absolute; top:50%; left:50%; right:auto; bottom:auto;
+    transform:translate(-50%,-50%); width:min(560px,92vw);
+    border-radius:var(--radius-lg); max-height:86dvh;
+    animation:apparait .2s var(--ease);
+  }
+  @keyframes apparait { from { opacity:0; } }
+  .f-poignee { display:none; }
+}
+
+@media (prefers-reduced-motion:reduce) {
+  *,*::before,*::after { animation-duration:.01ms !important; transition-duration:.01ms !important; }
+}
+
+/* ===================== Propre à l'alambic ===================== */
+.flamme { animation:vacille .5s infinite alternate; transform-origin:center bottom; }
+@keyframes vacille { to { transform:scaleY(1.14) scaleX(.94); } }
+.bulle { animation:monteBulle 1.5s infinite ease-in; }
+@keyframes monteBulle { from { transform:translateY(0); opacity:.9; } to { transform:translateY(-42px); opacity:0; } }
+.goutte { animation:tombe 1.8s infinite ease-in; }
+@keyframes tombe { from { transform:translateY(0); opacity:1; } to { transform:translateY(46px); opacity:.2; } }
+.etat-eau {
+  font-family:var(--font-body); font-size:10.5px; font-weight:700;
+  text-anchor:middle; pointer-events:none;
+}
+.chgt-etat {
+  font-family:var(--font-body); font-size:10px; font-weight:600;
+  fill:var(--accent); text-anchor:middle; pointer-events:none;
+}
+#legende-etats {
+  position:absolute; left:10px; top:8px; z-index:4;
+  display:flex; gap:10px; flex-wrap:wrap;
+  padding:7px 11px; border-radius:var(--radius-md);
+  background:var(--surface); border:1px solid var(--border); box-shadow:var(--shadow-soft);
+  font-size:11px; font-weight:600;
+}
+#legende-etats[hidden] { display:none; }
+#legende-etats i { display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:4px; }
+
+
+/* ===================== Propre à la flamme de la bougie ===================== */
+#plan { cursor:crosshair; }
+
+/* Panneau de lecture : ce que l'outil ressent, à l'endroit où on regarde */
+#lecture {
+  position:absolute; top:8px; left:8px; width:190px; max-width:44%;
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--radius-md); box-shadow:var(--shadow-soft);
+  padding:9px 11px; pointer-events:none; transition:border-color .2s var(--ease);
+}
+#lecture.chaud { border-color:var(--tertiary); }
+#lecture .l-titre {
+  font-size:10px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--accent-texte); margin-bottom:2px;
+}
+#lecture .l-zone { font-family:var(--font-display); font-weight:800; font-size:14px; line-height:1.2; }
+#lecture .l-temp { font-size:21px; font-weight:800; font-family:var(--font-display); line-height:1.1; margin-top:2px; }
+#lecture .l-temp.froid { color:var(--accent-texte); }
+#lecture .l-temp.tiede { color:#A85F00; }
+#lecture .l-temp.brulant { color:var(--destructive); }
+#lecture .l-quoi { font-size:11.5px; line-height:1.4; opacity:.75; margin-top:4px; }
+
+/* Le bac d'outils : ce que l'élève tient dans la main */
+#bac-outils {
+  flex:none; border-top:1px solid var(--border); background:var(--surface);
+  padding:7px 10px 8px; display:flex; align-items:center; gap:9px;
+}
+#bac-outils .bo-titre { font-size:11px; opacity:.65; flex:none; }
+.bo-liste { display:flex; gap:7px; overflow-x:auto; padding-bottom:2px; flex:1; }
+.outil {
+  flex:none; display:flex; align-items:center; gap:6px; cursor:pointer;
+  padding:6px 11px 6px 8px; border-radius:var(--radius-full);
+  border:2px solid var(--border); background:var(--surface-muted);
+  font-family:inherit; font-size:12.5px; font-weight:600; color:var(--neutral);
+  transition:background .16s var(--ease), border-color .16s var(--ease);
+}
+.outil .em { font-size:17px; line-height:1; }
+.outil[aria-pressed="true"] { border-color:var(--accent); background:var(--accent-doux); }
+.outil.appelle { animation:appelOutil 1.4s infinite; }
+.outil:disabled { opacity:.42; cursor:not-allowed; }
+.btn.appelle { animation:appelOutil 1.4s infinite; }
+@keyframes appelOutil {
+  0%,100% { box-shadow:0 0 0 0 rgba(91,197,242,.55); }
+  60%     { box-shadow:0 0 0 8px rgba(91,197,242,0); }
+}
+
+/* Repères de lecture posés sur le dessin */
+.etiq-svg { font-family:var(--font-body); font-size:11px; font-weight:600; }
+.chiffre-svg { font-family:var(--font-display); font-size:13px; font-weight:800; }
+
+@media (max-width:520px) {
+  #lecture { width:158px; padding:7px 9px; }
+  #lecture .l-temp { font-size:18px; }
+  #lecture .l-quoi { display:none; }
+  #bac-outils .bo-titre { display:none; }
+}
+@media (max-height:430px) and (orientation:landscape) {
+  #lecture .l-quoi { display:none; }
+  #lecture { padding:6px 9px; }
+  /* la hauteur est rare : le bac d’outils passe par-dessus le plan */
+  main { position:relative; }
+  #bac-outils {
+    position:absolute; left:8px; bottom:52px; z-index:3;
+    background:none; border-top:none; padding:0; gap:6px;
+  }
+  .outil { padding:4px 10px 4px 7px; font-size:11.5px;
+    background:var(--surface); box-shadow:var(--shadow-soft); }
+  .outil .em { font-size:14px; }
+  #actions { padding:6px 8px; }
+  #bac-outils .bo-titre { display:none; }
+}
+
+</style>
+</head>
+<body>
+<div id="colonne">
+  <header>
+    <a class="icone-btn" href="../../index.html#/pct/6e" title="Retour au catalogue" aria-label="Retour">←</a>
+    <div>
+      <h1>La flamme de la bougie</h1>
+      <div class="sous">PCT · 6ᵉ · SA3</div>
+    </div>
+    <div class="tete-fin">
+      <button class="icone-btn" id="btn-missions" title="Les missions" aria-label="Missions">🎯</button>
+      <button class="icone-btn" id="btn-lexique" title="Lexique" aria-label="Lexique">📖</button>
+      <button class="icone-btn" id="btn-aide" title="Comment jouer" aria-label="Aide">❓</button>
+      <button class="icone-btn" id="btn-theme" title="Thème" aria-label="Thème">🌙</button>
+    </div>
+  </header>
+  <section id="mission">
+    <div class="m-haut">
+      <span class="m-pastille" id="m-num">1</span>
+      <div class="m-titres">
+        <span class="m-rang" id="m-rang">Mission 1 sur 5</span>
+        <b id="m-titre">—</b>
+        <span id="m-but"></span>
+      </div>
+      <button class="m-plier" id="m-plier" aria-label="Afficher toutes les étapes" aria-expanded="false">▼</button>
+    </div>
+    <div class="m-jauge"><i id="m-jauge" style="width:0"></i></div>
+    <div id="etapes"></div>
+  </section>
+</div>
+
+<main>
+  <div id="atelier">
+    <svg id="plan" viewBox="0 0 660 340" preserveAspectRatio="xMidYMid meet" role="img"
+         aria-label="La flamme de la bougie vue de près, avec ses trois zones"></svg>
+    <div id="lecture">
+      <div class="l-titre" id="l-outil">Thermomètre</div>
+      <div class="l-zone" id="l-zone">Approche-le de la flamme</div>
+      <div class="l-temp" id="l-temp"></div>
+      <div class="l-quoi" id="l-quoi"></div>
+    </div>
+    <div id="bilan" role="status" aria-live="polite"></div>
+  </div>
+
+  <div id="bac-outils">
+    <span class="bo-titre">Ce que tu tiens :</span>
+    <div class="bo-liste" id="liste-outils"></div>
+  </div>
+
+  <div id="actions"></div>
+</main>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<div class="voile" id="v-lexique">
+  <div class="carte-modale">
+    <button class="fermer-x" data-ferme="v-lexique" aria-label="Fermer">✕</button>
+    <h2>📖 Les mots de la flamme</h2>
+    <p>Ce qui se passe dans chaque partie d'une flamme.</p>
+    <div id="liste-lexique"></div>
+  </div>
+</div>
+
+<div class="voile" id="v-missions">
+  <div class="carte-modale">
+    <button class="fermer-x" data-ferme="v-missions" aria-label="Fermer">✕</button>
+    <h2>🎯 Les missions</h2>
+    <p>Elles se suivent : termine l'une pour ouvrir la suivante.</p>
+    <div id="liste-missions"></div>
+    <button class="btn btn-fantome btn-large" id="btn-rezero"
+            style="margin-top:6px;color:var(--destructive)">↺ Recommencer tout le parcours</button>
+  </div>
+</div>
+
+<div class="voile" id="v-aide">
+  <div class="carte-modale">
+    <button class="fermer-x" data-ferme="v-aide" aria-label="Fermer">✕</button>
+    <h2>🕯️ Regarde de tout près</h2>
+    <p>Une flamme de bougie n'est pas d'un seul bloc : elle a <b>trois parties</b>,
+       et elles ne font pas du tout la même chose.</p>
+    <div class="g-etape"><span class="num">1</span><span class="t">
+      <b>Choisis un objet</b> en bas de l'écran : thermomètre, soucoupe, fil de cuivre
+      ou allumette.</span></div>
+    <div class="g-etape"><span class="num">2</span><span class="t">
+      <b>Fais-le glisser dans la flamme.</b> Le panneau te dit dans quelle partie tu te
+      trouves et ce qui s'y passe.</span></div>
+    <div class="g-etape"><span class="num">3</span><span class="t">
+      Certaines choses ne se voient qu'à un endroit précis : le <b>noir de fumée</b> ne se
+      dépose pas partout, et l'allumette ne brûle pas au milieu !</span></div>
+    <button class="btn btn-large" data-ferme="v-aide">Approcher de la flamme</button>
+  </div>
+</div>
+
+<div class="voile" id="v-qcm"><div class="carte-modale" id="qcm-carte"></div></div>
+<div class="voile" id="v-passage"><div class="carte-modale" id="passage-carte"></div></div>
+
+<script>
+'use strict';
+/* =====================================================================
+   La flamme de la bougie — PCT 6ᵉ, SA3
+   Modèle validé par test-flamme.js avant l'écriture de l'interface.
+   ===================================================================== */
+
+const $ = id => document.getElementById(id);
+const el = (n, a = {}) => { const e = document.createElementNS('http://www.w3.org/2000/svg', n);
+  for (const k in a) e.setAttribute(k, a[k]); return e; };
+
+/* ------------------------- Le modèle de la flamme -------------------------
+   Repère : origine au sommet de la mèche, y vers le haut, x vers les côtés. */
+const H = 46;                    // hauteur de la flamme
+const BORD = .66;                // part du fuseau occupee par l’interieur jaune
+const COEUR = .44;               // part occupée par le cœur sombre
+const BAS = -1.5;                // la flamme naît juste sous le sommet de la mèche
+
+// Demi-largeur du fuseau à la hauteur y
+function largeur(y) {
+  return 8.5 * Math.sin(Math.PI * Math.min(1, Math.max(0, (y + 4) / (H + 10))));
+}
+
+// Dans quelle partie de la flamme tombe le point (x, y) ?
+function zoneEn(x, y) {
+  const dx = Math.abs(x);
+  if (y < BAS || y > H + 6) return null;
+  const large = largeur(y);
+  if (dx > large) return null;
+  // Le liseré bleu — bord et base — se teste en premier :
+  // sinon la base de la flamme tomberait à tort dans la zone sombre.
+  if (y < H * .12 || dx > large * BORD) return 'bleue';
+  if (y < H * .52 && dx < large * COEUR) return 'sombre';
+  return 'jaune';
+}
+
+const ZONES = {
+  sombre: { nom:'Zone sombre', court:'sombre', temp:600, suie:false, teinte:'#6B4A2F',
+    quoi:'Des vapeurs de cire qui ne brûlent pas encore : il n’y a pas d’air ici.' },
+  jaune:  { nom:'Zone lumineuse', court:'lumineuse', temp:1000, suie:true, teinte:'#F7A430',
+    quoi:'Des grains de carbone chauffés à blanc : c’est eux qui éclairent.' },
+  bleue:  { nom:'Zone de combustion complète', court:'bleue', temp:1400, suie:false, teinte:'#5BC5F2',
+    quoi:'Tout brûle jusqu’au bout : c’est ici que l’air arrive le mieux.' },
+};
+
+// La bougie n'est pas allumée partout : température de l'air autour
+function temperatureEn(x, y) {
+  const z = zoneEn(x, y);
+  if (z) return ZONES[z].temp;
+  // au-dessus de la flamme, les gaz chauds continuent de monter
+  const d = Math.hypot(x, Math.max(0, y - H));
+  if (y > H && d < 26) return Math.round(700 - d * 18);
+  return Math.round(30 + 260 * Math.exp(-Math.hypot(x, Math.max(0, y)) / 9));
+}
+
+/* -------------------- Composition de l'air sous la cloche --------------------
+   Le dioxygène est environ un cinquième de l'air. La flamme s'éteint quand il
+   n'en reste presque plus, et l'eau prend la place du gaz consommé. */
+const O2_DEPART = 21, O2_EXTINCTION = 4;
+const monteeEau = (o2) => (O2_DEPART - o2) / 100;      // fraction du volume de la cloche
+
+
+/* ============================ Les outils ============================ */
+const OUTILS = {
+  thermometre: { nom:'Thermomètre', em:'🌡️', desMission:0 },
+  cuivre:      { nom:'Fil de cuivre', em:'🪝', desMission:1 },
+  soucoupe:    { nom:'Soucoupe', em:'🍽️', desMission:2 },
+  allumette:   { nom:'Allumette', em:'🪵', desMission:3 },
+};
+
+/* ============================ Les missions ============================ */
+const MISSIONS = [
+  { outil:'thermometre', titre:'Les trois parties de la flamme',
+    but:'Une flamme n’est pas d’un seul bloc. Promène le thermomètre dedans et trouve ses trois parties.',
+    etapes:[
+      { t:'Prends le thermomètre', cible:'o-thermometre', ok:e => e.outil === 'thermometre' },
+      { t:'Trouve la partie sombre, au cœur de la flamme', ok:e => e.vues.sombre },
+      { t:'Trouve la grande partie lumineuse', ok:e => e.vues.jaune },
+      { t:'Trouve le liseré bleu, tout au bord', ok:e => e.vues.bleue },
+    ],
+    gagne:e => e.vues.sombre && e.vues.jaune && e.vues.bleue,
+    retenir:'La flamme d’une bougie a <b>trois parties</b> : une zone sombre au cœur, une grande zone lumineuse, et un mince liseré bleu sur les bords et à la base.',
+    qcm:{ q:'Pourquoi le cœur de la flamme est-il sombre ?',
+      r:['Parce que la cire n’y brûle pas encore, faute d’air',
+         'Parce que c’est la partie la plus froide de la bougie',
+         'Parce que la suie s’y accumule'], bonne:0,
+      pourquoi:'Au centre, les vapeurs de cire sont bien là, mais l’air n’y arrive pas : sans dioxygène, pas de combustion, donc pas de lumière.' } },
+
+  { outil:'thermometre', titre:'Où fait-il le plus chaud ?',
+    but:'Beaucoup pensent que le centre de la flamme est le plus chaud. Mesure les trois parties, puis chauffe le fil de cuivre.',
+    etapes:[
+      { t:'Mesure la température au cœur, dans la zone sombre', ok:e => e.mesures.sombre },
+      { t:'Mesure-la dans la grande zone lumineuse', ok:e => e.mesures.jaune },
+      { t:'Mesure-la dans le liseré bleu', ok:e => e.mesures.bleue },
+      { t:'Fais rougir le fil de cuivre là où il fait le plus chaud', cible:'o-cuivre',
+        ok:e => e.cuivreRouge },
+    ],
+    gagne:e => e.mesures.sombre && e.mesures.jaune && e.mesures.bleue && e.cuivreRouge,
+    retenir:'Le <b>liseré bleu est la partie la plus chaude</b> — près de 1400 °C — parce que le dioxygène y arrive en abondance. Le cœur sombre est le plus froid.',
+    qcm:{ q:'Pour chauffer un objet le plus vite possible, où le placer ?',
+      r:['Dans le liseré bleu, sur le bord de la flamme',
+         'Au milieu de la flamme, dans la zone sombre',
+         'Juste au-dessus de la flamme, dans la fumée'], bonne:0,
+      pourquoi:'C’est au bord que l’air arrive : la combustion y est complète et la température maximale. Au laboratoire, on chauffe toujours dans cette partie de la flamme.' } },
+
+  { outil:'soucoupe', titre:'D’où vient le noir de fumée ?',
+    but:'Le fond des marmites noircit. Cherche dans quelle partie de la flamme se dépose ce noir.',
+    etapes:[
+      { t:'Prends la soucoupe', cible:'o-soucoupe', ok:e => e.outil === 'soucoupe' },
+      { t:'Tiens-la dans la zone lumineuse et attends', ok:e => e.suieFaite },
+      { t:'Nettoie-la, puis tiens-la dans le liseré bleu', cible:'btn-nettoyer',
+        ok:e => e.testBleuFait },
+    ],
+    gagne:e => e.suieFaite && e.testBleuFait,
+    retenir:'Le noir de fumée vient de la <b>zone lumineuse</b> : les grains de carbone qui l’éclairent se déposent sur les objets froids. Dans le liseré bleu, tout brûle jusqu’au bout et la soucoupe reste propre.',
+    qcm:{ q:'Une marmite noircit au feu. Que dit ce dépôt sur la combustion ?',
+      r:['Qu’elle est incomplète : du carbone n’a pas fini de brûler',
+         'Que le feu est trop chaud pour la marmite',
+         'Que la marmite est mal lavée'], bonne:0,
+      pourquoi:'Le noir de fumée, c’est du carbone. S’il se dépose, c’est qu’il n’a pas trouvé assez de dioxygène pour brûler : la combustion est incomplète.' } },
+
+  { outil:'allumette', titre:'L’allumette qui ne brûle pas au milieu',
+    but:'Pose une allumette en travers de la flamme, dans le bas, et regarde bien où elle noircit.',
+    etapes:[
+      { t:'Prends l’allumette', cible:'o-allumette', ok:e => e.outil === 'allumette' },
+      { t:'Pose-la en travers, dans le bas de la flamme', ok:e => e.allumetteFaite },
+      { t:'Compare les deux marques et le milieu', cible:'btn-tester', ok:e => e.allumetteLue },
+    ],
+    gagne:e => e.allumetteFaite && e.allumetteLue,
+    retenir:'L’allumette noircit <b>des deux côtés</b> et reste intacte au milieu : cela prouve que le cœur de la flamme est bien plus froid que ses bords.',
+    qcm:{ q:'L’allumette ressort avec deux marques et un milieu intact. Pourquoi ?',
+      r:['Elle n’a traversé la partie chaude qu’aux deux bords',
+         'Le milieu de l’allumette est plus solide',
+         'La flamme s’est éteinte au moment du passage'], bonne:0,
+      pourquoi:'La partie chaude de la flamme est sur ses bords. Au centre, l’allumette est passée dans la zone sombre, trop froide pour l’enflammer.' } },
+
+  { outil:'thermometre', titre:'De quoi est fait l’air ?',
+    but:'Une bougie brûle sur l’eau, sous une cloche. Regarde jusqu’où l’eau monte quand la flamme s’éteint.',
+    etapes:[
+      { t:'Allume la bougie posée sur l’eau', cible:'btn-allumer', ok:e => e.allumee || e.eteinte },
+      { t:'Pose la cloche par-dessus', cible:'btn-cloche', ok:e => e.cloche },
+      { t:'Attends que la flamme s’éteigne toute seule', ok:e => e.eteinte },
+      { t:'Lis de combien l’eau est montée', cible:'btn-tester', ok:e => e.eauLue },
+    ],
+    gagne:e => e.eteinte && e.eauLue,
+    retenir:'La flamme s’éteint alors que la cloche est encore pleine de gaz : l’eau n’est montée que d’<b>un cinquième</b>. L’air contient environ <b>un cinquième de dioxygène</b> et <b>quatre cinquièmes de diazote</b>, qui n’entretient pas la combustion.',
+    qcm:{ q:'La flamme s’éteint mais la cloche est encore pleine de gaz. Que conclure ?',
+      r:['L’air n’est pas que du dioxygène : le reste ne brûle pas',
+         'Tout le gaz de la cloche a été consommé',
+         'L’eau a éteint la flamme en montant'], bonne:0,
+      pourquoi:'Seul le cinquième de dioxygène a été consommé — c’est exactement la hauteur dont l’eau est montée. Les quatre cinquièmes restants sont surtout du diazote, qui n’entretient pas la combustion.' } },
+];
+
+const LEXIQUE = [
+  ['Combustion complète', 'Le combustible brûle jusqu’au bout, parce qu’il reçoit assez de dioxygène. La flamme est bleue et ne salit pas.'],
+  ['Combustion incomplète', 'Il manque du dioxygène : une partie du carbone ne brûle pas et se dépose en noir de fumée.'],
+  ['Noir de fumée', 'La suie : de fines particules de carbone. C’est ce qui noircit le fond des marmites.'],
+  ['Combustible', 'Ce qui brûle. Pour une bougie, c’est la vapeur de cire — et non la mèche.'],
+  ['Comburant', 'Ce qui permet de brûler : le dioxygène de l’air.'],
+  ['Dioxygène', 'Le gaz de l’air qui entretient les combustions. Il occupe environ un cinquième de l’air.'],
+  ['Diazote', 'Le gaz le plus abondant de l’air — quatre cinquièmes. Il n’entretient pas la combustion.'],
+];
+
+
+/* ============================ L’état du jeu ============================ */
+const CLE = 'ike-flamme-progression';
+const vierge = () => ({
+  outil:'thermometre', ox:26, oy:20, tient:false,
+  vues:{}, mesures:{}, cuivreChauffe:0, cuivreRouge:false,
+  suie:0, suieFaite:false, testBleu:0, testBleuFait:false,
+  allumetteY:null, allumetteFaite:false, allumetteLue:false, marques:null,
+  allumee:false, cloche:false, o2:O2_DEPART, eteinte:false, eauLue:false, fumee:0,
+});
+let etat = Object.assign({ mission:0, faits:[] }, vierge());
+
+function sauver() {
+  try { localStorage.setItem(CLE, JSON.stringify({ mission:etat.mission, faits:etat.faits })); }
+  catch (e) {}
+}
+function charger() {
+  try {
+    const d = JSON.parse(localStorage.getItem(CLE) || '{}');
+    if (typeof d.mission === 'number') etat.mission = Math.min(d.mission, MISSIONS.length - 1);
+    if (Array.isArray(d.faits)) etat.faits = d.faits;
+  } catch (e) {}
+}
+// Remet la paillasse à zéro sans toucher à la progression
+function reprendre() { Object.assign(etat, vierge()); }
+
+const sceneCloche = () => etat.mission === 4;
+
+/* ======================= Le plan de travail (SVG) =======================
+   Rien n’est dessiné à taille fixe : la scène se recalcule à partir de la
+   place réellement disponible, pour tenir aussi bien sur un téléphone en
+   portrait que sur un écran de classe. */
+let Wp = 660, Hp = 340;            // taille du plan, en pixels
+let FX = 392, FY = 226, K = 2.9;   // sommet de la mèche et échelle de la flamme
+let TABLE = 300, E = 1;            // hauteur de la table, échelle des accessoires
+
+function mesurerPlan() {
+  const r = refs.plan.getBoundingClientRect();
+  Wp = Math.max(260, Math.round(r.width));
+  Hp = Math.max(180, Math.round(r.height));
+  refs.plan.setAttribute('viewBox', '0 0 ' + Wp + ' ' + Hp);
+
+  TABLE = Math.round(Hp * .88);
+  const hb = Math.max(22, Math.min(84, Hp * .15));      // hauteur de la bougie
+  FY = Math.round(TABLE - hb);
+  // la flamme prend toute la hauteur libre, sans jamais toucher les bords
+  K = Math.min((FY - Hp * .04) / (H + 8), Wp * .30 / 12);
+  // l’allumette traverse la flamme de part en part : il lui faut plus de large
+  const uD = (etat.outil === 'allumette' && !sceneCloche()) ? 21 : 12;
+  // en mission 1, les étiquettes de repérage occupent la droite du plan
+  const reserve = etat.mission === 0 ? 86 : 16;
+  K = Math.max(1.4, Math.min(K, (Wp - reserve - 12) / (uD + 10)));
+  E = K / 2.9;
+  // la flamme se décale à droite : le panneau de lecture occupe le coin haut gauche
+  FX = Math.round(Math.min(Wp - reserve - uD * K, Math.max(uD * K + 8, Wp * .58)));
+}
+
+const SX = x => FX + x * K, SY = y => FY - y * K;
+const versModele = (sx, sy) => ({ x:(sx - FX) / K, y:(FY - sy) / K });
+
+let t0 = performance.now(), temps = 0;
+const refs = {};
+
+// Le fuseau vacille légèrement : c’est le dessin qui bouge, pas les zones mesurées.
+function largeurD(y) {
+  return largeur(y) * (1 + .045 * Math.sin(temps * 3 + y * .22));
+}
+function pathZone(frac, y0, y1, pointes) {
+  const n = 30, pas = (y1 - y0) / n;
+  // « pointes » ferme la forme en amande sur ses extrémités hautes et basses
+  const prof = i => pointes ? Math.pow(Math.sin(Math.PI * i / n), .42) : 1;
+  let d = '';
+  for (let i = 0; i <= n; i++) { const y = y0 + i * pas, w = frac * largeurD(y) * prof(i);
+    d += (i ? 'L' : 'M') + SX(w).toFixed(1) + ' ' + SY(y).toFixed(1) + ' '; }
+  for (let i = n; i >= 0; i--) { const y = y0 + i * pas, w = frac * largeurD(y) * prof(i);
+    d += 'L' + SX(-w).toFixed(1) + ' ' + SY(y).toFixed(1) + ' '; }
+  return d + 'Z';
+}
+
+function definitions(g) {
+  const defs = el('defs');
+  defs.innerHTML =
+    '<radialGradient id="halo" cx="50%" cy="55%" r="50%">' +
+      '<stop offset="0%" stop-color="#FFD98A" stop-opacity=".5"/>' +
+      '<stop offset="60%" stop-color="#F7A430" stop-opacity=".14"/>' +
+      '<stop offset="100%" stop-color="#F7A430" stop-opacity="0"/></radialGradient>' +
+    '<linearGradient id="gJaune" x1="0" y1="1" x2="0" y2="0">' +
+      '<stop offset="0%" stop-color="#F7A430"/><stop offset="55%" stop-color="#FFD24A"/>' +
+      '<stop offset="100%" stop-color="#FFE9A0"/></linearGradient>' +
+    '<linearGradient id="gBleu" x1="0" y1="1" x2="0" y2="0">' +
+      '<stop offset="0%" stop-color="#5BC5F2"/><stop offset="70%" stop-color="#9FDCF7" stop-opacity=".85"/>' +
+      '<stop offset="100%" stop-color="#CDEDFB" stop-opacity=".4"/></linearGradient>' +
+    '<linearGradient id="gSombre" x1="0" y1="1" x2="0" y2="0">' +
+      '<stop offset="0%" stop-color="#6B4A2F" stop-opacity=".95"/>' +
+      '<stop offset="100%" stop-color="#8A6A48" stop-opacity=".55"/></linearGradient>' +
+    '<linearGradient id="gCire" x1="0" y1="0" x2="1" y2="0">' +
+      '<stop offset="0%" stop-color="#D8C9A8"/><stop offset="35%" stop-color="#F3E9D2"/>' +
+      '<stop offset="100%" stop-color="#C9B894"/></linearGradient>' +
+    '<linearGradient id="gEau" x1="0" y1="0" x2="0" y2="1">' +
+      '<stop offset="0%" stop-color="#8FD6F5" stop-opacity=".92"/>' +
+      '<stop offset="100%" stop-color="#4FA8CE" stop-opacity=".95"/></linearGradient>';
+  g.appendChild(defs);
+}
+
+const nuit = () => document.body.classList.contains('sombre');
+function texteSvg(g, x, y, txt, cou, anc, cls) {
+  const e = el('text', { x, y, fill:cou, 'text-anchor':anc || 'start' });
+  e.setAttribute('class', cls || 'etiq-svg'); e.textContent = txt; g.appendChild(e);
+  return e;
+}
+
+/* ------------------------- Scène 1 : la flamme ------------------------- */
+function dessinerFlamme(g) {
+  const sombre = nuit();
+
+  // la table, qui descend jusqu’au bas du plan
+  g.appendChild(el('rect', { x:0, y:TABLE, width:Wp, height:Hp - TABLE,
+    fill:sombre ? '#2A2119' : '#B98A5E' }));
+  g.appendChild(el('rect', { x:0, y:TABLE, width:Wp, height:3, fill:'rgba(0,0,0,.16)' }));
+
+  // le halo lumineux, dont l’étendue suit le vacillement
+  const hr = (29 + 1.6 * Math.sin(temps * 2.4)) * K;
+  g.appendChild(el('ellipse', { cx:FX, cy:SY(H * .45), rx:hr, ry:hr * .92, fill:'url(#halo)' }));
+
+  // la bougie
+  const bw = Math.max(9, Math.min(6 * K, Wp * .12));
+  g.appendChild(el('rect', { x:FX - bw, y:FY + 2 * E, width:bw * 2, height:TABLE - FY,
+    rx:4 * E, fill:'url(#gCire)' }));
+  g.appendChild(el('ellipse', { cx:FX, cy:FY + 2 * E, rx:bw, ry:bw * .26,
+    fill:sombre ? '#E6DCC4' : '#FBF4E4' }));
+  // les trois parties, de la plus large à la plus étroite
+  g.appendChild(el('path', { d:pathZone(1, BAS, H + 6), fill:'url(#gBleu)' }));
+  g.appendChild(el('path', { d:pathZone(BORD, H * .12, H + 4), fill:'url(#gJaune)' }));
+  g.appendChild(el('path', { d:pathZone(COEUR, H * .12, H * .58, true), fill:'url(#gSombre)' }));
+
+  // le rebord de cire par-dessus la pointe de la flamme, puis la mèche
+  g.appendChild(el('ellipse', { cx:FX, cy:FY + 2 * E, rx:bw, ry:bw * .26,
+    fill:sombre ? '#E6DCC4' : '#FBF4E4' }));
+  g.appendChild(el('path', { d:`M ${FX - .5 * K} ${FY + 2.4 * E} Q ${FX + .4 * K} ${FY} ${FX} ${FY - .4 * K}`,
+    fill:'none', stroke:'#5B4A3A', 'stroke-width':Math.max(2, Math.min(6, 1 * K)), 'stroke-linecap':'round' }));
+
+  // le repère des trois parties, le temps que l’élève les nomme
+  if (etat.mission === 0) {
+    const c = sombre ? '#ECEFF1' : '#3A3632';
+    const trait = (x1, y1, x2, y2) => g.appendChild(el('line',
+      { x1, y1, x2, y2, stroke:c, 'stroke-width':1, 'stroke-dasharray':'3 3', opacity:.55 }));
+    const dx = Math.min(74, FX - 8);
+    trait(SX(-largeur(H * .3) * .3), SY(H * .3), FX - dx, SY(H * .3));
+    texteSvg(g, FX - dx - 4, SY(H * .3) + 4, 'sombre', c, 'end');
+    const droite = Math.min(Wp - 74, SX(largeur(H * .5)) + 24 * E);
+    trait(SX(largeur(H * .7) * .4), SY(H * .7), droite - 4, SY(H * .7));
+    texteSvg(g, droite, SY(H * .7) + 4, 'lumineuse', c);
+    trait(SX(largeur(H * .3) * .93), SY(H * .3), droite - 4, SY(H * .18));
+    texteSvg(g, droite, SY(H * .18) + 4, 'liseré bleu', c);
+  }
+}
+
+
+/* --------------------- Les outils posés dans la flamme --------------------- */
+function dessinerOutil(g) {
+  const sombre = nuit();
+  const cManche = sombre ? '#8A9299' : '#6E6862';
+  const x = SX(etat.ox), y = SY(etat.oy);
+  // le manche part vers le bas à droite, comme une main qui tient l’objet
+  const mx = Math.min(Wp - 6, x + 30 * E), my = Math.min(Hp - 6, y + 22 * E);
+
+  if (etat.outil === 'allumette') {
+    const y2 = SY(etat.allumetteY != null ? etat.allumetteY : etat.oy);
+    const x1 = SX(-19), x2 = SX(19);
+    const ep = Math.max(4, Math.min(11, 2.4 * K));
+    g.appendChild(el('line', { x1, y1:y2, x2, y2, stroke:'#D9BE8E',
+      'stroke-width':ep, 'stroke-linecap':'round' }));
+    if (etat.marques) {
+      for (const m of etat.marques) {
+        g.appendChild(el('line', { x1:SX(m.x1), y1:y2, x2:SX(m.x2), y2,
+          stroke:'#2B2118', 'stroke-width':ep, 'stroke-linecap':'butt' }));
+      }
+    }
+    g.appendChild(el('circle', { cx:x2, cy:y2, r:ep * .72, fill:'#C0392B' }));
+    // la poignée : c’est par là qu’on saisit l’allumette
+    g.appendChild(el('circle', { cx:x1 - ep * 1.6, cy:y2, r:ep * 1.5, fill:'transparent',
+      stroke:'var(--accent)', 'stroke-width':2, 'stroke-dasharray':'3 3', opacity:.75 }));
+    return;
+  }
+
+  if (etat.outil === 'soucoupe') {
+    g.appendChild(el('line', { x1:x, y1:y + 1.2 * E, x2:mx, y2:my,
+      stroke:cManche, 'stroke-width':Math.max(3, Math.min(7, 1.7 * K)), 'stroke-linecap':'round' }));
+    const rx = Math.max(14, Math.min(34, 9 * K));
+    g.appendChild(el('ellipse', { cx:x, cy:y, rx, ry:rx * .33,
+      fill:sombre ? '#DCE3E8' : '#FFFFFF', stroke:'#B0ABA3', 'stroke-width':1.2 }));
+    if (etat.suie > .02) {
+      const s = Math.min(1, etat.suie);
+      g.appendChild(el('ellipse', { cx:x, cy:y + rx * .05, rx:rx * (.3 + .62 * s),
+        ry:rx * (.11 + .19 * s), fill:'#1B1512', opacity:.25 + .7 * s }));
+    }
+    return;
+  }
+
+  if (etat.outil === 'cuivre') {
+    const c = etat.cuivreChauffe;
+    const teinte = c < .12 ? '#C9885A'
+      : c < .5 ? `rgb(${Math.round(201 + 54 * c * 2)},${Math.round(136 - 40 * c * 2)},${Math.round(90 - 60 * c * 2)})`
+      : `rgb(255,${Math.round(70 + 90 * (1 - c))},${Math.round(30 * (1 - c))})`;
+    const l = Math.max(10, Math.min(24, 5 * K));
+    g.appendChild(el('line', { x1:x + l * 1.4, y1:y + l * .4, x2:mx + l, y2:my,
+      stroke:cManche, 'stroke-width':Math.max(3, 1.7 * K), 'stroke-linecap':'round' }));
+    if (c > .35) g.appendChild(el('circle', { cx:x, cy:y, r:l * 1.5, fill:teinte, opacity:.2 * c }));
+    g.appendChild(el('path', { d:`M ${x + l * 1.5} ${y + l * .45} L ${x + l * .5} ${y} L ${x - l * .5} ${y}`,
+      fill:'none', stroke:teinte, 'stroke-width':Math.max(3, Math.min(7, 1.5 * K)), 'stroke-linecap':'round' }));
+    return;
+  }
+
+  // le thermomètre : le bulbe marque exactement le point mesuré
+  const tp = temperatureEn(etat.ox, etat.oy);
+  const ep = Math.max(4, Math.min(9, 2 * K)), r = Math.max(6, Math.min(11, 3 * K));
+  g.appendChild(el('line', { x1:x, y1:y, x2:mx, y2:my,
+    stroke:cManche, 'stroke-width':ep, 'stroke-linecap':'round' }));
+  g.appendChild(el('line', { x1:x, y1:y, x2:mx - 1, y2:my - 1,
+    stroke:sombre ? '#DCE3E8' : '#FFFFFF', 'stroke-width':ep * .55, 'stroke-linecap':'round' }));
+  const cb = tp < 200 ? '#5BC5F2' : tp < 800 ? '#F7A430' : '#E83A4B';
+  g.appendChild(el('circle', { cx:x, cy:y, r, fill:cb, stroke:'#FFFFFF', 'stroke-width':1.6 }));
+  g.appendChild(el('circle', { cx:x, cy:y, r:r * 1.5, fill:'none', stroke:cb,
+    'stroke-width':1.4, opacity:.45 }));
+}
+
+/* --------------- Scène 2 : la bougie sous cloche, sur l’eau --------------- */
+function dessinerCloche(g) {
+  const sombre = nuit();
+  const marge = Math.min(104, Math.max(74, Wp * .22));   // place de la graduation
+  const utile = Wp - marge;
+  const CXc = Math.round(utile * .5);
+  const FONDC = Math.round(Hp * .90);
+  const EAU0 = Math.round(Hp * .76);                     // niveau de l’eau dans la cuve
+  const HAUTC = Math.round(EAU0 - Hp * .60);             // sommet de la cloche
+  const DEMI = Math.round(Math.min(utile * .32, Hp * .26));
+  const ec = Math.max(.55, DEMI / 96);                   // échelle des accessoires
+
+  g.appendChild(el('rect', { x:0, y:FONDC + 5, width:Wp, height:Hp - FONDC,
+    fill:sombre ? '#2A2119' : '#B98A5E' }));
+
+  // la cuve et son eau
+  const cuveG = Math.max(6, CXc - DEMI * 1.55), cuveD = Math.min(utile + 10, CXc + DEMI * 1.55);
+  g.appendChild(el('rect', { x:cuveG, y:EAU0, width:cuveD - cuveG, height:FONDC - EAU0 + 5,
+    fill:'url(#gEau)' }));
+  g.appendChild(el('rect', { x:cuveG - 4, y:EAU0 - Hp * .09, width:cuveD - cuveG + 8,
+    height:FONDC - EAU0 + Hp * .09 + 7, rx:5,
+    fill:'none', stroke:sombre ? '#4A5762' : '#9FB6C4', 'stroke-width':2.5 }));
+
+  // la montée de l’eau à l’intérieur de la cloche
+  const hGaz = EAU0 - HAUTC;
+  const monte = etat.cloche ? monteeEau(etat.o2) * hGaz : 0;
+  const nivInt = EAU0 - monte;
+  if (etat.cloche && monte > .5) {
+    g.appendChild(el('rect', { x:CXc - DEMI + 3, y:nivInt, width:DEMI * 2 - 6,
+      height:EAU0 - nivInt + 2, fill:'#7FCEEE', opacity:.92 }));
+    g.appendChild(el('line', { x1:CXc - DEMI + 3, y1:nivInt, x2:CXc + DEMI - 3, y2:nivInt,
+      stroke:'#2E90B8', 'stroke-width':2 }));
+  }
+
+  // la bougie, posée sur un flotteur
+  const hb = Math.max(26, Hp * .16), bhaut = EAU0 - hb;
+  g.appendChild(el('ellipse', { cx:CXc, cy:EAU0 - 2, rx:24 * ec, ry:5.5 * ec,
+    fill:sombre ? '#4A5762' : '#C8D4DB' }));
+  g.appendChild(el('rect', { x:CXc - 11 * ec, y:bhaut, width:22 * ec, height:hb - 4, rx:3,
+    fill:'url(#gCire)' }));
+  g.appendChild(el('ellipse', { cx:CXc, cy:bhaut, rx:11 * ec, ry:3.4 * ec,
+    fill:sombre ? '#E6DCC4' : '#FBF4E4' }));
+  g.appendChild(el('line', { x1:CXc, y1:bhaut, x2:CXc, y2:bhaut - 5 * ec,
+    stroke:'#5B4A3A', 'stroke-width':2.2 * ec, 'stroke-linecap':'round' }));
+
+  // la flamme : elle rétrécit à mesure que le dioxygène se raréfie
+  const fy = bhaut - 5 * ec;
+  if (etat.allumee) {
+    const vie = Math.max(.25, Math.min(1, (etat.o2 - O2_EXTINCTION) / (O2_DEPART - O2_EXTINCTION)));
+    const hf = (13 + 21 * vie) * ec * (1 + .06 * Math.sin(temps * 7));
+    const lf = 6.5 * ec * (.55 + .45 * vie);
+    g.appendChild(el('ellipse', { cx:CXc, cy:fy - hf * .45, rx:hf * 1.2, ry:hf * 1.1,
+      fill:'url(#halo)' }));
+    g.appendChild(el('path', {
+      d:`M ${CXc} ${fy + 2} Q ${CXc - lf} ${fy - hf * .5} ${CXc} ${fy - hf} Q ${CXc + lf} ${fy - hf * .5} ${CXc} ${fy + 2} Z`,
+      fill:'url(#gJaune)' }));
+  } else if (etat.fumee > 0) {
+    for (let i = 0; i < 4; i++) {
+      const p = (etat.fumee * 30 + i * 9) % 34;
+      g.appendChild(el('circle', { cx:CXc + 5 * ec * Math.sin(p * .28 + i), cy:fy - 4 - p * ec,
+        r:(2 + p * .09) * ec, fill:'#9AA0A6', opacity:Math.max(0, .42 - p * .012) }));
+    }
+  }
+
+  // la cloche transparente
+  if (etat.cloche) {
+    const a = 12 * ec;
+    g.appendChild(el('path', {
+      d:`M ${CXc - DEMI} ${FONDC} L ${CXc - DEMI} ${HAUTC + a} Q ${CXc - DEMI} ${HAUTC} ${CXc - DEMI + a} ${HAUTC} L ${CXc + DEMI - a} ${HAUTC} Q ${CXc + DEMI} ${HAUTC} ${CXc + DEMI} ${HAUTC + a} L ${CXc + DEMI} ${FONDC}`,
+      fill:sombre ? 'rgba(180,214,232,.07)' : 'rgba(120,180,210,.10)',
+      stroke:sombre ? '#7FA9C0' : '#6EA3BF', 'stroke-width':2.5, 'stroke-linejoin':'round' }));
+    g.appendChild(el('line', { x1:CXc - DEMI + a, y1:HAUTC + a, x2:CXc - DEMI + a,
+      y2:HAUTC + a * 3, stroke:'#FFFFFF', 'stroke-width':3.5, opacity:.5, 'stroke-linecap':'round' }));
+
+    // la graduation en cinq parts rend le « cinquième » lisible d’un coup d’œil
+    const c = sombre ? '#ECEFF1' : '#3A3632';
+    for (let i = 0; i <= 5; i++) {
+      const yy = EAU0 - hGaz * i / 5;
+      g.appendChild(el('line', { x1:CXc + DEMI, y1:yy, x2:CXc + DEMI + (i === 1 ? 16 : 9), y2:yy,
+        stroke:c, 'stroke-width':i === 1 ? 2 : 1, opacity:i === 1 ? .95 : .4 }));
+    }
+    texteSvg(g, CXc + DEMI + 20, EAU0 - hGaz / 5 - 3, 'un cinquième', c, 'start', 'chiffre-svg');
+    if (etat.eteinte)
+      texteSvg(g, CXc + DEMI + 20, EAU0 - hGaz / 5 + 13, 'l’eau s’arrête ici', c);
+  }
+}
+
+
+/* ====================== Ce qui se passe avec le temps ====================== */
+// Les segments de l’allumette qui ont traversé une partie assez chaude pour brûler
+function marquesAllumette(y) {
+  const segs = [], PAS = .5;
+  let debut = null;
+  for (let x = -19; x <= 19.001; x += PAS) {
+    const z = zoneEn(x, y);
+    const chaud = z ? ZONES[z].temp >= 900 : false;
+    if (chaud && debut === null) debut = x;
+    if (!chaud && debut !== null) { segs.push({ x1:debut, x2:x }); debut = null; }
+  }
+  if (debut !== null) segs.push({ x1:debut, x2:19 });
+  return segs;
+}
+
+function avancer(dt) {
+  if (sceneCloche()) {
+    if (etat.allumee && etat.cloche) {
+      etat.o2 = Math.max(O2_EXTINCTION, etat.o2 - dt * 2.1);   // la cloche se vide en ~8 s
+      if (etat.o2 <= O2_EXTINCTION + .001) {
+        etat.allumee = false; etat.eteinte = true; etat.fumee = .001;
+        toast('La flamme s’est éteinte toute seule.');
+        rendreActions(); appelerBouton('btn-tester');
+      }
+    }
+    if (etat.fumee > 0) etat.fumee += dt;
+    return;
+  }
+
+  const z = zoneEn(etat.ox, etat.oy);
+
+  if (etat.outil === 'thermometre' && z) {
+    etat.vues[z] = true;
+    etat.mesures[z] = ZONES[z].temp;
+  }
+
+  if (etat.outil === 'cuivre') {
+    const cible = z === 'bleue' ? 1 : z === 'jaune' ? .55 : z === 'sombre' ? .18 : 0;
+    etat.cuivreChauffe += (cible - etat.cuivreChauffe) * Math.min(1, dt * 1.7);
+    if (z === 'bleue' && etat.cuivreChauffe > .82 && !etat.cuivreRouge) {
+      etat.cuivreRouge = true;
+      toast('Le cuivre rougit : c’est ici qu’il fait le plus chaud.');
+    }
+  } else if (etat.cuivreChauffe > 0) {
+    etat.cuivreChauffe = Math.max(0, etat.cuivreChauffe - dt * .9);
+  }
+
+  if (etat.outil === 'soucoupe' && z) {
+    if (ZONES[z].suie) {
+      etat.suie = Math.min(1, etat.suie + dt * .55);
+      if (etat.suie >= .7 && !etat.suieFaite) {
+        etat.suieFaite = true;
+        toast('La soucoupe se couvre de noir de fumée.');
+      }
+    } else if (z === 'bleue') {
+      if (etat.suie < .08) {
+        etat.testBleu += dt;
+        if (etat.testBleu > 2.2 && !etat.testBleuFait) {
+          etat.testBleuFait = true;
+          toast('Dans le liseré bleu, la soucoupe reste propre.');
+        }
+      } else etat.testBleu = 0;
+    }
+  }
+
+  if (etat.outil === 'allumette') {
+    const y = etat.allumetteY;
+    if (y != null && y > -2 && y < H) {
+      etat.tempsFeu = (etat.tempsFeu || 0) + dt;
+      if (etat.tempsFeu > 1) {
+        etat.marques = marquesAllumette(y);
+        if (y < H * .5 && !etat.allumetteFaite) {
+          etat.allumetteFaite = true;
+          toast('Deux marques… et le milieu intact !');
+          appelerBouton('btn-tester');
+        }
+      }
+    } else etat.tempsFeu = 0;
+  }
+}
+
+/* ============================ Le rendu du plan ============================ */
+let derniereMesure = -9;
+function dessiner() {
+  // la scène se remesure quatre fois par seconde : assez pour suivre une
+  // rotation d’écran, sans forcer un recalcul de mise en page à chaque image
+  if (temps - derniereMesure > .25) { derniereMesure = temps; mesurerPlan(); }
+  const g = refs.plan;
+  while (g.firstChild) g.removeChild(g.firstChild);
+  definitions(g);
+  if (sceneCloche()) dessinerCloche(g);
+  else { dessinerFlamme(g); dessinerOutil(g); }
+}
+
+const nb = x => String(x).replace('.', ',');
+function majLecture() {
+  const box = $('lecture');
+  if (sceneCloche()) {
+    const reste = Math.round(monteeEau(etat.o2) * 1000) / 10;
+    $('l-outil').textContent = 'Sous la cloche';
+    $('l-zone').textContent = etat.eteinte ? 'La flamme s’est éteinte'
+      : etat.cloche ? 'La flamme consomme le dioxygène'
+      : etat.allumee ? 'La bougie brûle à l’air libre' : 'Bougie éteinte';
+    $('l-temp').textContent = etat.cloche || etat.eteinte ? nb(reste) + ' %' : '';
+    $('l-temp').className = 'l-temp froid';
+    $('l-quoi').textContent = etat.cloche || etat.eteinte
+      ? 'L’eau est montée de ' + nb(reste) + ' % du volume de la cloche.' : '';
+    box.classList.remove('chaud');
+    return;
+  }
+
+  const z = zoneEn(etat.ox, etat.oy);
+  const tp = temperatureEn(etat.ox, etat.oy);
+  $('l-outil').textContent = OUTILS[etat.outil].nom;
+  $('l-zone').textContent = z ? ZONES[z].nom : 'En dehors de la flamme';
+  $('l-temp').textContent = tp + ' °C';
+  $('l-temp').className = 'l-temp ' + (tp < 200 ? 'froid' : tp < 800 ? 'tiede' : 'brulant');
+  box.classList.toggle('chaud', tp >= 800);
+
+  let quoi = z ? ZONES[z].quoi : 'Approche l’outil de la flamme.';
+  if (z && etat.outil === 'soucoupe') quoi = ZONES[z].suie
+    ? 'Le carbone se dépose : la soucoupe noircit.' : 'Rien ne se dépose ici.';
+  if (z && etat.outil === 'cuivre') quoi = z === 'bleue'
+    ? 'Le fil rougit : c’est la partie la plus chaude.' : 'Le fil chauffe, mais ne rougit pas.';
+  $('l-quoi').textContent = quoi;
+}
+
+/* ========================= Prendre l’outil en main ========================= */
+function versPlan(ev) {
+  const ctm = refs.plan.getScreenCTM();
+  if (!ctm) return null;
+  const p = new DOMPoint(ev.clientX, ev.clientY).matrixTransform(ctm.inverse());
+  return versModele(p.x, p.y);
+}
+function poser(ev) {
+  if (sceneCloche()) return;
+  const m = versPlan(ev);
+  if (!m) return;
+  if (etat.outil === 'allumette') {
+    etat.allumetteY = Math.max(-6, Math.min(H + 8, m.y));
+    etat.marques = null; etat.tempsFeu = 0;
+  } else {
+    etat.ox = Math.max(-34, Math.min(34, m.x));
+    etat.oy = Math.max(-14, Math.min(H + 16, m.y));
+  }
+}
+function brancherPlan() {
+  const p = refs.plan;
+  p.addEventListener('pointerdown', ev => {
+    if (sceneCloche()) return;
+    etat.tient = true; p.setPointerCapture(ev.pointerId); poser(ev); ev.preventDefault();
+  });
+  p.addEventListener('pointermove', ev => { if (etat.tient) poser(ev); });
+  const lacher = () => { etat.tient = false; };
+  p.addEventListener('pointerup', lacher);
+  p.addEventListener('pointercancel', lacher);
+}
+
+/* ============================ Le bac d’outils ============================ */
+function rendreOutils() {
+  const bac = $('bac-outils');
+  bac.style.display = sceneCloche() ? 'none' : '';
+  if (sceneCloche()) return;
+  const liste = $('liste-outils');
+  liste.innerHTML = '';
+  for (const cle in OUTILS) {
+    const o = OUTILS[cle];
+    const dispo = etat.mission >= o.desMission;
+    const b = document.createElement('button');
+    b.className = 'outil'; b.id = 'o-' + cle; b.type = 'button';
+    b.disabled = !dispo;
+    b.setAttribute('aria-pressed', etat.outil === cle ? 'true' : 'false');
+    b.innerHTML = '<span class="em">' + o.em + '</span>' + o.nom;
+    if (dispo) b.onclick = () => choisirOutil(cle);
+    else b.title = 'Disponible à la mission ' + (o.desMission + 1);
+    liste.appendChild(b);
+  }
+  surbrillerCible();
+}
+function choisirOutil(cle) {
+  etat.outil = cle;
+  if (cle === 'allumette' && etat.allumetteY == null) etat.allumetteY = H * .35;
+  if (cle === 'soucoupe') etat.testBleu = 0;
+  rendreOutils(); rendreActions(); rendreEtapes(); cacherBilan();
+}
+
+/* ====================== Les boutons du bas de l’écran ====================== */
+function rendreActions() {
+  const z = $('actions');
+  z.innerHTML = '';
+  const bouton = (id, txt, cls, act) => {
+    const b = document.createElement('button');
+    b.className = 'btn ' + (cls || ''); b.id = id; b.textContent = txt; b.onclick = act;
+    z.appendChild(b); return b;
+  };
+  if (sceneCloche()) {
+    bouton('btn-allumer',
+      etat.eteinte ? '↺ Recommencer' : etat.allumee ? '🕯️ Éteindre' : '🔥 Allumer',
+      etat.allumee || etat.eteinte ? 'btn-fantome' : '', () => {
+        if (etat.eteinte) {                    // refaire l’expérience depuis le début
+          etat.eteinte = false; etat.o2 = O2_DEPART; etat.cloche = false;
+          etat.allumee = false; etat.fumee = 0;
+        } else {
+          etat.allumee = !etat.allumee; etat.fumee = etat.allumee ? 0 : .001;
+        }
+        rendreActions(); rendreEtapes();
+      });
+    bouton('btn-cloche', etat.cloche ? '⬆️ Retirer' : '⬇️ Poser la cloche',
+      'btn-fantome', () => {
+        etat.cloche = !etat.cloche;
+        if (!etat.cloche && etat.eteinte) { etat.o2 = O2_DEPART; etat.eteinte = false; etat.fumee = 0; }
+        rendreActions(); rendreEtapes();
+      });
+    bouton('btn-tester', '✅ Conclure', '', conclure);
+  } else {
+    if (etat.outil === 'soucoupe') {
+      bouton('btn-nettoyer', '🧽 Nettoyer la soucoupe', 'btn-fantome', () => {
+        etat.suie = 0; etat.testBleu = 0;
+        toast('Soucoupe nettoyée.'); rendreEtapes();
+      });
+    }
+    if (etat.outil === 'allumette') {
+      bouton('btn-nettoyer', '🪵 Allumette neuve', 'btn-fantome', () => {
+        etat.marques = null; etat.tempsFeu = 0; toast('Nouvelle allumette.');
+      });
+    }
+    bouton('btn-tester', '✅ Que conclure ?', '', conclure);
+  }
+  surbrillerCible();
+}
+
+// Un bouton qui appelle l’attention quand le moment est venu de s’en servir
+function appelerBouton(id) {
+  const b = $(id); if (b) b.classList.add('appelle');
+}
+
+
+/* ====================== Le bilan : « que conclure ? » ====================== */
+function cacherBilan() {
+  $('bilan').classList.remove('visible');
+  $('atelier').classList.remove('avec-bilan');
+}
+function montrerBilan(em, titre, objectif, phrase, suite) {
+  const b = $('bilan');
+  b.innerHTML =
+    '<div class="verdict"><span class="em">' + em + '</span><h3>' + titre + '</h3>' +
+    '<button class="reduire" id="bilan-x" aria-label="Réduire">✕</button></div>' +
+    (objectif ? '<div class="objectif">' + objectif + '</div>' : '') +
+    '<p class="phrase">' + phrase + '</p>' +
+    '<div class="actions"><button class="btn btn-fantome" id="bilan-ok">' +
+      (suite || 'Continuer') + '</button></div>';
+  b.classList.add('visible');
+  $('atelier').classList.add('avec-bilan');
+  $('bilan-x').onclick = cacherBilan;
+  $('bilan-ok').onclick = cacherBilan;
+}
+
+function conclure() {
+  const b = $('btn-tester'); if (b) b.classList.remove('appelle');
+
+  if (sceneCloche()) {
+    if (!etat.cloche) {
+      montrerBilan('🫙', 'Pose d’abord la cloche', '',
+        'À l’air libre, la bougie a tout l’air qu’elle veut : elle ne s’éteindra jamais. Pose la cloche pour enfermer une quantité d’air connue.');
+      return;
+    }
+    if (!etat.eteinte) {
+      montrerBilan('⏳', 'Attends encore un peu', '',
+        'La flamme consomme le dioxygène enfermé sous la cloche. Regarde l’eau : elle monte à mesure que le gaz disparaît.');
+      return;
+    }
+    etat.eauLue = true;
+    const m = Math.round(monteeEau(etat.o2) * 1000) / 10;
+    montrerBilan('💨', 'L’air n’est pas que du dioxygène',
+      'L’eau est montée de ' + String(m).replace('.', ',') + ' % — à peu près un cinquième de la cloche.',
+      'La flamme s’est éteinte alors que la cloche est encore pleine de gaz. Seul le dioxygène a brûlé : il occupait <b>un cinquième</b> de l’air. Le reste — <b>quatre cinquièmes</b> — est surtout du diazote, qui n’entretient pas la combustion.');
+    rendreEtapes(); verifierProgres();
+    return;
+  }
+
+  if (etat.outil === 'allumette') {
+    if (!etat.marques) {
+      montrerBilan('🪵', 'L’allumette n’a rien traversé', '',
+        'Fais glisser l’allumette pour qu’elle traverse la flamme, dans sa partie basse, et attends un instant.');
+      return;
+    }
+    etat.allumetteLue = true;
+    const n = etat.marques.length;
+    montrerBilan(n >= 2 ? '🔥' : '🤔',
+      n >= 2 ? 'Deux marques, un milieu intact' : 'Une seule marque',
+      n >= 2 ? 'L’allumette a brûlé des deux côtés seulement.' : '',
+      n >= 2
+        ? 'Les bords de la flamme sont brûlants, mais le milieu — la zone sombre — est trop froid pour enflammer le bois. La flamme est <b>creuse</b> : elle brûle sur ses bords, là où l’air arrive.'
+        : 'Descends l’allumette plus bas, dans la moitié inférieure de la flamme : c’est là que la zone sombre est la plus large.');
+    rendreEtapes(); verifierProgres();
+    return;
+  }
+
+  const z = zoneEn(etat.ox, etat.oy);
+  if (!z) {
+    montrerBilan('👉', 'Ton outil est hors de la flamme', '',
+      'Fais-le glisser dans la flamme : le panneau en haut à gauche te dira dans quelle partie tu te trouves.');
+    return;
+  }
+  const Z = ZONES[z];
+  let phrase = Z.quoi;
+  if (etat.outil === 'soucoupe') phrase = Z.suie
+    ? 'Le noir de fumée, c’est du <b>carbone</b> qui n’a pas fini de brûler. Il se dépose sur tout objet froid qu’on approche de cette partie de la flamme.'
+    : 'Ici, la combustion est complète : il ne reste plus de carbone à déposer, la soucoupe reste propre.';
+  if (etat.outil === 'cuivre') phrase = z === 'bleue'
+    ? 'Le fil rougit : nous sommes dans la partie la plus chaude de la flamme, près de <b>1400 °C</b>.'
+    : 'Le fil chauffe sans rougir : cette partie de la flamme est moins chaude que le liseré bleu.';
+  montrerBilan(z === 'bleue' ? '💙' : z === 'jaune' ? '💛' : '🖤',
+    Z.nom, 'Température mesurée : ' + Z.temp + ' °C', phrase);
+  rendreEtapes(); verifierProgres();
+}
+
+/* ============================== Les missions ============================== */
+function rendreMission() {
+  const M = MISSIONS[etat.mission];
+  $('m-num').textContent = etat.mission + 1;
+  $('m-rang').textContent = 'Mission ' + (etat.mission + 1) + ' sur ' + MISSIONS.length;
+  $('m-titre').textContent = M.titre;
+  $('m-but').textContent = M.but;
+  rendreEtapes();
+}
+function rendreEtapes() {
+  const M = MISSIONS[etat.mission], z = $('etapes');
+  z.innerHTML = '';
+  let courante = -1;
+  const faites = M.etapes.map(e => !!e.ok(etat));
+  for (let i = 0; i < faites.length; i++) if (!faites[i]) { courante = i; break; }
+  M.etapes.forEach((e, i) => {
+    const d = document.createElement('div');
+    d.className = 'etape' + (faites[i] ? ' faite' : '') + (i === courante ? ' courante' : '');
+    d.innerHTML = '<span class="coche">' + (faites[i] ? '✓' : i + 1) + '</span><span>' + e.t + '</span>';
+    z.appendChild(d);
+  });
+  const n = faites.filter(Boolean).length;
+  $('m-jauge').style.width = Math.round(n / M.etapes.length * 100) + '%';
+  surbrillerCible();
+}
+// L’élément à montrer du doigt : celui de la première étape non franchie
+function cibleEffective() {
+  const M = MISSIONS[etat.mission];
+  for (const e of M.etapes) if (!e.ok(etat)) return e.cible || null;
+  return null;
+}
+function surbrillerCible() {
+  document.querySelectorAll('.appelle').forEach(n => n.classList.remove('appelle'));
+  const c = cibleEffective();
+  if (c && $(c)) $(c).classList.add('appelle');
+}
+
+function verifierProgres() {
+  const M = MISSIONS[etat.mission];
+  if (!M.gagne(etat)) { rendreEtapes(); return; }
+  if (etat.faits.includes(etat.mission)) { rendreEtapes(); return; }
+  etat.faits.push(etat.mission); sauver(); rendreEtapes();
+  setTimeout(ouvrirQcm, 620);
+}
+
+/* ================================ Le QCM ================================ */
+function ouvrirQcm() {
+  const M = MISSIONS[etat.mission], q = M.qcm;
+  const c = $('qcm-carte');
+  c.innerHTML = '<h2>🎓 Mission réussie !</h2><p class="q-question">' + q.q + '</p>' +
+    '<div class="q-choix" id="q-choix"></div><div id="q-retour"></div>';
+  const zc = $('q-choix');
+  q.r.forEach((txt, i) => {
+    const b = document.createElement('button');
+    b.className = 'q-rep'; b.type = 'button'; b.textContent = txt;
+    b.onclick = () => repondre(i, b);
+    zc.appendChild(b);
+  });
+  ouvrir('v-qcm');
+}
+function repondre(i, bouton) {
+  const M = MISSIONS[etat.mission], q = M.qcm;
+  const juste = i === q.bonne;
+  bouton.classList.add(juste ? 'juste' : 'faux');
+  document.querySelectorAll('.q-rep').forEach(b => b.disabled = true);
+  if (!juste) document.querySelectorAll('.q-rep')[q.bonne].classList.add('juste');
+  $('q-retour').innerHTML =
+    '<div class="q-mot ' + (juste ? 'ok' : 'non') + '">' +
+      (juste ? '✅ Bien vu.' : '💡 Regarde plutôt la bonne réponse.') + ' ' + q.pourquoi + '</div>' +
+    '<button class="btn btn-large" id="q-suite">Continuer</button>';
+  $('q-suite').onclick = () => { fermer('v-qcm'); ouvrirPassage(); };
+}
+
+/* ===================== L’écran de passage entre missions ===================== */
+function ouvrirPassage() {
+  const M = MISSIONS[etat.mission], suivante = MISSIONS[etat.mission + 1];
+  const c = $('passage-carte');
+  c.innerHTML =
+    '<div class="p-fanion"><span class="rond">🏅</span><div>' +
+      '<b>Mission ' + (etat.mission + 1) + ' terminée</b>' +
+      '<span>' + M.titre + '</span></div></div>' +
+    '<div class="p-acquis"><b>Ce que tu retiens :</b><br>' + M.retenir + '</div>' +
+    (suivante
+      ? '<div class="p-suite"><div class="etiq">Mission suivante</div><b>' + suivante.titre +
+        '</b><span>' + suivante.but + '</span></div>' +
+        '<button class="btn btn-large" id="p-go">Commencer la mission ' + (etat.mission + 2) + '</button>' +
+        '<p class="p-neuf">La paillasse est remise en ordre pour la nouvelle expérience.</p>'
+      : '<div class="p-suite"><div class="etiq">Parcours terminé</div><b>Tu connais la flamme</b>' +
+        '<span>Ses trois parties, la plus chaude, l’origine du noir de fumée et la composition de l’air.</span></div>' +
+        '<button class="btn btn-large" id="p-go">Revenir au plan de travail</button>');
+  $('p-go').onclick = () => {
+    fermer('v-passage');
+    if (suivante) { etat.mission++; sauver(); reprendre(); demarrerMission(); }
+    else { cacherBilan(); rendreEtapes(); }
+  };
+  ouvrir('v-passage');
+}
+
+function demarrerMission() {
+  cacherBilan();
+  // chaque mission commence avec l’outil qu’elle demande
+  etat.outil = MISSIONS[etat.mission].outil;
+  if (etat.outil === 'allumette' && etat.allumetteY == null) etat.allumetteY = H * .35;
+  rendreMission(); rendreOutils(); rendreActions(); majLecture();
+}
+
+
+/* ============================== Les fenêtres ============================== */
+function ouvrir(id) { $(id).classList.add('visible'); }
+function fermer(id) { $(id).classList.remove('visible'); }
+
+let minuteurToast = null;
+function toast(txt, alerte) {
+  const t = $('toast');
+  t.textContent = txt;
+  t.classList.toggle('alerte', !!alerte);
+  t.classList.add('visible');
+  clearTimeout(minuteurToast);
+  minuteurToast = setTimeout(() => t.classList.remove('visible'), 2600);
+}
+
+function rendreLexique() {
+  $('liste-lexique').innerHTML = LEXIQUE.map(([m, d]) =>
+    '<div class="lex-entree"><em>' + m + '</em>' + d + '</div>').join('');
+}
+function rendreListeMissions() {
+  $('liste-missions').innerHTML = MISSIONS.map((m, i) => {
+    const fait = etat.faits.includes(i), ouverte = i <= etat.mission;
+    return '<div class="d-carte' + (fait ? ' fait' : ouverte ? '' : ' verrou') + '">' +
+      '<span class="num">' + (fait ? '✓' : i + 1) + '</span>' +
+      '<div><b>' + m.titre + '</b><span>' +
+      (ouverte ? m.but : 'Termine la mission précédente pour l’ouvrir.') +
+      '</span></div></div>';
+  }).join('');
+}
+
+/* ================================ Le thème ================================ */
+function appliquerTheme(t) {
+  document.body.classList.toggle('sombre', t === 'sombre');
+  $('btn-theme').textContent = t === 'sombre' ? '☀️' : '🌙';
+  try { localStorage.setItem('ike-theme', t); } catch (e) {}
+}
+
+/* ================== Repli du panneau sur les petits écrans ================== */
+function replierSiPetitEcran() {
+  const petit = window.innerHeight < 620 || window.innerWidth < 560;
+  document.body.classList.toggle('replie', petit);
+  $('m-plier').setAttribute('aria-expanded', petit ? 'false' : 'true');
+}
+
+/* ============================ La boucle du temps ============================ */
+function boucle(maintenant) {
+  const dt = Math.min(.05, (maintenant - t0) / 1000);
+  t0 = maintenant; temps += dt;
+  avancer(dt);
+  dessiner();
+  majLecture();
+  if (Math.floor(temps * 5) !== Math.floor((temps - dt) * 5)) verifierProgres();
+  requestAnimationFrame(boucle);
+}
+
+/* ============================== Le démarrage ============================== */
+function init() {
+  refs.plan = $('plan');
+  charger();
+  mesurerPlan();
+
+  let th = 'clair';
+  try { th = localStorage.getItem('ike-theme') || 'clair'; } catch (e) {}
+  appliquerTheme(th);
+  $('btn-theme').onclick = () =>
+    appliquerTheme(document.body.classList.contains('sombre') ? 'clair' : 'sombre');
+
+  $('btn-lexique').onclick = () => { rendreLexique(); ouvrir('v-lexique'); };
+  $('btn-missions').onclick = () => { rendreListeMissions(); ouvrir('v-missions'); };
+  $('btn-aide').onclick = () => ouvrir('v-aide');
+  document.querySelectorAll('[data-ferme]').forEach(b =>
+    b.onclick = () => fermer(b.getAttribute('data-ferme')));
+  document.querySelectorAll('.voile').forEach(v =>
+    v.addEventListener('click', ev => { if (ev.target === v) v.classList.remove('visible'); }));
+  document.addEventListener('keydown', ev => {
+    if (ev.key === 'Escape') document.querySelectorAll('.voile.visible')
+      .forEach(v => v.classList.remove('visible'));
+  });
+
+  $('btn-rezero').onclick = () => {
+    try { localStorage.removeItem(CLE); } catch (e) {}
+    etat.mission = 0; etat.faits = []; reprendre();
+    fermer('v-missions'); demarrerMission();
+    toast('Parcours remis à zéro.');
+  };
+
+  $('m-plier').onclick = () => {
+    const r = document.body.classList.toggle('replie');
+    $('m-plier').setAttribute('aria-expanded', r ? 'false' : 'true');
+    mesurerPlan();
+  };
+
+  brancherPlan();
+  replierSiPetitEcran();
+  window.addEventListener('resize', () => { replierSiPetitEcran(); mesurerPlan(); });
+  window.addEventListener('orientationchange', () => { replierSiPetitEcran(); mesurerPlan(); });
+
+  demarrerMission();
+  try { if (!localStorage.getItem('ike-flamme-vu')) { ouvrir('v-aide');
+    localStorage.setItem('ike-flamme-vu', '1'); } } catch (e) { ouvrir('v-aide'); }
+
+  requestAnimationFrame(m => { t0 = m; requestAnimationFrame(boucle); });
+}
+init();
+
+</script>
+</body>
+</html>
