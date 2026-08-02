@@ -1,0 +1,1660 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fabrique ton tam-tam — Labo-Bénin</title>
+<meta name="theme-color" content="#F7F5F0">
+<link rel="stylesheet" href="../../assets/polices.css">
+<style>
+/* ===== Jetons du design system Labo-Bénin (intégrés : fichier autonome) ===== */
+:root {
+  --primary:#C4D94E; --accent:#5BC5F2; --accent-doux:#D6F0FB;
+  --tertiary:#F7A430; --destructive:#E83A4B; --success:#2A9D8F;
+  --neutral:#3A3632; --background:#F7F5F0; --surface:#FFFFFF; --surface-muted:#F0EEE9;
+  --border:#D3CFC8; --border-strong:#B0ABA3; --ring:#5BC5F2;
+  --font-display:'Baloo 2','Segoe UI',system-ui,sans-serif;
+  --font-body:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;
+  --radius-sm:8px; --radius-md:12px; --radius-lg:16px; --radius-xl:24px; --radius-full:9999px;
+  --shadow-soft:0 4px 16px rgba(58,54,50,.05);
+  --shadow-raised:0 6px 20px rgba(58,54,50,.06);
+  --ease:cubic-bezier(.4,0,.2,1);
+  --metal:#B0ABA3; --cuivre:#C9885A;
+}
+body.sombre {
+  --neutral:#ECEFF1; --background:#14181C; --surface:#1C232A; --surface-muted:#232C34;
+  --border:#333E47; --border-strong:#4A5762; --accent-doux:#17323F;
+  --shadow-soft:0 4px 16px rgba(0,0,0,.28); --shadow-raised:0 6px 20px rgba(0,0,0,.34);
+  --metal:#8A9299;
+}
+
+*,*::before,*::after { box-sizing:border-box; }
+body {
+  margin:0; font-family:var(--font-body); font-size:16px; color:var(--neutral);
+  background:var(--background); overflow:hidden;
+  height:100dvh; display:flex; flex-direction:column;
+  -webkit-tap-highlight-color:transparent; -webkit-text-size-adjust:100%;
+}
+h1,h2,h3,h4 { font-family:var(--font-display); margin:0; line-height:1.2; }
+p { margin:0; }
+:focus-visible { outline:2px solid var(--ring); outline-offset:2px; border-radius:var(--radius-sm); }
+
+/* ============================ En-tête ============================ */
+header {
+  display:flex; align-items:center; gap:8px; flex:none;
+  padding:6px 10px; background:var(--surface); border-bottom:1px solid var(--border);
+}
+header h1 { font-size:15px; font-weight:800; line-height:1.15; }
+header .sous { font-size:10.5px; opacity:.6; }
+.icone-btn {
+  width:40px; height:40px; flex:none; display:grid; place-items:center;
+  border:none; background:none; border-radius:var(--radius-md);
+  font-size:18px; color:inherit; cursor:pointer; text-decoration:none;
+}
+.icone-btn:hover { background:var(--surface-muted); }
+.tete-fin { margin-left:auto; display:flex; gap:2px; align-items:center; }
+
+/* ===================== Bandeau de mission (EN HAUT) ===================== */
+#mission {
+  flex:none; background:var(--surface); border-bottom:1px solid var(--border);
+  padding:8px 12px 9px;
+}
+.m-haut { display:flex; align-items:center; gap:9px; }
+.m-pastille {
+  width:30px; height:30px; flex:none; border-radius:var(--radius-sm);
+  display:grid; place-items:center; background:var(--accent-doux);
+  font-family:var(--font-display); font-weight:800; font-size:13px;
+}
+.m-titres { flex:1; min-width:0; }
+.m-titres b { display:block; font-size:14px; font-weight:600; line-height:1.2; }
+.m-titres span { font-size:11.5px; opacity:.65; line-height:1.35; display:block; }
+.m-rang {
+  font-size:10.5px !important; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--accent); opacity:1 !important; margin-bottom:1px;
+}
+.m-plier {
+  width:34px; height:34px; flex:none; border:none; background:none; cursor:pointer;
+  border-radius:var(--radius-sm); font-size:14px; color:inherit;
+  transition:transform .2s var(--ease);
+}
+.m-plier:hover { background:var(--surface-muted); }
+#mission.ouvert .m-plier { transform:rotate(180deg); }
+/* Replié, on ne montre que l'étape en cours : la lampe reste visible */
+#mission:not(.ouvert) .etape:not(.a-montrer) { display:none; }
+#mission:not(.ouvert) .m-indice { display:none; }
+.m-jauge { height:5px; border-radius:var(--radius-full); background:var(--surface-muted); margin-top:8px; overflow:hidden; }
+.m-jauge i { display:block; height:100%; background:var(--accent); transition:width .4s var(--ease); }
+
+/* ---- Liste des étapes : le guidage pas à pas ---- */
+#etapes { margin-top:9px; }
+.etape {
+  display:flex; align-items:flex-start; gap:9px; padding:5px 0;
+  font-size:13px; line-height:1.4;
+}
+.etape .coche {
+  width:21px; height:21px; flex:none; margin-top:1px; border-radius:var(--radius-full);
+  display:grid; place-items:center; font-size:11px; font-weight:700;
+  border:2px solid var(--border-strong); color:transparent; background:none;
+}
+.etape.faite .coche { background:var(--success); border-color:var(--success); color:#fff; }
+.etape.faite .t { opacity:.5; text-decoration:line-through; }
+.etape.courante .coche { border-color:var(--accent); animation:pulseCoche 1.5s infinite; }
+.etape.courante .t { font-weight:600; }
+@keyframes pulseCoche { 50% { box-shadow:0 0 0 5px var(--accent-doux); } }
+.etape .t { flex:1; }
+.m-indice {
+  margin-top:8px; padding:9px 11px; border-radius:var(--radius-md);
+  background:var(--accent-doux); font-size:12.5px; line-height:1.5;
+}
+.m-indice b { font-weight:600; }
+
+/* ============================ Atelier ============================ */
+main { flex:1; min-height:0; display:flex; flex-direction:column; }
+#atelier { flex:1; min-height:0; position:relative; display:flex; }
+#plan { flex:1; min-height:0; width:100%; display:block; touch-action:manipulation; }
+
+/* Emplacements sur la lampe */
+.slot { cursor:pointer; }
+.slot .zone {
+  fill:var(--surface); fill-opacity:.5; stroke:var(--border-strong); stroke-width:2;
+  stroke-dasharray:6 5; rx:7;
+}
+.slot:hover .zone, .slot:focus-visible .zone { stroke:var(--accent); fill:var(--accent-doux); fill-opacity:1; }
+.slot.plein .zone { display:none; }
+/* Surbrillance de l'emplacement attendu par l'étape en cours */
+.slot.vise .zone { stroke:var(--accent); stroke-width:3; stroke-dasharray:none;
+  fill:var(--accent-doux); fill-opacity:1; animation:viseur 1.5s infinite; }
+@keyframes viseur { 50% { stroke-opacity:.35; } }
+.slot.vise .etiq-slot { opacity:1; font-weight:700; }
+.etiq-slot {
+  font-family:var(--font-body); font-size:11px; font-weight:600;
+  fill:var(--neutral); opacity:.55; text-anchor:middle; pointer-events:none;
+}
+.txt-piece {
+  font-family:var(--font-body); font-size:11px; font-weight:700;
+  fill:var(--neutral); text-anchor:middle; pointer-events:none;
+}
+.retirer { cursor:pointer; }
+.retirer circle { fill:var(--border-strong); transition:fill .15s var(--ease); }
+.retirer:hover circle, .retirer:focus-visible circle { fill:var(--destructive); }
+.retirer text { fill:#fff; font-size:13px; font-weight:700; text-anchor:middle; font-family:var(--font-body); }
+
+/* ============ Bouton d'accès aux mesures, sur le plan de travail ============ */
+#btn-mesures {
+  position:absolute; right:12px; bottom:12px; z-index:5;
+  display:flex; align-items:center; gap:7px;
+  min-height:44px; padding:0 16px;
+  background:var(--surface); color:var(--neutral);
+  border:2px solid var(--border-strong); border-radius:var(--radius-full);
+  box-shadow:var(--shadow-raised);
+  font-family:var(--font-body); font-size:13.5px; font-weight:600; cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+#btn-mesures:hover { background:var(--surface-muted); border-color:var(--neutral); }
+#btn-mesures[hidden] { display:none; }
+#btn-mesures.appelle { border-color:var(--accent); animation:appelleMesures 1.4s infinite; }
+@keyframes appelleMesures { 50% { box-shadow:0 0 0 8px var(--accent-doux), var(--shadow-raised); } }
+
+/* ============================ Bilan ============================ */
+#bilan {
+  position:absolute; left:8px; right:8px; bottom:8px; z-index:6;
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-raised); padding:13px 15px;
+  display:none; max-width:520px; margin:0 auto;
+}
+#bilan.visible { display:block; animation:monte .3s var(--ease); }
+#atelier.avec-bilan #plan { align-self:flex-start; max-height:48%; }
+@keyframes monte { from { opacity:0; transform:translateY(10px); } }
+#bilan .verdict { display:flex; align-items:center; gap:9px; margin-bottom:4px; }
+#bilan .verdict .em { font-size:23px; line-height:1; }
+#bilan .verdict h3 { font-size:16px; flex:1; }
+#bilan .reduire {
+  width:32px; height:32px; flex:none; margin:-4px -6px 0 0;
+  border:none; background:none; border-radius:var(--radius-sm);
+  font-size:17px; color:inherit; cursor:pointer; opacity:.6;
+}
+#bilan .reduire:hover { background:var(--surface-muted); opacity:1; }
+#bilan .objectif {
+  margin-top:10px; padding:9px 11px; border-radius:var(--radius-md);
+  background:var(--accent-doux); font-size:12.5px; line-height:1.5;
+}
+#bilan .phrase { font-size:12.5px; opacity:.78; line-height:1.5; margin:0 0 10px; }
+.jauges { display:grid; grid-template-columns:repeat(auto-fit,minmax(115px,1fr)); gap:8px 14px; }
+.jauge .haut { display:flex; justify-content:space-between; font-size:11.5px; margin-bottom:3px; }
+.jauge .haut b { font-weight:600; }
+.jauge .haut span { opacity:.65; }
+.barre { height:7px; border-radius:var(--radius-full); background:var(--surface-muted); overflow:hidden; }
+.barre i { display:block; height:100%; background:var(--accent); border-radius:inherit; transition:width .5s var(--ease); }
+.barre.faible i { background:var(--tertiary); }
+.barre.mauvais i { background:var(--destructive); }
+#bilan .actions { display:flex; gap:8px; margin-top:11px; }
+
+/* ============================ Barre d'action ============================ */
+#actions {
+  flex:none; display:flex; gap:8px; align-items:center; justify-content:flex-end;
+  padding:8px 12px calc(8px + env(safe-area-inset-bottom));
+  background:var(--surface); border-top:1px solid var(--border);
+}
+.btn {
+  display:inline-flex; align-items:center; justify-content:center; gap:7px;
+  min-height:44px; padding:0 18px; border:none; border-radius:var(--radius-lg);
+  font-family:var(--font-body); font-size:14px; font-weight:600;
+  color:var(--neutral); background:var(--primary); cursor:pointer;
+  transition:filter .15s var(--ease);
+}
+.btn:hover { filter:brightness(.94); }
+.btn:active { filter:brightness(.88); }
+.btn[disabled] { opacity:.45; cursor:not-allowed; filter:none; }
+.btn-contour { background:var(--surface); border:2px solid var(--neutral); }
+.btn-contour:hover { background:var(--surface-muted); filter:none; }
+.btn-fantome { background:transparent; }
+.btn-fantome:hover { background:var(--surface-muted); filter:none; }
+.btn-large { width:100%; }
+#btn-tester.appelle { animation:appelle 1.3s infinite; }
+@keyframes appelle { 50% { box-shadow:0 0 0 7px rgba(196,217,78,.35); } }
+
+/* ================== Feuille de choix d'un composant ================== */
+#feuille {
+  position:fixed; inset:0; z-index:35; display:none;
+  background:rgba(38,50,56,.5);
+}
+#feuille.visible { display:block; }
+.f-carte {
+  position:absolute; left:0; right:0; bottom:0;
+  max-height:82dvh; overflow-y:auto;
+  background:var(--surface); border-radius:var(--radius-xl) var(--radius-xl) 0 0;
+  padding:8px 16px calc(18px + env(safe-area-inset-bottom));
+  box-shadow:var(--shadow-raised);
+  animation:glisse .28s var(--ease);
+}
+@keyframes glisse { from { transform:translateY(100%); } }
+.f-poignee { width:40px; height:4px; border-radius:2px; background:var(--border); margin:2px auto 12px; }
+.f-tete { display:flex; align-items:center; gap:9px; margin-bottom:4px; }
+.f-tete h2 { font-size:18px; flex:1; }
+.f-role { font-size:12.5px; line-height:1.5; opacity:.75; margin-bottom:13px; }
+.f-liste { display:grid; gap:9px; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); }
+.option {
+  display:flex; flex-direction:column; gap:3px; text-align:left; position:relative;
+  padding:12px 13px; min-height:62px;
+  background:var(--surface); border:2px solid var(--border); border-radius:var(--radius-md);
+  font-family:var(--font-body); color:var(--neutral); cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+.option:hover { border-color:var(--border-strong); background:var(--surface-muted); }
+.option.pose { border-color:var(--accent); background:var(--accent-doux); }
+.option.conseil { border-color:var(--primary); }
+.option.conseil::after {
+  content:'conseillé'; position:absolute; top:-9px; right:9px;
+  padding:1px 8px; border-radius:var(--radius-full);
+  background:var(--primary); color:var(--neutral);
+  font-size:9.5px; font-weight:700; letter-spacing:.04em; text-transform:uppercase;
+}
+.option b { font-size:13.5px; font-weight:600; }
+.option span { font-size:11.5px; opacity:.68; line-height:1.4; }
+.option[disabled] { opacity:.42; cursor:not-allowed; }
+.f-vide { text-align:center; padding:18px 0; font-size:13px; opacity:.6; }
+
+/* ============================ Voiles ============================ */
+.voile {
+  position:fixed; inset:0; z-index:40; display:none;
+  background:rgba(38,50,56,.55); padding:14px; overflow-y:auto;
+}
+.voile.visible { display:flex; align-items:center; justify-content:center; }
+.carte-modale {
+  position:relative; width:100%; max-width:470px; margin:auto;
+  background:var(--surface); border-radius:var(--radius-lg); padding:22px 20px;
+  box-shadow:var(--shadow-raised);
+}
+.carte-modale h2 { font-size:20px; margin-bottom:9px; padding-right:34px; }
+.carte-modale > p { font-size:13.5px; line-height:1.6; opacity:.8; margin-bottom:10px; }
+.fermer-x {
+  position:absolute; top:8px; right:10px; width:36px; height:36px;
+  border:none; background:none; font-size:20px; color:inherit; cursor:pointer;
+  border-radius:var(--radius-md);
+}
+.fermer-x:hover { background:var(--surface-muted); }
+
+/* Cartes de mission */
+.d-carte {
+  display:flex; align-items:center; gap:11px; width:100%; text-align:left;
+  padding:11px 13px; margin-bottom:8px;
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md);
+  font-family:var(--font-body); color:inherit; cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+.d-carte:hover:not([disabled]) { border-color:var(--border-strong); background:var(--surface-muted); }
+.d-carte[disabled] { opacity:.5; cursor:not-allowed; }
+.d-carte .num {
+  width:30px; height:30px; flex:none; border-radius:var(--radius-sm);
+  display:grid; place-items:center; background:var(--accent-doux);
+  font-family:var(--font-display); font-weight:800; font-size:13px;
+}
+.d-carte.fait .num { background:var(--success); color:#fff; }
+.d-carte .txt { flex:1; min-width:0; }
+.d-carte .txt b { display:block; font-size:13.5px; font-weight:600; }
+.d-carte .txt span { font-size:11.5px; opacity:.65; line-height:1.4; }
+
+/* Guide d'accueil */
+.g-etape { display:flex; gap:11px; margin-bottom:13px; }
+.g-etape .num {
+  width:26px; height:26px; flex:none; border-radius:var(--radius-full);
+  display:grid; place-items:center; background:var(--accent-doux);
+  font-family:var(--font-display); font-weight:800; font-size:12.5px;
+}
+.g-etape .t { font-size:13.5px; line-height:1.5; opacity:.85; flex:1; }
+.g-etape .t b { opacity:1; }
+
+/* Lexique */
+.lex-entree {
+  padding:11px 0; border-bottom:1px solid var(--border);
+}
+.lex-entree:last-child { border-bottom:none; }
+.lex-entree b { display:block; font-size:14px; font-weight:600; margin-bottom:2px; }
+.lex-entree span { font-size:12.5px; line-height:1.55; opacity:.78; }
+.lex-entree em { font-style:normal; color:var(--accent); font-weight:600; }
+
+/* Écran de passage d'une mission à la suivante */
+.p-fanion {
+  display:flex; align-items:center; gap:10px; margin-bottom:12px;
+}
+.p-fanion .rond {
+  width:44px; height:44px; flex:none; border-radius:var(--radius-full);
+  display:grid; place-items:center; background:var(--success); font-size:22px;
+}
+.p-fanion b { display:block; font-size:17px; font-family:var(--font-display); font-weight:800; }
+.p-fanion span { font-size:12px; opacity:.65; }
+.p-acquis {
+  padding:12px 14px; border-radius:var(--radius-md); background:var(--accent-doux);
+  font-size:13px; line-height:1.55; margin-bottom:14px;
+}
+.p-acquis b { font-weight:600; }
+.p-suite {
+  border:2px dashed var(--border-strong); border-radius:var(--radius-md);
+  padding:12px 14px; margin-bottom:14px;
+}
+.p-suite .etiq {
+  font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--accent); margin-bottom:3px;
+}
+.p-suite b { display:block; font-size:15px; font-family:var(--font-display); font-weight:800; }
+.p-suite span { font-size:12.5px; opacity:.7; line-height:1.45; }
+.p-neuf { font-size:12px; opacity:.6; text-align:center; margin-top:9px; line-height:1.45; }
+
+/* QCM */
+.q-question { font-size:15px; font-weight:600; line-height:1.4; margin-bottom:12px; }
+.q-choix {
+  display:block; width:100%; text-align:left; margin-bottom:8px;
+  padding:12px 14px; min-height:46px;
+  background:var(--surface); border:2px solid var(--border); border-radius:var(--radius-md);
+  font-family:var(--font-body); font-size:13.5px; color:var(--neutral); cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+.q-choix:hover:not([disabled]) { border-color:var(--border-strong); background:var(--surface-muted); }
+.q-choix.bon { border-color:var(--success); background:rgba(42,157,143,.12); font-weight:600; }
+.q-choix.mauvais { border-color:var(--destructive); background:rgba(232,58,75,.1); }
+.q-choix[disabled] { cursor:default; }
+.q-expl {
+  margin-top:4px; padding:11px 13px; border-radius:var(--radius-md);
+  background:var(--accent-doux); font-size:12.5px; line-height:1.55;
+  display:none;
+}
+.q-expl.visible { display:block; }
+.q-avance { font-size:11.5px; opacity:.55; margin-bottom:10px; letter-spacing:.04em; text-transform:uppercase; font-weight:600; }
+
+/* ============================ Toast ============================ */
+#toast {
+  position:fixed; left:50%; bottom:calc(70px + env(safe-area-inset-bottom));
+  transform:translateX(-50%);
+  max-width:calc(100vw - 28px); padding:10px 16px; z-index:45;
+  background:var(--neutral); color:var(--background);
+  border-radius:var(--radius-full); font-size:13px; font-weight:600;
+  opacity:0; pointer-events:none; transition:opacity .2s var(--ease); text-align:center;
+}
+#toast.visible { opacity:1; }
+#toast.alerte { background:var(--destructive); color:#fff; }
+
+/* ================= Adaptations d'écran ================= */
+
+/* Paysage sur téléphone : chaque pixel de hauteur compte */
+@media (orientation:landscape) and (max-height:520px) {
+  header { padding:3px 8px; }
+  header h1 { font-size:13px; }
+  header .sous { display:none; }
+  .icone-btn { width:34px; height:34px; font-size:16px; }
+  #mission { padding:5px 10px 6px; }
+  .m-pastille { width:24px; height:24px; font-size:11px; }
+  .m-titres b { font-size:12.5px; }
+  .m-titres span { display:none; }
+  #mission.ouvert .m-titres span { display:block; }
+  .m-jauge { margin-top:5px; }
+  #actions { padding:5px 10px calc(5px + env(safe-area-inset-bottom)); }
+  .btn { min-height:38px; padding:0 14px; font-size:13px; }
+  #atelier.avec-bilan #plan { max-height:none; }
+  #bilan { max-width:none; right:8px; left:auto; width:min(58%,420px); bottom:6px; }
+  .f-carte { max-height:96dvh; }
+}
+
+/* Écran large : la mission passe en colonne, l'atelier prend le reste */
+@media (min-width:880px) {
+  body { flex-direction:row; }
+  #colonne {
+    width:330px; flex:none; display:flex; flex-direction:column;
+    background:var(--surface); border-right:1px solid var(--border);
+    overflow-y:auto;
+  }
+  header { border-bottom:1px solid var(--border); }
+  #mission { border-bottom:none; padding:12px 16px; }
+  /* la place ne manque pas : toutes les étapes restent visibles */
+  #mission:not(.ouvert) .etape:not(.a-montrer) { display:flex; }
+  #mission:not(.ouvert) .m-indice { display:block; }
+  .m-plier { display:none; }
+  main { flex:1; min-width:0; }
+  #actions { justify-content:center; }
+  #bilan { left:16px; right:16px; }
+  .f-carte {
+    position:absolute; top:50%; left:50%; right:auto; bottom:auto;
+    transform:translate(-50%,-50%); width:min(560px,92vw);
+    border-radius:var(--radius-lg); max-height:86dvh;
+    animation:apparait .2s var(--ease);
+  }
+  @keyframes apparait { from { opacity:0; } }
+  .f-poignee { display:none; }
+}
+
+@media (prefers-reduced-motion:reduce) {
+  *,*::before,*::after { animation-duration:.01ms !important; transition-duration:.01ms !important; }
+}
+
+/* ===================== Propre à l'alambic ===================== */
+.flamme { animation:vacille .5s infinite alternate; transform-origin:center bottom; }
+@keyframes vacille { to { transform:scaleY(1.14) scaleX(.94); } }
+.bulle { animation:monteBulle 1.5s infinite ease-in; }
+@keyframes monteBulle { from { transform:translateY(0); opacity:.9; } to { transform:translateY(-42px); opacity:0; } }
+.goutte { animation:tombe 1.8s infinite ease-in; }
+@keyframes tombe { from { transform:translateY(0); opacity:1; } to { transform:translateY(46px); opacity:.2; } }
+.etat-eau {
+  font-family:var(--font-body); font-size:10.5px; font-weight:700;
+  text-anchor:middle; pointer-events:none;
+}
+.chgt-etat {
+  font-family:var(--font-body); font-size:10px; font-weight:600;
+  fill:var(--accent); text-anchor:middle; pointer-events:none;
+}
+#legende-etats {
+  position:absolute; left:10px; top:8px; z-index:4;
+  display:flex; gap:10px; flex-wrap:wrap;
+  padding:7px 11px; border-radius:var(--radius-md);
+  background:var(--surface); border:1px solid var(--border); box-shadow:var(--shadow-soft);
+  font-size:11px; font-weight:600;
+}
+#legende-etats[hidden] { display:none; }
+#legende-etats i { display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:4px; }
+
+/* ===================== Propre au tam-tam ===================== */
+#ralenti {
+  position:absolute; left:10px; top:8px; z-index:4;
+  padding:6px 11px; border-radius:var(--radius-md);
+  background:var(--surface); border:1px solid var(--border); box-shadow:var(--shadow-soft);
+  font-size:11.5px; font-weight:600;
+}
+#ralenti[hidden] { display:none; }
+#reglage {
+  flex:none; display:flex; align-items:center; gap:11px;
+  padding:9px 14px; background:var(--surface); border-top:1px solid var(--border);
+  transition:background .2s var(--ease);
+}
+#reglage[hidden] { display:none; }
+#reglage.vise { background:var(--accent-doux); }
+#reglage label { font-size:12.5px; font-weight:600; flex:none; }
+#reglage input[type=range] {
+  flex:1; min-width:0; height:30px; accent-color:var(--accent); cursor:pointer;
+}
+#reglage span {
+  flex:none; min-width:62px; text-align:right;
+  font-size:12.5px; font-weight:600; opacity:.7;
+}
+#reglage span::after { content:' N/m'; opacity:.6; }
+.etat-eau { font-family:var(--font-body); font-size:10.5px; font-weight:700;
+  text-anchor:middle; pointer-events:none; }
+.chgt-etat { font-family:var(--font-body); font-size:10px; font-weight:600;
+  fill:var(--accent); text-anchor:middle; pointer-events:none; }
+</style>
+</head>
+<body>
+
+<div id="colonne">
+  <header>
+    <a class="icone-btn" href="../../index.html#/pct/6e" title="Retour au catalogue" aria-label="Retour">←</a>
+    <div>
+      <h1>Fabrique ton tam-tam</h1>
+      <div class="sous">PCT · 6ᵉ · SA6</div>
+    </div>
+    <div class="tete-fin">
+      <button class="icone-btn" id="btn-son" title="Activer le son" aria-label="Activer le son">🔇</button>
+      <button class="icone-btn" id="btn-missions" title="Les missions" aria-label="Les missions">🎯</button>
+      <button class="icone-btn" id="btn-lexique" title="Lexique" aria-label="Lexique">📖</button>
+      <button class="icone-btn" id="btn-aide" title="Comment jouer" aria-label="Comment jouer">❓</button>
+      <button class="icone-btn" id="btn-theme" title="Thème" aria-label="Changer de thème">🌙</button>
+    </div>
+  </header>
+
+  <section id="mission">
+    <div class="m-haut">
+      <span class="m-pastille" id="m-num">1</span>
+      <div class="m-titres">
+        <span class="m-rang" id="m-rang">Mission 1 sur 6</span>
+        <b id="m-titre">—</b>
+        <span id="m-but"></span>
+      </div>
+      <button class="m-plier" id="m-plier" aria-label="Afficher toutes les étapes"
+              aria-expanded="false">▼</button>
+    </div>
+    <div class="m-jauge"><i id="m-jauge" style="width:0"></i></div>
+    <div id="etapes"></div>
+  </section>
+</div>
+
+<main>
+  <div id="atelier">
+    <svg id="plan" viewBox="0 0 660 306" preserveAspectRatio="xMidYMid meet" role="img"
+         aria-label="Vue en coupe du tam-tam en cours de fabrication"></svg>
+    <div id="ralenti" hidden>🐢 vibration ralentie <b>×80</b> pour qu'on puisse la voir</div>
+    <button id="btn-mesures" hidden>📊 <span>Voir les mesures</span></button>
+    <div id="bilan" role="status" aria-live="polite"></div>
+  </div>
+
+  <div id="reglage" hidden>
+    <label for="tension">🪢 Tension de la peau</label>
+    <input type="range" id="tension" min="150" max="2600" step="50" value="800">
+    <span id="tension-val">800</span>
+  </div>
+
+  <div id="actions">
+    <button class="btn btn-fantome" id="btn-vider">🗑 Tout enlever</button>
+    <button class="btn" id="btn-tester">🥁 Frapper la peau</button>
+  </div>
+</main>
+
+<div id="feuille" role="dialog" aria-modal="true" aria-label="Choisir un élément">
+  <div class="f-carte" id="f-carte"></div>
+</div>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<div class="voile" id="v-missions">
+  <div class="carte-modale">
+    <button class="fermer-x" data-ferme="v-missions" aria-label="Fermer">✕</button>
+    <h2>🎯 Les missions</h2>
+    <p>Elles se suivent : termine l'une pour ouvrir la suivante.</p>
+    <div id="liste-missions"></div>
+    <button class="btn btn-fantome btn-large" id="btn-rezero"
+            style="margin-top:6px;color:var(--destructive)">↺ Recommencer tout le parcours</button>
+  </div>
+</div>
+
+<div class="voile" id="v-lexique">
+  <div class="carte-modale">
+    <button class="fermer-x" data-ferme="v-lexique" aria-label="Fermer">✕</button>
+    <h2>📖 Les mots du son</h2>
+    <p>Comment naît un son, et comment on le règle.</p>
+    <div id="liste-lexique"></div>
+  </div>
+</div>
+
+<div class="voile" id="v-aide">
+  <div class="carte-modale">
+    <button class="fermer-x" data-ferme="v-aide" aria-label="Fermer">✕</button>
+    <h2>🥁 Bienvenue à l'atelier !</h2>
+    <p>Bientôt le <b>kaléta</b> : il faut des tam-tams, et les vôtres ont disparu.
+       Tu vas en fabriquer un avec ce qu'on trouve au quartier — une boîte, une peau, de la ficelle.</p>
+    <div class="g-etape"><span class="num">1</span><span class="t">
+      <b>Suis les étapes de la mission</b>. L'endroit où poser la pièce <b>clignote en bleu</b>
+      sur le plan.</span></div>
+    <div class="g-etape"><span class="num">2</span><span class="t">
+      <b>Tends la peau</b> avec le curseur. C'est le réglage qui change la note :
+      plus c'est tendu, plus c'est aigu.</span></div>
+    <div class="g-etape"><span class="num">3</span><span class="t">
+      <b>Frappe la peau</b> et regarde-la vibrer. On la montre <b>80 fois plus lentement</b>
+      que la réalité, sinon l'œil ne verrait rien : c'est cette vibration qui fait le son.</span></div>
+    <div class="g-etape"><span class="num">4</span><span class="t">
+      Le son est <b>coupé au départ</b>. Touche 🔇 en haut pour l'entendre,
+      si tu es seul ou avec un casque.</span></div>
+    <button class="btn btn-large" data-ferme="v-aide">Commencer !</button>
+  </div>
+</div>
+
+<div class="voile" id="v-qcm">
+  <div class="carte-modale" id="qcm-carte"></div>
+</div>
+
+<div class="voile" id="v-passage">
+  <div class="carte-modale" id="passage-carte"></div>
+</div>
+
+<script>
+'use strict';
+
+/* ============================================================================
+   1. Le matériel — celui que le guide officiel cite pour le tam-tam de kaléta
+   ========================================================================== */
+
+const CAISSES = {
+  lait:      { nom:'Grosse boîte de lait', detail:'récupération · petite · son aigu',
+               d:.10, resonance:.55, solidite:4, couleur:'#B0BEC5', h:96, r2:.72 },
+  conserve:  { nom:'Boîte de conserve familiale', detail:'plus grande · sonne mieux',
+               d:.15, resonance:.65, solidite:5, couleur:'#A1887F', h:110, r2:.78 },
+  calebasse: { nom:'Calebasse', detail:'la caisse du village · belle résonance',
+               d:.25, resonance:.95, solidite:6, couleur:'#C8A165', h:124, r2:1.18 },
+  bidon:     { nom:'Bidon en plastique', detail:'grand · mais résonne moins bien',
+               d:.30, resonance:.70, solidite:5, couleur:'#7EC8E3', h:140, r2:.86 },
+  tronc:     { nom:'Tronc évidé', detail:'le vrai tam-tam · lourd et très grave',
+               d:.35, resonance:1, solidite:9, couleur:'#8D6E63', h:150, r2:.80 },
+};
+const PEAUX = {
+  ballon: { nom:'Ballon de baudruche', art:'le ballon de baudruche', detail:'léger · se tend bien · fragile',
+            sigma:.25, tMax:1400, timbre:.5, solidite:3, couleur:'#EF9A9A' },
+  sachet: { nom:'Sachet plastique', art:'le sachet plastique', detail:'très fin · se déchire vite · son de crécelle',
+            sigma:.10, tMax:700, timbre:.25, solidite:1, couleur:'#CFD8DC' },
+  ciment: { nom:'Papier de sac de ciment', art:'le papier de sac de ciment', detail:'gratuit · son mat',
+            sigma:.16, tMax:900, timbre:.35, solidite:2, couleur:'#D7CCC8' },
+  chevre: { nom:'Peau de chèvre', art:'la peau de chèvre', detail:'la vraie peau · lourde · son profond',
+            sigma:.60, tMax:2600, timbre:1, solidite:9, couleur:'#E0C9A6' },
+};
+const FIXATIONS = {
+  ficelle:  { nom:'Ficelle croisée', detail:'se retend quand on veut · la méthode du village',
+              reglable:true, tenue:1, solidite:8 },
+  cerclage: { nom:'Cerclage serré', detail:'un cercle qui pince la peau · réglable',
+              reglable:true, tenue:.95, solidite:9 },
+  colle:    { nom:'Collage', detail:'rapide, mais on ne peut plus rien régler après',
+              reglable:false, tenue:.7, solidite:4 },
+};
+const BAGUETTES = {
+  baton:  { nom:'Bâtonnet de bois', detail:'attaque nette et claire', attaque:1, force:1 },
+  main:   { nom:'La main nue', detail:'attaque douce · son rond', attaque:.55, force:.8 },
+  gainee: { nom:'Baguette gainée de tissu', detail:'attaque feutrée · ménage la peau', attaque:.7, force:.9 },
+};
+
+const ROLES = {
+  caisse: "La caisse est le corps du tam-tam : c'est elle qui fait résonner le son et le rend puissant. Son <b>diamètre</b> décide de la hauteur : plus elle est large, plus le son est grave.",
+  peau: "La peau (ou membrane) est ce qu'on frappe. C'est <b>sa vibration</b> qui produit le son. Une peau lourde vibre plus lentement : le son est plus grave.",
+  fixation: "La fixation maintient la peau tendue sur la caisse. La ficelle et le cerclage permettent de <b>retendre quand on veut</b> ; la colle, non.",
+  baguette: "Ce avec quoi on frappe change la manière dont la peau démarre sa vibration, donc le <b>timbre</b> du son — mais pas sa hauteur.",
+};
+
+const LEXIQUE = [
+  { mot:'Son', def:"Ce que l'oreille perçoit quand quelque chose <em>vibre</em>. Sans vibration, aucun son." },
+  { mot:'Vibration', def:"Un mouvement de va-et-vient très rapide. La peau du tam-tam monte et descend des dizaines de fois par seconde : trop vite pour l'œil, d'où le ralenti à l'écran." },
+  { mot:'Membrane', def:"La peau tendue qu'on frappe. C'est la partie qui vibre et qui fait naître le son." },
+  { mot:'Fréquence', def:"Le nombre de vibrations par seconde. Elle se mesure en <em>hertz</em> (Hz) : 120 Hz veut dire 120 allers-retours chaque seconde." },
+  { mot:'Hauteur du son', def:"Ce qui fait qu'un son est <em>grave</em> ou <em>aigu</em>. Peu de vibrations par seconde = son grave ; beaucoup = son aigu." },
+  { mot:'Grave et aigu', def:"Un gros tam-tam fait « boum » : c'est <em>grave</em>. Un petit fait « tac » : c'est <em>aigu</em>." },
+  { mot:'Régler la hauteur', def:"Trois moyens : changer le <em>diamètre</em> de la caisse, changer la <em>tension</em> de la peau, ou changer la <em>peau</em> elle-même." },
+  { mot:'Tension', def:"La force avec laquelle la peau est tirée. Plus elle est tendue, plus elle vibre vite, plus le son est aigu — mais trop tendue, elle se déchire." },
+  { mot:'Caisse de résonance', def:"Le volume d'air enfermé sous la peau. Il reprend la vibration et la renvoie plus fort : sans lui, le son serait faible et sec." },
+  { mot:'Intensité', def:"La force du son, ce qui fait qu'il est fort ou faible. Elle dépend de la force du coup et de la caisse." },
+  { mot:'Timbre', def:"Ce qui permet de reconnaître un instrument d'un autre, même quand ils jouent la même note. La peau et la caisse font le timbre." },
+  { mot:'Propagation du son', def:"Le son voyage de proche en proche dans l'air, comme des rides à la surface de l'eau. Il lui faut toujours de la matière : dans le vide, aucun son ne passe." },
+  { mot:'Instruments à percussion', def:"Ceux qu'on frappe : tam-tam, gong, castagnettes. Il existe aussi des instruments <em>à corde</em> (guitare) et <em>à vent</em> (flûte)." },
+  { mot:'Kaléta', def:"La fête masquée de fin d'année, où les groupes de jeunes défilent au son des tam-tams." },
+];
+
+/* ============================================================================
+   2. Le moteur — acoustique d'une membrane circulaire, validée par tests
+   ========================================================================== */
+
+const BESSEL = 2.404825;    // premier zéro de J0 : mode fondamental d'une membrane
+
+function frequenceMembrane(a, T, sigma) {
+  return (BESSEL / (2 * Math.PI * a)) * Math.sqrt(T / sigma);
+}
+
+function evaluer(m) {
+  const r = { pannes:[], soucis:[] };
+  const c = CAISSES[m.caisse], p = PEAUX[m.peau], f = FIXATIONS[m.fixation];
+  if (!c) r.pannes.push('Il n’y a pas de caisse : rien ne fait résonner le son.');
+  if (!p) r.pannes.push('Il n’y a pas de peau à frapper.');
+  if (!f) r.pannes.push('La peau n’est pas fixée : elle glisse dès qu’on la frappe.');
+  if (r.pannes.length) return r;
+
+  const tension = f.reglable ? m.tension : Math.round(p.tMax * .45);
+  r.tension = tension;
+  r.reglable = f.reglable;
+
+  if (tension > p.tMax) {
+    r.dechiree = true;
+    r.pannes.push(`La peau s’est déchirée : ${p.art} ne supporte pas une tension pareille.`);
+    return r;
+  }
+  r.molle = tension < p.tMax * .18;
+  if (r.molle) r.soucis.push('La peau est trop molle : elle fait un bruit sourd au lieu de sonner.');
+
+  r.frequence = Math.round(frequenceMembrane(c.d / 2, tension * f.tenue, p.sigma));
+  r.grave = r.frequence < 150;
+  r.aigu = r.frequence > 320;
+  r.duree = Math.round((c.resonance * .9 + p.timbre * .5) * (r.molle ? .3 : 1) * 100) / 100;
+  const b = m.baguette ? BAGUETTES[m.baguette] : { attaque:.8, force:.85 };
+  r.puissance = Math.round(Math.min(10, (c.resonance * 5 + (tension / p.tMax) * 5) * b.force)
+    * (r.molle ? .35 : 1) * 10) / 10;
+  r.timbre = Math.round(p.timbre * c.resonance * 100);
+  r.attaque = b.attaque;
+  r.solidite = Math.max(1, Math.min(10, Math.round((c.solidite + p.solidite + f.solidite) / 3)));
+  r.sonne = !r.molle && !r.dechiree;
+  return r;
+}
+
+const nommerHauteur = f => f < 110 ? 'très grave' : f < 150 ? 'grave'
+  : f < 240 ? 'moyen' : f < 320 ? 'assez aigu' : 'aigu';
+
+/* ============================================================================
+   3. Les missions
+   ========================================================================== */
+
+const monteEtSonne = () => !!etat.caisse && !!etat.peau && !!etat.fixation;
+
+const MISSIONS = [
+  {
+    titre:'Fais sonner ton tam-tam',
+    but:'Assemble une caisse, une peau et de quoi la tenir, puis frappe.',
+    acquis:'Un son naît d’une <b>vibration</b>. Frappée, la peau tendue va et vient très vite, et c’est ce mouvement qui fait le son.',
+    indice:"Il faut trois choses : une caisse creuse, une peau à tendre dessus, et une fixation qui la maintient. Ensuite, tends-la un peu avec le curseur.",
+    etapes:[
+      { t:'Choisis une <b>caisse</b> creuse', cible:'caisse', fait:() => !!etat.caisse },
+      { t:'Tends une <b>peau</b> sur le dessus', cible:'peau', fait:() => !!etat.peau },
+      { t:'<b>Fixe la peau</b> pour qu’elle tienne', cible:'fixation', fait:() => !!etat.fixation },
+      { t:'<b>Frappe la peau</b> et regarde-la vibrer', cible:'tester', fait:() => etat.teste },
+    ],
+    test:(r) => r.sonne === true,
+    qcm:[
+      { q:'Qu’est-ce qui produit le son du tam-tam ?',
+        choix:['La vibration de la peau qu’on a frappée', 'La couleur de la caisse',
+               'La chaleur de la main'], bonne:0,
+        expl:"C’est la <b>vibration</b> de la peau. Elle va et vient si vite que l’œil ne la voit pas : à l’écran, on la ralentit 80 fois pour la rendre visible." },
+      { q:'Le son peut-il voyager là où il n’y a pas d’air ?',
+        choix:['Non : il lui faut toujours de la matière pour se propager',
+               'Oui, le son voyage partout', 'Seulement s’il est très fort'], bonne:0,
+        expl:"Le son se transmet de proche en proche dans la <b>matière</b> — l’air, l’eau, le bois. Dans le vide, il n’y a rien à faire vibrer : aucun son ne passe." },
+    ],
+  },
+  {
+    titre:'Grave comme un vrai tam-tam',
+    but:'Obtiens un son grave : moins de 150 vibrations par seconde.',
+    acquis:'Plus la peau frappée est <b>large</b>, plus elle vibre lentement et plus le son est <b>grave</b>.',
+    indice:"Une grande peau vibre plus lentement qu'une petite, comme une grande balançoire va plus lentement qu'une petite. Prends une caisse large.",
+    etapes:[
+      { t:'Prends une <b>caisse large</b> (calebasse, bidon ou tronc)', cible:'caisse',
+        fait:() => !!etat.caisse && CAISSES[etat.caisse].d >= .25 },
+      { t:'Complète le montage', cible:null, fait:monteEtSonne },
+      { t:'Frappe : le son doit être <b>grave</b>', cible:'tester', fait:() => etat.teste },
+    ],
+    test:(r) => r.sonne && r.frequence < 150,
+    qcm:[
+      { q:'Entre une petite boîte de lait et un grand tronc évidé, lequel sonne le plus grave ?',
+        choix:['Le grand tronc évidé', 'La petite boîte de lait', 'Les deux pareil'], bonne:0,
+        expl:"Une <b>grande</b> peau vibre plus <b>lentement</b> : moins de vibrations par seconde, donc un son plus <b>grave</b>. La petite boîte, elle, vibre vite et sonne aigu." },
+    ],
+  },
+  {
+    titre:'Monte dans les aigus',
+    but:'Obtiens maintenant un son aigu : plus de 320 vibrations par seconde.',
+    acquis:'On monte dans les aigus en <b>tendant</b> la peau, en prenant une caisse <b>plus petite</b>, ou une peau plus <b>légère</b>.',
+    indice:"Trois leviers pour monter : une caisse plus petite, une peau plus légère, et surtout une peau bien tendue. Attention à ne pas la déchirer.",
+    etapes:[
+      { t:'Prends une <b>petite caisse</b>', cible:'caisse',
+        fait:() => !!etat.caisse && CAISSES[etat.caisse].d <= .15 },
+      { t:'Choisis une peau <b>légère</b>', cible:'peau',
+        fait:() => !!etat.peau && PEAUX[etat.peau].sigma <= .25 },
+      { t:'<b>Tends bien</b> la peau avec le curseur', cible:'tension', fait:() => etat.tension >= 700 },
+      { t:'Frappe : le son doit être <b>aigu</b>', cible:'tester', fait:() => etat.teste },
+    ],
+    test:(r) => r.sonne && r.frequence > 320,
+    qcm:[
+      { q:'Que se passe-t-il quand on tend davantage la peau ?',
+        choix:['Elle vibre plus vite : le son devient plus aigu',
+               'Elle vibre plus lentement : le son devient plus grave',
+               'Rien ne change'], bonne:0,
+        expl:"Une peau plus tendue revient plus vite à sa place : elle fait <b>plus de vibrations par seconde</b>, donc un son plus <b>aigu</b>. C’est ainsi qu’on accorde un tam-tam avant de jouer." },
+      { q:'Que risque-t-on en tendant trop fort ?',
+        choix:['La peau se déchire', 'Le son disparaît complètement',
+               'La caisse devient plus grande'], bonne:0,
+        expl:"Chaque peau a sa limite. Un sachet plastique cède bien avant une peau de chèvre : c’est pour cela qu’on choisit une peau solide quand on veut un son bien tendu." },
+    ],
+  },
+  {
+    titre:'Accorde ton tam-tam',
+    but:'Règle ton tam-tam sur 200 vibrations par seconde, à 10 près.',
+    acquis:'Accorder, c’est régler finement la <b>tension</b> jusqu’à obtenir la note voulue — exactement ce que font les joueurs avant la fête.',
+    indice:"Garde ta caisse et ta peau, et joue uniquement sur le curseur de tension. Frappe après chaque réglage pour écouter où tu en es.",
+    etapes:[
+      { t:'Monte un tam-tam qui sonne', cible:null, fait:monteEtSonne },
+      { t:'Choisis une fixation <b>réglable</b> (pas la colle)', cible:'fixation',
+        fait:() => !!etat.fixation && FIXATIONS[etat.fixation].reglable },
+      { t:'Règle la tension et frappe jusqu’à <b>200 Hz</b>', cible:'tension', fait:() => etat.teste },
+    ],
+    test:(r) => r.sonne && Math.abs(r.frequence - 200) <= 10,
+    qcm:[
+      { q:'Pourquoi le collage empêche-t-il d’accorder le tam-tam ?',
+        choix:['Une fois collée, la peau ne peut plus être retendue',
+               'La colle rend le son plus grave', 'La colle empêche la caisse de résonner'], bonne:0,
+        expl:"Avec une <b>ficelle</b> ou un <b>cerclage</b>, on retend la peau autant de fois qu’on veut. Collée, elle est figée : on garde la note qu’on a, bonne ou mauvaise." },
+    ],
+  },
+  {
+    titre:'Solide pour toute la fête',
+    but:'Fabrique un tam-tam qui sonne et qui résiste : solidité d’au moins 7 sur 10.',
+    acquis:'Un instrument doit <b>durer</b> : le kaléta se danse toute la nuit. Les matériaux fragiles cèdent avant la fin.',
+    indice:"Le sachet plastique et le papier de ciment ne tiendront pas la nuit. La peau de chèvre, le tronc et une bonne ficelle, si.",
+    etapes:[
+      { t:'Choisis une caisse <b>résistante</b>', cible:'caisse',
+        fait:() => !!etat.caisse && CAISSES[etat.caisse].solidite >= 6 },
+      { t:'Choisis une peau <b>solide</b>', cible:'peau',
+        fait:() => !!etat.peau && PEAUX[etat.peau].solidite >= 3 },
+      { t:'Fixe-la solidement', cible:'fixation',
+        fait:() => !!etat.fixation && FIXATIONS[etat.fixation].solidite >= 8 },
+      { t:'Frappe pour vérifier', cible:'tester', fait:() => etat.teste },
+    ],
+    test:(r) => r.sonne && r.solidite >= 7,
+    qcm:[
+      { q:'Pourquoi éviter le sachet plastique pour un tam-tam de kaléta ?',
+        choix:['Il est trop fragile et se déchire vite',
+               'Il coûte trop cher', 'Il rend le son trop grave'], bonne:0,
+        expl:"Le sachet est très fin : il cède dès qu’on le tend un peu ou qu’on frappe fort. Pour jouer toute une fête, il faut une peau qui <b>tient</b>." },
+    ],
+  },
+  {
+    titre:'Le tam-tam du quartier',
+    but:'Le tam-tam qui mènera le kaléta : grave (moins de 130 Hz), puissant (7 sur 10) et solide (7 sur 10).',
+    acquis:'Fabriquer, c’est <b>accorder plusieurs qualités</b> à la fois : la note, la puissance et la résistance. C’est le métier de l’artisan.',
+    indice:"Grand diamètre pour le grave, peau de chèvre pour le timbre et la solidité, ficelle croisée pour retendre, et une tension moyenne pour ne rien casser.",
+    etapes:[
+      { t:'Une <b>grande caisse</b> pour le grave', cible:'caisse',
+        fait:() => !!etat.caisse && CAISSES[etat.caisse].d >= .25 },
+      { t:'Une <b>peau solide</b> au beau timbre', cible:'peau', fait:() => etat.peau === 'chevre' },
+      { t:'Une fixation qui tient et se règle', cible:'fixation',
+        fait:() => !!etat.fixation && FIXATIONS[etat.fixation].solidite >= 8 },
+      { t:'Prends une <b>baguette</b>', cible:'baguette', fait:() => !!etat.baguette },
+      { t:'Règle la tension, puis frappe', cible:'tester', fait:() => etat.teste },
+    ],
+    test:(r) => r.sonne && r.frequence < 130 && r.puissance >= 7 && r.solidite >= 7,
+    qcm:[
+      { q:'À quoi sert la caisse creuse sous la peau ?',
+        choix:['L’air qu’elle contient reprend la vibration et renvoie le son plus fort',
+               'À ranger les baguettes', 'À rendre l’instrument plus lourd'], bonne:0,
+        expl:"C’est la <b>caisse de résonance</b> : l’air enfermé vibre avec la peau et amplifie le son. Une peau tendue sans caisse ne ferait qu’un petit « tac » sec." },
+      { q:'Le tam-tam, la guitare et la flûte produisent tous du son. Qu’ont-ils en commun ?',
+        choix:['Quelque chose vibre dans chacun : la peau, la corde, la colonne d’air',
+               'Ils ont tous des cordes', 'Ils sont tous en bois'], bonne:0,
+        expl:"Toujours une <b>vibration</b> : la <b>peau</b> du tam-tam, la <b>corde</b> de la guitare, la <b>colonne d’air</b> de la flûte. Seule la partie qui vibre change." },
+    ],
+  },
+];
+
+/* ============================================================================
+   4. État et progression
+   ========================================================================== */
+
+const etat = {
+  caisse:null, peau:null, fixation:null, baguette:null, tension:800,
+  mission:0, faites:[], teste:false, libre:false, resultat:null, repliFait:false, son:false,
+};
+
+const CLE = 'ike-tamtam-progression';
+function sauver() {
+  try { localStorage.setItem(CLE, JSON.stringify({ mission:etat.mission, faits:etat.faites })); } catch (e) {}
+}
+function charger() {
+  try {
+    const d = JSON.parse(localStorage.getItem(CLE));
+    if (d && Array.isArray(d.faits)) {
+      etat.faites = d.faits;
+      etat.mission = Math.min(d.mission || 0, MISSIONS.length - 1);
+    }
+    etat.son = localStorage.getItem('ike-tamtam-son') === '1';
+  } catch (e) {}
+}
+
+const $ = id => document.getElementById(id);
+const maquette = () => ({ caisse:etat.caisse, peau:etat.peau, fixation:etat.fixation,
+  baguette:etat.baguette, tension:etat.tension });
+const missionCourante = () => etat.libre ? null : MISSIONS[etat.mission];
+const deverrouillee = i => i === 0 || etat.faites.indexOf(i - 1) !== -1 || etat.faites.indexOf(i) !== -1;
+
+function cibleEffective(e) {
+  if (e.cible) return e.cible;
+  if (!etat.caisse) return 'caisse';
+  if (!etat.peau) return 'peau';
+  if (!etat.fixation) return 'fixation';
+  return 'tester';
+}
+function etapeCourante() {
+  const m = missionCourante();
+  if (!m) return null;
+  for (let i = 0; i < m.etapes.length; i++) if (!m.etapes[i].fait()) return { e:m.etapes[i], i };
+  return null;
+}
+
+/* ============================================================================
+   5. La frappe : vibration ralentie pour qu'on puisse la voir
+   ========================================================================== */
+
+const frappe = { actif:false, t:0, amplitude:0, freq:0, duree:0, derniere:0, grains:[] };
+const RALENTI = 80;
+
+function frapper() {
+  const m = maquette();
+  const r = evaluer(m);
+  etat.teste = true;
+  etat.resultat = r;
+  if (r.pannes.length) {
+    dessiner();
+    majMission();
+    $('btn-mesures').hidden = false;
+    afficherBilan(r, m, false);
+    return;
+  }
+  // Départ de la vibration : elle s'amortit ensuite toute seule
+  frappe.actif = true;
+  frappe.t = 0;
+  frappe.freq = r.frequence;
+  frappe.duree = r.duree * 2.2;
+  frappe.amplitude = (r.molle ? .3 : 1) * (r.attaque * .5 + .5);
+  frappe.derniere = performance.now();
+  frappe.grains = frappe.grains.length ? frappe.grains
+    : Array.from({ length:7 }, (_, k) => ({ dx:(k - 3) * 13 + (k % 2 ? 5 : -5), h:0, v:0 }));
+  if (etat.son) jouerSon(r);
+  $('ralenti').hidden = false;
+  requestAnimationFrame(boucleFrappe);
+
+  const mis = missionCourante();
+  const gagne = mis && mis.test(r, m);
+  if (gagne && etat.faites.indexOf(etat.mission) === -1) {
+    etat.faites.push(etat.mission);
+    sauver();
+  }
+  majMission();
+  $('btn-mesures').hidden = false;
+  // On laisse d'abord regarder la peau vibrer, puis on montre le bilan
+  setTimeout(() => {
+    if (gagne || r.soucis.length) {
+      $('btn-mesures').classList.remove('appelle');
+      afficherBilan(r, m, gagne);
+    } else {
+      $('btn-mesures').classList.add('appelle');
+      toast(`Son ${nommerHauteur(r.frequence)} · ${r.frequence} Hz — touche 📊 pour les mesures`);
+    }
+  }, 1400);
+}
+
+function boucleFrappe(ts) {
+  if (!frappe.actif) return;
+  const dt = Math.min(.05, (ts - frappe.derniere) / 1000);
+  frappe.derniere = ts;
+  frappe.t += dt;
+  // amortissement : la vibration s'éteint peu à peu
+  const a = frappe.amplitude * Math.exp(-frappe.t / (frappe.duree * .45));
+  if (frappe.t > frappe.duree || a < .02) {
+    frappe.actif = false;
+    animer(0);
+    return;
+  }
+  animer(a);
+  requestAnimationFrame(boucleFrappe);
+}
+
+/* ============================================================================
+   6. Rendu — la peau vibre sous les yeux, 80 fois plus lentement qu'en vrai
+   ========================================================================== */
+
+const plan = $('plan');
+const NS = 'http://www.w3.org/2000/svg';
+const el = (nom, attrs, texte) => {
+  const n = document.createElementNS(NS, nom);
+  for (const k in attrs) n.setAttribute(k, attrs[k]);
+  if (texte != null) n.textContent = texte;
+  return n;
+};
+
+const G = { cx:246, yPeau:132, oscX:428, oscY:40, oscL:206, oscH:76 };
+const refs = {};
+
+// Rayon dessiné de la peau, d'après le vrai diamètre de la caisse
+const rayonPeau = () => etat.caisse ? 46 + (CAISSES[etat.caisse].d - .10) * 320 : 70;
+
+function dessiner() {
+  plan.textContent = '';
+  for (const k in refs) delete refs[k];
+  const ec = etapeCourante();
+  const vise = ec ? cibleEffective(ec.e) : null;
+  const c = CAISSES[etat.caisse], p = PEAUX[etat.peau];
+  const R = rayonPeau();
+
+  /* ---- Caisse, vue de côté : un tronc de cône ---- */
+  if (c) {
+    const bas = G.yPeau + c.h, Rb = R * c.r2;
+    plan.appendChild(el('path', {
+      d:`M ${G.cx - R} ${G.yPeau} L ${G.cx - Rb} ${bas} q 0 12 ${Rb * .3} 12 L ${G.cx + Rb * .7} ${bas + 12} ` +
+        `q ${Rb * .3} 0 ${Rb * .3} -12 L ${G.cx + R} ${G.yPeau} z`,
+      fill:c.couleur, 'fill-opacity':.4, stroke:c.couleur, 'stroke-width':3, 'stroke-linejoin':'round',
+    }));
+    plan.appendChild(el('text', { x:G.cx, y:bas + 32, class:'etiq-slot' }, c.nom));
+    if (etat.peau) plan.appendChild(el('text', { x:G.cx, y:bas + 48, class:'etiq-slot' },
+      'peau : ' + PEAUX[etat.peau].nom));
+    // l'air enfermé : la caisse de résonance
+    refs.airCaisse = el('text', { x:G.cx, y:G.yPeau + c.h * .5, class:'etat-eau',
+      fill:'#78909C', opacity:'0' }, 'l’air résonne');
+    plan.appendChild(refs.airCaisse);
+  }
+  ajouterSlot('caisse', G.cx - 78, G.yPeau + 18, 156, 92, 'Caisse', !!c, vise);
+
+  /* ---- Fixation : ficelles en V sur les côtés ---- */
+  if (etat.fixation && c) {
+    const bas = G.yPeau + c.h * .8, Rb = R * c.r2;
+    if (etat.fixation === 'colle') {
+      plan.appendChild(el('rect', { x:G.cx - R, y:G.yPeau - 2, width:R * 2, height:7, rx:3,
+        fill:'#A1887F' }));
+    } else if (etat.fixation === 'cerclage') {
+      plan.appendChild(el('rect', { x:G.cx - R - 3, y:G.yPeau + 2, width:R * 2 + 6, height:9, rx:4,
+        fill:'none', stroke:'#78909C', 'stroke-width':4 }));
+    } else {
+      for (let k = 0; k < 5; k++) {
+        const x1 = G.cx - R + 6 + k * ((R * 2 - 12) / 4);
+        const x2 = G.cx - Rb + 8 + k * ((Rb * 2 - 16) / 4);
+        plan.appendChild(el('path', { d:`M ${x1} ${G.yPeau + 4} L ${x2} ${bas}`,
+          stroke:'#D7CCC8', 'stroke-width':2.5, fill:'none' }));
+      }
+    }
+  }
+  ajouterSlot('fixation', G.cx - R - 46, G.yPeau + 12, 40, 76, 'Fixation', !!etat.fixation, vise);
+
+  /* ---- La peau : c'est elle qui vibrera ---- */
+  if (p) {
+    const dechiree = etat.teste && etat.resultat && etat.resultat.dechiree;
+    if (dechiree) {
+      // deux lambeaux qui retombent de part et d'autre du trou
+      for (const s of [-1, 1]) plan.appendChild(el('path', {
+        d:`M ${G.cx + s * R} ${G.yPeau} q ${-s * R * .3} 4 ${-s * R * .34} 26` +
+          ` l ${-s * 9} -4 q ${s * R * .12} -14 ${s * R * .2} -20 z`,
+        fill:p.couleur, 'fill-opacity':.85, stroke:'#8D6E63', 'stroke-width':2 }));
+      plan.appendChild(el('text', { x:G.cx, y:G.yPeau - 12, class:'chgt-etat',
+        style:'fill:var(--destructive);font-weight:700' }, '✂️ peau déchirée'));
+    } else {
+      refs.peau = el('path', { fill:p.couleur, 'fill-opacity':.85, stroke:'#8D6E63', 'stroke-width':2.5 });
+      plan.appendChild(refs.peau);
+    }
+    // grains de riz posés dessus : ils sautent quand la peau vibre
+    refs.grains = el('g', { opacity:dechiree ? '0' : '1' });
+    for (let k = 0; k < 7; k++) refs.grains.appendChild(el('ellipse', {
+      rx:3.4, ry:2.4, fill:'#FFF8E1', stroke:'#C8A165', 'stroke-width':.8 }));
+    plan.appendChild(refs.grains);
+  }
+  ajouterSlot('peau', G.cx - R, G.yPeau - 34, R * 2, 34, 'Peau', !!p, vise);
+
+  /* ---- Baguette ---- */
+  if (etat.baguette) {
+    refs.baguette = el('g');
+    if (etat.baguette === 'main') {
+      refs.baguette.appendChild(el('text', { x:0, y:0, style:'font-size:26px' }, '✋'));
+    } else {
+      refs.baguette.appendChild(el('rect', { x:-4, y:-52, width:8, height:52, rx:4, fill:'#A1887F' }));
+      if (etat.baguette === 'gainee') refs.baguette.appendChild(el('circle', {
+        cx:0, cy:-2, r:9, fill:'#EF9A9A' }));
+    }
+    plan.appendChild(refs.baguette);
+  }
+  ajouterSlot('baguette', G.cx + R + 12, G.yPeau - 44, 48, 66, 'Baguette', !!etat.baguette, vise);
+
+  /* ---- Ondes sonores qui partent dans l'air ---- */
+  refs.ondes = el('g', { opacity:'0' });
+  for (let k = 0; k < 3; k++) refs.ondes.appendChild(el('path', {
+    fill:'none', stroke:'#5BC5F2', 'stroke-width':2.5, 'stroke-linecap':'round' }));
+  plan.appendChild(refs.ondes);
+
+  /* ---- Oscillogramme : la vibration tracée dans le temps ---- */
+  refs.oscilloG = el('g', { opacity:'0' });
+  refs.oscilloG.appendChild(el('rect', { x:G.oscX, y:G.oscY, width:G.oscL, height:G.oscH, rx:8,
+    fill:'var(--surface)', stroke:'var(--border)', 'stroke-width':1.5 }));
+  refs.oscilloG.appendChild(el('line', { x1:G.oscX + 6, y1:G.oscY + G.oscH / 2,
+    x2:G.oscX + G.oscL - 6, y2:G.oscY + G.oscH / 2, stroke:'var(--border)', 'stroke-width':1,
+    'stroke-dasharray':'3 3' }));
+  refs.courbe = el('path', { fill:'none', stroke:'#5BC5F2', 'stroke-width':2.5,
+    'stroke-linejoin':'round', 'stroke-linecap':'round' });
+  refs.oscilloG.appendChild(refs.courbe);
+  refs.oscTxt = el('text', { x:G.oscX + G.oscL / 2, y:G.oscY - 8, class:'etiq-slot' }, '');
+  refs.oscilloG.appendChild(refs.oscTxt);
+  plan.appendChild(refs.oscilloG);
+
+  animer(frappe.actif ? frappe.amplitude : 0);
+}
+
+/* ---- Courbe de la peau : au repos elle est plate, frappée elle ondule ---- */
+function cheminPeau(fleche) {
+  const R = rayonPeau();
+  const y = G.yPeau;
+  return `M ${G.cx - R} ${y} Q ${G.cx} ${y - fleche * 2} ${G.cx + R} ${y}`;
+}
+
+function animer(amplitude) {
+  const R = rayonPeau();
+  const enVibration = amplitude > .01;
+  // La vibration réelle est bien trop rapide pour l'œil : on la ralentit
+  const phase = frappe.freq ? Math.sin(2 * Math.PI * (frappe.freq / RALENTI) * frappe.t) : 0;
+  const fleche = amplitude * 26 * phase;
+
+  if (refs.peau) refs.peau.setAttribute('d', cheminPeau(fleche) +
+    ` L ${G.cx + R} ${G.yPeau + 6} Q ${G.cx} ${G.yPeau + 6 - fleche * 2} ${G.cx - R} ${G.yPeau + 6} z`);
+
+  // Les grains sautent quand la peau les projette vers le haut
+  if (refs.grains) [...refs.grains.children].forEach((g, k) => {
+    const dx = (k - 3) * (R / 4.2);
+    const local = fleche * (1 - Math.pow(dx / R, 2));      // le ventre est au centre
+    const saut = enVibration ? Math.max(0, local) * 1.5 + Math.abs(amplitude) * 6 * Math.abs(Math.sin(frappe.t * 9 + k)) : 0;
+    g.setAttribute('cx', G.cx + dx);
+    g.setAttribute('cy', G.yPeau - 4 - local * (1 - Math.pow(dx / R, 2)) - saut);
+    g.setAttribute('opacity', etat.peau ? '1' : '0');
+  });
+
+  // Baguette : elle retombe sur la peau au moment du coup
+  if (refs.baguette) {
+    const recul = enVibration ? Math.max(0, 22 - frappe.t * 60) : 26;
+    refs.baguette.setAttribute('transform',
+      `translate(${G.cx + R * .45} ${G.yPeau - 6 - recul})`);
+  }
+
+  // Ondes sonores : des arcs qui s'éloignent
+  if (refs.ondes) {
+    refs.ondes.setAttribute('opacity', enVibration ? String(Math.min(1, amplitude * 1.4)) : '0');
+    if (enVibration) [...refs.ondes.children].forEach((o, k) => {
+      const ph = (frappe.t * 1.6 + k * .33) % 1;
+      const r = 30 + ph * 90;
+      o.setAttribute('d', `M ${G.cx - r} ${G.yPeau - 20} A ${r} ${r} 0 0 1 ${G.cx + r} ${G.yPeau - 20}`);
+      o.setAttribute('opacity', String((1 - ph) * .8));
+    });
+  }
+
+  if (refs.airCaisse) refs.airCaisse.setAttribute('opacity', enVibration ? '.85' : '0');
+
+  // Oscillogramme
+  if (refs.oscilloG) {
+    const montrer = enVibration || (etat.teste && etat.resultat && etat.resultat.sonne);
+    refs.oscilloG.setAttribute('opacity', montrer ? '1' : '0');
+    if (montrer && frappe.freq) {
+      const pts = [];
+      const n = 90;
+      for (let i = 0; i <= n; i++) {
+        const u = i / n;
+        // 4 périodes affichées, amorties comme la vraie vibration
+        const env = Math.exp(-u * 2.2) * (enVibration ? Math.max(.25, amplitude) : .5);
+        const y = G.oscY + G.oscH / 2 - Math.sin(u * Math.PI * 8 - frappe.t * 6) * (G.oscH / 2 - 10) * env;
+        pts.push(`${(G.oscX + 6 + u * (G.oscL - 12)).toFixed(1)} ${y.toFixed(1)}`);
+      }
+      refs.courbe.setAttribute('d', 'M ' + pts.join(' L '));
+      refs.oscTxt.textContent = `${frappe.freq} vibrations par seconde (${frappe.freq} Hz) · ${nommerHauteur(frappe.freq)}`;
+    }
+  }
+
+  if (!enVibration && $('ralenti')) $('ralenti').hidden = !frappe.actif;
+}
+
+function ajouterSlot(id, x, y, w, h, texte, plein, vise) {
+  const surligne = !plein && vise === id;
+  const g = el('g', {
+    class:'slot' + (plein ? ' plein' : '') + (surligne ? ' vise' : ''),
+    'data-slot':id, role:'button', tabindex:plein ? '-1' : '0',
+    'aria-label':(plein ? 'Changer : ' : 'Choisir : ') + texte,
+  });
+  g.appendChild(el('rect', { x, y, width:w, height:h, class:'zone' }));
+  g.appendChild(el('rect', { x, y, width:w, height:h, fill:'transparent' }));
+  if (!plein) g.appendChild(el('text', { x:x + w / 2, y:y + h / 2 + 4, class:'etiq-slot' }, texte));
+  plan.appendChild(g);
+}
+
+/* ============================================================================
+   7. Le son — coupé par défaut, activé seulement si l'élève le demande
+   ========================================================================== */
+
+let audio = null;
+
+function jouerSon(r) {
+  try {
+    if (!audio) audio = new (window.AudioContext || window.webkitAudioContext)();
+    if (audio.state === 'suspended') audio.resume();
+    const t0 = audio.currentTime;
+    const duree = Math.max(.35, r.duree);
+    const sortie = audio.createGain();
+    sortie.gain.value = Math.min(.5, r.puissance / 22);
+    sortie.connect(audio.destination);
+    // Une peau ne sonne pas comme une corde : ses modes ne sont pas des multiples entiers
+    const modes = [1, 1.594, 2.136, 2.296, 2.653, 2.918];
+    modes.forEach((k, i) => {
+      const o = audio.createOscillator();
+      const g = audio.createGain();
+      o.type = 'sine';
+      o.frequency.value = r.frequence * k;
+      const amp = (i === 0 ? .5 : .34 / i) * (i === 0 ? 1 : r.attaque);
+      g.gain.setValueAtTime(0, t0);
+      g.gain.linearRampToValueAtTime(amp, t0 + .006);
+      g.gain.exponentialRampToValueAtTime(.0001, t0 + duree * (i === 0 ? 1 : .45));
+      o.connect(g); g.connect(sortie);
+      o.start(t0); o.stop(t0 + duree + .1);
+    });
+    // petit claquement d'attaque, selon ce avec quoi on frappe
+    const n = audio.createBufferSource();
+    const buf = audio.createBuffer(1, audio.sampleRate * .05, audio.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / d.length);
+    n.buffer = buf;
+    const gn = audio.createGain();
+    gn.gain.value = .16 * r.attaque;
+    n.connect(gn); gn.connect(sortie);
+    n.start(t0);
+  } catch (e) { /* pas de son disponible : le visuel suffit */ }
+}
+
+/* ============================================================================
+   8. Feuille de choix
+   ========================================================================== */
+
+const SOURCES = {
+  caisse:{ titre:'La caisse', ico:'🪘', source:CAISSES },
+  peau:{ titre:'La peau', ico:'🥁', source:PEAUX },
+  fixation:{ titre:'La fixation', ico:'🪢', source:FIXATIONS },
+  baguette:{ titre:'De quoi frapper', ico:'🥢', source:BAGUETTES },
+};
+
+function conseilPour(cle) {
+  const m = missionCourante();
+  if (!m) return null;
+  if (m.titre === 'Grave comme un vrai tam-tam' && cle === 'caisse') return 'calebasse';
+  if (m.titre === 'Monte dans les aigus') {
+    if (cle === 'caisse') return 'lait';
+    if (cle === 'peau') return 'ballon';
+  }
+  if (m.titre === 'Accorde ton tam-tam' && cle === 'fixation') return 'ficelle';
+  if (m.titre === 'Solide pour toute la fête' || m.titre === 'Le tam-tam du quartier') {
+    if (cle === 'peau') return 'chevre';
+    if (cle === 'fixation') return 'ficelle';
+    if (cle === 'caisse' && m.titre === 'Le tam-tam du quartier') return 'tronc';
+  }
+  return null;
+}
+
+let feuilleOuverte = null;
+
+function ouvrirFeuille(cle) {
+  const s = SOURCES[cle];
+  if (!s) return;
+  const conseil = conseilPour(cle);
+  const options = Object.keys(s.source).map(id => {
+    const o = s.source[id];
+    const pose = etat[cle] === id;
+    return `<button class="option${pose ? ' pose' : ''}${conseil === id ? ' conseil' : ''}"
+      data-choix="${cle}:${id}"><b>${o.nom}</b><span>${o.detail}</span></button>`;
+  }).join('');
+  $('f-carte').innerHTML = `
+    <div class="f-poignee"></div>
+    <div class="f-tete"><span style="font-size:22px">${s.ico}</span><h2>${s.titre}</h2>
+      <button class="fermer-x" style="position:static" data-ferme-feuille aria-label="Fermer">✕</button></div>
+    <p class="f-role">${ROLES[cle]}</p>
+    <div class="f-liste">${options}</div>`;
+  $('feuille').classList.add('visible');
+  feuilleOuverte = cle;
+}
+function fermerFeuille() {
+  $('feuille').classList.remove('visible');
+  feuilleOuverte = null;
+}
+
+/* ============================================================================
+   9. Actions
+   ========================================================================== */
+
+function remettreAZero() {
+  frappe.actif = false;
+  frappe.freq = 0;
+  frappe.t = 0;
+  etat.teste = false;
+  etat.resultat = null;
+  oublierMesures();
+  cacherBilan();
+  $('ralenti').hidden = true;
+}
+
+function poser(cle, id) {
+  if (etat[cle] === id) { fermerFeuille(); return; }
+  etat[cle] = id;
+  remettreAZero();
+  fermerFeuille();
+  replierSiPetitEcran();
+  majTout();
+}
+
+function retirer(cle) {
+  etat[cle] = null;
+  remettreAZero();
+  majTout();
+}
+
+function vider() {
+  etat.caisse = null; etat.peau = null; etat.fixation = null; etat.baguette = null;
+  etat.tension = 800;
+  $('tension').value = 800;
+  remettreAZero();
+  majTout();
+}
+
+function replierSiPetitEcran() {
+  if (etat.repliFait || window.innerWidth >= 880) return;
+  etat.repliFait = true;
+  $('mission').classList.remove('ouvert');
+  $('m-plier').setAttribute('aria-expanded', 'false');
+}
+
+/* ============================================================================
+   10. Bilan
+   ========================================================================== */
+
+function jauge(nom, valeur, max, unite, seuilFaible) {
+  const pct = Math.max(0, Math.min(100, valeur / max * 100));
+  const classe = valeur === 0 ? ' mauvais' : (valeur < seuilFaible ? ' faible' : '');
+  return `<div class="jauge">
+    <div class="haut"><b>${nom}</b><span>${valeur}${unite}</span></div>
+    <div class="barre${classe}"><i style="width:${pct}%"></i></div></div>`;
+}
+
+function afficherBilan(r, m, gagne) {
+  const z = $('bilan');
+  const croix = '<button class="reduire" data-ferme-bilan aria-label="Réduire">✕</button>';
+  if (r.pannes.length) {
+    z.innerHTML = `
+      <div class="verdict"><span class="em">🔇</span><h3>Aucun son</h3>${croix}</div>
+      <p class="phrase">${r.pannes[0]}</p>
+      <div class="actions"><button class="btn btn-contour" data-ferme-bilan>Je corrige</button></div>`;
+  } else {
+    const mis = missionCourante();
+    z.innerHTML = `
+      <div class="verdict"><span class="em">${gagne ? '🎉' : (r.molle ? '🥁' : '🎵')}</span>
+        <h3>${gagne ? 'Mission réussie !' : (r.molle ? 'Un bruit sourd' : 'Ça sonne !')}</h3>${croix}</div>
+      <p class="phrase">${r.molle
+        ? `La peau n’est pas assez tendue : elle fait « ploc » au lieu de vibrer franchement.
+           Tends-la davantage avec le curseur.`
+        : `Ta peau vibre <b>${r.frequence} fois par seconde</b> (${r.frequence} Hz) :
+           c’est un son <b>${nommerHauteur(r.frequence)}</b>.
+           ${r.reglable ? '' : ' Collée, la peau ne peut plus être retendue.'}`}</p>
+      <div class="jauges">
+        ${jauge('Hauteur', r.frequence, 600, ' Hz', 0)}
+        ${jauge('Puissance', r.puissance, 10, '/10', 5)}
+        ${jauge('Timbre', r.timbre, 100, '/100', 40)}
+        ${jauge('Solidité', r.solidite, 10, '/10', 5)}
+      </div>
+      ${gagne
+        ? `<div class="actions"><button class="btn btn-large" id="btn-continuer">Continuer →</button></div>`
+        : `${mis ? `<div class="objectif">🎯 <b>Il te reste à faire :</b> ${mis.but}</div>` : ''}
+           <div class="actions"><button class="btn btn-contour" data-ferme-bilan>Régler encore</button></div>`}`;
+  }
+  z.classList.add('visible');
+  $('atelier').classList.add('avec-bilan');
+  $('toast').classList.remove('visible');
+  const cont = $('btn-continuer');
+  if (cont) cont.addEventListener('click', () => { cacherBilan(); ouvrirQcm(); });
+}
+
+function cacherBilan() {
+  $('bilan').classList.remove('visible');
+  $('atelier').classList.remove('avec-bilan');
+}
+function oublierMesures() {
+  const b = $('btn-mesures');
+  b.hidden = true;
+  b.classList.remove('appelle');
+}
+
+/* ============================================================================
+   11. QCM et passage de mission
+   ========================================================================== */
+
+let qcm = { liste:[], n:0 };
+
+function ouvrirQcm() {
+  const m = MISSIONS[etat.mission];
+  if (!m || !m.qcm || !m.qcm.length) { ouvrirPassage(); return; }
+  qcm = { liste:m.qcm, n:0 };
+  rendreQcm();
+  $('v-qcm').classList.add('visible');
+}
+function rendreQcm() {
+  const q = qcm.liste[qcm.n];
+  $('qcm-carte').innerHTML = `
+    <div class="q-avance">✅ Mission réussie · question ${qcm.n + 1} sur ${qcm.liste.length}</div>
+    <div class="q-question">${q.q}</div>
+    <div id="q-choix">${q.choix.map((c, i) =>
+      `<button class="q-choix" data-rep="${i}">${c}</button>`).join('')}</div>
+    <div class="q-expl" id="q-expl"></div>
+    <div id="q-suite"></div>`;
+}
+function repondre(i) {
+  const q = qcm.liste[qcm.n];
+  $('q-choix').querySelectorAll('.q-choix').forEach((b, k) => {
+    b.disabled = true;
+    if (k === q.bonne) { b.classList.add('bon'); b.textContent = '✔️ ' + b.textContent; }
+    else if (k === i) { b.classList.add('mauvais'); b.textContent = '❌ ' + b.textContent; }
+  });
+  const e = $('q-expl');
+  e.innerHTML = q.expl;
+  e.classList.add('visible');
+  const dernier = qcm.n === qcm.liste.length - 1;
+  $('q-suite').innerHTML = `<button class="btn btn-large" style="margin-top:12px" id="q-continuer">${
+    dernier ? 'Mission suivante →' : 'Question suivante →'}</button>`;
+  $('q-continuer').addEventListener('click', () => {
+    if (dernier) { $('v-qcm').classList.remove('visible'); ouvrirPassage(); }
+    else { qcm.n++; rendreQcm(); }
+  });
+}
+
+function ouvrirPassage() {
+  const finie = MISSIONS[etat.mission];
+  const suivante = MISSIONS[etat.mission + 1];
+  $('passage-carte').innerHTML = `
+    <div class="p-fanion"><span class="rond">✅</span>
+      <span><b>Mission ${etat.mission + 1} réussie !</b><span>${finie.titre}</span></span></div>
+    <div class="p-acquis">📘 <b>Ce que tu as appris :</b> ${finie.acquis}</div>
+    ${suivante
+      ? `<div class="p-suite">
+           <div class="etiq">Mission ${etat.mission + 2} sur ${MISSIONS.length}</div>
+           <b>${suivante.titre}</b><span>${suivante.but}</span></div>
+         <button class="btn btn-large" id="btn-passer">Commencer la mission ${etat.mission + 2} →</button>
+         <p class="p-neuf">🔧 Tu repars d'un établi vide : on fabrique un nouveau tam-tam.</p>`
+      : `<div class="p-suite"><div class="etiq">Bravo</div>
+           <b>Tu as terminé les 6 missions !</b>
+           <span>L'atelier libre s'ouvre : fabrique le tam-tam que tu veux.</span></div>
+         <button class="btn btn-large" id="btn-passer">Ouvrir l'atelier libre →</button>`}`;
+  $('v-passage').classList.add('visible');
+  $('btn-passer').addEventListener('click', () => {
+    $('v-passage').classList.remove('visible');
+    missionSuivante();
+  });
+}
+
+function missionSuivante() {
+  if (etat.mission < MISSIONS.length - 1) etat.mission++;
+  else etat.libre = true;
+  sauver();
+  vider();
+  ouvrirEtapes();
+}
+function ouvrirEtapes() {
+  etat.repliFait = false;
+  $('mission').classList.add('ouvert');
+  $('m-plier').setAttribute('aria-expanded', 'true');
+}
+
+/* ============================================================================
+   12. Mise à jour de l'affichage
+   ========================================================================== */
+
+function majMission() {
+  const m = missionCourante();
+  const ec = m ? etapeCourante() : null;
+  if (!m) {
+    $('m-num').textContent = '∞';
+    $('m-rang').textContent = 'Sans consigne';
+    $('m-titre').textContent = 'Atelier libre';
+    $('m-but').textContent = 'Fabrique le tam-tam que tu veux et fais-le sonner.';
+    $('etapes').innerHTML = '';
+    $('m-jauge').style.width = '100%';
+    $('btn-tester').classList.remove('appelle');
+    return;
+  }
+  const fait = etat.faites.indexOf(etat.mission) !== -1;
+  $('m-num').textContent = fait ? '✓' : (etat.mission + 1);
+  $('m-rang').textContent = `Mission ${etat.mission + 1} sur ${MISSIONS.length}`;
+  $('m-titre').textContent = m.titre;
+  $('m-but').textContent = m.but;
+  const nbFaites = m.etapes.filter(e => e.fait()).length;
+  $('m-jauge').style.width = Math.round(nbFaites / m.etapes.length * 100) + '%';
+  const iMontrer = ec ? ec.i : m.etapes.length - 1;
+  $('etapes').innerHTML = m.etapes.map((e, i) => {
+    const f = e.fait();
+    const courante = ec && ec.i === i;
+    return `<div class="etape${f ? ' faite' : ''}${courante ? ' courante' : ''}${i === iMontrer ? ' a-montrer' : ''}">
+      <span class="coche">✓</span><span class="t">${e.t}</span></div>`;
+  }).join('') + (m.indice ? `<div class="m-indice">💡 <b>Astuce :</b> ${m.indice}</div>` : '');
+  $('btn-tester').classList.toggle('appelle', !!(ec && cibleEffective(ec.e) === 'tester'));
+}
+
+function rendreMissions() {
+  $('liste-missions').innerHTML = MISSIONS.map((m, i) => {
+    const fait = etat.faites.indexOf(i) !== -1;
+    const ouverte = deverrouillee(i);
+    return `<button class="d-carte${fait ? ' fait' : ''}" data-mission="${i}" ${ouverte ? '' : 'disabled'}>
+      <span class="num">${fait ? '✓' : (ouverte ? i + 1 : '🔒')}</span>
+      <span class="txt"><b>${m.titre}</b><span>${ouverte ? m.but : 'Termine la mission précédente pour l’ouvrir.'}</span></span>
+    </button>`;
+  }).join('') + `<button class="d-carte" data-mission="libre"
+      ${etat.faites.length === MISSIONS.length ? '' : 'disabled'}>
+      <span class="num">${etat.faites.length === MISSIONS.length ? '∞' : '🔒'}</span>
+      <span class="txt"><b>Atelier libre</b><span>${etat.faites.length === MISSIONS.length
+        ? 'Fabrique ce que tu veux.' : 'Réussis les 6 missions pour l’ouvrir.'}</span></span></button>`;
+}
+
+function majReglage() {
+  // Le curseur n'a de sens que si la peau est posée et la fixation réglable
+  const dispo = !!etat.peau && !!etat.fixation && FIXATIONS[etat.fixation].reglable;
+  $('reglage').hidden = !dispo;
+  $('tension-val').textContent = etat.tension;
+  const ec = etapeCourante();
+  $('reglage').classList.toggle('vise', !!(ec && cibleEffective(ec.e) === 'tension'));
+}
+
+function majTout() {
+  dessiner();
+  majMission();
+  majReglage();
+}
+
+/* ============================================================================
+   13. Interactions
+   ========================================================================== */
+
+plan.addEventListener('click', e => {
+  const s = e.target.closest('[data-slot]');
+  if (!s) return;
+  const cible = s.dataset.slot;
+  if (s.classList.contains('plein') && cible !== 'caisse') retirer(cible);
+  else ouvrirFeuille(cible);
+});
+plan.addEventListener('keydown', e => {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  const c = e.target.closest('[data-slot]');
+  if (!c) return;
+  e.preventDefault();
+  c.dispatchEvent(new MouseEvent('click', { bubbles:true }));
+});
+
+$('feuille').addEventListener('click', e => {
+  if (e.target === $('feuille') || e.target.closest('[data-ferme-feuille]')) { fermerFeuille(); return; }
+  const o = e.target.closest('[data-choix]');
+  if (!o || o.disabled) return;
+  const [cle, id] = o.dataset.choix.split(':');
+  poser(cle, id);
+});
+
+$('tension').addEventListener('input', e => {
+  etat.tension = +e.target.value;
+  $('tension-val').textContent = etat.tension;
+  remettreAZero();
+  majMission();
+  majReglage();
+});
+
+$('btn-tester').addEventListener('click', frapper);
+$('btn-vider').addEventListener('click', vider);
+$('btn-mesures').addEventListener('click', () => {
+  $('btn-mesures').classList.remove('appelle');
+  if (etat.resultat) afficherBilan(etat.resultat, maquette(), false);
+});
+$('m-plier').addEventListener('click', () => {
+  const m = $('mission');
+  m.classList.toggle('ouvert');
+  $('m-plier').setAttribute('aria-expanded', m.classList.contains('ouvert'));
+});
+
+$('btn-son').addEventListener('click', () => {
+  etat.son = !etat.son;
+  $('btn-son').textContent = etat.son ? '🔊' : '🔇';
+  $('btn-son').title = etat.son ? 'Couper le son' : 'Activer le son';
+  try { localStorage.setItem('ike-tamtam-son', etat.son ? '1' : '0'); } catch (e) {}
+  toast(etat.son ? '🔊 Son activé — pense aux autres autour de toi' : '🔇 Son coupé');
+});
+
+$('btn-missions').addEventListener('click', () => { rendreMissions(); ouvrir('v-missions'); });
+$('btn-lexique').addEventListener('click', () => {
+  $('liste-lexique').innerHTML = LEXIQUE.map(l =>
+    `<div class="lex-entree"><b>${l.mot}</b><span>${l.def}</span></div>`).join('');
+  ouvrir('v-lexique');
+});
+$('btn-aide').addEventListener('click', () => ouvrir('v-aide'));
+
+$('liste-missions').addEventListener('click', e => {
+  const b = e.target.closest('[data-mission]');
+  if (!b || b.disabled) return;
+  if (b.dataset.mission === 'libre') etat.libre = true;
+  else { etat.libre = false; etat.mission = +b.dataset.mission; }
+  sauver();
+  vider();
+  ouvrirEtapes();
+  fermer('v-missions');
+});
+$('btn-rezero').addEventListener('click', () => {
+  if (!window.confirm('Effacer toute ta progression et repartir de la mission 1 ?')) return;
+  etat.faites = []; etat.mission = 0; etat.libre = false;
+  sauver();
+  vider();
+  ouvrirEtapes();
+  fermer('v-missions');
+  toast('↺ Parcours remis à zéro');
+});
+
+$('v-qcm').addEventListener('click', e => {
+  const b = e.target.closest('[data-rep]');
+  if (b && !b.disabled) repondre(+b.dataset.rep);
+});
+
+document.addEventListener('click', e => {
+  const f = e.target.closest('[data-ferme]');
+  if (f) fermer(f.dataset.ferme);
+  if (e.target.closest('[data-ferme-bilan]')) cacherBilan();
+});
+const ancres = ['v-qcm', 'v-passage'];
+for (const v of document.querySelectorAll('.voile')) {
+  v.addEventListener('click', e => { if (e.target === v && ancres.indexOf(v.id) === -1) fermer(v.id); });
+}
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  if (feuilleOuverte) { fermerFeuille(); return; }
+  for (const v of document.querySelectorAll('.voile.visible'))
+    if (ancres.indexOf(v.id) === -1) fermer(v.id);
+});
+
+const ouvrir = id => $(id).classList.add('visible');
+const fermer = id => $(id).classList.remove('visible');
+
+let minuteurToast = null;
+function toast(msg, alerte) {
+  const t = $('toast');
+  t.innerHTML = msg;
+  t.classList.toggle('alerte', !!alerte);
+  t.classList.add('visible');
+  clearTimeout(minuteurToast);
+  minuteurToast = setTimeout(() => t.classList.remove('visible'), 2600);
+}
+
+const btnTheme = $('btn-theme');
+function appliquerTheme(sombre) {
+  document.body.classList.toggle('sombre', sombre);
+  btnTheme.textContent = sombre ? '☀️' : '🌙';
+  document.querySelector('meta[name=theme-color]')
+    .setAttribute('content', sombre ? '#14181C' : '#F7F5F0');
+  try { localStorage.setItem('ike-theme', sombre ? 'sombre' : 'clair'); } catch (e) {}
+  dessiner();
+}
+btnTheme.addEventListener('click', () => appliquerTheme(!document.body.classList.contains('sombre')));
+try {
+  const t = localStorage.getItem('ike-theme');
+  appliquerTheme(t ? t === 'sombre' : window.matchMedia('(prefers-color-scheme: dark)').matches);
+} catch (e) { appliquerTheme(false); }
+
+/* ---- Démarrage ---- */
+charger();
+$('btn-son').textContent = etat.son ? '🔊' : '🔇';
+$('tension').value = etat.tension;
+ouvrirEtapes();
+majTout();
+try {
+  if (!localStorage.getItem('ike-tamtam-vu')) {
+    ouvrir('v-aide');
+    localStorage.setItem('ike-tamtam-vu', '1');
+  }
+} catch (e) { ouvrir('v-aide'); }
+
+</script>
+</body>
+</html>

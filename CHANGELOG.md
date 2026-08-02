@@ -5,6 +5,34 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v4.6.0 — 2026-08-02
+
+🥁 **Nouvelle simulation : « Fabrique ton tam-tam »** (PCT 6ᵉ, SA6) — troisième et dernier
+atelier de fabrication. **Les trois SA technologiques de 6ᵉ sont désormais couvertes.**
+
+Le guide part de la préparation du **kaléta** de fin d'année : les tam-tams du quartier ont
+disparu, il faut en fabriquer avec ce qu'on trouve — boîte de lait, calebasse, tronc évidé,
+ballon de baudruche, peau de chèvre, papier de sac de ciment, ficelle.
+
+- **La peau vibre sous les yeux, ralentie 80 fois.** Une membrane à 120 Hz est invisible ;
+  au ralenti, on voit le va-et-vient, les **grains de riz sauter** dessus, les **ondes partir
+  dans l'air** et un **oscillogramme** tracer la vibration amortie. C'est la « nature vibratoire
+  du son » que demande le programme, montrée plutôt qu'énoncée
+- **Les trois lois de régulation du son sont manipulables**, et vérifiées par test :
+  le **diamètre** (boîte de lait 296 Hz contre tronc évidé 85 Hz), la **tension** — un curseur
+  dédié, avec le rapport en racine carrée exact (×4 de tension = ×2 de fréquence) — et la
+  **masse de la peau** (ballon 184 Hz contre peau de chèvre 119 Hz)
+- **Les erreurs se voient** : une peau trop tendue **se déchire à l'écran**, en lambeaux ;
+  une peau trop molle fait un bruit sourd ; le collage interdit de retendre, donc d'accorder
+- **6 missions** : faire sonner → obtenir un grave → monter dans les aigus → **accorder sur
+  200 Hz** → fabriquer solide pour toute la fête → le tam-tam qui mènera le kaléta
+- **10 questions de QCM** et un **lexique de 14 mots** (son, vibration, fréquence, hertz,
+  hauteur, grave et aigu, tension, caisse de résonance, intensité, timbre, propagation,
+  percussion, kaléta)
+- **Le son est coupé par défaut** : le visuel se suffit à lui-même, et un bouton 🔇 / 🔊
+  permet de l'activer quand le contexte s'y prête. Il est alors synthétisé à la volée — modes
+  d'une membrane, non harmoniques comme une vraie peau — sans aucun fichier à télécharger
+
 ## v4.5.0 — 2026-08-02
 
 🔥 **L'alambic se déroule sous les yeux** — retour testeur, et il touchait le cœur pédagogique :
