@@ -5,6 +5,41 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v4.12.0 — 2026-08-02
+
+🔍 **Passe d'ergonomie sur les onze simulations** — retour utilisateur : « sur la SA3 l'UX est
+claquée, la partie “ce que tu retiens” n'est pas lisible et la présentation du panneau de travail
+n'est pas top ». Le constat était juste, et les défauts allaient au-delà de la SA3.
+
+**Lisibilité — « Ce que tu as appris »**
+L'harmonisation avait laissé l'ancien encadré vert **imbriqué** dans le nouveau bloc bleu : un
+double fond, avec du texte vert foncé par-dessus. Six simulations étaient touchées. Le bloc est
+désormais uni, contraste mesuré à **10,1**.
+
+**Lisibilité — textes d'accent**
+Faute d'accessibilité de fond : « Mission 1 sur 6 », les intitulés de sections et les étiquettes
+utilisaient le bleu d'accent #5BC5F2 **comme couleur de texte**. Sur fond clair, cela donne un
+contraste de **2,0** — largement sous le seuil de 4,5. Le design system l'énonçait pour le blanc
+sur fond coloré ; la réciproque était tout aussi vraie. Une variante foncée `--accent-texte` a
+été introduite et appliquée aux **onze** simulations.
+
+**Lisibilité — bandeaux d'état**
+Les bandeaux verts et orange portaient du texte blanc à 2 ou 3 de contraste. Les teintes
+porteuses sont assombries : le blanc y est maintenant lisible (4,8 à 5,9).
+
+**Panneau de travail des combustions**
+- Le panneau de formule utilisait une police **monospace** en `nowrap` : les phrases étaient
+  coupées en plein milieu — « combustible : la cire de la boug… ». Police du corps, retour à la
+  ligne autorisé
+- Le bouton **Allumer**, action motrice de la simulation, était un bouton neutre pâle : il prend
+  le lime des actions principales
+- La paillasse occupait un quart de l'écran dans un brun très saturé : elle descend à 85 % et
+  adopte un ton bois cohérent avec le reste
+- La bougie gardait une taille fixe quelle que soit la place : elle s'adapte désormais à l'écran
+
+Vérification automatisée sur les onze simulations — textes tronqués, polices monospace
+résiduelles, contrastes sous 3, débordements horizontaux : **aucun défaut restant**.
+
 ## v4.11.0 — 2026-08-02
 
 🔌 **Nouvelle simulation : « Les premiers pas du circuit »** (PCT 6ᵉ, SA1) — elle couvre
