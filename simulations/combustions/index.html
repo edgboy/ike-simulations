@@ -794,8 +794,20 @@ function vigueur() {
 function dessiner() {
   ctx.clearRect(0, 0, largeur, hauteur);
   const t = T_();
-  const tableY = hauteur * 0.85;
-  const bx = largeur * 0.42;                    // position de la bougie
+  const tableY = hauteur * 0.86;
+  const bx = largeur * 0.44;                    // position de la bougie
+  // Échelle de la scène : elle remplit la place disponible sans jamais déborder.
+  // 190 = hauteur naturelle du plus grand élément (la cloche), 340 = sa largeur.
+  const hautDispo = tableY - hauteur * 0.34;
+  const ech = Math.max(1, Math.min(1.75, hautDispo / 170));
+  // la cloche est l'élément le plus large : elle seule est bornée par la largeur
+  const cwBrut = 46 + etat.volume * 13, chBrut = 108 + etat.volume * 18;
+  const echCloche = Math.min(ech,
+    (bx - 74) / cwBrut,                       // place pour le tube et son étiquette
+    (largeur - bx - 84) / cwBrut);            // place pour les jauges à droite
+  const cw = cwBrut * echCloche;
+  // et elle doit toujours contenir la bougie et sa flamme
+  const ch = Math.max(78 * ech + 34 * ech + 40, chBrut * echCloche);
 
   // Table
   ctx.fillStyle = t.table;
@@ -804,26 +816,26 @@ function dessiner() {
   ctx.fillRect(0, tableY, largeur, 6);
 
   // Bougie
-  const bh = Math.max(74, Math.min(132, hauteur * .17)), bw = bh * .35;
+  const bh = 78 * ech, bw = bh * .35;
   ctx.fillStyle = t.cire;
   ctx.strokeStyle = t.cireBord; ctx.lineWidth = 2;
   ctx.beginPath(); ctx.roundRect(bx - bw / 2, tableY - bh, bw, bh, 4);
   ctx.fill(); ctx.stroke();
   // mèche
   ctx.strokeStyle = '#37474f'; ctx.lineWidth = 2.5;
-  ctx.beginPath(); ctx.moveTo(bx, tableY - bh); ctx.lineTo(bx, tableY - bh - 9); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(bx, tableY - bh); ctx.lineTo(bx, tableY - bh - 9 * ech); ctx.stroke();
 
   // Flamme
   const v = vigueur();
   if (v > 0) {
-    const fy = tableY - bh - 10;
+    const fy = tableY - bh - 10 * ech;
     const vac = 1 + Math.sin(tAnim * 13) * 0.08 + Math.sin(tAnim * 29) * 0.05;
-    const fh = 34 * v * vac, fw = 13 * (0.6 + 0.4 * v);
-    const glow = ctx.createRadialGradient(bx, fy - fh / 2, 4, bx, fy - fh / 2, 70 * v);
+    const fh = 34 * ech * v * vac, fw = 13 * ech * (0.6 + 0.4 * v);
+    const glow = ctx.createRadialGradient(bx, fy - fh / 2, 4, bx, fy - fh / 2, 70 * ech * v);
     glow.addColorStop(0, 'rgba(255,180,60,.35)');
     glow.addColorStop(1, 'rgba(255,180,60,0)');
     ctx.fillStyle = glow;
-    ctx.beginPath(); ctx.arc(bx, fy - fh / 2, 70 * v, 0, 7); ctx.fill();
+    ctx.beginPath(); ctx.arc(bx, fy - fh / 2, 70 * ech * v, 0, 7); ctx.fill();
     for (const [k, coul] of [[1, '#ff9800'], [0.66, '#ffc107'], [0.34, '#fff59d']]) {
       ctx.fillStyle = coul;
       ctx.beginPath();
@@ -831,14 +843,14 @@ function dessiner() {
       ctx.fill();
     }
     ctx.fillStyle = '#64b5f6';
-    ctx.beginPath(); ctx.ellipse(bx, fy - 2, 4.5, 5, 0, 0, 7); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(bx, fy - 2, 4.5 * ech, 5 * ech, 0, 0, 7); ctx.fill();
   }
 
   // Fumée après extinction
   if (fumee > 0) {
     ctx.fillStyle = `rgba(120,130,140,${0.5 * fumee})`;
     for (let i = 0; i < 6; i++) {
-      const fy2 = tableY - bh - 16 - i * 14 - (1 - fumee) * 60;
+      const fy2 = tableY - bh - (16 + i * 14 + (1 - fumee) * 60) * ech;
       ctx.beginPath();
       ctx.arc(bx + Math.sin(tAnim * 2 + i * 1.7) * (4 + i * 2.4), fy2, 3 + i * 1.6, 0, 7);
       ctx.fill();
@@ -847,7 +859,6 @@ function dessiner() {
 
   // Cloche (taille ∝ volume)
   if (etat.cloche) {
-    const cw = 60 + etat.volume * 22, ch = 130 + etat.volume * 26;
     const cx1 = bx - cw, cx2 = bx + cw, cyH = tableY - ch;
     ctx.fillStyle = t.verre;
     ctx.strokeStyle = t.verreBord; ctx.lineWidth = 3;
@@ -888,7 +899,10 @@ function dessiner() {
   if (!etat.cloche) etiquetteTexte(jx + 18, hauteur * 0.13 - 18, 'air libre', t.doux);
 
   // Tube d'eau de chaux (posé sur la table, à gauche)
-  const tx = largeur * 0.12, tw = 20, th2 = 58;
+  const tw = 20 * ech, th2 = 58 * ech;
+  const tx = etat.cloche
+    ? Math.max(52, bx - cw - tw / 2 - 12)      // à gauche de la cloche, étiquette comprise
+    : largeur * 0.12;
   ctx.strokeStyle = t.verreBord; ctx.lineWidth = 2;
   ctx.fillStyle = etat.chaux === 'trouble' ? 'rgba(236,239,241,.95)' : 'rgba(200,230,240,.35)';
   ctx.beginPath(); ctx.roundRect(tx - tw / 2, tableY - th2, tw, th2, 8); ctx.fill(); ctx.stroke();

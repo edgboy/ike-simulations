@@ -5,6 +5,28 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v4.12.1 — 2026-08-02
+
+📐 **Composition de la scène des combustions** — suite de la passe d'ergonomie : le panneau de
+travail laissait un vide au milieu, et les éléments étaient dessinés à des tailles fixes qui ne
+suivaient pas l'écran.
+
+- **La scène est mise à l'échelle** : bougie, flamme, halo, fumée et tube d'eau de chaux
+  s'adaptent à la place disponible au lieu de garder des dimensions figées. Le vide entre le
+  panneau d'informations et la paillasse a disparu
+- **La cloche a sa propre contrainte de largeur.** Elle mesurait jusqu'à 340 px de large pour
+  412 px d'écran en portrait : à plein volume, elle **sortait du cadre**. Ses dimensions
+  naturelles sont resserrées et son échelle est bornée par trois critères — la hauteur libre,
+  la place à laisser au tube d'eau de chaux à gauche, et celle des jauges à droite
+- **La cloche contient toujours la bougie et sa flamme**, avec de l'air au-dessus : sa hauteur
+  minimale est calculée à partir de celle de la bougie plutôt que fixée
+- **Le tube d'eau de chaux et son étiquette restent entièrement lisibles** : ils se placent à
+  gauche de la cloche, qui leur réserve la place nécessaire
+
+Le défaut de largeur de la cloche préexistait à la passe d'ergonomie : il n'apparaissait qu'en
+posant la cloche à son volume maximal sur un écran étroit, cas qu'aucune capture précédente
+n'avait montré.
+
 ## v4.12.0 — 2026-08-02
 
 🔍 **Passe d'ergonomie sur les onze simulations** — retour utilisateur : « sur la SA3 l'UX est
