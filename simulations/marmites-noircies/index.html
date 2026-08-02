@@ -1,0 +1,1489 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pourquoi mes marmites noircissent ? — Labo-Bénin</title>
+<meta name="theme-color" content="#F7F5F0">
+<link rel="stylesheet" href="../../assets/polices.css">
+<style>
+/* ===== Jetons du design system Labo-Bénin (intégrés : fichier autonome) ===== */
+:root {
+  --primary:#C4D94E; --accent:#5BC5F2; --accent-doux:#D6F0FB;
+  --tertiary:#F7A430; --destructive:#E83A4B; --success:#2A9D8F;
+  --neutral:#3A3632; --background:#F7F5F0; --surface:#FFFFFF; --surface-muted:#F0EEE9;
+  --border:#D3CFC8; --border-strong:#B0ABA3; --ring:#5BC5F2;
+  --font-display:'Baloo 2','Segoe UI',system-ui,sans-serif;
+  --font-body:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;
+  --radius-sm:8px; --radius-md:12px; --radius-lg:16px; --radius-xl:24px; --radius-full:9999px;
+  --shadow-soft:0 4px 16px rgba(58,54,50,.05);
+  --shadow-raised:0 6px 20px rgba(58,54,50,.06);
+  --ease:cubic-bezier(.4,0,.2,1);
+  --metal:#B0ABA3; --cuivre:#C9885A;
+}
+body.sombre {
+  --neutral:#ECEFF1; --background:#14181C; --surface:#1C232A; --surface-muted:#232C34;
+  --border:#333E47; --border-strong:#4A5762; --accent-doux:#17323F;
+  --shadow-soft:0 4px 16px rgba(0,0,0,.28); --shadow-raised:0 6px 20px rgba(0,0,0,.34);
+  --metal:#8A9299;
+}
+
+*,*::before,*::after { box-sizing:border-box; }
+body {
+  margin:0; font-family:var(--font-body); font-size:16px; color:var(--neutral);
+  background:var(--background); overflow:hidden;
+  height:100dvh; display:flex; flex-direction:column;
+  -webkit-tap-highlight-color:transparent; -webkit-text-size-adjust:100%;
+}
+h1,h2,h3,h4 { font-family:var(--font-display); margin:0; line-height:1.2; }
+p { margin:0; }
+:focus-visible { outline:2px solid var(--ring); outline-offset:2px; border-radius:var(--radius-sm); }
+
+/* ============================ En-tête ============================ */
+header {
+  display:flex; align-items:center; gap:8px; flex:none;
+  padding:6px 10px; background:var(--surface); border-bottom:1px solid var(--border);
+}
+header h1 { font-size:15px; font-weight:800; line-height:1.15; }
+header .sous { font-size:10.5px; opacity:.6; }
+.icone-btn {
+  width:40px; height:40px; flex:none; display:grid; place-items:center;
+  border:none; background:none; border-radius:var(--radius-md);
+  font-size:18px; color:inherit; cursor:pointer; text-decoration:none;
+}
+.icone-btn:hover { background:var(--surface-muted); }
+.tete-fin { margin-left:auto; display:flex; gap:2px; align-items:center; }
+
+/* ===================== Bandeau de mission (EN HAUT) ===================== */
+#mission {
+  flex:none; background:var(--surface); border-bottom:1px solid var(--border);
+  padding:8px 12px 9px;
+}
+.m-haut { display:flex; align-items:center; gap:9px; }
+.m-pastille {
+  width:30px; height:30px; flex:none; border-radius:var(--radius-sm);
+  display:grid; place-items:center; background:var(--accent-doux);
+  font-family:var(--font-display); font-weight:800; font-size:13px;
+}
+.m-titres { flex:1; min-width:0; }
+.m-titres b { display:block; font-size:14px; font-weight:600; line-height:1.2; }
+.m-titres span { font-size:11.5px; opacity:.65; line-height:1.35; display:block; }
+.m-rang {
+  font-size:10.5px !important; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--accent); opacity:1 !important; margin-bottom:1px;
+}
+.m-plier {
+  width:34px; height:34px; flex:none; border:none; background:none; cursor:pointer;
+  border-radius:var(--radius-sm); font-size:14px; color:inherit;
+  transition:transform .2s var(--ease);
+}
+.m-plier:hover { background:var(--surface-muted); }
+#mission.ouvert .m-plier { transform:rotate(180deg); }
+/* Replié, on ne montre que l'étape en cours : la lampe reste visible */
+#mission:not(.ouvert) .etape:not(.a-montrer) { display:none; }
+#mission:not(.ouvert) .m-indice { display:none; }
+.m-jauge { height:5px; border-radius:var(--radius-full); background:var(--surface-muted); margin-top:8px; overflow:hidden; }
+.m-jauge i { display:block; height:100%; background:var(--accent); transition:width .4s var(--ease); }
+
+/* ---- Liste des étapes : le guidage pas à pas ---- */
+#etapes { margin-top:9px; }
+.etape {
+  display:flex; align-items:flex-start; gap:9px; padding:5px 0;
+  font-size:13px; line-height:1.4;
+}
+.etape .coche {
+  width:21px; height:21px; flex:none; margin-top:1px; border-radius:var(--radius-full);
+  display:grid; place-items:center; font-size:11px; font-weight:700;
+  border:2px solid var(--border-strong); color:transparent; background:none;
+}
+.etape.faite .coche { background:var(--success); border-color:var(--success); color:#fff; }
+.etape.faite .t { opacity:.5; text-decoration:line-through; }
+.etape.courante .coche { border-color:var(--accent); animation:pulseCoche 1.5s infinite; }
+.etape.courante .t { font-weight:600; }
+@keyframes pulseCoche { 50% { box-shadow:0 0 0 5px var(--accent-doux); } }
+.etape .t { flex:1; }
+.m-indice {
+  margin-top:8px; padding:9px 11px; border-radius:var(--radius-md);
+  background:var(--accent-doux); font-size:12.5px; line-height:1.5;
+}
+.m-indice b { font-weight:600; }
+
+/* ============================ Atelier ============================ */
+main { flex:1; min-height:0; display:flex; flex-direction:column; }
+#atelier { flex:1; min-height:0; position:relative; display:flex; }
+#plan { flex:1; min-height:0; width:100%; display:block; touch-action:manipulation; }
+
+/* Emplacements sur la lampe */
+.slot { cursor:pointer; }
+.slot .zone {
+  fill:var(--surface); fill-opacity:.5; stroke:var(--border-strong); stroke-width:2;
+  stroke-dasharray:6 5; rx:7;
+}
+.slot:hover .zone, .slot:focus-visible .zone { stroke:var(--accent); fill:var(--accent-doux); fill-opacity:1; }
+.slot.plein .zone { display:none; }
+/* Surbrillance de l'emplacement attendu par l'étape en cours */
+.slot.vise .zone { stroke:var(--accent); stroke-width:3; stroke-dasharray:none;
+  fill:var(--accent-doux); fill-opacity:1; animation:viseur 1.5s infinite; }
+@keyframes viseur { 50% { stroke-opacity:.35; } }
+.slot.vise .etiq-slot { opacity:1; font-weight:700; }
+.etiq-slot {
+  font-family:var(--font-body); font-size:11px; font-weight:600;
+  fill:var(--neutral); opacity:.55; text-anchor:middle; pointer-events:none;
+}
+.txt-piece {
+  font-family:var(--font-body); font-size:11px; font-weight:700;
+  fill:var(--neutral); text-anchor:middle; pointer-events:none;
+}
+.retirer { cursor:pointer; }
+.retirer circle { fill:var(--border-strong); transition:fill .15s var(--ease); }
+.retirer:hover circle, .retirer:focus-visible circle { fill:var(--destructive); }
+.retirer text { fill:#fff; font-size:13px; font-weight:700; text-anchor:middle; font-family:var(--font-body); }
+
+/* ============ Bouton d'accès aux mesures, sur le plan de travail ============ */
+#btn-mesures {
+  position:absolute; right:12px; bottom:12px; z-index:5;
+  display:flex; align-items:center; gap:7px;
+  min-height:44px; padding:0 16px;
+  background:var(--surface); color:var(--neutral);
+  border:2px solid var(--border-strong); border-radius:var(--radius-full);
+  box-shadow:var(--shadow-raised);
+  font-family:var(--font-body); font-size:13.5px; font-weight:600; cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+#btn-mesures:hover { background:var(--surface-muted); border-color:var(--neutral); }
+#btn-mesures[hidden] { display:none; }
+#btn-mesures.appelle { border-color:var(--accent); animation:appelleMesures 1.4s infinite; }
+@keyframes appelleMesures { 50% { box-shadow:0 0 0 8px var(--accent-doux), var(--shadow-raised); } }
+
+/* ============================ Bilan ============================ */
+#bilan {
+  position:absolute; left:8px; right:8px; bottom:8px; z-index:6;
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-raised); padding:13px 15px;
+  display:none; max-width:520px; margin:0 auto;
+}
+#bilan.visible { display:block; animation:monte .3s var(--ease); }
+#atelier.avec-bilan #plan { align-self:flex-start; max-height:48%; }
+@keyframes monte { from { opacity:0; transform:translateY(10px); } }
+#bilan .verdict { display:flex; align-items:center; gap:9px; margin-bottom:4px; }
+#bilan .verdict .em { font-size:23px; line-height:1; }
+#bilan .verdict h3 { font-size:16px; flex:1; }
+#bilan .reduire {
+  width:32px; height:32px; flex:none; margin:-4px -6px 0 0;
+  border:none; background:none; border-radius:var(--radius-sm);
+  font-size:17px; color:inherit; cursor:pointer; opacity:.6;
+}
+#bilan .reduire:hover { background:var(--surface-muted); opacity:1; }
+#bilan .objectif {
+  margin-top:10px; padding:9px 11px; border-radius:var(--radius-md);
+  background:var(--accent-doux); font-size:12.5px; line-height:1.5;
+}
+#bilan .phrase { font-size:12.5px; opacity:.78; line-height:1.5; margin:0 0 10px; }
+.jauges { display:grid; grid-template-columns:repeat(auto-fit,minmax(115px,1fr)); gap:8px 14px; }
+.jauge .haut { display:flex; justify-content:space-between; font-size:11.5px; margin-bottom:3px; }
+.jauge .haut b { font-weight:600; }
+.jauge .haut span { opacity:.65; }
+.barre { height:7px; border-radius:var(--radius-full); background:var(--surface-muted); overflow:hidden; }
+.barre i { display:block; height:100%; background:var(--accent); border-radius:inherit; transition:width .5s var(--ease); }
+.barre.faible i { background:var(--tertiary); }
+.barre.mauvais i { background:var(--destructive); }
+#bilan .actions { display:flex; gap:8px; margin-top:11px; }
+
+/* ============================ Barre d'action ============================ */
+#actions {
+  flex:none; display:flex; gap:8px; align-items:center; justify-content:flex-end;
+  padding:8px 12px calc(8px + env(safe-area-inset-bottom));
+  background:var(--surface); border-top:1px solid var(--border);
+}
+.btn {
+  display:inline-flex; align-items:center; justify-content:center; gap:7px;
+  min-height:44px; padding:0 18px; border:none; border-radius:var(--radius-lg);
+  font-family:var(--font-body); font-size:14px; font-weight:600;
+  color:var(--neutral); background:var(--primary); cursor:pointer;
+  transition:filter .15s var(--ease);
+}
+.btn:hover { filter:brightness(.94); }
+.btn:active { filter:brightness(.88); }
+.btn[disabled] { opacity:.45; cursor:not-allowed; filter:none; }
+.btn-contour { background:var(--surface); border:2px solid var(--neutral); }
+.btn-contour:hover { background:var(--surface-muted); filter:none; }
+.btn-fantome { background:transparent; }
+.btn-fantome:hover { background:var(--surface-muted); filter:none; }
+.btn-large { width:100%; }
+#btn-tester.appelle { animation:appelle 1.3s infinite; }
+@keyframes appelle { 50% { box-shadow:0 0 0 7px rgba(196,217,78,.35); } }
+
+/* ================== Feuille de choix d'un composant ================== */
+#feuille {
+  position:fixed; inset:0; z-index:35; display:none;
+  background:rgba(38,50,56,.5);
+}
+#feuille.visible { display:block; }
+.f-carte {
+  position:absolute; left:0; right:0; bottom:0;
+  max-height:82dvh; overflow-y:auto;
+  background:var(--surface); border-radius:var(--radius-xl) var(--radius-xl) 0 0;
+  padding:8px 16px calc(18px + env(safe-area-inset-bottom));
+  box-shadow:var(--shadow-raised);
+  animation:glisse .28s var(--ease);
+}
+@keyframes glisse { from { transform:translateY(100%); } }
+.f-poignee { width:40px; height:4px; border-radius:2px; background:var(--border); margin:2px auto 12px; }
+.f-tete { display:flex; align-items:center; gap:9px; margin-bottom:4px; }
+.f-tete h2 { font-size:18px; flex:1; }
+.f-role { font-size:12.5px; line-height:1.5; opacity:.75; margin-bottom:13px; }
+.f-liste { display:grid; gap:9px; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); }
+.option {
+  display:flex; flex-direction:column; gap:3px; text-align:left; position:relative;
+  padding:12px 13px; min-height:62px;
+  background:var(--surface); border:2px solid var(--border); border-radius:var(--radius-md);
+  font-family:var(--font-body); color:var(--neutral); cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+.option:hover { border-color:var(--border-strong); background:var(--surface-muted); }
+.option.pose { border-color:var(--accent); background:var(--accent-doux); }
+.option.conseil { border-color:var(--primary); }
+.option.conseil::after {
+  content:'conseillé'; position:absolute; top:-9px; right:9px;
+  padding:1px 8px; border-radius:var(--radius-full);
+  background:var(--primary); color:var(--neutral);
+  font-size:9.5px; font-weight:700; letter-spacing:.04em; text-transform:uppercase;
+}
+.option b { font-size:13.5px; font-weight:600; }
+.option span { font-size:11.5px; opacity:.68; line-height:1.4; }
+.option[disabled] { opacity:.42; cursor:not-allowed; }
+.f-vide { text-align:center; padding:18px 0; font-size:13px; opacity:.6; }
+
+/* ============================ Voiles ============================ */
+.voile {
+  position:fixed; inset:0; z-index:40; display:none;
+  background:rgba(38,50,56,.55); padding:14px; overflow-y:auto;
+}
+.voile.visible { display:flex; align-items:center; justify-content:center; }
+.carte-modale {
+  position:relative; width:100%; max-width:470px; margin:auto;
+  background:var(--surface); border-radius:var(--radius-lg); padding:22px 20px;
+  box-shadow:var(--shadow-raised);
+}
+.carte-modale h2 { font-size:20px; margin-bottom:9px; padding-right:34px; }
+.carte-modale > p { font-size:13.5px; line-height:1.6; opacity:.8; margin-bottom:10px; }
+.fermer-x {
+  position:absolute; top:8px; right:10px; width:36px; height:36px;
+  border:none; background:none; font-size:20px; color:inherit; cursor:pointer;
+  border-radius:var(--radius-md);
+}
+.fermer-x:hover { background:var(--surface-muted); }
+
+/* Cartes de mission */
+.d-carte {
+  display:flex; align-items:center; gap:11px; width:100%; text-align:left;
+  padding:11px 13px; margin-bottom:8px;
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md);
+  font-family:var(--font-body); color:inherit; cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+.d-carte:hover:not([disabled]) { border-color:var(--border-strong); background:var(--surface-muted); }
+.d-carte[disabled] { opacity:.5; cursor:not-allowed; }
+.d-carte .num {
+  width:30px; height:30px; flex:none; border-radius:var(--radius-sm);
+  display:grid; place-items:center; background:var(--accent-doux);
+  font-family:var(--font-display); font-weight:800; font-size:13px;
+}
+.d-carte.fait .num { background:var(--success); color:#fff; }
+.d-carte .txt { flex:1; min-width:0; }
+.d-carte .txt b { display:block; font-size:13.5px; font-weight:600; }
+.d-carte .txt span { font-size:11.5px; opacity:.65; line-height:1.4; }
+
+/* Guide d'accueil */
+.g-etape { display:flex; gap:11px; margin-bottom:13px; }
+.g-etape .num {
+  width:26px; height:26px; flex:none; border-radius:var(--radius-full);
+  display:grid; place-items:center; background:var(--accent-doux);
+  font-family:var(--font-display); font-weight:800; font-size:12.5px;
+}
+.g-etape .t { font-size:13.5px; line-height:1.5; opacity:.85; flex:1; }
+.g-etape .t b { opacity:1; }
+
+/* Lexique */
+.lex-entree {
+  padding:11px 0; border-bottom:1px solid var(--border);
+}
+.lex-entree:last-child { border-bottom:none; }
+.lex-entree b { display:block; font-size:14px; font-weight:600; margin-bottom:2px; }
+.lex-entree span { font-size:12.5px; line-height:1.55; opacity:.78; }
+.lex-entree em { font-style:normal; color:var(--accent); font-weight:600; }
+
+/* Écran de passage d'une mission à la suivante */
+.p-fanion {
+  display:flex; align-items:center; gap:10px; margin-bottom:12px;
+}
+.p-fanion .rond {
+  width:44px; height:44px; flex:none; border-radius:var(--radius-full);
+  display:grid; place-items:center; background:var(--success); font-size:22px;
+}
+.p-fanion b { display:block; font-size:17px; font-family:var(--font-display); font-weight:800; }
+.p-fanion span { font-size:12px; opacity:.65; }
+.p-acquis {
+  padding:12px 14px; border-radius:var(--radius-md); background:var(--accent-doux);
+  font-size:13px; line-height:1.55; margin-bottom:14px;
+}
+.p-acquis b { font-weight:600; }
+.p-suite {
+  border:2px dashed var(--border-strong); border-radius:var(--radius-md);
+  padding:12px 14px; margin-bottom:14px;
+}
+.p-suite .etiq {
+  font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--accent); margin-bottom:3px;
+}
+.p-suite b { display:block; font-size:15px; font-family:var(--font-display); font-weight:800; }
+.p-suite span { font-size:12.5px; opacity:.7; line-height:1.45; }
+.p-neuf { font-size:12px; opacity:.6; text-align:center; margin-top:9px; line-height:1.45; }
+
+/* QCM */
+.q-question { font-size:15px; font-weight:600; line-height:1.4; margin-bottom:12px; }
+.q-choix {
+  display:block; width:100%; text-align:left; margin-bottom:8px;
+  padding:12px 14px; min-height:46px;
+  background:var(--surface); border:2px solid var(--border); border-radius:var(--radius-md);
+  font-family:var(--font-body); font-size:13.5px; color:var(--neutral); cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+.q-choix:hover:not([disabled]) { border-color:var(--border-strong); background:var(--surface-muted); }
+.q-choix.bon { border-color:var(--success); background:rgba(42,157,143,.12); font-weight:600; }
+.q-choix.mauvais { border-color:var(--destructive); background:rgba(232,58,75,.1); }
+.q-choix[disabled] { cursor:default; }
+.q-expl {
+  margin-top:4px; padding:11px 13px; border-radius:var(--radius-md);
+  background:var(--accent-doux); font-size:12.5px; line-height:1.55;
+  display:none;
+}
+.q-expl.visible { display:block; }
+.q-avance { font-size:11.5px; opacity:.55; margin-bottom:10px; letter-spacing:.04em; text-transform:uppercase; font-weight:600; }
+
+/* ============================ Toast ============================ */
+#toast {
+  position:fixed; left:50%; bottom:calc(70px + env(safe-area-inset-bottom));
+  transform:translateX(-50%);
+  max-width:calc(100vw - 28px); padding:10px 16px; z-index:45;
+  background:var(--neutral); color:var(--background);
+  border-radius:var(--radius-full); font-size:13px; font-weight:600;
+  opacity:0; pointer-events:none; transition:opacity .2s var(--ease); text-align:center;
+}
+#toast.visible { opacity:1; }
+#toast.alerte { background:var(--destructive); color:#fff; }
+
+/* ================= Adaptations d'écran ================= */
+
+/* Paysage sur téléphone : chaque pixel de hauteur compte */
+@media (orientation:landscape) and (max-height:520px) {
+  header { padding:3px 8px; }
+  header h1 { font-size:13px; }
+  header .sous { display:none; }
+  .icone-btn { width:34px; height:34px; font-size:16px; }
+  #mission { padding:5px 10px 6px; }
+  .m-pastille { width:24px; height:24px; font-size:11px; }
+  .m-titres b { font-size:12.5px; }
+  .m-titres span { display:none; }
+  #mission.ouvert .m-titres span { display:block; }
+  .m-jauge { margin-top:5px; }
+  #actions { padding:5px 10px calc(5px + env(safe-area-inset-bottom)); }
+  .btn { min-height:38px; padding:0 14px; font-size:13px; }
+  #atelier.avec-bilan #plan { max-height:none; }
+  #bilan { max-width:none; right:8px; left:auto; width:min(58%,420px); bottom:6px; }
+  .f-carte { max-height:96dvh; }
+}
+
+/* Écran large : la mission passe en colonne, l'atelier prend le reste */
+@media (min-width:880px) {
+  body { flex-direction:row; }
+  #colonne {
+    width:330px; flex:none; display:flex; flex-direction:column;
+    background:var(--surface); border-right:1px solid var(--border);
+    overflow-y:auto;
+  }
+  header { border-bottom:1px solid var(--border); }
+  #mission { border-bottom:none; padding:12px 16px; }
+  /* la place ne manque pas : toutes les étapes restent visibles */
+  #mission:not(.ouvert) .etape:not(.a-montrer) { display:flex; }
+  #mission:not(.ouvert) .m-indice { display:block; }
+  .m-plier { display:none; }
+  main { flex:1; min-width:0; }
+  #actions { justify-content:center; }
+  #bilan { left:16px; right:16px; }
+  .f-carte {
+    position:absolute; top:50%; left:50%; right:auto; bottom:auto;
+    transform:translate(-50%,-50%); width:min(560px,92vw);
+    border-radius:var(--radius-lg); max-height:86dvh;
+    animation:apparait .2s var(--ease);
+  }
+  @keyframes apparait { from { opacity:0; } }
+  .f-poignee { display:none; }
+}
+
+@media (prefers-reduced-motion:reduce) {
+  *,*::before,*::after { animation-duration:.01ms !important; transition-duration:.01ms !important; }
+}
+
+/* ===================== Propre à l'alambic ===================== */
+.flamme { animation:vacille .5s infinite alternate; transform-origin:center bottom; }
+@keyframes vacille { to { transform:scaleY(1.14) scaleX(.94); } }
+.bulle { animation:monteBulle 1.5s infinite ease-in; }
+@keyframes monteBulle { from { transform:translateY(0); opacity:.9; } to { transform:translateY(-42px); opacity:0; } }
+.goutte { animation:tombe 1.8s infinite ease-in; }
+@keyframes tombe { from { transform:translateY(0); opacity:1; } to { transform:translateY(46px); opacity:.2; } }
+.etat-eau {
+  font-family:var(--font-body); font-size:10.5px; font-weight:700;
+  text-anchor:middle; pointer-events:none;
+}
+.chgt-etat {
+  font-family:var(--font-body); font-size:10px; font-weight:600;
+  fill:var(--accent); text-anchor:middle; pointer-events:none;
+}
+#legende-etats {
+  position:absolute; left:10px; top:8px; z-index:4;
+  display:flex; gap:10px; flex-wrap:wrap;
+  padding:7px 11px; border-radius:var(--radius-md);
+  background:var(--surface); border:1px solid var(--border); box-shadow:var(--shadow-soft);
+  font-size:11px; font-weight:600;
+}
+#legende-etats[hidden] { display:none; }
+#legende-etats i { display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:4px; }
+
+/* ===================== Propre à la cuisine ===================== */
+.etiq-lieu { font-family:var(--font-body); font-size:10.5px; font-weight:600;
+  fill:var(--neutral); opacity:.6; text-anchor:middle; pointer-events:none; }
+.etat-eau { font-family:var(--font-body); font-size:11px; font-weight:700;
+  text-anchor:middle; pointer-events:none; }
+
+#etat-flamme {
+  position:absolute; left:50%; top:8px; transform:translateX(-50%); z-index:5;
+  padding:6px 13px; border-radius:var(--radius-full); color:#fff;
+  font-size:12px; font-weight:600; white-space:nowrap; max-width:94%;
+  overflow:hidden; text-overflow:ellipsis; box-shadow:var(--shadow-soft);
+}
+#etat-flamme[hidden] { display:none; }
+
+#reglages {
+  flex:none; background:var(--surface); border-top:1px solid var(--border);
+  padding:6px 12px 8px;
+}
+.reg {
+  display:flex; align-items:center; gap:10px; padding:4px 8px;
+  border-radius:var(--radius-md); transition:background .2s var(--ease);
+}
+.reg.vise { background:var(--accent-doux); }
+.r-nom { flex:none; width:92px; font-size:12.5px; font-weight:600; }
+.reg input[type=range] { flex:1; min-width:0; height:28px; accent-color:var(--accent); cursor:pointer; }
+.r-val { flex:none; min-width:44px; text-align:right; font-size:12.5px; font-weight:700; opacity:.7; }
+
+/* Tests et moyens d'extinction, réutilisent le style des actions */
+.action { display:flex; align-items:center; gap:10px; width:100%; text-align:left;
+  padding:10px 12px; margin-bottom:8px; background:var(--surface);
+  border:2px solid var(--border); border-radius:var(--radius-md);
+  font-family:var(--font-body); color:var(--neutral); cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease); }
+.action:hover:not([disabled]) { border-color:var(--border-strong); background:var(--surface-muted); }
+.action[disabled] { opacity:.45; cursor:not-allowed; }
+.action.prise { border-color:var(--success); background:rgba(42,157,143,.1); }
+.action .coche { width:26px; flex:none; text-align:center; font-size:17px; }
+.action .txt { flex:1; min-width:0; }
+.action .txt b { display:block; font-size:13px; font-weight:600; }
+.action .txt span { font-size:11.5px; opacity:.65; }
+.a-expl { padding:11px 13px; border-radius:var(--radius-sm);
+  background:var(--accent-doux); font-size:12.5px; line-height:1.55; }
+
+@media (max-width:520px) {
+  .r-nom { width:80px; font-size:12px; }
+  #reglages { padding:4px 10px 6px; }
+  .reg { padding:2px 6px; }
+  .reg input[type=range] { height:24px; }
+}
+</style>
+</head>
+<body>
+
+<div id="colonne">
+  <header>
+    <a class="icone-btn" href="../../index.html#/pct/6e" title="Retour au catalogue" aria-label="Retour">←</a>
+    <div>
+      <h1>Pourquoi mes marmites noircissent ?</h1>
+      <div class="sous">PCT · 6ᵉ · SA3</div>
+    </div>
+    <div class="tete-fin">
+      <button class="icone-btn" id="btn-tests" title="Tests d'identification" aria-label="Tests">🧪</button>
+      <button class="icone-btn" id="btn-missions" title="Les missions" aria-label="Missions">🎯</button>
+      <button class="icone-btn" id="btn-lexique" title="Lexique" aria-label="Lexique">📖</button>
+      <button class="icone-btn" id="btn-aide" title="Comment jouer" aria-label="Aide">❓</button>
+      <button class="icone-btn" id="btn-theme" title="Thème" aria-label="Thème">🌙</button>
+    </div>
+  </header>
+
+  <section id="mission">
+    <div class="m-haut">
+      <span class="m-pastille" id="m-num">1</span>
+      <div class="m-titres">
+        <span class="m-rang" id="m-rang">Mission 1 sur 6</span>
+        <b id="m-titre">—</b>
+        <span id="m-but"></span>
+      </div>
+      <button class="m-plier" id="m-plier" aria-label="Afficher toutes les étapes"
+              aria-expanded="false">▼</button>
+    </div>
+    <div class="m-jauge"><i id="m-jauge" style="width:0"></i></div>
+    <div id="etapes"></div>
+  </section>
+</div>
+
+<main>
+  <div id="atelier">
+    <svg id="plan" viewBox="0 0 660 330" preserveAspectRatio="xMidYMid meet" role="img"
+         aria-label="Le réchaud à pétrole, sa flamme et la marmite"></svg>
+    <div id="etat-flamme" hidden></div>
+    <button id="btn-mesures" hidden>📊 <span>Voir le bilan</span></button>
+    <div id="bilan" role="status" aria-live="polite"></div>
+  </div>
+
+  <div id="reglages">
+    <label class="reg" data-reg="meche">
+      <span class="r-nom">🔥 Mèche</span>
+      <input type="range" id="meche" min="0" max="10" step="1" value="5">
+      <span class="r-val" id="v-meche">5</span>
+    </label>
+    <label class="reg" data-reg="air">
+      <span class="r-nom">💨 Air</span>
+      <input type="range" id="air" min="0" max="10" step="1" value="6">
+      <span class="r-val" id="v-air">6</span>
+    </label>
+    <label class="reg" data-reg="marmite">
+      <span class="r-nom">🍲 Marmite</span>
+      <input type="range" id="marmite" min="1" max="10" step="1" value="6">
+      <span class="r-val" id="v-marmite">6 cm</span>
+    </label>
+  </div>
+
+  <div id="actions">
+    <button class="btn btn-fantome" id="btn-nettoyer">🧽 Nettoyer la marmite</button>
+    <button class="btn" id="btn-tester">🔥 Allumer</button>
+  </div>
+</main>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<div class="voile" id="v-tests">
+  <div class="carte-modale">
+    <button class="fermer-x" data-ferme="v-tests" aria-label="Fermer">✕</button>
+    <h2>🧪 Qu’est-ce qui se forme ?</h2>
+    <p>Approche chaque témoin de la flamme : il te dira ce qu’elle produit.
+       Il faut que le réchaud soit allumé.</p>
+    <div id="liste-tests"></div>
+  </div>
+</div>
+
+<div class="voile" id="v-feu">
+  <div class="carte-modale" id="feu-carte"></div>
+</div>
+
+<div class="voile" id="v-lexique">
+  <div class="carte-modale">
+    <button class="fermer-x" data-ferme="v-lexique" aria-label="Fermer">✕</button>
+    <h2>📖 Les mots du feu</h2>
+    <p>Ce qui brûle, ce qui se forme, et comment on maîtrise une flamme.</p>
+    <div id="liste-lexique"></div>
+  </div>
+</div>
+
+<div class="voile" id="v-missions">
+  <div class="carte-modale">
+    <button class="fermer-x" data-ferme="v-missions" aria-label="Fermer">✕</button>
+    <h2>🎯 Les missions</h2>
+    <p>Elles se suivent : termine l'une pour ouvrir la suivante.</p>
+    <div id="liste-missions"></div>
+    <button class="btn btn-fantome btn-large" id="btn-rezero"
+            style="margin-top:6px;color:var(--destructive)">↺ Recommencer tout le parcours</button>
+  </div>
+</div>
+
+<div class="voile" id="v-aide">
+  <div class="carte-modale">
+    <button class="fermer-x" data-ferme="v-aide" aria-label="Fermer">✕</button>
+    <h2>🍲 Bienvenue dans la cuisine</h2>
+    <p>Thérèse rend visite à la mère de Daouda et s'étonne : les marmites et les murs sont
+       couverts de <b>noir de fumée</b>. « Pourtant nous avons le même réchaud et le même
+       pétrole, et chez moi tout reste propre ! »</p>
+    <div class="g-etape"><span class="num">1</span><span class="t">
+      <b>Règle le réchaud</b> avec les trois curseurs : la mèche, l'arrivée d'air,
+      et la hauteur de la marmite.</span></div>
+    <div class="g-etape"><span class="num">2</span><span class="t">
+      <b>Allume</b> et regarde la flamme. Sa <b>couleur</b> te dit tout :
+      bleue, elle brûle bien ; jaune et fumeuse, elle salit.</span></div>
+    <div class="g-etape"><span class="num">3</span><span class="t">
+      Le fond de la marmite <b>noircit sous tes yeux</b> quand la combustion est mauvaise —
+      et l'eau met bien plus longtemps à bouillir.</span></div>
+    <div class="g-etape"><span class="num">4</span><span class="t">
+      Avec le bouton 🧪, approche des <b>témoins</b> de la flamme pour découvrir
+      ce qu'elle fabrique.</span></div>
+    <button class="btn btn-large" data-ferme="v-aide">Allumer le réchaud !</button>
+  </div>
+</div>
+
+<div class="voile" id="v-qcm">
+  <div class="carte-modale" id="qcm-carte"></div>
+</div>
+
+<div class="voile" id="v-passage">
+  <div class="carte-modale" id="passage-carte"></div>
+</div>
+
+<script>
+'use strict';
+
+/* ============================================================================
+   1. La combustion — validée par tests avant l'écriture de l'interface
+   ========================================================================== */
+
+const EAU_L = 2, C_EAU = 4185, T0 = 25, T_EB = 100, P_MAX = 1800;
+const ACCEL = 48;              // 1 seconde réelle ≈ 48 secondes de cuisson
+
+function bruler(m) {
+  const r = {};
+  if (m.meche <= 0) { r.eteint = true; r.raison = 'La mèche est rentrée : il n’y a plus de combustible.'; return r; }
+  if (m.air <= 0) { r.eteint = true; r.raison = 'L’arrivée d’air est fermée : sans dioxygène, la flamme s’étouffe.'; return r; }
+
+  // Richesse : trop de combustible pour l'air disponible → combustion incomplète
+  const richesse = m.meche / m.air;
+  r.richesse = Math.round(richesse * 100) / 100;
+  r.complete = richesse <= 1;
+  // Une marmite trop proche refroidit la flamme : elle fume, même avec assez d'air
+  const etouffement = m.marmite < 4 ? (4 - m.marmite) * .35 : 0;
+  const exces = Math.max(0, richesse - 1) + etouffement;
+  r.exces = Math.round(exces * 100) / 100;
+  r.etouffee = etouffement > 0;
+
+  r.couleur = exces <= .05 ? 'bleue' : exces < .4 ? 'jaune claire' : exces < 1 ? 'jaune' : 'orange fuligineuse';
+  r.suie = Math.round(Math.pow(exces, 1.7) * 90);
+  r.co = Math.round(exces * 320);
+  const rendement = Math.max(.12, .52 - exces * .28);
+  r.rendement = Math.round(rendement * 100);
+  r.puissance = Math.round(P_MAX * (m.meche / 10) * rendement);
+  r.minutes = r.puissance > 0 ? Math.round(EAU_L * C_EAU * (T_EB - T0) / r.puissance / 6) / 10 : Infinity;
+  r.conso = Math.round(m.meche * 3.2 * 10) / 10;
+  r.propre = r.suie === 0;
+  r.produits = { eau:true, co2:true, carbone:exces > .05, co:exces > .05 };
+  return r;
+}
+
+const TESTS = {
+  soucoupe: { nom:'Une soucoupe froide', ico:'🥄',
+    quoi:"On la tient un instant au-dessus de la flamme, puis on regarde son dessous.",
+    reussi:r => r.produits.carbone,
+    oui:"La soucoupe ressort <b>noircie</b> : c'est du <b>carbone</b>, du combustible qui n'a pas brûlé. C'est exactement ce qui salit les marmites.",
+    non:"La soucoupe ressort <b>propre</b>, juste couverte de <b>buée</b>. Il ne se dépose aucun carbone : la combustion est complète." },
+  chaux: { nom:'De l’eau de chaux', ico:'🥛',
+    quoi:"Un liquide transparent qu'on expose aux gaz de la flamme.",
+    reussi:() => true,
+    oui:"L'eau de chaux <b>se trouble</b> et devient blanchâtre : c'est la preuve qu'il se forme du <b>dioxyde de carbone</b>. Toute combustion en produit.",
+    non:"" },
+  sulfate: { nom:'Du sulfate de cuivre blanc', ico:'🧂',
+    quoi:"Une poudre blanche qui change de couleur en présence d'eau.",
+    reussi:() => true,
+    oui:"La poudre <b>bleuit</b> : il s'est formé de l'<b>eau</b>. Le pétrole contient de l'hydrogène, qui devient de la vapeur d'eau en brûlant.",
+    non:"" },
+};
+
+const LEXIQUE = [
+  { mot:'Combustion', def:"La transformation d'un <em>combustible</em> qui brûle en présence de dioxygène. Elle dégage de la chaleur et de la lumière." },
+  { mot:'Combustible', def:"Ce qui brûle : le pétrole, le bois, le gaz, la cire d'une bougie." },
+  { mot:'Comburant', def:"Ce qui permet de brûler : le <em>dioxygène</em> de l'air. Sans lui, aucune flamme ne tient." },
+  { mot:'Le triangle du feu', def:"Trois choses sont nécessaires ensemble : un <em>combustible</em>, un <em>comburant</em> et une <em>chaleur</em> de départ. Retire-en une seule, et le feu s'éteint." },
+  { mot:'Combustion complète', def:"Quand il y a assez de dioxygène, tout le combustible brûle. La flamme est <em>bleue</em>, très chaude, et ne salit pas. Elle forme de l'eau et du dioxyde de carbone." },
+  { mot:'Combustion incomplète', def:"Quand le dioxygène manque, une partie du combustible ne brûle pas. La flamme devient <em>jaune et fumeuse</em>, chauffe moins, et dépose du <em>carbone</em> — c'est le noir de fumée." },
+  { mot:'Noir de fumée', def:"La suie : de fines particules de <em>carbone</em> qui se déposent sur les marmites, les murs, et au fond des poumons." },
+  { mot:'Dioxyde de carbone (CO₂)', def:"Un gaz formé par toute combustion. On le reconnaît parce qu'il <em>trouble l'eau de chaux</em>." },
+  { mot:'Monoxyde de carbone (CO)', def:"Un gaz <em>invisible, inodore et très toxique</em>, produit seulement par les combustions incomplètes. Il tue chaque année dans les pièces mal aérées." },
+  { mot:'Test à l’eau de chaux', def:"L'eau de chaux, limpide, <em>se trouble</em> au contact du dioxyde de carbone. C'est le test du CO₂." },
+  { mot:'Test au sulfate de cuivre', def:"Le sulfate de cuivre blanc <em>devient bleu</em> en présence d'eau. C'est le test de l'eau." },
+  { mot:'Composition de l’air', def:"L'air contient environ <em>un cinquième de dioxygène</em> et <em>quatre cinquièmes de diazote</em>. Seul le dioxygène sert à la combustion." },
+  { mot:'Rendement', def:"La part de l'énergie du combustible qui sert vraiment à chauffer la marmite. Une flamme jaune gaspille : elle consomme plus pour chauffer moins." },
+];
+
+/* ============================================================================
+   2. Missions
+   ========================================================================== */
+
+const allume = () => sim.actif || sim.fini;
+
+const MISSIONS = [
+  {
+    titre:'Allume le réchaud',
+    but:'Trouve ce qu’il faut réunir pour qu’une flamme tienne.',
+    acquis:'Une flamme a besoin de <b>trois choses en même temps</b> : un combustible (le pétrole de la mèche), un comburant (le dioxygène de l’air) et de la chaleur. C’est le <b>triangle du feu</b>.',
+    indice:"Une mèche rentrée ne donne rien à brûler ; une arrivée d'air fermée prive la flamme de dioxygène. Il faut les deux.",
+    etapes:[
+      { t:'Sors la <b>mèche</b> (au moins 1)', cible:'meche', fait:() => etat.meche > 0 },
+      { t:'Ouvre l’<b>arrivée d’air</b>', cible:'air', fait:() => etat.air > 0 },
+      { t:'Appuie sur <b>Allumer</b>', cible:'tester', fait:allume },
+    ],
+    test:r => !r.eteint,
+    qcm:[
+      { q:'Que faut-il réunir pour qu’une flamme brûle ?',
+        choix:['Un combustible, du dioxygène et de la chaleur',
+               'Seulement du pétrole', 'De l’eau et du feu'], bonne:0,
+        expl:"C’est le <b>triangle du feu</b>. Retire un seul des trois — le combustible, le dioxygène ou la chaleur — et la flamme s’éteint. C’est ainsi qu’on éteint un incendie." },
+    ],
+  },
+  {
+    titre:'Reproduis le problème de Daouda',
+    but:'Fais volontairement une flamme qui salit la marmite, et regarde-la noircir.',
+    acquis:'Quand le dioxygène <b>manque</b>, le combustible ne brûle pas entièrement : la flamme jaunit et dépose du <b>carbone</b> — c’est le noir de fumée.',
+    indice:"Monte bien la mèche et referme l'arrivée d'air : tu donnes beaucoup de pétrole à brûler, mais trop peu d'air pour le faire.",
+    etapes:[
+      { t:'Monte la <b>mèche</b> au-dessus de 7', cible:'meche', fait:() => etat.meche >= 7 },
+      { t:'Referme l’<b>arrivée d’air</b> sous 4', cible:'air', fait:() => etat.air > 0 && etat.air <= 4 },
+      { t:'Allume et laisse la marmite noircir', cible:'tester', fait:() => sim.suieTotale > 400 },
+    ],
+    test:r => !r.eteint && r.suie > 0 && sim.suieTotale > 400,
+    qcm:[
+      { q:'D’où vient le noir qui se dépose sur la marmite ?',
+        choix:['C’est du carbone : du pétrole qui n’a pas brûlé faute de dioxygène',
+               'C’est de la poussière de la cuisine', 'C’est le métal de la marmite qui rouille'], bonne:0,
+        expl:"Sans assez de dioxygène, une partie du combustible ne brûle pas et se dépose en fines particules de <b>carbone</b>. C’est le <b>noir de fumée</b> — sur les marmites, sur les murs, et dans les poumons." },
+      { q:'Quelle couleur prend une flamme à qui il manque du dioxygène ?',
+        choix:['Elle devient jaune et fumeuse', 'Elle devient bleue', 'Elle devient verte'], bonne:0,
+        expl:"Le jaune vient des particules de carbone chauffées à blanc dans la flamme. Une flamme <b>bleue</b>, elle, brûle tout : elle ne fume pas." },
+    ],
+  },
+  {
+    titre:'Le réglage de Thérèse',
+    but:'Trouve maintenant le réglage qui ne salit pas du tout la marmite.',
+    acquis:'Il faut <b>autant d’air que de combustible</b>. Bien réglée, la flamme est <b>bleue</b> : elle brûle tout, ne dépose rien, et chauffe mieux.',
+    indice:"Ouvre largement l'arrivée d'air, et ne monte pas la mèche plus haut que l'air ne le permet. Éloigne aussi un peu la marmite : trop près, elle refroidit la flamme et la fait fumer.",
+    etapes:[
+      { t:'Obtiens une flamme <b>bleue</b>', cible:'air', fait:() => etat.resultat && etat.resultat.couleur === 'bleue' },
+      { t:'Place la marmite à <b>4 cm au moins</b>', cible:'marmite', fait:() => etat.marmite >= 4 },
+      { t:'Nettoie la marmite, puis fais bouillir sans la salir', cible:'tester',
+        fait:() => allume() && sim.suieTotale === 0 && sim.T >= T_EB - .5 },
+    ],
+    test:r => !r.eteint && r.propre && sim.suieTotale === 0 && sim.T >= T_EB - .5,
+    qcm:[
+      { q:'Thérèse et la mère de Daouda ont le même réchaud et le même pétrole. Pourquoi une seule salit ses marmites ?',
+        choix:['Parce que le réglage de l’air n’est pas le même',
+               'Parce que son pétrole est de mauvaise qualité',
+               'Parce que ses marmites sont plus vieilles'], bonne:0,
+        expl:"Tout se joue dans le <b>réglage</b> : assez d’air pour tout brûler, et une marmite pas trop basse. Même combustible, même appareil — résultat opposé." },
+    ],
+  },
+  {
+    titre:'Qu’est-ce qui se forme ?',
+    but:'Utilise les trois témoins pour découvrir ce que fabrique la flamme.',
+    acquis:'Toute combustion forme de l’<b>eau</b> (le sulfate de cuivre bleuit) et du <b>dioxyde de carbone</b> (l’eau de chaux se trouble). La combustion <b>incomplète</b> ajoute du <b>carbone</b> et du <b>monoxyde de carbone</b>.',
+    indice:"Ouvre le bouton 🧪 pendant que le réchaud est allumé. Fais les trois tests, une fois avec une flamme bleue et une fois avec une flamme jaune.",
+    etapes:[
+      { t:'Teste avec <b>l’eau de chaux</b>', cible:'tests', fait:() => !!etat.testsFaits.chaux },
+      { t:'Teste avec le <b>sulfate de cuivre</b>', cible:'tests', fait:() => !!etat.testsFaits.sulfate },
+      { t:'Teste la <b>soucoupe</b> sur une flamme qui fume', cible:'tests', fait:() => etat.testsFaits.soucoupe === 'noircie' },
+      { t:'Teste la <b>soucoupe</b> sur une flamme bleue', cible:'tests', fait:() => etat.testsFaits.soucoupePropre === true },
+    ],
+    test:() => etat.testsFaits.chaux && etat.testsFaits.sulfate
+      && etat.testsFaits.soucoupe === 'noircie' && etat.testsFaits.soucoupePropre === true,
+    qcm:[
+      { q:'L’eau de chaux se trouble au-dessus de la flamme. Qu’est-ce que cela prouve ?',
+        choix:['Qu’il s’est formé du dioxyde de carbone',
+               'Qu’il s’est formé de l’eau', 'Que la flamme est bleue'], bonne:0,
+        expl:"L’eau de chaux est le <b>test du dioxyde de carbone</b> : elle se trouble en sa présence. Toute combustion en produit, complète ou non." },
+      { q:'Le sulfate de cuivre blanc devient bleu. Qu’est-ce que cela prouve ?',
+        choix:['Qu’il s’est formé de l’eau',
+               'Qu’il s’est formé du carbone', 'Que la flamme est trop chaude'], bonne:0,
+        expl:"C’est le <b>test de l’eau</b>. Le pétrole contient de l’hydrogène : en brûlant, il forme de la vapeur d’eau. Une combustion, ça fabrique de l’eau — même si on ne la voit pas." },
+    ],
+  },
+  {
+    titre:'Chauffer vite et proprement',
+    but:'Fais bouillir les 2 litres en moins de 15 minutes, sans déposer la moindre suie.',
+    acquis:'Une flamme jaune <b>gaspille</b> : elle consomme plus de pétrole et chauffe moins. Bien régler, c’est économiser <b>et</b> garder sa cuisine propre.',
+    indice:"Il faut à la fois de la puissance (mèche haute) et assez d'air pour la brûler entièrement. Monte les deux ensemble, et garde la marmite à bonne distance.",
+    etapes:[
+      { t:'Nettoie la marmite avant l’essai', cible:'nettoyer', fait:() => sim.suieTotale === 0 || allume() },
+      { t:'Règle une flamme <b>bleue et puissante</b>', cible:'meche',
+        fait:() => etat.resultat && etat.resultat.couleur === 'bleue' && etat.meche >= 7 },
+      { t:'Fais bouillir en <b>moins de 15 min</b>, sans suie', cible:'tester',
+        fait:() => sim.T >= T_EB - .5 && sim.suieTotale === 0 },
+    ],
+    test:r => !r.eteint && r.propre && sim.T >= T_EB - .5 && sim.suieTotale === 0
+      && sim.minutesEcoulees <= 15,
+    qcm:[
+      { q:'Une flamme jaune fumeuse consomme plus de pétrole. Pourquoi chauffe-t-elle pourtant moins ?',
+        choix:['Une partie du pétrole part en fumée sans brûler : cette énergie est perdue',
+               'Parce que le jaune est une couleur froide',
+               'Parce que la marmite est sale'], bonne:0,
+        expl:"Ce qui part en <b>suie</b> et en <b>monoxyde de carbone</b>, c’est du combustible <b>non brûlé</b> : il a coûté, et il n’a pas chauffé. Bien régler son réchaud fait économiser du pétrole." },
+    ],
+  },
+  {
+    titre:'Au secours, au feu !',
+    but:'La lanterne de Sissi s’embrase. Choisis le bon moyen d’éteindre.',
+    acquis:'Pour éteindre, il faut <b>retirer un côté du triangle</b> : étouffer (couper le dioxygène) ou refroidir. Mais <b>l’eau sur du pétrole enflammé</b> étale le feu au lieu de l’éteindre.',
+    indice:"Le pétrole flotte sur l'eau : jeter de l'eau dessus le fait déborder et se répandre en flammes. Il faut étouffer le feu.",
+    etapes:[
+      { t:'Appuie sur <b>Allumer</b> pour lancer la scène', cible:'tester', fait:() => etat.feuVu === true },
+      { t:'Choisis le <b>bon moyen</b> d’éteindre', cible:'tester', fait:() => etat.feuEteint === true },
+    ],
+    test:() => etat.feuEteint === true,
+    qcm:[
+      { q:'Pourquoi ne faut-il jamais jeter de l’eau sur du pétrole enflammé ?',
+        choix:['Le pétrole flotte sur l’eau : le feu se répand au lieu de s’éteindre',
+               'Parce que l’eau devient inflammable',
+               'Parce que cela abîme la lanterne'], bonne:0,
+        expl:"Le pétrole est <b>moins dense que l’eau</b> et ne s’y mélange pas : il flotte, déborde et emporte les flammes avec lui. Il faut <b>étouffer</b> : sable, couverture, extincteur." },
+      { q:'Étouffer un feu avec du sable, cela revient à retirer quoi du triangle ?',
+        choix:['Le dioxygène', 'Le combustible', 'La chaleur'], bonne:0,
+        expl:"Le sable forme une couche qui <b>empêche l’air d’atteindre les flammes</b> : sans dioxygène, la combustion s’arrête. C’est le même principe que le couvercle sur une casserole qui prend feu." },
+    ],
+  },
+];
+
+const MOYENS = [
+  { cle:'eau', nom:'Jeter un seau d’eau', ico:'🪣', bon:false,
+    suite:"Le pétrole <b>flotte</b> sur l'eau : il déborde avec elle et les flammes se répandent par terre. Le feu a doublé de taille." },
+  { cle:'sable', nom:'Verser du sable', ico:'🏜️', bon:true,
+    suite:"Le sable recouvre le pétrole et <b>coupe l'arrivée d'air</b>. Privées de dioxygène, les flammes s'éteignent d'un coup." },
+  { cle:'feuilles', nom:'Battre avec des feuilles vertes', ico:'🌿', bon:false,
+    suite:"Sur un feu de brousse, cela peut marcher. Mais sur du pétrole répandu, on ne fait qu'<b>éparpiller</b> les flammes." },
+  { cle:'extincteur', nom:'Utiliser l’extincteur', ico:'🧯', bon:true,
+    suite:"L'extincteur projette un produit qui <b>étouffe</b> les flammes et refroidit. C'est le moyen le plus sûr, quand on en a un sous la main." },
+];
+
+/* ============================================================================
+   3. État, simulation temporelle, rendu
+   ========================================================================== */
+
+const etat = {
+  meche:5, air:6, marmite:6, resultat:null,
+  testsFaits:{}, feuVu:false, feuEteint:false,
+  mission:0, faites:[], libre:false, repliFait:false,
+};
+const sim = { actif:false, fini:false, t:0, T:T0, suieTotale:0, minutesEcoulees:0, derniere:0 };
+
+const CLE = 'ike-marmites-progression';
+function sauver() {
+  try { localStorage.setItem(CLE, JSON.stringify({ mission:etat.mission, faits:etat.faites,
+    tests:etat.testsFaits, feuEteint:etat.feuEteint })); } catch (e) {}
+}
+function charger() {
+  try {
+    const d = JSON.parse(localStorage.getItem(CLE));
+    if (!d) return;
+    if (Array.isArray(d.faits)) etat.faites = d.faits;
+    if (d.tests) etat.testsFaits = d.tests;
+    etat.feuEteint = !!d.feuEteint;
+    etat.mission = Math.min(d.mission || 0, MISSIONS.length - 1);
+  } catch (e) {}
+}
+
+const $ = id => document.getElementById(id);
+const reglage = () => ({ meche:etat.meche, air:etat.air, marmite:etat.marmite });
+const missionCourante = () => etat.libre ? null : MISSIONS[etat.mission];
+const deverrouillee = i => i === 0 || etat.faites.indexOf(i - 1) !== -1 || etat.faites.indexOf(i) !== -1;
+function etapeCourante() {
+  const m = missionCourante();
+  if (!m) return null;
+  for (let i = 0; i < m.etapes.length; i++) if (!m.etapes[i].fait()) return { e:m.etapes[i], i };
+  return null;
+}
+function cibleEffective(e) { return e.cible || 'tester'; }
+
+/* ---- Marche du réchaud ---- */
+function allumer() {
+  const r = bruler(reglage());
+  etat.resultat = r;
+  // La mission de l'incendie a sa propre mise en scène
+  const m = missionCourante();
+  if (m && m.titre === 'Au secours, au feu !') { ouvrirFeu(); return; }
+  if (r.eteint) {
+    sim.actif = false;
+    majBouton();
+    afficherBilan(r, false);
+    return;
+  }
+  sim.actif = true; sim.fini = false; sim.t = 0; sim.T = T0; sim.minutesEcoulees = 0;
+  sim.derniere = performance.now();
+  cacherBilan();
+  oublierMesures();
+  majBouton();
+  requestAnimationFrame(boucleSim);
+}
+function eteindre(fini) {
+  sim.actif = false;
+  sim.fini = !!fini;
+  majBouton();
+  const r = bruler(reglage());
+  etat.resultat = r;
+  majMission();
+  const m = missionCourante();
+  const gagne = m && m.test(r);
+  if (gagne && etat.faites.indexOf(etat.mission) === -1) { etat.faites.push(etat.mission); sauver(); }
+  $('btn-mesures').hidden = false;
+  if (gagne || r.suie > 0) { $('btn-mesures').classList.remove('appelle'); afficherBilan(r, gagne); }
+  else { $('btn-mesures').classList.add('appelle'); toast('Touche 📊 pour voir le bilan de cuisson'); }
+}
+function boucleSim(ts) {
+  if (!sim.actif) return;
+  const dtReel = Math.min(.05, (ts - sim.derniere) / 1000);
+  sim.derniere = ts;
+  const dt = dtReel * ACCEL;
+  const r = bruler(reglage());
+  etat.resultat = r;
+  if (r.eteint) { eteindre(true); return; }
+  sim.t += dt;
+  sim.minutesEcoulees = Math.round(sim.t / 6) / 10;
+  if (sim.T < T_EB) sim.T = Math.min(T_EB, sim.T + r.puissance * dt / (EAU_L * C_EAU));
+  sim.suieTotale += r.suie * dt / 60;
+  animer();
+  majMission();
+  // On arrête à l'ébullition, ou au bout de 25 minutes de cuisson
+  if (sim.T >= T_EB - .05 || sim.t > 1500) { eteindre(true); return; }
+  requestAnimationFrame(boucleSim);
+}
+
+/* ---- Dessin ---- */
+const plan = $('plan');
+const NS = 'http://www.w3.org/2000/svg';
+const el = (nom, attrs, texte) => {
+  const n = document.createElementNS(NS, nom);
+  for (const k in attrs) n.setAttribute(k, attrs[k]);
+  if (texte != null) n.textContent = texte;
+  return n;
+};
+const G = { cx:250, sol:288, mur:96 };
+const refs = {};
+
+function dessiner() {
+  plan.textContent = '';
+  for (const k in refs) delete refs[k];
+
+  // le mur de la cuisine, qui se couvre de noir de fumée lui aussi
+  refs.mur = el('rect', { x:0, y:0, width:660, height:G.sol, fill:'#8D6E63', 'fill-opacity':.08 });
+  plan.appendChild(refs.mur);
+  refs.suieMur = el('rect', { x:G.cx - 130, y:0, width:260, height:G.mur + 60, fill:'#3A3632', 'fill-opacity':0 });
+  plan.appendChild(refs.suieMur);
+  plan.appendChild(el('rect', { x:0, y:G.sol, width:660, height:330 - G.sol, fill:'#A1887F', 'fill-opacity':.3 }));
+
+  // le réchaud
+  plan.appendChild(el('rect', { x:G.cx - 60, y:G.sol - 46, width:120, height:46, rx:6,
+    fill:'#90A4AE', 'fill-opacity':.7, stroke:'#607D8B', 'stroke-width':2 }));
+  plan.appendChild(el('text', { x:G.cx, y:G.sol + 18, class:'etiq-lieu' }, 'Réchaud à pétrole'));
+  // molette d'arrivée d'air, visible sur le côté
+  refs.volets = el('g');
+  for (let k = 0; k < 4; k++) refs.volets.appendChild(el('rect', {
+    x:G.cx - 52 + k * 26, y:G.sol - 20, width:16, height:0, rx:2, fill:'#37474F' }));
+  plan.appendChild(refs.volets);
+
+  // la mèche
+  refs.meche = el('rect', { x:G.cx - 5, y:0, width:10, height:0, rx:3, fill:'#5D4037' });
+  plan.appendChild(refs.meche);
+
+  // la flamme
+  refs.flamme = el('g');
+  refs.flammeInt = el('path', {});
+  refs.flammeExt = el('path', {});
+  refs.flamme.appendChild(refs.flammeExt);
+  refs.flamme.appendChild(refs.flammeInt);
+  plan.appendChild(refs.flamme);
+
+  // la fumée
+  refs.fumee = el('g', { opacity:'0' });
+  for (let k = 0; k < 6; k++) refs.fumee.appendChild(el('circle', { fill:'#5D4037' }));
+  plan.appendChild(refs.fumee);
+
+  // la marmite, dont le fond noircit
+  refs.marmiteG = el('g');
+  plan.appendChild(refs.marmiteG);
+
+  animer();
+}
+
+function animer() {
+  const r = etat.resultat || bruler(reglage());
+  const enMarche = sim.actif;
+  const hMeche = etat.meche * 2.2;
+  const yBase = G.sol - 46;
+
+  // mèche
+  refs.meche.setAttribute('y', yBase - hMeche);
+  refs.meche.setAttribute('height', Math.max(0, hMeche));
+
+  // volets d'air : ils s'ouvrent avec le curseur
+  [...refs.volets.children].forEach((v, k) => {
+    const h = etat.air * 1.3;
+    v.setAttribute('height', h);
+    v.setAttribute('y', G.sol - 12 - h);
+  });
+
+  // flamme
+  const vivante = enMarche && !r.eteint;
+  refs.flamme.setAttribute('opacity', vivante ? '1' : '0');
+  if (vivante) {
+    const h = 26 + etat.meche * 6;
+    const osc = 1 + .1 * Math.sin(sim.t * 3.4);
+    const y0 = yBase - hMeche;
+    // enveloppe extérieure : sa couleur dit tout de la qualité de la combustion
+    const coulExt = r.couleur === 'bleue' ? '#5BC5F2'
+      : r.couleur === 'jaune claire' ? '#FFD54F'
+      : r.couleur === 'jaune' ? '#FFB300' : '#FF7043';
+    refs.flammeExt.setAttribute('d',
+      `M ${G.cx - 15} ${y0} q -6 ${-h * .5 * osc} 15 ${-h * osc} q 21 ${h * .5 * osc} 15 ${h * osc} z`);
+    refs.flammeExt.setAttribute('fill', coulExt);
+    refs.flammeExt.setAttribute('fill-opacity', '.85');
+    // cœur bleu : il subsiste tant qu'il y a assez d'air
+    refs.flammeInt.setAttribute('d',
+      `M ${G.cx - 7} ${y0} q -3 ${-h * .28} 7 ${-h * .55} q 10 ${h * .27} 7 ${h * .55} z`);
+    refs.flammeInt.setAttribute('fill', '#4FC3F7');
+    refs.flammeInt.setAttribute('fill-opacity', r.complete ? '.95' : '.35');
+  }
+
+  // fumée : seulement quand la combustion est incomplète
+  const fume = vivante && r.suie > 0;
+  refs.fumee.setAttribute('opacity', fume ? String(Math.min(1, r.exces)) : '0');
+  if (fume) [...refs.fumee.children].forEach((c, k) => {
+    const ph = ((sim.t * .5) + k * .17) % 1;
+    c.setAttribute('cx', G.cx + Math.sin(ph * 5 + k) * 22);
+    c.setAttribute('cy', yBase - 90 - ph * 110);
+    c.setAttribute('r', 8 + ph * 20);
+    c.setAttribute('fill-opacity', String(.35 * (1 - ph)));
+  });
+
+  // marmite
+  const yMarmite = yBase - hMeche - 26 - etat.marmite * 5.5;
+  refs.marmiteG.textContent = '';
+  const noir = Math.min(.92, sim.suieTotale / 2600);
+  refs.marmiteG.appendChild(el('path', {
+    d:`M ${G.cx - 62} ${yMarmite} L ${G.cx - 54} ${yMarmite - 56} L ${G.cx + 54} ${yMarmite - 56} ` +
+      `L ${G.cx + 62} ${yMarmite} q 0 10 -10 10 L ${G.cx - 52} ${yMarmite + 10} q -10 0 -10 -10 z`,
+    fill:'#B0BEC5', 'fill-opacity':.75, stroke:'#78909C', 'stroke-width':2.5, 'stroke-linejoin':'round',
+  }));
+  // le noir de fumée qui s'accumule sous la marmite
+  refs.marmiteG.appendChild(el('path', {
+    d:`M ${G.cx - 62} ${yMarmite} L ${G.cx + 62} ${yMarmite} q 0 10 -10 10 L ${G.cx - 52} ${yMarmite + 10} q -10 0 -10 -10 z`,
+    fill:'#26201C', 'fill-opacity':String(noir),
+  }));
+  // l'eau et sa température
+  const hEau = 34;
+  refs.marmiteG.appendChild(el('rect', { x:G.cx - 50, y:yMarmite - hEau - 6, width:100, height:hEau,
+    fill:'#5BC5F2', 'fill-opacity':.55 }));
+  if (sim.T > T0 + 1) {
+    refs.marmiteG.appendChild(el('text', { x:G.cx, y:yMarmite - hEau + 14, class:'etat-eau',
+      fill:'#0F5C7A' }, Math.round(sim.T) + ' °C'));
+    // bouillonnement à l'approche des 100 °C
+    if (sim.T > 92) for (let k = 0; k < 5; k++) refs.marmiteG.appendChild(el('circle', {
+      cx:G.cx - 36 + k * 18, cy:yMarmite - 12 - ((sim.t * 1.6 + k * .3) % 1) * 20,
+      r:3, fill:'#fff', 'fill-opacity':.7 }));
+  }
+  refs.marmiteG.appendChild(el('text', { x:G.cx, y:yMarmite - 66, class:'etiq-lieu' },
+    `${EAU_L} L d’eau`));
+
+  // le mur se salit aussi
+  refs.suieMur.setAttribute('fill-opacity', String(noir * .5));
+
+  // bandeau d'état de la flamme
+  const z = $('etat-flamme');
+  if (vivante) {
+    z.hidden = false;
+    const coul = r.complete && r.suie === 0 ? '#2A9D8F' : r.exces < .4 ? '#F7A430' : '#E83A4B';
+    z.style.background = coul;
+    z.innerHTML = `Flamme <b>${r.couleur}</b> · ${r.complete && r.suie === 0
+      ? 'combustion complète' : 'combustion incomplète'} · ${sim.minutesEcoulees} min` +
+      (sim.suieTotale > 20 ? ` · <b>${Math.round(sim.suieTotale)} mg de suie</b>` : '');
+  } else z.hidden = true;
+}
+
+/* ============================================================================
+   4. Tests d'identification, incendie, bilan
+   ========================================================================== */
+
+function rendreTests() {
+  const r = etat.resultat || bruler(reglage());
+  const chaud = sim.actif && !r.eteint;
+  $('liste-tests').innerHTML = Object.keys(TESTS).map(cle => {
+    const t = TESTS[cle];
+    const fait = etat.testsFaits[cle];
+    return `<button class="action${fait ? ' prise' : ''}" data-test="${cle}" ${chaud ? '' : 'disabled'}>
+      <span class="coche">${t.ico}</span>
+      <span class="txt"><b>${t.nom}</b><span>${chaud ? t.quoi : 'allume d’abord le réchaud'}</span></span>
+    </button>`;
+  }).join('') + '<div id="res-test"></div>';
+}
+
+function faireTest(cle) {
+  const r = etat.resultat || bruler(reglage());
+  if (!sim.actif || r.eteint) { toast('Allume d’abord le réchaud.', true); return; }
+  const t = TESTS[cle];
+  const positif = t.reussi(r);
+  if (cle === 'soucoupe') {
+    if (positif) etat.testsFaits.soucoupe = 'noircie';
+    else etat.testsFaits.soucoupePropre = true;
+  } else etat.testsFaits[cle] = true;
+  sauver();
+  rendreTests();
+  $('res-test').innerHTML = `<div class="a-expl" style="margin-top:10px">
+    <b>${t.ico} ${t.nom}</b><br>${positif ? t.oui : t.non}</div>`;
+  majMission();
+}
+
+/* ---- L'incendie de la lanterne de Sissi ---- */
+function ouvrirFeu() {
+  etat.feuVu = true;
+  $('feu-carte').innerHTML = `
+    <h2 style="color:var(--destructive)">🔥 Au secours, au feu !</h2>
+    <p>Sissi étudiait le soir à la lanterne. Le réservoir était plein, et voilà que
+       la lanterne <b>s'embrase</b>. Le pétrole enflammé se répand sur la table.
+       Que fais-tu ?</p>
+    <div id="liste-moyens">${MOYENS.map(m =>
+      `<button class="action" data-moyen="${m.cle}">
+        <span class="coche">${m.ico}</span>
+        <span class="txt"><b>${m.nom}</b></span></button>`).join('')}</div>
+    <div id="res-feu"></div>`;
+  $('v-feu').classList.add('visible');
+}
+
+function choisirMoyen(cle) {
+  const m = MOYENS.find(x => x.cle === cle);
+  const dejaBon = etat.feuEteint;
+  if (m.bon) { etat.feuEteint = true; sauver(); }
+  $('res-feu').innerHTML = `
+    <div class="a-expl" style="margin-top:10px;background:${m.bon
+      ? 'rgba(42,157,143,.14)' : 'rgba(232,58,75,.12)'}">
+      <b>${m.bon ? '✅' : '❌'} ${m.nom}</b><br>${m.suite}</div>
+    ${etat.feuEteint ? `<button class="btn btn-large" style="margin-top:12px"
+      data-ferme="v-feu" id="btn-feu-ok">Le feu est maîtrisé →</button>` : ''}`;
+  majMission();
+  if (m.bon && !dejaBon) setTimeout(() => { fermer('v-feu'); eteindre(true); }, 2600);
+}
+
+/* ---- Bilan ---- */
+function jauge(nom, valeur, max, unite, seuilFaible, inverse) {
+  const pct = Math.max(0, Math.min(100, valeur / max * 100));
+  const mauvais = inverse ? valeur > seuilFaible : valeur < seuilFaible;
+  const classe = inverse && valeur === 0 ? '' : (mauvais ? ' faible' : '');
+  return `<div class="jauge">
+    <div class="haut"><b>${nom}</b><span>${valeur}${unite}</span></div>
+    <div class="barre${classe}"><i style="width:${pct}%"></i></div></div>`;
+}
+
+function afficherBilan(r, gagne) {
+  const z = $('bilan');
+  const croix = '<button class="reduire" data-ferme-bilan aria-label="Réduire">✕</button>';
+  if (r.eteint) {
+    z.innerHTML = `
+      <div class="verdict"><span class="em">💨</span><h3>La flamme ne prend pas</h3>${croix}</div>
+      <p class="phrase">${r.raison}</p>
+      <div class="actions"><button class="btn btn-contour" data-ferme-bilan>Je corrige</button></div>`;
+  } else {
+    const m = missionCourante();
+    const bout = sim.T >= T_EB - .5;
+    z.innerHTML = `
+      <div class="verdict"><span class="em">${gagne ? '🎉' : (r.propre ? '🔵' : '🟠')}</span>
+        <h3>${gagne ? 'Mission réussie !' : (r.propre ? 'Belle flamme bleue' : 'Ça fume et ça salit')}</h3>${croix}</div>
+      <p class="phrase">${r.propre
+        ? `La flamme est <b>bleue</b> : tout le pétrole brûle. ${bout
+            ? `L’eau a bouilli en <b>${sim.minutesEcoulees} min</b>, et la marmite est restée propre.`
+            : `Rien ne se dépose sur la marmite.`}`
+        : `La flamme est <b>${r.couleur}</b> : il manque du dioxygène, une partie du pétrole part
+           en <b>carbone</b> au lieu de brûler. ${Math.round(sim.suieTotale)} mg de suie déposés
+           sur la marmite${bout ? `, et il a fallu <b>${sim.minutesEcoulees} min</b> pour bouillir` : ''}.`}</p>
+      <div class="jauges">
+        ${jauge('Suie déposée', Math.round(sim.suieTotale), 2600, ' mg', 1, true)}
+        ${jauge('Temps de cuisson', sim.minutesEcoulees, 30, ' min', 15, true)}
+        ${jauge('Rendement', r.rendement, 60, ' %', 35)}
+        ${jauge('Monoxyde de carbone', r.co, 900, ' ppm', 1, true)}
+      </div>
+      ${gagne
+        ? `<div class="actions"><button class="btn btn-large" id="btn-continuer">Continuer →</button></div>`
+        : `${m ? `<div class="objectif">🎯 <b>Il te reste à faire :</b> ${m.but}</div>` : ''}
+           <div class="actions"><button class="btn btn-contour" data-ferme-bilan>Régler encore</button></div>`}`;
+  }
+  z.classList.add('visible');
+  $('atelier').classList.add('avec-bilan');
+  $('toast').classList.remove('visible');
+  const c = $('btn-continuer');
+  if (c) c.addEventListener('click', () => { cacherBilan(); ouvrirQcm(); });
+}
+function cacherBilan() {
+  $('bilan').classList.remove('visible');
+  $('atelier').classList.remove('avec-bilan');
+}
+function oublierMesures() {
+  const b = $('btn-mesures');
+  b.hidden = true; b.classList.remove('appelle');
+}
+
+/* ============================================================================
+   5. QCM et passage
+   ========================================================================== */
+
+let qcm = { liste:[], n:0 };
+function ouvrirQcm() {
+  const m = MISSIONS[etat.mission];
+  if (!m || !m.qcm || !m.qcm.length) { ouvrirPassage(); return; }
+  qcm = { liste:m.qcm, n:0 };
+  rendreQcm();
+  $('v-qcm').classList.add('visible');
+}
+function rendreQcm() {
+  const q = qcm.liste[qcm.n];
+  $('qcm-carte').innerHTML = `
+    <div class="q-avance">✅ Mission réussie · question ${qcm.n + 1} sur ${qcm.liste.length}</div>
+    <div class="q-question">${q.q}</div>
+    <div id="q-choix">${q.choix.map((c, i) =>
+      `<button class="q-choix" data-rep="${i}">${c}</button>`).join('')}</div>
+    <div class="q-expl" id="q-expl"></div><div id="q-suite"></div>`;
+}
+function repondre(i) {
+  const q = qcm.liste[qcm.n];
+  $('q-choix').querySelectorAll('.q-choix').forEach((b, k) => {
+    b.disabled = true;
+    if (k === q.bonne) { b.classList.add('bon'); b.textContent = '✔️ ' + b.textContent; }
+    else if (k === i) { b.classList.add('mauvais'); b.textContent = '❌ ' + b.textContent; }
+  });
+  const e = $('q-expl');
+  e.innerHTML = q.expl; e.classList.add('visible');
+  const dernier = qcm.n === qcm.liste.length - 1;
+  $('q-suite').innerHTML = `<button class="btn btn-large" style="margin-top:12px" id="q-continuer">${
+    dernier ? 'Mission suivante →' : 'Question suivante →'}</button>`;
+  $('q-continuer').addEventListener('click', () => {
+    if (dernier) { $('v-qcm').classList.remove('visible'); ouvrirPassage(); }
+    else { qcm.n++; rendreQcm(); }
+  });
+}
+function ouvrirPassage() {
+  const finie = MISSIONS[etat.mission];
+  const suivante = MISSIONS[etat.mission + 1];
+  $('passage-carte').innerHTML = `
+    <div class="p-fanion"><span class="rond">✅</span>
+      <span><b>Mission ${etat.mission + 1} réussie !</b><span>${finie.titre}</span></span></div>
+    <div class="p-acquis">📘 <b>Ce que tu as appris :</b> ${finie.acquis}</div>
+    ${suivante
+      ? `<div class="p-suite"><div class="etiq">Mission ${etat.mission + 2} sur ${MISSIONS.length}</div>
+           <b>${suivante.titre}</b><span>${suivante.but}</span></div>
+         <button class="btn btn-large" id="btn-passer">Commencer la mission ${etat.mission + 2} →</button>
+         <p class="p-neuf">🧽 La marmite est nettoyée : on repart d'une cuisine propre.</p>`
+      : `<div class="p-suite"><div class="etiq">Bravo</div>
+           <b>Tu as terminé les 6 missions !</b>
+           <span>Règle le réchaud comme tu veux et observe.</span></div>
+         <button class="btn btn-large" id="btn-passer">Continuer librement →</button>`}`;
+  $('v-passage').classList.add('visible');
+  $('btn-passer').addEventListener('click', () => {
+    $('v-passage').classList.remove('visible');
+    if (etat.mission < MISSIONS.length - 1) etat.mission++;
+    else etat.libre = true;
+    sauver();
+    nettoyer(true);
+    ouvrirEtapes();
+    majTout();
+  });
+}
+function ouvrirEtapes() {
+  etat.repliFait = false;
+  $('mission').classList.add('ouvert');
+  $('m-plier').setAttribute('aria-expanded', 'true');
+}
+function replierSiPetitEcran() {
+  if (etat.repliFait || window.innerWidth >= 880) return;
+  etat.repliFait = true;
+  $('mission').classList.remove('ouvert');
+  $('m-plier').setAttribute('aria-expanded', 'false');
+}
+
+function nettoyer(silencieux) {
+  sim.suieTotale = 0; sim.T = T0; sim.t = 0; sim.minutesEcoulees = 0;
+  sim.actif = false; sim.fini = false;
+  cacherBilan(); oublierMesures(); majBouton();
+  majTout();
+  if (!silencieux) toast('🧽 Marmite nettoyée, eau renouvelée');
+}
+
+function majBouton() {
+  const b = $('btn-tester');
+  b.innerHTML = sim.actif ? '⏹ Éteindre' : '🔥 Allumer';
+  const ec = etapeCourante();
+  b.classList.toggle('appelle', !sim.actif && !!(ec && cibleEffective(ec.e) === 'tester'));
+}
+
+/* ============================================================================
+   6. Mise à jour et interactions
+   ========================================================================== */
+
+function majMission() {
+  const m = missionCourante();
+  if (!m) {
+    $('m-num').textContent = '∞';
+    $('m-rang').textContent = 'Cuisine libre';
+    $('m-titre').textContent = 'Règle comme tu veux';
+    $('m-but').textContent = 'Observe l’effet de chaque réglage.';
+    $('etapes').innerHTML = '';
+    $('m-jauge').style.width = '100%';
+    majReglagesVises(null);
+    return;
+  }
+  const fait = etat.faites.indexOf(etat.mission) !== -1;
+  $('m-num').textContent = fait ? '✓' : (etat.mission + 1);
+  $('m-rang').textContent = `Mission ${etat.mission + 1} sur ${MISSIONS.length}`;
+  $('m-titre').textContent = m.titre;
+  $('m-but').textContent = m.but;
+  const ec = etapeCourante();
+  const nb = m.etapes.filter(e => e.fait()).length;
+  $('m-jauge').style.width = Math.round(nb / m.etapes.length * 100) + '%';
+  const iMontrer = ec ? ec.i : m.etapes.length - 1;
+  $('etapes').innerHTML = m.etapes.map((e, i) => {
+    const f = e.fait();
+    const courante = ec && ec.i === i;
+    return `<div class="etape${f ? ' faite' : ''}${courante ? ' courante' : ''}${i === iMontrer ? ' a-montrer' : ''}">
+      <span class="coche">✓</span><span class="t">${e.t}</span></div>`;
+  }).join('') + (m.indice ? `<div class="m-indice">💡 <b>Astuce :</b> ${m.indice}</div>` : '');
+  majReglagesVises(ec ? cibleEffective(ec.e) : null);
+  majBouton();
+}
+
+// Le curseur attendu par l'étape en cours se met en avant
+function majReglagesVises(cible) {
+  for (const l of document.querySelectorAll('.reg'))
+    l.classList.toggle('vise', l.dataset.reg === cible);
+  $('btn-tests').classList.toggle('appelle', cible === 'tests');
+  $('btn-nettoyer').classList.toggle('appelle', cible === 'nettoyer');
+}
+
+function rendreMissions() {
+  $('liste-missions').innerHTML = MISSIONS.map((m, i) => {
+    const fait = etat.faites.indexOf(i) !== -1;
+    const ouverte = deverrouillee(i);
+    return `<button class="d-carte${fait ? ' fait' : ''}" data-mission="${i}" ${ouverte ? '' : 'disabled'}>
+      <span class="num">${fait ? '✓' : (ouverte ? i + 1 : '🔒')}</span>
+      <span class="txt"><b>${m.titre}</b><span>${ouverte ? m.but : 'Termine la mission précédente pour l’ouvrir.'}</span></span>
+    </button>`;
+  }).join('') + `<button class="d-carte" data-mission="libre"
+      ${etat.faites.length === MISSIONS.length ? '' : 'disabled'}>
+      <span class="num">${etat.faites.length === MISSIONS.length ? '∞' : '🔒'}</span>
+      <span class="txt"><b>Cuisine libre</b><span>${etat.faites.length === MISSIONS.length
+        ? 'Règle et observe à ta guise.' : 'Termine les 6 missions pour l’ouvrir.'}</span></span></button>`;
+}
+
+function majTout() { dessiner(); majMission(); }
+
+for (const id of ['meche', 'air', 'marmite']) {
+  $(id).addEventListener('input', e => {
+    etat[id] = +e.target.value;
+    $('v-' + id).textContent = id === 'marmite' ? etat[id] + ' cm' : etat[id];
+    etat.resultat = bruler(reglage());
+    replierSiPetitEcran();
+    animer();
+    majMission();
+  });
+}
+
+$('btn-tester').addEventListener('click', () => { if (sim.actif) eteindre(true); else allumer(); });
+$('btn-nettoyer').addEventListener('click', () => nettoyer(false));
+$('btn-mesures').addEventListener('click', () => {
+  $('btn-mesures').classList.remove('appelle');
+  if (etat.resultat) afficherBilan(etat.resultat, false);
+});
+$('m-plier').addEventListener('click', () => {
+  const m = $('mission');
+  m.classList.toggle('ouvert');
+  $('m-plier').setAttribute('aria-expanded', m.classList.contains('ouvert'));
+});
+
+$('btn-tests').addEventListener('click', () => { rendreTests(); ouvrir('v-tests'); });
+$('liste-tests').addEventListener('click', e => {
+  const b = e.target.closest('[data-test]');
+  if (b && !b.disabled) faireTest(b.dataset.test);
+});
+$('v-feu').addEventListener('click', e => {
+  const b = e.target.closest('[data-moyen]');
+  if (b) choisirMoyen(b.dataset.moyen);
+});
+
+$('btn-missions').addEventListener('click', () => { rendreMissions(); ouvrir('v-missions'); });
+$('btn-lexique').addEventListener('click', () => {
+  $('liste-lexique').innerHTML = LEXIQUE.map(l =>
+    `<div class="lex-entree"><b>${l.mot}</b><span>${l.def}</span></div>`).join('');
+  ouvrir('v-lexique');
+});
+$('btn-aide').addEventListener('click', () => ouvrir('v-aide'));
+
+$('liste-missions').addEventListener('click', e => {
+  const b = e.target.closest('[data-mission]');
+  if (!b || b.disabled) return;
+  if (b.dataset.mission === 'libre') etat.libre = true;
+  else { etat.libre = false; etat.mission = +b.dataset.mission; }
+  sauver(); nettoyer(true); ouvrirEtapes(); fermer('v-missions');
+});
+$('btn-rezero').addEventListener('click', () => {
+  if (!window.confirm('Effacer toute ta progression et repartir de la mission 1 ?')) return;
+  etat.faites = []; etat.mission = 0; etat.libre = false;
+  etat.testsFaits = {}; etat.feuEteint = false; etat.feuVu = false;
+  sauver(); nettoyer(true); ouvrirEtapes(); fermer('v-missions');
+  toast('↺ Parcours remis à zéro');
+});
+
+$('v-qcm').addEventListener('click', e => {
+  const b = e.target.closest('[data-rep]');
+  if (b && !b.disabled) repondre(+b.dataset.rep);
+});
+
+document.addEventListener('click', e => {
+  const f = e.target.closest('[data-ferme]');
+  if (f) fermer(f.dataset.ferme);
+  if (e.target.closest('[data-ferme-bilan]')) cacherBilan();
+});
+const ancres = ['v-qcm', 'v-passage'];
+for (const v of document.querySelectorAll('.voile')) {
+  v.addEventListener('click', e => { if (e.target === v && ancres.indexOf(v.id) === -1) fermer(v.id); });
+}
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  for (const v of document.querySelectorAll('.voile.visible'))
+    if (ancres.indexOf(v.id) === -1) fermer(v.id);
+});
+
+const ouvrir = id => $(id).classList.add('visible');
+const fermer = id => $(id).classList.remove('visible');
+
+let minuteurToast = null;
+function toast(msg, alerte) {
+  const t = $('toast');
+  t.innerHTML = msg;
+  t.classList.toggle('alerte', !!alerte);
+  t.classList.add('visible');
+  clearTimeout(minuteurToast);
+  minuteurToast = setTimeout(() => t.classList.remove('visible'), 2600);
+}
+
+const btnTheme = $('btn-theme');
+function appliquerTheme(sombre) {
+  document.body.classList.toggle('sombre', sombre);
+  btnTheme.textContent = sombre ? '☀️' : '🌙';
+  document.querySelector('meta[name=theme-color]')
+    .setAttribute('content', sombre ? '#14181C' : '#F7F5F0');
+  try { localStorage.setItem('ike-theme', sombre ? 'sombre' : 'clair'); } catch (e) {}
+  dessiner();
+}
+btnTheme.addEventListener('click', () => appliquerTheme(!document.body.classList.contains('sombre')));
+try {
+  const t = localStorage.getItem('ike-theme');
+  appliquerTheme(t ? t === 'sombre' : window.matchMedia('(prefers-color-scheme: dark)').matches);
+} catch (e) { appliquerTheme(false); }
+
+/* ---- Démarrage ---- */
+charger();
+etat.resultat = bruler(reglage());
+ouvrirEtapes();
+majTout();
+try {
+  if (!localStorage.getItem('ike-marmites-vu')) {
+    ouvrir('v-aide');
+    localStorage.setItem('ike-marmites-vu', '1');
+  }
+} catch (e) { ouvrir('v-aide'); }
+
+</script>
+</body>
+</html>

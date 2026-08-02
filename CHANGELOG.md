@@ -5,6 +5,37 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v4.9.0 — 2026-08-02
+
+🍲 **Nouvelle simulation : « Pourquoi mes marmites noircissent ? »** (PCT 6ᵉ, SA3) — la
+**situation de départ du guide**, qui n'était pas traitée.
+
+Thérèse rend visite à la mère de Daouda et s'étonne : marmites et murs sont couverts de noir de
+fumée, alors qu'elle-même utilise « le même réchaud et le même pétrole » sans rien salir. Toute
+la SA3 tient dans cette énigme — et la réponse est le **réglage**.
+
+- **Trois curseurs** : hauteur de la mèche, arrivée d'air, hauteur de la marmite. La flamme
+  change de couleur en direct — **bleue** quand tout brûle, jaune puis **orange fuligineuse**
+  quand le dioxygène manque
+- **La cuisson se déroule dans le temps** : la température monte, la marmite **noircit sous les
+  yeux**, le mur se salit aussi. Les deux réglages du guide donnent des résultats opposés :
+  celui de la mère de Daouda dépose **9 626 mg de suie** et n'atteint même pas l'ébullition en
+  25 min ; celui de Thérèse fait bouillir en **14 min sans une trace**
+- **Une flamme jaune gaspille** : rendement de 12 % contre 52 %, et davantage de pétrole
+  consommé. Mal régler coûte cher, en plus de salir
+- **Les trois témoins du guide** identifient ce qui se forme : la **soucoupe froide** ressort
+  noircie de carbone (ou seulement embuée si la combustion est complète), l'**eau de chaux**
+  se trouble — dioxyde de carbone —, le **sulfate de cuivre** bleuit — eau
+- **Le réinvestissement du guide** ferme le parcours : la lanterne de Sissi s'embrase, et
+  l'élève choisit entre l'eau, le sable, les feuilles vertes et l'extincteur. **L'eau étale le
+  feu** — le pétrole flotte dessus
+- **6 missions**, 10 questions de QCM et un **lexique de 13 mots** (combustible, comburant,
+  triangle du feu, combustion complète et incomplète, noir de fumée, monoxyde de carbone,
+  tests d'identification, composition de l'air, rendement)
+
+Correctif trouvé en test : l'affichage du résultat d'un test était écrasé par le rafraîchissement
+de la liste, juste après avoir été écrit — aucun test ne montrait jamais sa réponse.
+
 ## v4.8.0 — 2026-08-02
 
 💬 **Nouvelle simulation : « Qui pollue vraiment ? »** (PCT 6ᵉ, SA5) — et avec elle, le
