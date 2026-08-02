@@ -5,6 +5,34 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v4.11.0 — 2026-08-02
+
+🔌 **Nouvelle simulation : « Les premiers pas du circuit »** (PCT 6ᵉ, SA1) — elle couvre
+**trois activités expérimentales du guide** qui attendaient encore.
+
+Avant de construire des montages en série et en dérivation, il faut savoir faire le plus simple :
+allumer une lampe avec une pile. C'est l'activité n°1 du guide, et elle manquait.
+
+- **On branche en touchant deux bornes** : une borne de la pile, une borne du récepteur, et le
+  fil apparaît. Toucher un fil le débranche. Les bornes portent leur vrai nom — **culot** et
+  **plot central** pour la lampe, comme le demande le guide
+- **Activité 1 — Allumer la lampe** : il faut relier les **deux** bornes, sur des bornes
+  **différentes** de chaque côté. Une mission entière est consacrée à l'erreur classique — les
+  deux fils sur la même borne — parce qu'on apprend autant de ce qui ne marche pas
+- **Activité 3 — Conducteurs et isolants** : sept objets du guide à intercaler dans le circuit
+  (fil de cuivre, clou en fer, fil d'aluminium, règle en plastique, bâton de craie, bois sec,
+  gomme). Le classement se construit au fil des essais et se consulte à tout moment ; l'élève
+  découvre que **tous les conducteurs sont des métaux**
+- **Activité 3 — Sens du courant** : la **DEL** ne s'allume que dans un sens. En la retournant,
+  l'élève établit lui-même que le courant sort de la borne **+**
+- **Le tourniquet de Vignon**, réinvestissement du guide : le moteur change de sens quand on
+  inverse la pile — et les pales tournent à l'écran dans le bon sens
+- **5 missions**, 8 questions de QCM et un **lexique de 10 mots**
+
+L'activité 4 du guide — l'adaptation générateur / récepteur, avec sous-tension et surtension —
+était déjà couverte par l'atelier « Fabrique ta lampe de poche » : le catalogue y renvoie
+désormais explicitement.
+
 ## v4.10.0 — 2026-08-02
 
 🎨 **Les cinq dernières simulations passent au standard actuel.** Tout le catalogue partage

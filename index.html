@@ -250,7 +250,7 @@
 </main>
 
 <footer class="enveloppe pied">
-  <span>Labo-Bénin · <span class="ver">v4.10.0</span></span>
+  <span>Labo-Bénin · <span class="ver">v4.11.0</span></span>
   <span>·</span>
   <span>Programme officiel du Bénin (APC)</span>
   <span>·</span>
@@ -274,6 +274,7 @@ const LIVREES = {
   'tam-tam':            { cle: 'ike-tamtam-progression',     missions: 6, champ: 'faits' },
   'pollution-air':      { cle: 'ike-pollution-progression',  missions: 6, champ: 'faits' },
   'marmites-noircies':  { cle: 'ike-marmites-progression',   missions: 6, champ: 'faits' },
+  'premiers-pas':       { cle: 'ike-premierspas-progression', missions: 5, champ: 'faits' },
   'circuit-electrique': { cle: 'ike-circuit-progression-v2', missions: 15 },
   'combustions':        { cle: 'ike-combustion-progression', missions: 10 },
   'etats-matiere':      { cle: 'ike-matiere-progression-v2', missions: 13 },
@@ -296,16 +297,14 @@ const CATALOGUE = [
             sims: [
               { dos: 'circuit-electrique', ico: '⚡', nom: 'Circuit électrique',
                 quoi: "Série, dérivation, court-circuit, piles en série et en opposition." },
-              { ico: '💡', nom: 'Allume la lampe',
-                quoi: "Relier les bornes de la pile au culot et au plot : la lampe s'allume, ou pas." },
+              { dos: 'premiers-pas', ico: '💡', nom: 'Les premiers pas du circuit',
+                quoi: "Allumer une lampe, trier conducteurs et isolants, trouver le sens du courant à la DEL." },
               { ico: '✏️', nom: 'Du réel au schéma',
                 quoi: "Reconnaître chaque composant et composer le schéma normalisé du circuit." },
               { ico: '🧭', nom: 'Sens du courant et matériaux',
                 quoi: "La DEL révèle le sens du courant ; trier conducteurs et isolants." },
-              { ico: '🔋', nom: 'Trouve la bonne pile',
-                quoi: "Sous-tension, tension d'usage, surtension — jusqu'à faire griller la lampe." },
-              { ico: '🎡', nom: 'Le tourniquet de Vignon',
-                quoi: "Inverser la pile pour faire tourner le moteur dans l'autre sens." },
+              { dos: 'lampe-de-poche', ico: '🔋', nom: 'Trouve la bonne pile',
+                quoi: "Sous-tension, tension d'usage, surtension — jusqu'à faire griller la lampe. (dans l'atelier de la lampe de poche)." },
             ],
           },
           {

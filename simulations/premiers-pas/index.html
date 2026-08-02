@@ -1,0 +1,1367 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Les premiers pas du circuit — Labo-Bénin</title>
+<meta name="theme-color" content="#F7F5F0">
+<link rel="stylesheet" href="../../assets/polices.css">
+<style>
+/* ===== Jetons du design system Labo-Bénin (intégrés : fichier autonome) ===== */
+:root {
+  --primary:#C4D94E; --accent:#5BC5F2; --accent-doux:#D6F0FB;
+  --tertiary:#F7A430; --destructive:#E83A4B; --success:#2A9D8F;
+  --neutral:#3A3632; --background:#F7F5F0; --surface:#FFFFFF; --surface-muted:#F0EEE9;
+  --border:#D3CFC8; --border-strong:#B0ABA3; --ring:#5BC5F2;
+  --font-display:'Baloo 2','Segoe UI',system-ui,sans-serif;
+  --font-body:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;
+  --radius-sm:8px; --radius-md:12px; --radius-lg:16px; --radius-xl:24px; --radius-full:9999px;
+  --shadow-soft:0 4px 16px rgba(58,54,50,.05);
+  --shadow-raised:0 6px 20px rgba(58,54,50,.06);
+  --ease:cubic-bezier(.4,0,.2,1);
+  --metal:#B0ABA3; --cuivre:#C9885A;
+}
+body.sombre {
+  --neutral:#ECEFF1; --background:#14181C; --surface:#1C232A; --surface-muted:#232C34;
+  --border:#333E47; --border-strong:#4A5762; --accent-doux:#17323F;
+  --shadow-soft:0 4px 16px rgba(0,0,0,.28); --shadow-raised:0 6px 20px rgba(0,0,0,.34);
+  --metal:#8A9299;
+}
+
+*,*::before,*::after { box-sizing:border-box; }
+body {
+  margin:0; font-family:var(--font-body); font-size:16px; color:var(--neutral);
+  background:var(--background); overflow:hidden;
+  height:100dvh; display:flex; flex-direction:column;
+  -webkit-tap-highlight-color:transparent; -webkit-text-size-adjust:100%;
+}
+h1,h2,h3,h4 { font-family:var(--font-display); margin:0; line-height:1.2; }
+p { margin:0; }
+:focus-visible { outline:2px solid var(--ring); outline-offset:2px; border-radius:var(--radius-sm); }
+
+/* ============================ En-tête ============================ */
+header {
+  display:flex; align-items:center; gap:8px; flex:none;
+  padding:6px 10px; background:var(--surface); border-bottom:1px solid var(--border);
+}
+header h1 { font-size:15px; font-weight:800; line-height:1.15; }
+header .sous { font-size:10.5px; opacity:.6; }
+.icone-btn {
+  width:40px; height:40px; flex:none; display:grid; place-items:center;
+  border:none; background:none; border-radius:var(--radius-md);
+  font-size:18px; color:inherit; cursor:pointer; text-decoration:none;
+}
+.icone-btn:hover { background:var(--surface-muted); }
+.tete-fin { margin-left:auto; display:flex; gap:2px; align-items:center; }
+
+/* ===================== Bandeau de mission (EN HAUT) ===================== */
+#mission {
+  flex:none; background:var(--surface); border-bottom:1px solid var(--border);
+  padding:8px 12px 9px;
+}
+.m-haut { display:flex; align-items:center; gap:9px; }
+.m-pastille {
+  width:30px; height:30px; flex:none; border-radius:var(--radius-sm);
+  display:grid; place-items:center; background:var(--accent-doux);
+  font-family:var(--font-display); font-weight:800; font-size:13px;
+}
+.m-titres { flex:1; min-width:0; }
+.m-titres b { display:block; font-size:14px; font-weight:600; line-height:1.2; }
+.m-titres span { font-size:11.5px; opacity:.65; line-height:1.35; display:block; }
+.m-rang {
+  font-size:10.5px !important; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--accent); opacity:1 !important; margin-bottom:1px;
+}
+.m-plier {
+  width:34px; height:34px; flex:none; border:none; background:none; cursor:pointer;
+  border-radius:var(--radius-sm); font-size:14px; color:inherit;
+  transition:transform .2s var(--ease);
+}
+.m-plier:hover { background:var(--surface-muted); }
+#mission.ouvert .m-plier { transform:rotate(180deg); }
+/* Replié, on ne montre que l'étape en cours : la lampe reste visible */
+#mission:not(.ouvert) .etape:not(.a-montrer) { display:none; }
+#mission:not(.ouvert) .m-indice { display:none; }
+.m-jauge { height:5px; border-radius:var(--radius-full); background:var(--surface-muted); margin-top:8px; overflow:hidden; }
+.m-jauge i { display:block; height:100%; background:var(--accent); transition:width .4s var(--ease); }
+
+/* ---- Liste des étapes : le guidage pas à pas ---- */
+#etapes { margin-top:9px; }
+.etape {
+  display:flex; align-items:flex-start; gap:9px; padding:5px 0;
+  font-size:13px; line-height:1.4;
+}
+.etape .coche {
+  width:21px; height:21px; flex:none; margin-top:1px; border-radius:var(--radius-full);
+  display:grid; place-items:center; font-size:11px; font-weight:700;
+  border:2px solid var(--border-strong); color:transparent; background:none;
+}
+.etape.faite .coche { background:var(--success); border-color:var(--success); color:#fff; }
+.etape.faite .t { opacity:.5; text-decoration:line-through; }
+.etape.courante .coche { border-color:var(--accent); animation:pulseCoche 1.5s infinite; }
+.etape.courante .t { font-weight:600; }
+@keyframes pulseCoche { 50% { box-shadow:0 0 0 5px var(--accent-doux); } }
+.etape .t { flex:1; }
+.m-indice {
+  margin-top:8px; padding:9px 11px; border-radius:var(--radius-md);
+  background:var(--accent-doux); font-size:12.5px; line-height:1.5;
+}
+.m-indice b { font-weight:600; }
+
+/* ============================ Atelier ============================ */
+main { flex:1; min-height:0; display:flex; flex-direction:column; }
+#atelier { flex:1; min-height:0; position:relative; display:flex; }
+#plan { flex:1; min-height:0; width:100%; display:block; touch-action:manipulation; }
+
+/* Emplacements sur la lampe */
+.slot { cursor:pointer; }
+.slot .zone {
+  fill:var(--surface); fill-opacity:.5; stroke:var(--border-strong); stroke-width:2;
+  stroke-dasharray:6 5; rx:7;
+}
+.slot:hover .zone, .slot:focus-visible .zone { stroke:var(--accent); fill:var(--accent-doux); fill-opacity:1; }
+.slot.plein .zone { display:none; }
+/* Surbrillance de l'emplacement attendu par l'étape en cours */
+.slot.vise .zone { stroke:var(--accent); stroke-width:3; stroke-dasharray:none;
+  fill:var(--accent-doux); fill-opacity:1; animation:viseur 1.5s infinite; }
+@keyframes viseur { 50% { stroke-opacity:.35; } }
+.slot.vise .etiq-slot { opacity:1; font-weight:700; }
+.etiq-slot {
+  font-family:var(--font-body); font-size:11px; font-weight:600;
+  fill:var(--neutral); opacity:.55; text-anchor:middle; pointer-events:none;
+}
+.txt-piece {
+  font-family:var(--font-body); font-size:11px; font-weight:700;
+  fill:var(--neutral); text-anchor:middle; pointer-events:none;
+}
+.retirer { cursor:pointer; }
+.retirer circle { fill:var(--border-strong); transition:fill .15s var(--ease); }
+.retirer:hover circle, .retirer:focus-visible circle { fill:var(--destructive); }
+.retirer text { fill:#fff; font-size:13px; font-weight:700; text-anchor:middle; font-family:var(--font-body); }
+
+/* ============ Bouton d'accès aux mesures, sur le plan de travail ============ */
+#btn-mesures {
+  position:absolute; right:12px; bottom:12px; z-index:5;
+  display:flex; align-items:center; gap:7px;
+  min-height:44px; padding:0 16px;
+  background:var(--surface); color:var(--neutral);
+  border:2px solid var(--border-strong); border-radius:var(--radius-full);
+  box-shadow:var(--shadow-raised);
+  font-family:var(--font-body); font-size:13.5px; font-weight:600; cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+#btn-mesures:hover { background:var(--surface-muted); border-color:var(--neutral); }
+#btn-mesures[hidden] { display:none; }
+#btn-mesures.appelle { border-color:var(--accent); animation:appelleMesures 1.4s infinite; }
+@keyframes appelleMesures { 50% { box-shadow:0 0 0 8px var(--accent-doux), var(--shadow-raised); } }
+
+/* ============================ Bilan ============================ */
+#bilan {
+  position:absolute; left:8px; right:8px; bottom:8px; z-index:6;
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-raised); padding:13px 15px;
+  display:none; max-width:520px; margin:0 auto;
+}
+#bilan.visible { display:block; animation:monte .3s var(--ease); }
+#atelier.avec-bilan #plan { align-self:flex-start; max-height:48%; }
+@keyframes monte { from { opacity:0; transform:translateY(10px); } }
+#bilan .verdict { display:flex; align-items:center; gap:9px; margin-bottom:4px; }
+#bilan .verdict .em { font-size:23px; line-height:1; }
+#bilan .verdict h3 { font-size:16px; flex:1; }
+#bilan .reduire {
+  width:32px; height:32px; flex:none; margin:-4px -6px 0 0;
+  border:none; background:none; border-radius:var(--radius-sm);
+  font-size:17px; color:inherit; cursor:pointer; opacity:.6;
+}
+#bilan .reduire:hover { background:var(--surface-muted); opacity:1; }
+#bilan .objectif {
+  margin-top:10px; padding:9px 11px; border-radius:var(--radius-md);
+  background:var(--accent-doux); font-size:12.5px; line-height:1.5;
+}
+#bilan .phrase { font-size:12.5px; opacity:.78; line-height:1.5; margin:0 0 10px; }
+.jauges { display:grid; grid-template-columns:repeat(auto-fit,minmax(115px,1fr)); gap:8px 14px; }
+.jauge .haut { display:flex; justify-content:space-between; font-size:11.5px; margin-bottom:3px; }
+.jauge .haut b { font-weight:600; }
+.jauge .haut span { opacity:.65; }
+.barre { height:7px; border-radius:var(--radius-full); background:var(--surface-muted); overflow:hidden; }
+.barre i { display:block; height:100%; background:var(--accent); border-radius:inherit; transition:width .5s var(--ease); }
+.barre.faible i { background:var(--tertiary); }
+.barre.mauvais i { background:var(--destructive); }
+#bilan .actions { display:flex; gap:8px; margin-top:11px; }
+
+/* ============================ Barre d'action ============================ */
+#actions {
+  flex:none; display:flex; gap:8px; align-items:center; justify-content:flex-end;
+  padding:8px 12px calc(8px + env(safe-area-inset-bottom));
+  background:var(--surface); border-top:1px solid var(--border);
+}
+.btn {
+  display:inline-flex; align-items:center; justify-content:center; gap:7px;
+  min-height:44px; padding:0 18px; border:none; border-radius:var(--radius-lg);
+  font-family:var(--font-body); font-size:14px; font-weight:600;
+  color:var(--neutral); background:var(--primary); cursor:pointer;
+  transition:filter .15s var(--ease);
+}
+.btn:hover { filter:brightness(.94); }
+.btn:active { filter:brightness(.88); }
+.btn[disabled] { opacity:.45; cursor:not-allowed; filter:none; }
+.btn-contour { background:var(--surface); border:2px solid var(--neutral); }
+.btn-contour:hover { background:var(--surface-muted); filter:none; }
+.btn-fantome { background:transparent; }
+.btn-fantome:hover { background:var(--surface-muted); filter:none; }
+.btn-large { width:100%; }
+#btn-tester.appelle { animation:appelle 1.3s infinite; }
+@keyframes appelle { 50% { box-shadow:0 0 0 7px rgba(196,217,78,.35); } }
+
+/* ================== Feuille de choix d'un composant ================== */
+#feuille {
+  position:fixed; inset:0; z-index:35; display:none;
+  background:rgba(38,50,56,.5);
+}
+#feuille.visible { display:block; }
+.f-carte {
+  position:absolute; left:0; right:0; bottom:0;
+  max-height:82dvh; overflow-y:auto;
+  background:var(--surface); border-radius:var(--radius-xl) var(--radius-xl) 0 0;
+  padding:8px 16px calc(18px + env(safe-area-inset-bottom));
+  box-shadow:var(--shadow-raised);
+  animation:glisse .28s var(--ease);
+}
+@keyframes glisse { from { transform:translateY(100%); } }
+.f-poignee { width:40px; height:4px; border-radius:2px; background:var(--border); margin:2px auto 12px; }
+.f-tete { display:flex; align-items:center; gap:9px; margin-bottom:4px; }
+.f-tete h2 { font-size:18px; flex:1; }
+.f-role { font-size:12.5px; line-height:1.5; opacity:.75; margin-bottom:13px; }
+.f-liste { display:grid; gap:9px; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); }
+.option {
+  display:flex; flex-direction:column; gap:3px; text-align:left; position:relative;
+  padding:12px 13px; min-height:62px;
+  background:var(--surface); border:2px solid var(--border); border-radius:var(--radius-md);
+  font-family:var(--font-body); color:var(--neutral); cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+.option:hover { border-color:var(--border-strong); background:var(--surface-muted); }
+.option.pose { border-color:var(--accent); background:var(--accent-doux); }
+.option.conseil { border-color:var(--primary); }
+.option.conseil::after {
+  content:'conseillé'; position:absolute; top:-9px; right:9px;
+  padding:1px 8px; border-radius:var(--radius-full);
+  background:var(--primary); color:var(--neutral);
+  font-size:9.5px; font-weight:700; letter-spacing:.04em; text-transform:uppercase;
+}
+.option b { font-size:13.5px; font-weight:600; }
+.option span { font-size:11.5px; opacity:.68; line-height:1.4; }
+.option[disabled] { opacity:.42; cursor:not-allowed; }
+.f-vide { text-align:center; padding:18px 0; font-size:13px; opacity:.6; }
+
+/* ============================ Voiles ============================ */
+.voile {
+  position:fixed; inset:0; z-index:40; display:none;
+  background:rgba(38,50,56,.55); padding:14px; overflow-y:auto;
+}
+.voile.visible { display:flex; align-items:center; justify-content:center; }
+.carte-modale {
+  position:relative; width:100%; max-width:470px; margin:auto;
+  background:var(--surface); border-radius:var(--radius-lg); padding:22px 20px;
+  box-shadow:var(--shadow-raised);
+}
+.carte-modale h2 { font-size:20px; margin-bottom:9px; padding-right:34px; }
+.carte-modale > p { font-size:13.5px; line-height:1.6; opacity:.8; margin-bottom:10px; }
+.fermer-x {
+  position:absolute; top:8px; right:10px; width:36px; height:36px;
+  border:none; background:none; font-size:20px; color:inherit; cursor:pointer;
+  border-radius:var(--radius-md);
+}
+.fermer-x:hover { background:var(--surface-muted); }
+
+/* Cartes de mission */
+.d-carte {
+  display:flex; align-items:center; gap:11px; width:100%; text-align:left;
+  padding:11px 13px; margin-bottom:8px;
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md);
+  font-family:var(--font-body); color:inherit; cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+.d-carte:hover:not([disabled]) { border-color:var(--border-strong); background:var(--surface-muted); }
+.d-carte[disabled] { opacity:.5; cursor:not-allowed; }
+.d-carte .num {
+  width:30px; height:30px; flex:none; border-radius:var(--radius-sm);
+  display:grid; place-items:center; background:var(--accent-doux);
+  font-family:var(--font-display); font-weight:800; font-size:13px;
+}
+.d-carte.fait .num { background:var(--success); color:#fff; }
+.d-carte .txt { flex:1; min-width:0; }
+.d-carte .txt b { display:block; font-size:13.5px; font-weight:600; }
+.d-carte .txt span { font-size:11.5px; opacity:.65; line-height:1.4; }
+
+/* Guide d'accueil */
+.g-etape { display:flex; gap:11px; margin-bottom:13px; }
+.g-etape .num {
+  width:26px; height:26px; flex:none; border-radius:var(--radius-full);
+  display:grid; place-items:center; background:var(--accent-doux);
+  font-family:var(--font-display); font-weight:800; font-size:12.5px;
+}
+.g-etape .t { font-size:13.5px; line-height:1.5; opacity:.85; flex:1; }
+.g-etape .t b { opacity:1; }
+
+/* Lexique */
+.lex-entree {
+  padding:11px 0; border-bottom:1px solid var(--border);
+}
+.lex-entree:last-child { border-bottom:none; }
+.lex-entree b { display:block; font-size:14px; font-weight:600; margin-bottom:2px; }
+.lex-entree span { font-size:12.5px; line-height:1.55; opacity:.78; }
+.lex-entree em { font-style:normal; color:var(--accent); font-weight:600; }
+
+/* Écran de passage d'une mission à la suivante */
+.p-fanion {
+  display:flex; align-items:center; gap:10px; margin-bottom:12px;
+}
+.p-fanion .rond {
+  width:44px; height:44px; flex:none; border-radius:var(--radius-full);
+  display:grid; place-items:center; background:var(--success); font-size:22px;
+}
+.p-fanion b { display:block; font-size:17px; font-family:var(--font-display); font-weight:800; }
+.p-fanion span { font-size:12px; opacity:.65; }
+.p-acquis {
+  padding:12px 14px; border-radius:var(--radius-md); background:var(--accent-doux);
+  font-size:13px; line-height:1.55; margin-bottom:14px;
+}
+.p-acquis b { font-weight:600; }
+.p-suite {
+  border:2px dashed var(--border-strong); border-radius:var(--radius-md);
+  padding:12px 14px; margin-bottom:14px;
+}
+.p-suite .etiq {
+  font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--accent); margin-bottom:3px;
+}
+.p-suite b { display:block; font-size:15px; font-family:var(--font-display); font-weight:800; }
+.p-suite span { font-size:12.5px; opacity:.7; line-height:1.45; }
+.p-neuf { font-size:12px; opacity:.6; text-align:center; margin-top:9px; line-height:1.45; }
+
+/* QCM */
+.q-question { font-size:15px; font-weight:600; line-height:1.4; margin-bottom:12px; }
+.q-choix {
+  display:block; width:100%; text-align:left; margin-bottom:8px;
+  padding:12px 14px; min-height:46px;
+  background:var(--surface); border:2px solid var(--border); border-radius:var(--radius-md);
+  font-family:var(--font-body); font-size:13.5px; color:var(--neutral); cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+.q-choix:hover:not([disabled]) { border-color:var(--border-strong); background:var(--surface-muted); }
+.q-choix.bon { border-color:var(--success); background:rgba(42,157,143,.12); font-weight:600; }
+.q-choix.mauvais { border-color:var(--destructive); background:rgba(232,58,75,.1); }
+.q-choix[disabled] { cursor:default; }
+.q-expl {
+  margin-top:4px; padding:11px 13px; border-radius:var(--radius-md);
+  background:var(--accent-doux); font-size:12.5px; line-height:1.55;
+  display:none;
+}
+.q-expl.visible { display:block; }
+.q-avance { font-size:11.5px; opacity:.55; margin-bottom:10px; letter-spacing:.04em; text-transform:uppercase; font-weight:600; }
+
+/* ============================ Toast ============================ */
+#toast {
+  position:fixed; left:50%; bottom:calc(70px + env(safe-area-inset-bottom));
+  transform:translateX(-50%);
+  max-width:calc(100vw - 28px); padding:10px 16px; z-index:45;
+  background:var(--neutral); color:var(--background);
+  border-radius:var(--radius-full); font-size:13px; font-weight:600;
+  opacity:0; pointer-events:none; transition:opacity .2s var(--ease); text-align:center;
+}
+#toast.visible { opacity:1; }
+#toast.alerte { background:var(--destructive); color:#fff; }
+
+/* ================= Adaptations d'écran ================= */
+
+/* Paysage sur téléphone : chaque pixel de hauteur compte */
+@media (orientation:landscape) and (max-height:520px) {
+  header { padding:3px 8px; }
+  header h1 { font-size:13px; }
+  header .sous { display:none; }
+  .icone-btn { width:34px; height:34px; font-size:16px; }
+  #mission { padding:5px 10px 6px; }
+  .m-pastille { width:24px; height:24px; font-size:11px; }
+  .m-titres b { font-size:12.5px; }
+  .m-titres span { display:none; }
+  #mission.ouvert .m-titres span { display:block; }
+  .m-jauge { margin-top:5px; }
+  #actions { padding:5px 10px calc(5px + env(safe-area-inset-bottom)); }
+  .btn { min-height:38px; padding:0 14px; font-size:13px; }
+  #atelier.avec-bilan #plan { max-height:none; }
+  #bilan { max-width:none; right:8px; left:auto; width:min(58%,420px); bottom:6px; }
+  .f-carte { max-height:96dvh; }
+}
+
+/* Écran large : la mission passe en colonne, l'atelier prend le reste */
+@media (min-width:880px) {
+  body { flex-direction:row; }
+  #colonne {
+    width:330px; flex:none; display:flex; flex-direction:column;
+    background:var(--surface); border-right:1px solid var(--border);
+    overflow-y:auto;
+  }
+  header { border-bottom:1px solid var(--border); }
+  #mission { border-bottom:none; padding:12px 16px; }
+  /* la place ne manque pas : toutes les étapes restent visibles */
+  #mission:not(.ouvert) .etape:not(.a-montrer) { display:flex; }
+  #mission:not(.ouvert) .m-indice { display:block; }
+  .m-plier { display:none; }
+  main { flex:1; min-width:0; }
+  #actions { justify-content:center; }
+  #bilan { left:16px; right:16px; }
+  .f-carte {
+    position:absolute; top:50%; left:50%; right:auto; bottom:auto;
+    transform:translate(-50%,-50%); width:min(560px,92vw);
+    border-radius:var(--radius-lg); max-height:86dvh;
+    animation:apparait .2s var(--ease);
+  }
+  @keyframes apparait { from { opacity:0; } }
+  .f-poignee { display:none; }
+}
+
+@media (prefers-reduced-motion:reduce) {
+  *,*::before,*::after { animation-duration:.01ms !important; transition-duration:.01ms !important; }
+}
+
+/* ===================== Propre à l'alambic ===================== */
+.flamme { animation:vacille .5s infinite alternate; transform-origin:center bottom; }
+@keyframes vacille { to { transform:scaleY(1.14) scaleX(.94); } }
+.bulle { animation:monteBulle 1.5s infinite ease-in; }
+@keyframes monteBulle { from { transform:translateY(0); opacity:.9; } to { transform:translateY(-42px); opacity:0; } }
+.goutte { animation:tombe 1.8s infinite ease-in; }
+@keyframes tombe { from { transform:translateY(0); opacity:1; } to { transform:translateY(46px); opacity:.2; } }
+.etat-eau {
+  font-family:var(--font-body); font-size:10.5px; font-weight:700;
+  text-anchor:middle; pointer-events:none;
+}
+.chgt-etat {
+  font-family:var(--font-body); font-size:10px; font-weight:600;
+  fill:var(--accent); text-anchor:middle; pointer-events:none;
+}
+#legende-etats {
+  position:absolute; left:10px; top:8px; z-index:4;
+  display:flex; gap:10px; flex-wrap:wrap;
+  padding:7px 11px; border-radius:var(--radius-md);
+  background:var(--surface); border:1px solid var(--border); box-shadow:var(--shadow-soft);
+  font-size:11px; font-weight:600;
+}
+#legende-etats[hidden] { display:none; }
+#legende-etats i { display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:4px; }
+
+/* ===================== Propre aux premiers pas ===================== */
+:root { --cuivre-fil:#C9885A; --metal:#B0ABA3; }
+body.sombre { --metal:#8A9299; }
+.etiq-lieu { font-family:var(--font-body); font-size:11px; font-weight:600;
+  fill:var(--neutral); opacity:.65; text-anchor:middle; pointer-events:none; }
+.etiq-pile { font-family:var(--font-display); font-size:17px; font-weight:800;
+  fill:#fff; text-anchor:middle; pointer-events:none; }
+.etiq-borne { font-family:var(--font-body); font-size:11.5px; font-weight:600;
+  fill:var(--neutral); opacity:.8; pointer-events:none; }
+.txt-borne { font-family:var(--font-display); font-size:16px; font-weight:800;
+  fill:#fff; text-anchor:middle; pointer-events:none; }
+.txt-objet { font-family:var(--font-body); font-size:11px; font-weight:700;
+  fill:var(--neutral); text-anchor:middle; pointer-events:none; }
+
+.borne circle { fill:var(--neutral); stroke:var(--surface); stroke-width:3;
+  transition:fill .15s var(--ease); cursor:pointer; }
+.borne:hover circle { fill:var(--accent-fonce); }
+.borne.attente circle { fill:var(--accent); animation:pulseBorne 1.2s infinite; }
+@keyframes pulseBorne { 50% { stroke:var(--accent-doux); stroke-width:8; } }
+.fil { cursor:pointer; }
+.fil:hover { stroke:var(--destructive) !important; }
+
+#verdict {
+  position:absolute; left:50%; top:8px; transform:translateX(-50%); z-index:5;
+  padding:7px 15px; border-radius:var(--radius-full); color:#fff;
+  font-size:12.5px; font-weight:600; max-width:94%; text-align:center;
+  box-shadow:var(--shadow-soft);
+}
+#verdict[hidden] { display:none; }
+
+#bac-objets {
+  flex:none; background:var(--surface); border-top:1px solid var(--border);
+  padding:7px 12px 9px;
+}
+#bac-objets[hidden] { display:none; }
+.bo-titre { font-size:11px; font-weight:700; letter-spacing:.04em;
+  text-transform:uppercase; opacity:.55; }
+.bo-liste { display:flex; gap:7px; overflow-x:auto; padding-top:6px; scrollbar-width:none; }
+.bo-liste::-webkit-scrollbar { display:none; }
+.objet {
+  flex:none; display:flex; align-items:center; gap:6px;
+  padding:8px 12px; min-height:42px;
+  background:var(--surface); border:2px solid var(--border); border-radius:var(--radius-md);
+  font-family:var(--font-body); font-size:12.5px; font-weight:600;
+  color:var(--neutral); cursor:pointer; white-space:nowrap;
+}
+.objet:hover { border-color:var(--border-strong); background:var(--surface-muted); }
+.objet.actif { border-color:var(--accent); background:var(--accent-doux); }
+.objet .pastille { width:12px; height:12px; border-radius:var(--radius-full);
+  border:1px solid var(--border-strong); flex:none; }
+.objet .verd { font-size:13px; }
+
+.col-classe { margin-bottom:12px; }
+.col-classe b { display:block; font-size:14px; margin-bottom:4px; }
+.col-classe ul { margin:0; padding-left:20px; font-size:13px; line-height:1.7; }
+.col-classe i { opacity:.6; font-style:normal; font-size:11.5px; }
+.vide-c { font-size:12.5px; opacity:.6; margin:4px 0; }
+</style>
+</head>
+<body>
+
+<div id="colonne">
+  <header>
+    <a class="icone-btn" href="../../index.html#/pct/6e" title="Retour au catalogue" aria-label="Retour">←</a>
+    <div>
+      <h1>Les premiers pas du circuit</h1>
+      <div class="sous">PCT · 6ᵉ · SA1</div>
+    </div>
+    <div class="tete-fin">
+      <button class="icone-btn" id="btn-classement" title="Mon classement" aria-label="Classement">📋</button>
+      <button class="icone-btn" id="btn-missions" title="Les missions" aria-label="Missions">🎯</button>
+      <button class="icone-btn" id="btn-lexique" title="Lexique" aria-label="Lexique">📖</button>
+      <button class="icone-btn" id="btn-aide" title="Comment jouer" aria-label="Aide">❓</button>
+      <button class="icone-btn" id="btn-theme" title="Thème" aria-label="Thème">🌙</button>
+    </div>
+  </header>
+  <section id="mission">
+    <div class="m-haut">
+      <span class="m-pastille" id="m-num">1</span>
+      <div class="m-titres">
+        <span class="m-rang" id="m-rang">Mission 1 sur 5</span>
+        <b id="m-titre">—</b>
+        <span id="m-but"></span>
+      </div>
+      <button class="m-plier" id="m-plier" aria-label="Afficher toutes les étapes" aria-expanded="false">▼</button>
+    </div>
+    <div class="m-jauge"><i id="m-jauge" style="width:0"></i></div>
+    <div id="etapes"></div>
+  </section>
+</div>
+
+<main>
+  <div id="atelier">
+    <svg id="plan" viewBox="0 0 660 330" preserveAspectRatio="xMidYMid meet" role="img"
+         aria-label="La pile, le récepteur et les fils à brancher"></svg>
+    <div id="verdict" hidden></div>
+    <div id="bilan" role="status" aria-live="polite"></div>
+  </div>
+  <div id="bac-objets" hidden>
+    <span class="bo-titre">Objet à intercaler :</span>
+    <div class="bo-liste" id="liste-objets"></div>
+  </div>
+  <div id="actions">
+    <button class="btn btn-fantome" id="btn-vider">🗑 Débrancher tout</button>
+    <button class="btn" id="btn-tester">✅ Vérifier</button>
+  </div>
+</main>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<div class="voile" id="v-classement">
+  <div class="carte-modale">
+    <button class="fermer-x" data-ferme="v-classement" aria-label="Fermer">✕</button>
+    <h2>📋 Conducteurs et isolants</h2>
+    <p>Les objets que tu as testés, rangés selon ce que tu as observé.</p>
+    <div id="liste-classement"></div>
+  </div>
+</div>
+
+<div class="voile" id="v-lexique">
+  <div class="carte-modale">
+    <button class="fermer-x" data-ferme="v-lexique" aria-label="Fermer">✕</button>
+    <h2>📖 Les mots du circuit</h2>
+    <p>Les mots à connaître pour parler d'électricité.</p>
+    <div id="liste-lexique"></div>
+  </div>
+</div>
+
+<div class="voile" id="v-missions">
+  <div class="carte-modale">
+    <button class="fermer-x" data-ferme="v-missions" aria-label="Fermer">✕</button>
+    <h2>🎯 Les missions</h2>
+    <p>Elles se suivent : termine l'une pour ouvrir la suivante.</p>
+    <div id="liste-missions"></div>
+    <button class="btn btn-fantome btn-large" id="btn-rezero"
+            style="margin-top:6px;color:var(--destructive)">↺ Recommencer tout le parcours</button>
+  </div>
+</div>
+
+<div class="voile" id="v-aide">
+  <div class="carte-modale">
+    <button class="fermer-x" data-ferme="v-aide" aria-label="Fermer">✕</button>
+    <h2>🔌 Bienvenue !</h2>
+    <p>Avant de construire de grands circuits, il faut savoir faire le plus simple :
+       <b>allumer une lampe avec une pile</b>. C'est par là que tout commence.</p>
+    <div class="g-etape"><span class="num">1</span><span class="t">
+      <b>Touche une borne</b>, puis une autre : un fil se branche entre les deux.</span></div>
+    <div class="g-etape"><span class="num">2</span><span class="t">
+      <b>Touche un fil</b> pour le débrancher si tu t'es trompé.</span></div>
+    <div class="g-etape"><span class="num">3</span><span class="t">
+      Regarde bien les noms des bornes : la pile a un <b>+</b> et un <b>−</b>,
+      la lampe a un <b>culot</b> et un <b>plot</b>.</span></div>
+    <button class="btn btn-large" data-ferme="v-aide">Commencer !</button>
+  </div>
+</div>
+
+<div class="voile" id="v-qcm"><div class="carte-modale" id="qcm-carte"></div></div>
+<div class="voile" id="v-passage"><div class="carte-modale" id="passage-carte"></div></div>
+
+<script>
+'use strict';
+
+/* ============================================================================
+   1. Le montage — validé par tests avant l'écriture de l'interface
+   ========================================================================== */
+
+const OBJETS = {
+  fil:   { nom:'Fil de cuivre', conducteur:true,  quoi:'métal', coul:'#C9885A' },
+  clou:  { nom:'Clou en fer', conducteur:true,  quoi:'métal', coul:'#90A4AE' },
+  alu:   { nom:'Fil d’aluminium', conducteur:true,  quoi:'métal', coul:'#B0BEC5' },
+  regle: { nom:'Règle en plastique', conducteur:false, quoi:'plastique', coul:'#5BC5F2' },
+  craie: { nom:'Bâton de craie', conducteur:false, quoi:'minéral sec', coul:'#ECEFF1' },
+  bois:  { nom:'Bout de bois sec', conducteur:false, quoi:'bois', coul:'#A1887F' },
+  gomme: { nom:'Gomme', conducteur:false, quoi:'caoutchouc', coul:'#EF9A9A' },
+};
+
+// Les récepteurs et leurs deux bornes, telles que le guide les nomme
+const RECEPTEURS = {
+  lampe:  { nom:'Lampe', bornes:[['plot','Plot central'], ['culot','Culot']] },
+  del:    { nom:'DEL', bornes:[['grande','Grande broche'], ['petite','Petite broche']] },
+  moteur: { nom:'Moteur du tourniquet', bornes:[['culot','Borne A'], ['plot','Borne B']] },
+};
+
+function evaluer() {
+  const r = { pannes:[] };
+  const f = etat.fils;
+  if (f.length === 0) { r.pannes.push('Aucun fil n’est branché.'); return r; }
+  if (f.length === 1) { r.pannes.push('Il n’y a qu’un seul fil : une lampe a <b>deux</b> bornes à relier.'); return r; }
+  const bornesRec = f.map(x => x.rec), bornesPile = f.map(x => x.pile);
+  if (bornesRec[0] === bornesRec[1]) {
+    r.pannes.push('Les deux fils partent de la <b>même borne</b> du récepteur : le courant ne le traverse pas.');
+    return r;
+  }
+  if (bornesPile[0] === bornesPile[1]) {
+    r.pannes.push('Les deux fils arrivent sur la <b>même borne</b> de la pile : la boucle n’est pas fermée.');
+    return r;
+  }
+  const bloquant = f.find(x => x.objet && !OBJETS[x.objet].conducteur);
+  if (bloquant) {
+    r.isolant = bloquant.objet;
+    r.pannes.push(`${OBJETS[bloquant.objet].nom} est un <b>isolant</b> : il ne laisse pas passer le courant.`);
+    return r;
+  }
+  r.conducteurUtilise = (f.find(x => x.objet) || {}).objet || null;
+  r.boucle = true;
+
+  if (etat.recepteur === 'del') {
+    const grande = f.find(x => x.rec === 'grande');
+    r.bonSens = grande.pile === 'plus';
+    r.allume = r.bonSens;
+    if (!r.bonSens) r.pannes.push('La DEL est montée à l’envers : dans ce sens, elle <b>bloque</b> le courant.');
+  } else if (etat.recepteur === 'moteur') {
+    r.allume = true;
+    r.sens = f.find(x => x.rec === 'culot').pile === 'plus' ? 'horaire' : 'antihoraire';
+  } else r.allume = true;
+  return r;
+}
+
+const LEXIQUE = [
+  { mot:'Circuit électrique', def:"Le chemin fermé que suit le courant. Il part d'une borne de la pile, traverse le récepteur, et revient à l'autre borne." },
+  { mot:'Bornes de la pile', def:"Les deux contacts de la pile : la borne <em>+</em> et la borne <em>−</em>. Il faut relier les deux pour fermer le circuit." },
+  { mot:'Culot et plot', def:"Les deux contacts de la lampe. Le <em>culot</em> est la partie métallique sur le côté ; le <em>plot</em> est le petit point au bout. Le courant entre par l'un et sort par l'autre." },
+  { mot:'Conducteur', def:"Un matériau qui <em>laisse passer</em> le courant. Les métaux — cuivre, fer, aluminium — sont conducteurs." },
+  { mot:'Isolant', def:"Un matériau qui <em>empêche</em> le courant de passer : plastique, bois sec, craie, caoutchouc. C'est pourquoi les fils électriques sont gainés de plastique." },
+  { mot:'Sens du courant', def:"Par convention, le courant sort de la borne <em>+</em> du générateur, traverse le circuit, et revient par la borne <em>−</em>." },
+  { mot:'DEL', def:"Une diode électroluminescente. Elle ne s'allume que si le courant la traverse <em>dans le bon sens</em> : c'est ce qui permet de repérer le sens du courant." },
+  { mot:'Générateur', def:"Ce qui fournit le courant : ici, la pile." },
+  { mot:'Récepteur', def:"Ce qui reçoit le courant et le transforme : la lampe le change en lumière, le moteur en mouvement." },
+  { mot:'Circuit ouvert', def:"Un circuit coupé quelque part : le courant ne circule pas, la lampe reste éteinte." },
+];
+
+/* ============================================================================
+   2. Missions — les activités 1 et 3 du guide, puis le tourniquet de Vignon
+   ========================================================================== */
+
+const testes = () => Object.keys(etat.classement).length;
+const testesJustes = () => Object.keys(etat.classement)
+  .filter(c => etat.classement[c] === OBJETS[c].conducteur).length;
+
+const MISSIONS = [
+  {
+    titre:'Allume la lampe',
+    but:'Relie la pile à la lampe pour qu’elle s’allume.',
+    recepteur:'lampe',
+    acquis:'Une lampe s’allume quand ses <b>deux</b> bornes — le <b>culot</b> et le <b>plot</b> — sont reliées aux <b>deux</b> bornes de la pile. Il faut une boucle complète.',
+    indice:"Touche une borne de la pile, puis une borne de la lampe : un fil se branche. Recommence avec les deux autres bornes.",
+    etapes:[
+      { t:'Branche un <b>premier fil</b>', fait:() => etat.fils.length >= 1 },
+      { t:'Branche un <b>deuxième fil</b> sur les bornes restantes', fait:() => etat.fils.length >= 2 },
+      { t:'Vérifie : la lampe doit <b>s’allumer</b>', fait:() => etat.teste },
+    ],
+    test:r => r.allume === true,
+    qcm:[
+      { q:'Combien de bornes de la lampe faut-il relier pour qu’elle s’allume ?',
+        choix:['Les deux : le culot et le plot', 'Une seule suffit', 'Aucune, il suffit de la poser sur la pile'], bonne:0,
+        expl:"Le courant doit <b>traverser</b> le filament : il entre par une borne et ressort par l'autre. Avec une seule borne reliée, le circuit est ouvert." },
+      { q:'Comment s’appelle le petit point métallique au bout de la lampe ?',
+        choix:['Le plot central', 'Le culot', 'La borne +'], bonne:0,
+        expl:"Le <b>plot</b> est au bout, le <b>culot</b> est la partie vissée sur le côté. Ce sont les deux contacts de la lampe." },
+    ],
+  },
+  {
+    titre:'Deux bornes différentes',
+    but:'Découvre pourquoi brancher les deux fils au même endroit ne marche jamais.',
+    recepteur:'lampe',
+    acquis:'Les deux fils doivent partir de <b>bornes différentes</b>, des deux côtés. Sur la même borne, le courant n’a aucune raison de traverser la lampe.',
+    indice:"Essaie exprès de brancher les deux fils sur la borne + de la pile, vérifie, puis corrige. On apprend autant de ce qui ne marche pas.",
+    etapes:[
+      { t:'Essaie de brancher les deux fils sur la <b>même borne</b> de la pile', fait:() => etat.erreurVue },
+      { t:'Corrige et rallume la lampe', fait:() => etat.teste && etat.resultat && etat.resultat.allume },
+    ],
+    test:r => r.allume === true && etat.erreurVue === true,
+    qcm:[
+      { q:'Les deux fils sont branchés sur la borne + de la pile. Que se passe-t-il ?',
+        choix:['Rien : le courant ne peut pas faire le tour',
+               'La lampe brille deux fois plus fort', 'La pile chauffe'], bonne:0,
+        expl:"Pour circuler, le courant doit <b>partir d'une borne et revenir à l'autre</b>. S'il part et revient au même endroit, il n'y a pas de boucle : rien ne se passe." },
+    ],
+  },
+  {
+    titre:'Conducteur ou isolant ?',
+    but:'Intercale chaque objet dans le circuit et devine s’il laisse passer le courant.',
+    recepteur:'lampe',
+    acquis:'Les <b>métaux</b> laissent passer le courant : ce sont des <b>conducteurs</b>. Le plastique, le bois sec, la craie et le caoutchouc l’arrêtent : ce sont des <b>isolants</b>.',
+    indice:"Branche la lampe correctement, puis choisis un objet en bas de l'écran : il se place au milieu du fil. Si la lampe s'allume, l'objet est conducteur.",
+    etapes:[
+      { t:'Monte un circuit qui <b>fonctionne</b>', fait:() => etat.fils.length === 2 },
+      { t:'Teste au moins <b>5 objets</b>', fait:() => testes() >= 5 },
+      { t:'Teste-les <b>tous les 7</b>', fait:() => testes() >= 7 },
+    ],
+    test:() => testes() >= 7,
+    qcm:[
+      { q:'Qu’ont en commun tous les objets qui laissent passer le courant ?',
+        choix:['Ce sont des métaux', 'Ils sont durs', 'Ils sont gris'], bonne:0,
+        expl:"Cuivre, fer, aluminium : tous des <b>métaux</b>. C'est la propriété des métaux de conduire le courant électrique." },
+      { q:'Pourquoi entoure-t-on les fils électriques de plastique ?',
+        choix:['Parce que le plastique est isolant : il protège du courant',
+               'Pour les rendre plus jolis', 'Pour qu’ils conduisent mieux'], bonne:0,
+        expl:"Le plastique est un <b>isolant</b> : il empêche le courant de sortir du fil et de passer dans la main qui le tient. C'est une protection." },
+    ],
+  },
+  {
+    titre:'Le sens du courant',
+    but:'La DEL ne s’allume que dans un sens. Sers-t’en pour trouver par où sort le courant.',
+    recepteur:'del',
+    acquis:'Le courant sort de la borne <b>+</b> de la pile et revient par la borne <b>−</b>. La <b>DEL</b> ne s’allume que dans ce sens : elle sert de détecteur.',
+    indice:"Branche la DEL, vérifie. Si elle reste éteinte, débranche et inverse : relie sa grande broche à l'autre borne de la pile.",
+    etapes:[
+      { t:'Branche la DEL dans un sens et vérifie', fait:() => etat.delEssais >= 1 },
+      { t:'Inverse-la et vérifie à nouveau', fait:() => etat.delEssais >= 2 },
+      { t:'Trouve le sens où elle <b>s’allume</b>', fait:() => etat.delAllumee === true },
+    ],
+    test:r => r.allume === true && etat.delEssais >= 2,
+    qcm:[
+      { q:'La DEL s’allume quand sa grande broche est reliée au + de la pile. Qu’est-ce que cela nous apprend ?',
+        choix:['Que le courant sort par la borne + de la pile',
+               'Que la DEL est cassée', 'Que la pile est neuve'], bonne:0,
+        expl:"La DEL ne laisse passer le courant que dans un sens. Elle s'allume donc <b>seulement</b> quand elle est dans le sens du courant — ce qui permet de repérer que celui-ci sort du <b>+</b>." },
+      { q:'Et la lampe ordinaire, a-t-elle un sens ?',
+        choix:['Non : elle s’allume dans les deux sens', 'Oui, comme la DEL', 'Elle ne s’allume jamais à l’envers'], bonne:0,
+        expl:"Une lampe à filament fonctionne dans les deux sens : on peut inverser la pile, elle brille pareil. C'est ce qui la distingue de la DEL." },
+    ],
+  },
+  {
+    titre:'Le tourniquet de Vignon',
+    but:'Vignon a reçu un tourniquet qui tourne dans les deux sens. Trouve comment.',
+    recepteur:'moteur',
+    acquis:'En <b>inversant les bornes de la pile</b>, le courant circule dans l’autre sens et le moteur tourne à l’envers. C’est ainsi que le jouet de Vignon change de sens.',
+    indice:"Branche le moteur, regarde dans quel sens il tourne. Puis débranche et inverse les deux fils sur la pile.",
+    etapes:[
+      { t:'Fais tourner le moteur dans un sens', fait:() => !!etat.sensVus.horaire },
+      { t:'Inverse la pile et fais-le tourner dans l’<b>autre sens</b>', fait:() => !!etat.sensVus.antihoraire },
+    ],
+    test:() => etat.sensVus.horaire && etat.sensVus.antihoraire,
+    qcm:[
+      { q:'Comment fait-on tourner un moteur dans l’autre sens ?',
+        choix:['On inverse les branchements sur les bornes de la pile',
+               'On ajoute une deuxième pile', 'On change de moteur'], bonne:0,
+        expl:"En inversant les bornes, on inverse le <b>sens du courant</b> dans le moteur — et donc son sens de rotation. C'est exactement ce que font les deux boutons du jouet de Vignon." },
+    ],
+  },
+];
+
+/* ============================================================================
+   3. État et rendu
+   ========================================================================== */
+
+const etat = {
+  fils:[], objet:null, recepteur:'lampe', enAttente:null,
+  teste:false, resultat:null, classement:{}, erreurVue:false,
+  delEssais:0, delAllumee:false, sensVus:{},
+  mission:0, faites:[], libre:false, repliFait:false,
+};
+
+const CLE = 'ike-premierspas-progression';
+function sauver() {
+  try { localStorage.setItem(CLE, JSON.stringify({ mission:etat.mission, faits:etat.faites,
+    classement:etat.classement })); } catch (e) {}
+}
+function charger() {
+  try {
+    const d = JSON.parse(localStorage.getItem(CLE));
+    if (!d) return;
+    if (Array.isArray(d.faits)) etat.faites = d.faits;
+    if (d.classement) etat.classement = d.classement;
+    etat.mission = Math.min(d.mission || 0, MISSIONS.length - 1);
+  } catch (e) {}
+}
+
+const $ = id => document.getElementById(id);
+const missionCourante = () => etat.libre ? null : MISSIONS[etat.mission];
+const deverrouillee = i => i === 0 || etat.faites.indexOf(i - 1) !== -1 || etat.faites.indexOf(i) !== -1;
+function etapeCourante() {
+  const m = missionCourante();
+  if (!m) return null;
+  for (let i = 0; i < m.etapes.length; i++) if (!m.etapes[i].fait()) return { e:m.etapes[i], i };
+  return null;
+}
+
+const plan = $('plan');
+const NS = 'http://www.w3.org/2000/svg';
+const el = (nom, attrs, texte) => {
+  const n = document.createElementNS(NS, nom);
+  for (const k in attrs) n.setAttribute(k, attrs[k]);
+  if (texte != null) n.textContent = texte;
+  return n;
+};
+
+// Repères : la pile à gauche, le récepteur à droite, les fils entre les deux
+const P = {
+  pilePlus:{ x:250, y:150 }, pileMoins:{ x:250, y:230 },
+  recA:{ x:430, y:150 }, recB:{ x:430, y:230 },
+  objet:{ x:340, y:230 },
+};
+
+function dessiner() {
+  plan.textContent = '';
+  const r = etat.resultat || evaluer();
+  const brille = etat.teste && r.allume;
+
+  /* ---- La pile ---- */
+  plan.appendChild(el('rect', { x:96, y:142, width:110, height:96, rx:8,
+    fill:'#4A5762', stroke:'#2F3A44', 'stroke-width':2.5 }));
+  plan.appendChild(el('text', { x:151, y:196, class:'etiq-pile' }, 'PILE'));
+  plan.appendChild(el('text', { x:151, y:258, class:'etiq-lieu' }, '4,5 V'));
+  // les deux lamelles
+  plan.appendChild(el('path', { d:`M 206 158 L 240 158 L 240 ${P.pilePlus.y}`,
+    fill:'none', stroke:'var(--cuivre-fil)', 'stroke-width':5, 'stroke-linecap':'round' }));
+  plan.appendChild(el('path', { d:`M 206 222 L 240 222 L 240 ${P.pileMoins.y}`,
+    fill:'none', stroke:'var(--cuivre-fil)', 'stroke-width':5, 'stroke-linecap':'round' }));
+
+  /* ---- Le récepteur ---- */
+  dessinerRecepteur(brille, r);
+
+  /* ---- Les fils déjà branchés ---- */
+  for (let i = 0; i < etat.fils.length; i++) {
+    const f = etat.fils[i];
+    const a = f.pile === 'plus' ? P.pilePlus : P.pileMoins;
+    const b = bornePos(f.rec);
+    const courbe = `M ${a.x} ${a.y} C ${a.x + 50} ${a.y} ${b.x - 50} ${b.y} ${b.x} ${b.y}`;
+    plan.appendChild(el('path', { d:courbe, fill:'none',
+      stroke:brille ? '#E8A05C' : 'var(--cuivre-fil)',
+      'stroke-width':brille ? 6 : 5, 'stroke-linecap':'round', class:'fil',
+      'data-fil':i, role:'button', tabindex:'0', 'aria-label':'Débrancher ce fil' }));
+    // l'objet intercalé se pose au milieu du fil du bas
+    if (f.objet) {
+      // l'objet se pose au milieu du fil qui le porte, quel que soit le branchement
+      const o = OBJETS[f.objet];
+      const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+      plan.appendChild(el('rect', { x:mx - 36, y:my - 15, width:72, height:30, rx:6,
+        fill:o.coul, 'fill-opacity':.92, stroke:'var(--border-strong)', 'stroke-width':2 }));
+      plan.appendChild(el('text', { x:mx, y:my + 4, class:'txt-objet' }, o.nom.split(' ')[0]));
+    }
+  }
+
+  /* ---- Les bornes, que l'on touche pour brancher ---- */
+  borne('plus', P.pilePlus, '+', 'Borne + de la pile');
+  borne('moins', P.pileMoins, '−', 'Borne − de la pile');
+  const rec = RECEPTEURS[etat.recepteur];
+  borne('rec:' + rec.bornes[0][0], P.recA, '', rec.bornes[0][1]);
+  borne('rec:' + rec.bornes[1][0], P.recB, '', rec.bornes[1][1]);
+  plan.appendChild(el('text', { x:P.recA.x + 22, y:P.recA.y + 4, class:'etiq-borne', 'text-anchor':'start' },
+    rec.bornes[0][1]));
+  plan.appendChild(el('text', { x:P.recB.x + 22, y:P.recB.y + 4, class:'etiq-borne', 'text-anchor':'start' },
+    rec.bornes[1][1]));
+
+  majVerdict(r);
+}
+
+function bornePos(cle) {
+  const rec = RECEPTEURS[etat.recepteur];
+  return cle === rec.bornes[0][0] ? P.recA : P.recB;
+}
+
+function borne(cle, pos, libelle, aria) {
+  const attente = etat.enAttente === cle;
+  const g = el('g', { class:'borne' + (attente ? ' attente' : ''), 'data-borne':cle,
+    role:'button', tabindex:'0', 'aria-label':aria });
+  g.appendChild(el('circle', { cx:pos.x, cy:pos.y, r:13 }));
+  if (libelle) g.appendChild(el('text', { x:pos.x, y:pos.y + 6, class:'txt-borne' }, libelle));
+  plan.appendChild(g);
+}
+
+function dessinerRecepteur(brille, r) {
+  const x = 520, y = 190;
+  if (etat.recepteur === 'lampe') {
+    plan.appendChild(el('path', { d:`M ${P.recA.x} ${P.recA.y} L ${x - 26} ${y - 14}`,
+      stroke:'var(--metal)', 'stroke-width':4 }));
+    plan.appendChild(el('path', { d:`M ${P.recB.x} ${P.recB.y} L ${x - 26} ${y + 14}`,
+      stroke:'var(--metal)', 'stroke-width':4 }));
+    plan.appendChild(el('rect', { x:x - 26, y:y - 16, width:20, height:32, rx:3, fill:'var(--metal)' }));
+    plan.appendChild(el('circle', { cx:x + 14, cy:y, r:26,
+      fill:brille ? '#FFE082' : '#ECEFF1', stroke:'#B0ABA3', 'stroke-width':2.5 }));
+    plan.appendChild(el('path', { d:`M ${x + 2} ${y} l 7 -9 l 7 18 l 7 -9`, fill:'none',
+      stroke:brille ? '#8D6E32' : '#B0ABA3', 'stroke-width':2.5 }));
+    if (brille) for (let k = 0; k < 6; k++) {
+      const a = k * Math.PI / 3;
+      plan.appendChild(el('line', { x1:x + 14 + Math.cos(a) * 33, y1:y + Math.sin(a) * 33,
+        x2:x + 14 + Math.cos(a) * 44, y2:y + Math.sin(a) * 44,
+        stroke:'#FFB300', 'stroke-width':3, 'stroke-linecap':'round' }));
+    }
+    plan.appendChild(el('text', { x:x + 14, y:y + 58, class:'etiq-lieu' }, 'Lampe'));
+  } else if (etat.recepteur === 'del') {
+    plan.appendChild(el('path', { d:`M ${P.recA.x} ${P.recA.y} L ${x - 14} ${y - 20}`,
+      stroke:'var(--metal)', 'stroke-width':4 }));
+    plan.appendChild(el('path', { d:`M ${P.recB.x} ${P.recB.y} L ${x + 6} ${y + 22}`,
+      stroke:'var(--metal)', 'stroke-width':3 }));
+    plan.appendChild(el('path', { d:`M ${x - 18} ${y - 16} L ${x + 18} ${y - 16} ` +
+      `q 18 0 18 20 q 0 22 -36 22 q -18 0 -18 -22 z`,
+      fill:brille ? '#EF5350' : '#EF9A9A', 'fill-opacity':brille ? .95 : .5,
+      stroke:'#C62828', 'stroke-width':2 }));
+    if (brille) for (let k = 0; k < 5; k++) {
+      const a = -Math.PI / 2 + (k - 2) * .38;
+      plan.appendChild(el('line', { x1:x + Math.cos(a) * 34, y1:y + Math.sin(a) * 34,
+        x2:x + Math.cos(a) * 46, y2:y + Math.sin(a) * 46,
+        stroke:'#EF5350', 'stroke-width':3, 'stroke-linecap':'round' }));
+    }
+    plan.appendChild(el('text', { x, y:y + 62, class:'etiq-lieu' }, 'DEL'));
+  } else {
+    plan.appendChild(el('path', { d:`M ${P.recA.x} ${P.recA.y} L ${x - 30} ${y - 16}`,
+      stroke:'var(--metal)', 'stroke-width':4 }));
+    plan.appendChild(el('path', { d:`M ${P.recB.x} ${P.recB.y} L ${x - 30} ${y + 16}`,
+      stroke:'var(--metal)', 'stroke-width':4 }));
+    plan.appendChild(el('circle', { cx:x, cy:y, r:30, fill:'#B0BEC5', 'fill-opacity':.6,
+      stroke:'#78909C', 'stroke-width':2.5 }));
+    plan.appendChild(el('text', { x, y:y + 6, class:'txt-borne', fill:'var(--neutral)' }, 'M'));
+    // les pales du tourniquet, orientées selon le sens de rotation
+    if (etat.teste && r.sens) {
+      const s = r.sens === 'horaire' ? 1 : -1;
+      for (let k = 0; k < 3; k++) {
+        const a = k * 2 * Math.PI / 3;
+        plan.appendChild(el('path', {
+          d:`M ${x} ${y} L ${x + Math.cos(a) * 44} ${y + Math.sin(a) * 44} ` +
+            `L ${x + Math.cos(a + s * .5) * 34} ${y + Math.sin(a + s * .5) * 34} z`,
+          fill:'#F7A430', 'fill-opacity':.85 }));
+      }
+      plan.appendChild(el('text', { x, y:y + 74, class:'etiq-lieu' },
+        r.sens === 'horaire' ? '↻ tourne à droite' : '↺ tourne à gauche'));
+    } else plan.appendChild(el('text', { x, y:y + 62, class:'etiq-lieu' }, 'Tourniquet'));
+  }
+}
+
+function majVerdict(r) {
+  const z = $('verdict');
+  if (!etat.teste) { z.hidden = true; return; }
+  z.hidden = false;
+  const bon = r.allume;
+  z.style.background = bon ? 'var(--success)' : 'var(--destructive)';
+  z.innerHTML = bon
+    ? (etat.recepteur === 'moteur'
+        ? `✅ Le moteur tourne <b>${r.sens === 'horaire' ? 'à droite' : 'à gauche'}</b>`
+        : (r.conducteurUtilise
+            ? `✅ ${OBJETS[r.conducteurUtilise].nom} laisse passer le courant : c’est un <b>conducteur</b>`
+            : '✅ Ça marche !'))
+    : '❌ ' + (r.pannes[0] || 'Rien ne se passe');
+}
+
+/* ============================================================================
+   4. Actions
+   ========================================================================== */
+
+function toucherBorne(cle) {
+  const estPile = cle === 'plus' || cle === 'moins';
+  if (!etat.enAttente) {
+    etat.enAttente = cle;
+    dessiner();
+    toast(estPile ? 'Touche maintenant une borne du récepteur' : 'Touche maintenant une borne de la pile');
+    return;
+  }
+  if (etat.enAttente === cle) { etat.enAttente = null; dessiner(); return; }
+  const a = etat.enAttente, b = cle;
+  const aPile = a === 'plus' || a === 'moins';
+  const bPile = b === 'plus' || b === 'moins';
+  if (aPile === bPile) {
+    etat.enAttente = b;
+    dessiner();
+    toast('Un fil relie la <b>pile</b> au <b>récepteur</b>, pas deux bornes du même côté.', true);
+    return;
+  }
+  const pile = aPile ? a : b;
+  const rec = (aPile ? b : a).replace('rec:', '');
+  if (etat.fils.length >= 2) { toast('Il n’y a que deux bornes à relier : débranche un fil d’abord.', true);
+    etat.enAttente = null; dessiner(); return; }
+  if (etat.fils.some(f => f.pile === pile && f.rec === rec)) {
+    toast('Ces deux bornes sont déjà reliées.', true);
+    etat.enAttente = null; dessiner(); return;
+  }
+  // le second fil, celui du bas, peut recevoir un objet à tester
+  etat.fils.push({ pile, rec, objet:etat.fils.length === 1 ? etat.objet : null });
+  etat.enAttente = null;
+  etat.teste = false;
+  etat.resultat = null;
+  majTout();
+}
+
+function debrancher(i) {
+  etat.fils.splice(i, 1);
+  etat.teste = false; etat.resultat = null;
+  majTout();
+}
+function toutDebrancher() {
+  etat.fils = []; etat.enAttente = null; etat.teste = false; etat.resultat = null;
+  majTout();
+}
+
+function choisirObjet(cle) {
+  etat.objet = etat.objet === cle ? null : cle;
+  // l'objet se pose sur le second fil
+  if (etat.fils.length >= 2) etat.fils[1].objet = etat.objet;
+  etat.teste = false; etat.resultat = null;
+  majTout();
+}
+
+function verifier() {
+  const r = evaluer();
+  etat.teste = true;
+  etat.resultat = r;
+
+  // Mémoire des découvertes, pour les missions
+  if (r.pannes.length && r.pannes[0].includes('même borne')) etat.erreurVue = true;
+  if (etat.recepteur === 'del') {
+    etat.delEssais++;
+    if (r.allume) etat.delAllumee = true;
+  }
+  if (etat.recepteur === 'moteur' && r.sens) etat.sensVus[r.sens] = true;
+  // Classement conducteur / isolant
+  const objet = (etat.fils.find(f => f.objet) || {}).objet;
+  if (objet && (r.allume || r.isolant === objet)) {
+    etat.classement[objet] = !!r.allume;
+    sauver();
+  }
+
+  const m = missionCourante();
+  const gagne = m && m.test(r);
+  if (gagne && etat.faites.indexOf(etat.mission) === -1) { etat.faites.push(etat.mission); sauver(); }
+  majTout();
+  afficherBilan(r, gagne);
+}
+
+/* ============================================================================
+   5. Bilan, QCM, passage
+   ========================================================================== */
+
+function afficherBilan(r, gagne) {
+  const m = missionCourante();
+  const z = $('bilan');
+  const croix = '<button class="reduire" data-ferme-bilan aria-label="Réduire">✕</button>';
+  if (!gagne && !r.pannes.length) { cacherBilan(); return; }   // ça marche, mais la mission continue
+  z.innerHTML = gagne
+    ? `<div class="verdict"><span class="em">🎉</span><h3>Mission réussie !</h3>${croix}</div>
+       <p class="phrase">${m.acquis}</p>
+       <div class="actions"><button class="btn btn-large" id="btn-continuer">Continuer →</button></div>`
+    : `<div class="verdict"><span class="em">🔌</span><h3>Le courant ne passe pas</h3>${croix}</div>
+       <p class="phrase">${r.pannes[0]}</p>
+       ${m ? `<div class="objectif">💡 <b>Astuce :</b> ${m.indice}</div>` : ''}
+       <div class="actions"><button class="btn btn-contour" data-ferme-bilan>Je corrige</button></div>`;
+  z.classList.add('visible');
+  $('atelier').classList.add('avec-bilan');
+  $('toast').classList.remove('visible');
+  const c = $('btn-continuer');
+  if (c) c.addEventListener('click', () => { cacherBilan(); ouvrirQcm(); });
+}
+function cacherBilan() {
+  $('bilan').classList.remove('visible');
+  $('atelier').classList.remove('avec-bilan');
+}
+
+let qcm = { liste:[], n:0 };
+function ouvrirQcm() {
+  const m = MISSIONS[etat.mission];
+  if (!m || !m.qcm || !m.qcm.length) { ouvrirPassage(); return; }
+  qcm = { liste:m.qcm, n:0 };
+  rendreQcm();
+  $('v-qcm').classList.add('visible');
+}
+function rendreQcm() {
+  const q = qcm.liste[qcm.n];
+  $('qcm-carte').innerHTML = `
+    <div class="q-avance">✅ Mission réussie · question ${qcm.n + 1} sur ${qcm.liste.length}</div>
+    <div class="q-question">${q.q}</div>
+    <div id="q-choix">${q.choix.map((c, i) =>
+      `<button class="q-choix" data-rep="${i}">${c}</button>`).join('')}</div>
+    <div class="q-expl" id="q-expl"></div><div id="q-suite"></div>`;
+}
+function repondre(i) {
+  const q = qcm.liste[qcm.n];
+  $('q-choix').querySelectorAll('.q-choix').forEach((b, k) => {
+    b.disabled = true;
+    if (k === q.bonne) { b.classList.add('bon'); b.textContent = '✔️ ' + b.textContent; }
+    else if (k === i) { b.classList.add('mauvais'); b.textContent = '❌ ' + b.textContent; }
+  });
+  const e = $('q-expl');
+  e.innerHTML = q.expl; e.classList.add('visible');
+  const dernier = qcm.n === qcm.liste.length - 1;
+  $('q-suite').innerHTML = `<button class="btn btn-large" style="margin-top:12px" id="q-continuer">${
+    dernier ? 'Mission suivante →' : 'Question suivante →'}</button>`;
+  $('q-continuer').addEventListener('click', () => {
+    if (dernier) { $('v-qcm').classList.remove('visible'); ouvrirPassage(); }
+    else { qcm.n++; rendreQcm(); }
+  });
+}
+function ouvrirPassage() {
+  const finie = MISSIONS[etat.mission];
+  const suivante = MISSIONS[etat.mission + 1];
+  $('passage-carte').innerHTML = `
+    <div class="p-fanion"><span class="rond">✅</span>
+      <span><b>Mission ${etat.mission + 1} réussie !</b><span>${finie.titre}</span></span></div>
+    <div class="p-acquis">📘 <b>Ce que tu as appris :</b> ${finie.acquis}</div>
+    ${suivante
+      ? `<div class="p-suite"><div class="etiq">Mission ${etat.mission + 2} sur ${MISSIONS.length}</div>
+           <b>${suivante.titre}</b><span>${suivante.but}</span></div>
+         <button class="btn btn-large" id="btn-passer">Commencer la mission ${etat.mission + 2} →</button>
+         <p class="p-neuf">🔌 On repart d'un montage débranché.</p>`
+      : `<div class="p-suite"><div class="etiq">Bravo</div>
+           <b>Tu as terminé les ${MISSIONS.length} missions !</b>
+           <span>Tu sais allumer une lampe, reconnaître un conducteur et trouver le sens du courant.</span></div>
+         <button class="btn btn-large" id="btn-passer">Continuer librement →</button>`}`;
+  $('v-passage').classList.add('visible');
+  $('btn-passer').addEventListener('click', () => {
+    $('v-passage').classList.remove('visible');
+    if (etat.mission < MISSIONS.length - 1) etat.mission++;
+    else etat.libre = true;
+    sauver();
+    nouvelleMission();
+  });
+}
+function nouvelleMission() {
+  const m = missionCourante();
+  etat.recepteur = m ? m.recepteur : 'lampe';
+  etat.fils = []; etat.objet = null; etat.enAttente = null;
+  etat.teste = false; etat.resultat = null;
+  etat.repliFait = false;
+  cacherBilan();
+  $('mission').classList.add('ouvert');
+  $('m-plier').setAttribute('aria-expanded', 'true');
+  majTout();
+}
+function replierSiPetitEcran() {
+  if (etat.repliFait || window.innerWidth >= 880) return;
+  etat.repliFait = true;
+  $('mission').classList.remove('ouvert');
+  $('m-plier').setAttribute('aria-expanded', 'false');
+}
+
+/* ============================================================================
+   6. Mise à jour
+   ========================================================================== */
+
+function majMission() {
+  const m = missionCourante();
+  if (!m) {
+    $('m-num').textContent = '∞';
+    $('m-rang').textContent = 'Montage libre';
+    $('m-titre').textContent = 'Branche ce que tu veux';
+    $('m-but').textContent = 'Essaie les trois récepteurs et tous les objets.';
+    $('etapes').innerHTML = '';
+    $('m-jauge').style.width = '100%';
+    return;
+  }
+  const fait = etat.faites.indexOf(etat.mission) !== -1;
+  $('m-num').textContent = fait ? '✓' : (etat.mission + 1);
+  $('m-rang').textContent = `Mission ${etat.mission + 1} sur ${MISSIONS.length}`;
+  $('m-titre').textContent = m.titre;
+  $('m-but').textContent = m.but;
+  const ec = etapeCourante();
+  const nb = m.etapes.filter(e => e.fait()).length;
+  $('m-jauge').style.width = Math.round(nb / m.etapes.length * 100) + '%';
+  const iMontrer = ec ? ec.i : m.etapes.length - 1;
+  $('etapes').innerHTML = m.etapes.map((e, i) => {
+    const f = e.fait();
+    const courante = ec && ec.i === i;
+    return `<div class="etape${f ? ' faite' : ''}${courante ? ' courante' : ''}${i === iMontrer ? ' a-montrer' : ''}">
+      <span class="coche">✓</span><span class="t">${e.t}</span></div>`;
+  }).join('') + (m.indice ? `<div class="m-indice">💡 <b>Astuce :</b> ${m.indice}</div>` : '');
+  $('btn-tester').classList.toggle('appelle', etat.fils.length === 2 && !etat.teste);
+}
+
+function rendreObjets() {
+  const m = missionCourante();
+  const utile = !m || m.titre === 'Conducteur ou isolant ?';
+  $('bac-objets').hidden = !utile;
+  if (!utile) return;
+  $('liste-objets').innerHTML = Object.keys(OBJETS).map(cle => {
+    const o = OBJETS[cle];
+    const su = etat.classement[cle];
+    return `<button class="objet${etat.objet === cle ? ' actif' : ''}" data-objet="${cle}">
+      <span class="pastille" style="background:${o.coul}"></span>
+      <span>${o.nom}</span>
+      ${su === undefined ? '' : `<b class="verd">${su ? '⚡' : '🚫'}</b>`}
+    </button>`;
+  }).join('');
+}
+
+function rendreClassement() {
+  const cond = [], iso = [], reste = [];
+  for (const cle in OBJETS) {
+    const c = etat.classement[cle];
+    if (c === undefined) reste.push(OBJETS[cle].nom);
+    else (c ? cond : iso).push(OBJETS[cle].nom + ' <i>(' + OBJETS[cle].quoi + ')</i>');
+  }
+  $('liste-classement').innerHTML = `
+    <div class="col-classe"><b>⚡ Conducteurs</b>${cond.length
+      ? '<ul><li>' + cond.join('</li><li>') + '</li></ul>' : '<p class="vide-c">rien encore</p>'}</div>
+    <div class="col-classe"><b>🚫 Isolants</b>${iso.length
+      ? '<ul><li>' + iso.join('</li><li>') + '</li></ul>' : '<p class="vide-c">rien encore</p>'}</div>
+    ${reste.length ? `<p class="vide-c">Pas encore testés : ${reste.join(', ')}.</p>` : ''}`;
+}
+
+function rendreMissions() {
+  $('liste-missions').innerHTML = MISSIONS.map((m, i) => {
+    const fait = etat.faites.indexOf(i) !== -1;
+    const ouverte = deverrouillee(i);
+    return `<button class="d-carte${fait ? ' fait' : ''}" data-mission="${i}" ${ouverte ? '' : 'disabled'}>
+      <span class="num">${fait ? '✓' : (ouverte ? i + 1 : '🔒')}</span>
+      <span class="txt"><b>${m.titre}</b><span>${ouverte ? m.but : 'Termine la mission précédente pour l’ouvrir.'}</span></span>
+    </button>`;
+  }).join('') + `<button class="d-carte" data-mission="libre"
+      ${etat.faites.length === MISSIONS.length ? '' : 'disabled'}>
+      <span class="num">${etat.faites.length === MISSIONS.length ? '∞' : '🔒'}</span>
+      <span class="txt"><b>Montage libre</b><span>${etat.faites.length === MISSIONS.length
+        ? 'Branche ce que tu veux.' : 'Termine les 5 missions pour l’ouvrir.'}</span></span></button>`;
+}
+
+function majTout() { dessiner(); majMission(); rendreObjets(); }
+
+/* ============================================================================
+   7. Interactions
+   ========================================================================== */
+
+plan.addEventListener('click', e => {
+  const b = e.target.closest('[data-borne]');
+  if (b) { toucherBorne(b.dataset.borne); return; }
+  const f = e.target.closest('[data-fil]');
+  if (f) debrancher(+f.dataset.fil);
+});
+plan.addEventListener('keydown', e => {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  const c = e.target.closest('[data-borne],[data-fil]');
+  if (!c) return;
+  e.preventDefault();
+  c.dispatchEvent(new MouseEvent('click', { bubbles:true }));
+});
+$('liste-objets').addEventListener('click', e => {
+  const b = e.target.closest('[data-objet]');
+  if (b) { choisirObjet(b.dataset.objet); replierSiPetitEcran(); }
+});
+$('btn-tester').addEventListener('click', verifier);
+$('btn-vider').addEventListener('click', toutDebrancher);
+$('m-plier').addEventListener('click', () => {
+  const m = $('mission');
+  m.classList.toggle('ouvert');
+  $('m-plier').setAttribute('aria-expanded', m.classList.contains('ouvert'));
+});
+$('btn-classement').addEventListener('click', () => { rendreClassement(); ouvrir('v-classement'); });
+$('btn-missions').addEventListener('click', () => { rendreMissions(); ouvrir('v-missions'); });
+$('btn-lexique').addEventListener('click', () => {
+  $('liste-lexique').innerHTML = LEXIQUE.map(l =>
+    `<div class="lex-entree"><b>${l.mot}</b><span>${l.def}</span></div>`).join('');
+  ouvrir('v-lexique');
+});
+$('btn-aide').addEventListener('click', () => ouvrir('v-aide'));
+$('liste-missions').addEventListener('click', e => {
+  const b = e.target.closest('[data-mission]');
+  if (!b || b.disabled) return;
+  if (b.dataset.mission === 'libre') etat.libre = true;
+  else { etat.libre = false; etat.mission = +b.dataset.mission; }
+  sauver(); nouvelleMission(); fermer('v-missions');
+});
+$('btn-rezero').addEventListener('click', () => {
+  if (!window.confirm('Effacer toute ta progression et repartir de la mission 1 ?')) return;
+  etat.faites = []; etat.mission = 0; etat.libre = false;
+  etat.classement = {}; etat.erreurVue = false; etat.delEssais = 0;
+  etat.delAllumee = false; etat.sensVus = {};
+  sauver(); nouvelleMission(); fermer('v-missions');
+  toast('↺ Parcours remis à zéro');
+});
+$('v-qcm').addEventListener('click', e => {
+  const b = e.target.closest('[data-rep]');
+  if (b && !b.disabled) repondre(+b.dataset.rep);
+});
+document.addEventListener('click', e => {
+  const f = e.target.closest('[data-ferme]');
+  if (f) fermer(f.dataset.ferme);
+  if (e.target.closest('[data-ferme-bilan]')) cacherBilan();
+});
+const ancres = ['v-qcm', 'v-passage'];
+for (const v of document.querySelectorAll('.voile')) {
+  v.addEventListener('click', e => { if (e.target === v && ancres.indexOf(v.id) === -1) fermer(v.id); });
+}
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  for (const v of document.querySelectorAll('.voile.visible'))
+    if (ancres.indexOf(v.id) === -1) fermer(v.id);
+});
+
+const ouvrir = id => $(id).classList.add('visible');
+const fermer = id => $(id).classList.remove('visible');
+
+let minuteurToast = null;
+function toast(msg, alerte) {
+  const t = $('toast');
+  t.innerHTML = msg;
+  t.classList.toggle('alerte', !!alerte);
+  t.classList.add('visible');
+  clearTimeout(minuteurToast);
+  minuteurToast = setTimeout(() => t.classList.remove('visible'), 2600);
+}
+
+const btnTheme = $('btn-theme');
+function appliquerTheme(sombre) {
+  document.body.classList.toggle('sombre', sombre);
+  btnTheme.textContent = sombre ? '☀️' : '🌙';
+  document.querySelector('meta[name=theme-color]')
+    .setAttribute('content', sombre ? '#14181C' : '#F7F5F0');
+  try { localStorage.setItem('ike-theme', sombre ? 'sombre' : 'clair'); } catch (e) {}
+  dessiner();
+}
+btnTheme.addEventListener('click', () => appliquerTheme(!document.body.classList.contains('sombre')));
+try {
+  const t = localStorage.getItem('ike-theme');
+  appliquerTheme(t ? t === 'sombre' : window.matchMedia('(prefers-color-scheme: dark)').matches);
+} catch (e) { appliquerTheme(false); }
+
+charger();
+nouvelleMission();
+try {
+  if (!localStorage.getItem('ike-premierspas-vu')) {
+    ouvrir('v-aide');
+    localStorage.setItem('ike-premierspas-vu', '1');
+  }
+} catch (e) { ouvrir('v-aide'); }
+
+</script>
+</body>
+</html>
