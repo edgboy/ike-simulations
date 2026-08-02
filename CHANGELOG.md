@@ -5,6 +5,28 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v4.7.0 — 2026-08-02
+
+⚡ **Le circuit électrique passe au standard actuel.** C'est la SA1, la première simulation de
+l'année, et celle qui précède immédiatement la lampe de poche : la rupture d'expérience entre
+les deux sautait aux yeux.
+
+- **Design system Labo-Bénin** appliqué : polices Baloo 2 et Inter, fond et surfaces « paper »,
+  bordures douces, accent bleu PCT, boutons d'action en lime. Le bleu roi et les dégradés de
+  l'ancienne version ont disparu
+- **Toutes les étapes de la mission sont visibles**, comme dans les ateliers : celles qui sont
+  faites barrées avec une coche verte, celle en cours en gras avec sa pastille qui pulse.
+  Auparavant une seule étape s'affichait à la fois, sans vue d'ensemble
+- **L'écran de fin de mission annonce la suivante** : ce qu'on vient d'apprendre, puis le
+  numéro, le titre et la première consigne de la mission à venir, avec un bouton
+  « Commencer la mission N → ». Le changement de mission ne passe plus inaperçu
+- Barre de mission réorganisée : les étapes occupent toute la largeur, les boutons passent
+  dessous ; l'en-tête défile sur petit écran au lieu de tronquer ses boutons
+
+Correctif de thème : `#eceff1` et `#cfd8dc` servaient à la fois de fond clair et de couleur de
+texte en mode nuit. La conversion aux jetons les avait tous transformés en couleurs de surface,
+rendant **39 déclarations de texte illisibles sur fond sombre** — corrigé et vérifié.
+
 ## v4.6.0 — 2026-08-02
 
 🥁 **Nouvelle simulation : « Fabrique ton tam-tam »** (PCT 6ᵉ, SA6) — troisième et dernier
