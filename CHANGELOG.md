@@ -5,6 +5,26 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v4.10.0 — 2026-08-02
+
+🎨 **Les cinq dernières simulations passent au standard actuel.** Tout le catalogue partage
+désormais la même identité et le même enchaînement : combustions, états de la matière, banc
+d'optique, molécules en 3D et transformations du plan rejoignent le circuit et les ateliers.
+
+- **Design system Labo-Bénin** : polices Baloo 2 et Inter, surfaces « paper », accent PCT,
+  boutons d'action en lime. 556 déclarations de couleur converties au total
+- **Toutes les étapes de la mission sont visibles**, barrées à mesure, avec la pastille de
+  l'étape en cours qui pulse
+- **L'écran de fin annonce la mission suivante** — numéro, titre et première consigne — avec
+  un bouton « Commencer la mission N → »
+- Les **écrans de démarrage** et l'invite « tourne ton téléphone » du banc d'optique, restés
+  en bleu roi, adoptent eux aussi le fond clair du design system
+
+La conversion des couleurs a été refaite **par rôle de propriété** (fond, texte, bordure) et non
+plus par valeur, précisément pour éviter le défaut rencontré sur le circuit en v4.7.0 : les
+mêmes teintes servaient de fond en thème clair et de texte en thème sombre. Contraste vérifié
+au navigateur sur les cinq, dans les deux thèmes — de 12 à 13,7 pour 4,5 exigé.
+
 ## v4.9.0 — 2026-08-02
 
 🍲 **Nouvelle simulation : « Pourquoi mes marmites noircissent ? »** (PCT 6ᵉ, SA3) — la
