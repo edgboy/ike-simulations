@@ -5,6 +5,40 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v4.8.0 — 2026-08-02
+
+💬 **Nouvelle simulation : « Qui pollue vraiment ? »** (PCT 6ᵉ, SA5) — et avec elle, le
+**troisième gabarit** du projet : ni expliquer un phénomène, ni fabriquer un objet, mais
+**enquêter et prendre position**.
+
+La SA5 pèse **26 heures**, un tiers du volume horaire de l'année, et n'avait aucune couverture.
+Le guide fournit une scène clé en main : devant l'article « Feu de brousse dans la région de
+Sota », quatre personnes affirment chacune quelque chose de partiellement faux.
+
+**Le principe : on ne discute pas d'opinions, on mesure.** L'élève fait glisser un capteur d'air
+le long de la rue de son quartier. Le capteur affiche en direct les **poussières fines** (µg/m³)
+et le **monoxyde de carbone** (ppm) là où il se trouve, et la parole du personnage voisin
+s'affiche à côté du chiffre — de sorte que l'affirmation et la mesure se contredisent sous les yeux.
+
+- **Les quatre raisonnements du guide sont démontés par les relevés**, sans caricature :
+  la **fumée blanche** du Zem d'Élie pollue **plus** que la fumée noire du moulin (612 contre
+  418 µg/m³), car elle est faite d'huile imbrûlée ; le **tuyau relevé** de Faton soulage son
+  voisin immédiat mais ne change rien à 12 m et **pas un gramme** de ce qui est rejeté chaque
+  jour ; la **moto neuve** de Yèmi fume peu mais dégage autant de monoxyde de carbone que le
+  moulin ; le **vieux Fignon** se trompe sur le passé — le feu de bois polluait beaucoup — mais
+  vise juste sur l'essentiel, les feux de brousse pesant plus lourd que tout le reste réuni
+- **Un carnet de mesures** conserve les relevés : ce sont eux qui servent de preuves
+- **Le tribunal des idées** : l'élève juge les quatre affirmations — vrai, en partie vrai, faux —
+  et reçoit l'explication adossée à ses propres mesures. C'est le moment de la prise de position
+- **Un panneau « Agir »** : chaque action réduit ce que le quartier rejette chaque jour, et se
+  voit sur la scène — le moteur réglé fume moins, la cuisine passe au gaz, la brousse reverdit.
+  Relever un tuyau, lui, affiche « ne réduit rien »
+- **6 missions**, 10 questions de QCM et un **lexique de 13 mots** (poussières fines, monoxyde
+  de carbone, combustion incomplète, imbrûlés, effet de serre, couche d'ozone, déforestation,
+  développement durable, prendre position)
+- Données calibrées sur les ordres de grandeur réels et validées par 16 tests avant l'écriture
+  de l'interface
+
 ## v4.7.0 — 2026-08-02
 
 ⚡ **Le circuit électrique passe au standard actuel.** C'est la SA1, la première simulation de

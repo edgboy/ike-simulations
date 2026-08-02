@@ -1,0 +1,1612 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Qui pollue vraiment ? — Labo-Bénin</title>
+<meta name="theme-color" content="#F7F5F0">
+<link rel="stylesheet" href="../../assets/polices.css">
+<style>
+/* ===== Jetons du design system Labo-Bénin (intégrés : fichier autonome) ===== */
+:root {
+  --primary:#C4D94E; --accent:#5BC5F2; --accent-doux:#D6F0FB;
+  --tertiary:#F7A430; --destructive:#E83A4B; --success:#2A9D8F;
+  --neutral:#3A3632; --background:#F7F5F0; --surface:#FFFFFF; --surface-muted:#F0EEE9;
+  --border:#D3CFC8; --border-strong:#B0ABA3; --ring:#5BC5F2;
+  --font-display:'Baloo 2','Segoe UI',system-ui,sans-serif;
+  --font-body:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;
+  --radius-sm:8px; --radius-md:12px; --radius-lg:16px; --radius-xl:24px; --radius-full:9999px;
+  --shadow-soft:0 4px 16px rgba(58,54,50,.05);
+  --shadow-raised:0 6px 20px rgba(58,54,50,.06);
+  --ease:cubic-bezier(.4,0,.2,1);
+  --metal:#B0ABA3; --cuivre:#C9885A;
+}
+body.sombre {
+  --neutral:#ECEFF1; --background:#14181C; --surface:#1C232A; --surface-muted:#232C34;
+  --border:#333E47; --border-strong:#4A5762; --accent-doux:#17323F;
+  --shadow-soft:0 4px 16px rgba(0,0,0,.28); --shadow-raised:0 6px 20px rgba(0,0,0,.34);
+  --metal:#8A9299;
+}
+
+*,*::before,*::after { box-sizing:border-box; }
+body {
+  margin:0; font-family:var(--font-body); font-size:16px; color:var(--neutral);
+  background:var(--background); overflow:hidden;
+  height:100dvh; display:flex; flex-direction:column;
+  -webkit-tap-highlight-color:transparent; -webkit-text-size-adjust:100%;
+}
+h1,h2,h3,h4 { font-family:var(--font-display); margin:0; line-height:1.2; }
+p { margin:0; }
+:focus-visible { outline:2px solid var(--ring); outline-offset:2px; border-radius:var(--radius-sm); }
+
+/* ============================ En-tête ============================ */
+header {
+  display:flex; align-items:center; gap:8px; flex:none;
+  padding:6px 10px; background:var(--surface); border-bottom:1px solid var(--border);
+}
+header h1 { font-size:15px; font-weight:800; line-height:1.15; }
+header .sous { font-size:10.5px; opacity:.6; }
+.icone-btn {
+  width:40px; height:40px; flex:none; display:grid; place-items:center;
+  border:none; background:none; border-radius:var(--radius-md);
+  font-size:18px; color:inherit; cursor:pointer; text-decoration:none;
+}
+.icone-btn:hover { background:var(--surface-muted); }
+.tete-fin { margin-left:auto; display:flex; gap:2px; align-items:center; }
+
+/* ===================== Bandeau de mission (EN HAUT) ===================== */
+#mission {
+  flex:none; background:var(--surface); border-bottom:1px solid var(--border);
+  padding:8px 12px 9px;
+}
+.m-haut { display:flex; align-items:center; gap:9px; }
+.m-pastille {
+  width:30px; height:30px; flex:none; border-radius:var(--radius-sm);
+  display:grid; place-items:center; background:var(--accent-doux);
+  font-family:var(--font-display); font-weight:800; font-size:13px;
+}
+.m-titres { flex:1; min-width:0; }
+.m-titres b { display:block; font-size:14px; font-weight:600; line-height:1.2; }
+.m-titres span { font-size:11.5px; opacity:.65; line-height:1.35; display:block; }
+.m-rang {
+  font-size:10.5px !important; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--accent); opacity:1 !important; margin-bottom:1px;
+}
+.m-plier {
+  width:34px; height:34px; flex:none; border:none; background:none; cursor:pointer;
+  border-radius:var(--radius-sm); font-size:14px; color:inherit;
+  transition:transform .2s var(--ease);
+}
+.m-plier:hover { background:var(--surface-muted); }
+#mission.ouvert .m-plier { transform:rotate(180deg); }
+/* Replié, on ne montre que l'étape en cours : la lampe reste visible */
+#mission:not(.ouvert) .etape:not(.a-montrer) { display:none; }
+#mission:not(.ouvert) .m-indice { display:none; }
+.m-jauge { height:5px; border-radius:var(--radius-full); background:var(--surface-muted); margin-top:8px; overflow:hidden; }
+.m-jauge i { display:block; height:100%; background:var(--accent); transition:width .4s var(--ease); }
+
+/* ---- Liste des étapes : le guidage pas à pas ---- */
+#etapes { margin-top:9px; }
+.etape {
+  display:flex; align-items:flex-start; gap:9px; padding:5px 0;
+  font-size:13px; line-height:1.4;
+}
+.etape .coche {
+  width:21px; height:21px; flex:none; margin-top:1px; border-radius:var(--radius-full);
+  display:grid; place-items:center; font-size:11px; font-weight:700;
+  border:2px solid var(--border-strong); color:transparent; background:none;
+}
+.etape.faite .coche { background:var(--success); border-color:var(--success); color:#fff; }
+.etape.faite .t { opacity:.5; text-decoration:line-through; }
+.etape.courante .coche { border-color:var(--accent); animation:pulseCoche 1.5s infinite; }
+.etape.courante .t { font-weight:600; }
+@keyframes pulseCoche { 50% { box-shadow:0 0 0 5px var(--accent-doux); } }
+.etape .t { flex:1; }
+.m-indice {
+  margin-top:8px; padding:9px 11px; border-radius:var(--radius-md);
+  background:var(--accent-doux); font-size:12.5px; line-height:1.5;
+}
+.m-indice b { font-weight:600; }
+
+/* ============================ Atelier ============================ */
+main { flex:1; min-height:0; display:flex; flex-direction:column; }
+#atelier { flex:1; min-height:0; position:relative; display:flex; }
+#plan { flex:1; min-height:0; width:100%; display:block; touch-action:manipulation; }
+
+/* Emplacements sur la lampe */
+.slot { cursor:pointer; }
+.slot .zone {
+  fill:var(--surface); fill-opacity:.5; stroke:var(--border-strong); stroke-width:2;
+  stroke-dasharray:6 5; rx:7;
+}
+.slot:hover .zone, .slot:focus-visible .zone { stroke:var(--accent); fill:var(--accent-doux); fill-opacity:1; }
+.slot.plein .zone { display:none; }
+/* Surbrillance de l'emplacement attendu par l'étape en cours */
+.slot.vise .zone { stroke:var(--accent); stroke-width:3; stroke-dasharray:none;
+  fill:var(--accent-doux); fill-opacity:1; animation:viseur 1.5s infinite; }
+@keyframes viseur { 50% { stroke-opacity:.35; } }
+.slot.vise .etiq-slot { opacity:1; font-weight:700; }
+.etiq-slot {
+  font-family:var(--font-body); font-size:11px; font-weight:600;
+  fill:var(--neutral); opacity:.55; text-anchor:middle; pointer-events:none;
+}
+.txt-piece {
+  font-family:var(--font-body); font-size:11px; font-weight:700;
+  fill:var(--neutral); text-anchor:middle; pointer-events:none;
+}
+.retirer { cursor:pointer; }
+.retirer circle { fill:var(--border-strong); transition:fill .15s var(--ease); }
+.retirer:hover circle, .retirer:focus-visible circle { fill:var(--destructive); }
+.retirer text { fill:#fff; font-size:13px; font-weight:700; text-anchor:middle; font-family:var(--font-body); }
+
+/* ============ Bouton d'accès aux mesures, sur le plan de travail ============ */
+#btn-mesures {
+  position:absolute; right:12px; bottom:12px; z-index:5;
+  display:flex; align-items:center; gap:7px;
+  min-height:44px; padding:0 16px;
+  background:var(--surface); color:var(--neutral);
+  border:2px solid var(--border-strong); border-radius:var(--radius-full);
+  box-shadow:var(--shadow-raised);
+  font-family:var(--font-body); font-size:13.5px; font-weight:600; cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+#btn-mesures:hover { background:var(--surface-muted); border-color:var(--neutral); }
+#btn-mesures[hidden] { display:none; }
+#btn-mesures.appelle { border-color:var(--accent); animation:appelleMesures 1.4s infinite; }
+@keyframes appelleMesures { 50% { box-shadow:0 0 0 8px var(--accent-doux), var(--shadow-raised); } }
+
+/* ============================ Bilan ============================ */
+#bilan {
+  position:absolute; left:8px; right:8px; bottom:8px; z-index:6;
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-raised); padding:13px 15px;
+  display:none; max-width:520px; margin:0 auto;
+}
+#bilan.visible { display:block; animation:monte .3s var(--ease); }
+#atelier.avec-bilan #plan { align-self:flex-start; max-height:48%; }
+@keyframes monte { from { opacity:0; transform:translateY(10px); } }
+#bilan .verdict { display:flex; align-items:center; gap:9px; margin-bottom:4px; }
+#bilan .verdict .em { font-size:23px; line-height:1; }
+#bilan .verdict h3 { font-size:16px; flex:1; }
+#bilan .reduire {
+  width:32px; height:32px; flex:none; margin:-4px -6px 0 0;
+  border:none; background:none; border-radius:var(--radius-sm);
+  font-size:17px; color:inherit; cursor:pointer; opacity:.6;
+}
+#bilan .reduire:hover { background:var(--surface-muted); opacity:1; }
+#bilan .objectif {
+  margin-top:10px; padding:9px 11px; border-radius:var(--radius-md);
+  background:var(--accent-doux); font-size:12.5px; line-height:1.5;
+}
+#bilan .phrase { font-size:12.5px; opacity:.78; line-height:1.5; margin:0 0 10px; }
+.jauges { display:grid; grid-template-columns:repeat(auto-fit,minmax(115px,1fr)); gap:8px 14px; }
+.jauge .haut { display:flex; justify-content:space-between; font-size:11.5px; margin-bottom:3px; }
+.jauge .haut b { font-weight:600; }
+.jauge .haut span { opacity:.65; }
+.barre { height:7px; border-radius:var(--radius-full); background:var(--surface-muted); overflow:hidden; }
+.barre i { display:block; height:100%; background:var(--accent); border-radius:inherit; transition:width .5s var(--ease); }
+.barre.faible i { background:var(--tertiary); }
+.barre.mauvais i { background:var(--destructive); }
+#bilan .actions { display:flex; gap:8px; margin-top:11px; }
+
+/* ============================ Barre d'action ============================ */
+#actions {
+  flex:none; display:flex; gap:8px; align-items:center; justify-content:flex-end;
+  padding:8px 12px calc(8px + env(safe-area-inset-bottom));
+  background:var(--surface); border-top:1px solid var(--border);
+}
+.btn {
+  display:inline-flex; align-items:center; justify-content:center; gap:7px;
+  min-height:44px; padding:0 18px; border:none; border-radius:var(--radius-lg);
+  font-family:var(--font-body); font-size:14px; font-weight:600;
+  color:var(--neutral); background:var(--primary); cursor:pointer;
+  transition:filter .15s var(--ease);
+}
+.btn:hover { filter:brightness(.94); }
+.btn:active { filter:brightness(.88); }
+.btn[disabled] { opacity:.45; cursor:not-allowed; filter:none; }
+.btn-contour { background:var(--surface); border:2px solid var(--neutral); }
+.btn-contour:hover { background:var(--surface-muted); filter:none; }
+.btn-fantome { background:transparent; }
+.btn-fantome:hover { background:var(--surface-muted); filter:none; }
+.btn-large { width:100%; }
+#btn-tester.appelle { animation:appelle 1.3s infinite; }
+@keyframes appelle { 50% { box-shadow:0 0 0 7px rgba(196,217,78,.35); } }
+
+/* ================== Feuille de choix d'un composant ================== */
+#feuille {
+  position:fixed; inset:0; z-index:35; display:none;
+  background:rgba(38,50,56,.5);
+}
+#feuille.visible { display:block; }
+.f-carte {
+  position:absolute; left:0; right:0; bottom:0;
+  max-height:82dvh; overflow-y:auto;
+  background:var(--surface); border-radius:var(--radius-xl) var(--radius-xl) 0 0;
+  padding:8px 16px calc(18px + env(safe-area-inset-bottom));
+  box-shadow:var(--shadow-raised);
+  animation:glisse .28s var(--ease);
+}
+@keyframes glisse { from { transform:translateY(100%); } }
+.f-poignee { width:40px; height:4px; border-radius:2px; background:var(--border); margin:2px auto 12px; }
+.f-tete { display:flex; align-items:center; gap:9px; margin-bottom:4px; }
+.f-tete h2 { font-size:18px; flex:1; }
+.f-role { font-size:12.5px; line-height:1.5; opacity:.75; margin-bottom:13px; }
+.f-liste { display:grid; gap:9px; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); }
+.option {
+  display:flex; flex-direction:column; gap:3px; text-align:left; position:relative;
+  padding:12px 13px; min-height:62px;
+  background:var(--surface); border:2px solid var(--border); border-radius:var(--radius-md);
+  font-family:var(--font-body); color:var(--neutral); cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+.option:hover { border-color:var(--border-strong); background:var(--surface-muted); }
+.option.pose { border-color:var(--accent); background:var(--accent-doux); }
+.option.conseil { border-color:var(--primary); }
+.option.conseil::after {
+  content:'conseillé'; position:absolute; top:-9px; right:9px;
+  padding:1px 8px; border-radius:var(--radius-full);
+  background:var(--primary); color:var(--neutral);
+  font-size:9.5px; font-weight:700; letter-spacing:.04em; text-transform:uppercase;
+}
+.option b { font-size:13.5px; font-weight:600; }
+.option span { font-size:11.5px; opacity:.68; line-height:1.4; }
+.option[disabled] { opacity:.42; cursor:not-allowed; }
+.f-vide { text-align:center; padding:18px 0; font-size:13px; opacity:.6; }
+
+/* ============================ Voiles ============================ */
+.voile {
+  position:fixed; inset:0; z-index:40; display:none;
+  background:rgba(38,50,56,.55); padding:14px; overflow-y:auto;
+}
+.voile.visible { display:flex; align-items:center; justify-content:center; }
+.carte-modale {
+  position:relative; width:100%; max-width:470px; margin:auto;
+  background:var(--surface); border-radius:var(--radius-lg); padding:22px 20px;
+  box-shadow:var(--shadow-raised);
+}
+.carte-modale h2 { font-size:20px; margin-bottom:9px; padding-right:34px; }
+.carte-modale > p { font-size:13.5px; line-height:1.6; opacity:.8; margin-bottom:10px; }
+.fermer-x {
+  position:absolute; top:8px; right:10px; width:36px; height:36px;
+  border:none; background:none; font-size:20px; color:inherit; cursor:pointer;
+  border-radius:var(--radius-md);
+}
+.fermer-x:hover { background:var(--surface-muted); }
+
+/* Cartes de mission */
+.d-carte {
+  display:flex; align-items:center; gap:11px; width:100%; text-align:left;
+  padding:11px 13px; margin-bottom:8px;
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md);
+  font-family:var(--font-body); color:inherit; cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+.d-carte:hover:not([disabled]) { border-color:var(--border-strong); background:var(--surface-muted); }
+.d-carte[disabled] { opacity:.5; cursor:not-allowed; }
+.d-carte .num {
+  width:30px; height:30px; flex:none; border-radius:var(--radius-sm);
+  display:grid; place-items:center; background:var(--accent-doux);
+  font-family:var(--font-display); font-weight:800; font-size:13px;
+}
+.d-carte.fait .num { background:var(--success); color:#fff; }
+.d-carte .txt { flex:1; min-width:0; }
+.d-carte .txt b { display:block; font-size:13.5px; font-weight:600; }
+.d-carte .txt span { font-size:11.5px; opacity:.65; line-height:1.4; }
+
+/* Guide d'accueil */
+.g-etape { display:flex; gap:11px; margin-bottom:13px; }
+.g-etape .num {
+  width:26px; height:26px; flex:none; border-radius:var(--radius-full);
+  display:grid; place-items:center; background:var(--accent-doux);
+  font-family:var(--font-display); font-weight:800; font-size:12.5px;
+}
+.g-etape .t { font-size:13.5px; line-height:1.5; opacity:.85; flex:1; }
+.g-etape .t b { opacity:1; }
+
+/* Lexique */
+.lex-entree {
+  padding:11px 0; border-bottom:1px solid var(--border);
+}
+.lex-entree:last-child { border-bottom:none; }
+.lex-entree b { display:block; font-size:14px; font-weight:600; margin-bottom:2px; }
+.lex-entree span { font-size:12.5px; line-height:1.55; opacity:.78; }
+.lex-entree em { font-style:normal; color:var(--accent); font-weight:600; }
+
+/* Écran de passage d'une mission à la suivante */
+.p-fanion {
+  display:flex; align-items:center; gap:10px; margin-bottom:12px;
+}
+.p-fanion .rond {
+  width:44px; height:44px; flex:none; border-radius:var(--radius-full);
+  display:grid; place-items:center; background:var(--success); font-size:22px;
+}
+.p-fanion b { display:block; font-size:17px; font-family:var(--font-display); font-weight:800; }
+.p-fanion span { font-size:12px; opacity:.65; }
+.p-acquis {
+  padding:12px 14px; border-radius:var(--radius-md); background:var(--accent-doux);
+  font-size:13px; line-height:1.55; margin-bottom:14px;
+}
+.p-acquis b { font-weight:600; }
+.p-suite {
+  border:2px dashed var(--border-strong); border-radius:var(--radius-md);
+  padding:12px 14px; margin-bottom:14px;
+}
+.p-suite .etiq {
+  font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--accent); margin-bottom:3px;
+}
+.p-suite b { display:block; font-size:15px; font-family:var(--font-display); font-weight:800; }
+.p-suite span { font-size:12.5px; opacity:.7; line-height:1.45; }
+.p-neuf { font-size:12px; opacity:.6; text-align:center; margin-top:9px; line-height:1.45; }
+
+/* QCM */
+.q-question { font-size:15px; font-weight:600; line-height:1.4; margin-bottom:12px; }
+.q-choix {
+  display:block; width:100%; text-align:left; margin-bottom:8px;
+  padding:12px 14px; min-height:46px;
+  background:var(--surface); border:2px solid var(--border); border-radius:var(--radius-md);
+  font-family:var(--font-body); font-size:13.5px; color:var(--neutral); cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+.q-choix:hover:not([disabled]) { border-color:var(--border-strong); background:var(--surface-muted); }
+.q-choix.bon { border-color:var(--success); background:rgba(42,157,143,.12); font-weight:600; }
+.q-choix.mauvais { border-color:var(--destructive); background:rgba(232,58,75,.1); }
+.q-choix[disabled] { cursor:default; }
+.q-expl {
+  margin-top:4px; padding:11px 13px; border-radius:var(--radius-md);
+  background:var(--accent-doux); font-size:12.5px; line-height:1.55;
+  display:none;
+}
+.q-expl.visible { display:block; }
+.q-avance { font-size:11.5px; opacity:.55; margin-bottom:10px; letter-spacing:.04em; text-transform:uppercase; font-weight:600; }
+
+/* ============================ Toast ============================ */
+#toast {
+  position:fixed; left:50%; bottom:calc(70px + env(safe-area-inset-bottom));
+  transform:translateX(-50%);
+  max-width:calc(100vw - 28px); padding:10px 16px; z-index:45;
+  background:var(--neutral); color:var(--background);
+  border-radius:var(--radius-full); font-size:13px; font-weight:600;
+  opacity:0; pointer-events:none; transition:opacity .2s var(--ease); text-align:center;
+}
+#toast.visible { opacity:1; }
+#toast.alerte { background:var(--destructive); color:#fff; }
+
+/* ================= Adaptations d'écran ================= */
+
+/* Paysage sur téléphone : chaque pixel de hauteur compte */
+@media (orientation:landscape) and (max-height:520px) {
+  header { padding:3px 8px; }
+  header h1 { font-size:13px; }
+  header .sous { display:none; }
+  .icone-btn { width:34px; height:34px; font-size:16px; }
+  #mission { padding:5px 10px 6px; }
+  .m-pastille { width:24px; height:24px; font-size:11px; }
+  .m-titres b { font-size:12.5px; }
+  .m-titres span { display:none; }
+  #mission.ouvert .m-titres span { display:block; }
+  .m-jauge { margin-top:5px; }
+  #actions { padding:5px 10px calc(5px + env(safe-area-inset-bottom)); }
+  .btn { min-height:38px; padding:0 14px; font-size:13px; }
+  #atelier.avec-bilan #plan { max-height:none; }
+  #bilan { max-width:none; right:8px; left:auto; width:min(58%,420px); bottom:6px; }
+  .f-carte { max-height:96dvh; }
+}
+
+/* Écran large : la mission passe en colonne, l'atelier prend le reste */
+@media (min-width:880px) {
+  body { flex-direction:row; }
+  #colonne {
+    width:330px; flex:none; display:flex; flex-direction:column;
+    background:var(--surface); border-right:1px solid var(--border);
+    overflow-y:auto;
+  }
+  header { border-bottom:1px solid var(--border); }
+  #mission { border-bottom:none; padding:12px 16px; }
+  /* la place ne manque pas : toutes les étapes restent visibles */
+  #mission:not(.ouvert) .etape:not(.a-montrer) { display:flex; }
+  #mission:not(.ouvert) .m-indice { display:block; }
+  .m-plier { display:none; }
+  main { flex:1; min-width:0; }
+  #actions { justify-content:center; }
+  #bilan { left:16px; right:16px; }
+  .f-carte {
+    position:absolute; top:50%; left:50%; right:auto; bottom:auto;
+    transform:translate(-50%,-50%); width:min(560px,92vw);
+    border-radius:var(--radius-lg); max-height:86dvh;
+    animation:apparait .2s var(--ease);
+  }
+  @keyframes apparait { from { opacity:0; } }
+  .f-poignee { display:none; }
+}
+
+@media (prefers-reduced-motion:reduce) {
+  *,*::before,*::after { animation-duration:.01ms !important; transition-duration:.01ms !important; }
+}
+
+/* ===================== Propre à l'alambic ===================== */
+.flamme { animation:vacille .5s infinite alternate; transform-origin:center bottom; }
+@keyframes vacille { to { transform:scaleY(1.14) scaleX(.94); } }
+.bulle { animation:monteBulle 1.5s infinite ease-in; }
+@keyframes monteBulle { from { transform:translateY(0); opacity:.9; } to { transform:translateY(-42px); opacity:0; } }
+.goutte { animation:tombe 1.8s infinite ease-in; }
+@keyframes tombe { from { transform:translateY(0); opacity:1; } to { transform:translateY(46px); opacity:.2; } }
+.etat-eau {
+  font-family:var(--font-body); font-size:10.5px; font-weight:700;
+  text-anchor:middle; pointer-events:none;
+}
+.chgt-etat {
+  font-family:var(--font-body); font-size:10px; font-weight:600;
+  fill:var(--accent); text-anchor:middle; pointer-events:none;
+}
+#legende-etats {
+  position:absolute; left:10px; top:8px; z-index:4;
+  display:flex; gap:10px; flex-wrap:wrap;
+  padding:7px 11px; border-radius:var(--radius-md);
+  background:var(--surface); border:1px solid var(--border); box-shadow:var(--shadow-soft);
+  font-size:11px; font-weight:600;
+}
+#legende-etats[hidden] { display:none; }
+#legende-etats i { display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:4px; }
+
+/* ===================== Propre à l'enquête pollution ===================== */
+.etiq-lieu { font-family:var(--font-body); font-size:10px; font-weight:600;
+  fill:var(--neutral); opacity:.65; text-anchor:middle; pointer-events:none; }
+#plan { cursor:grab; touch-action:none; }
+#plan:active { cursor:grabbing; }
+.capteur { pointer-events:none; }
+
+#lecture {
+  position:absolute; left:10px; top:8px; z-index:5;
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-soft); padding:8px 11px; min-width:176px; max-width:min(300px,72%);
+}
+.l-titre { font-size:11px; font-weight:700; letter-spacing:.04em; text-transform:uppercase;
+  opacity:.6; margin-bottom:5px; }
+.l-titre span { text-transform:none; letter-spacing:0; font-weight:600; }
+.l-vals { display:flex; gap:16px; }
+.l-val b { display:block; font-family:var(--font-display); font-size:23px; font-weight:800; line-height:1.05; }
+.l-val span { font-size:9.5px; opacity:.6; line-height:1.25; display:block; }
+#l-verdict { margin-top:7px; padding:5px 9px; border-radius:var(--radius-sm);
+  font-size:11px; font-weight:600; background:var(--surface-muted); }
+
+#l-dit { margin-top:7px; padding:7px 10px; border-radius:var(--radius-sm);
+  background:var(--accent-doux); font-size:11px; line-height:1.45; max-width:250px; }
+#l-dit[hidden] { display:none; }
+
+/* Carnet */
+.vide-carnet { font-size:13px; opacity:.65; line-height:1.55; padding:8px 0; }
+.note { display:flex; align-items:center; gap:9px; padding:9px 0;
+  border-bottom:1px solid var(--border); }
+.note:last-of-type { border-bottom:none; }
+.note .pastille { width:11px; height:11px; flex:none; border-radius:var(--radius-full); }
+.note .txt { flex:1; min-width:0; }
+.note .txt b { display:block; font-size:13px; font-weight:600; }
+.note .txt span { font-size:11.5px; opacity:.65; }
+.note .oter { width:30px; height:30px; flex:none; border:none; background:none;
+  border-radius:var(--radius-sm); color:var(--neutral); opacity:.5; cursor:pointer; font-size:14px; }
+.note .oter:hover { background:var(--surface-muted); opacity:1; color:var(--destructive); }
+
+/* Actions */
+.action { display:flex; align-items:center; gap:10px; width:100%; text-align:left;
+  padding:10px 12px; margin-bottom:8px; background:var(--surface);
+  border:2px solid var(--border); border-radius:var(--radius-md);
+  font-family:var(--font-body); color:var(--neutral); cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease); }
+.action:hover { border-color:var(--border-strong); background:var(--surface-muted); }
+.action.prise { border-color:var(--success); background:rgba(42,157,143,.1); }
+.action .coche { width:22px; height:22px; flex:none; border-radius:var(--radius-sm);
+  border:2px solid var(--border-strong); display:grid; place-items:center;
+  font-size:12px; font-weight:700; color:#fff; }
+.action.prise .coche { background:var(--success); border-color:var(--success); }
+.action .txt { flex:1; min-width:0; }
+.action .txt b { display:block; font-size:13px; font-weight:600; }
+.action .txt span { font-size:11.5px; opacity:.65; }
+.action .gain { flex:none; font-size:11.5px; font-weight:700; opacity:.7; }
+
+#indice-quartier { margin-top:14px; padding:13px 14px; border-radius:var(--radius-md);
+  background:var(--surface-muted); }
+.iq-titre { font-size:11px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; opacity:.6; }
+.iq-val { font-family:var(--font-display); font-size:28px; font-weight:800; line-height:1.15; }
+.iq-val small { font-size:13px; font-weight:600; opacity:.7; }
+.iq-note { font-size:11.5px; opacity:.7; margin-top:6px; line-height:1.45; }
+#indice-quartier .barre { height:9px; border-radius:var(--radius-full);
+  background:var(--surface); overflow:hidden; margin-top:4px; }
+#indice-quartier .barre i { display:block; height:100%; border-radius:inherit;
+  transition:width .4s var(--ease); }
+
+/* Tribunal des idées */
+.affirm { border:1px solid var(--border); border-radius:var(--radius-md);
+  padding:12px 13px; margin-bottom:10px; }
+.affirm.rendu { background:var(--surface-muted); }
+.a-qui { font-size:11px; font-weight:700; letter-spacing:.04em; text-transform:uppercase;
+  color:var(--accent); margin-bottom:3px; }
+.a-dit { font-size:13.5px; line-height:1.5; font-style:italic; margin-bottom:9px; }
+.a-choix { display:flex; gap:6px; flex-wrap:wrap; }
+.a-btn { flex:1; min-width:96px; padding:8px 10px; border-radius:var(--radius-sm);
+  border:2px solid var(--border); background:var(--surface);
+  font-family:var(--font-body); font-size:12px; font-weight:600; color:var(--neutral); cursor:pointer; }
+.a-btn:hover:not([disabled]) { border-color:var(--border-strong); background:var(--surface-muted); }
+.a-btn.bon { border-color:var(--success); background:rgba(42,157,143,.14); }
+.a-btn.mauvais { border-color:var(--destructive); background:rgba(232,58,75,.1); }
+.a-btn[disabled] { cursor:default; opacity:.75; }
+.a-btn.choisi { font-weight:700; opacity:1; }
+.a-expl { margin-top:9px; padding:10px 12px; border-radius:var(--radius-sm);
+  background:var(--accent-doux); font-size:12.5px; line-height:1.55; }
+</style>
+</head>
+<body>
+
+<div id="colonne">
+  <header>
+    <a class="icone-btn" href="../../index.html#/pct/6e" title="Retour au catalogue" aria-label="Retour">←</a>
+    <div>
+      <h1>Qui pollue vraiment ?</h1>
+      <div class="sous">PCT · 6ᵉ · SA5</div>
+    </div>
+    <div class="tete-fin">
+      <button class="icone-btn" id="btn-carnet" title="Mon carnet de mesures" aria-label="Carnet">📝</button>
+      <button class="icone-btn" id="btn-agir" title="Agir sur le quartier" aria-label="Agir">🌿</button>
+      <button class="icone-btn" id="btn-missions" title="Les missions" aria-label="Missions">🎯</button>
+      <button class="icone-btn" id="btn-lexique" title="Lexique" aria-label="Lexique">📖</button>
+      <button class="icone-btn" id="btn-aide" title="Comment jouer" aria-label="Aide">❓</button>
+      <button class="icone-btn" id="btn-theme" title="Thème" aria-label="Thème">🌙</button>
+    </div>
+  </header>
+
+  <section id="mission">
+    <div class="m-haut">
+      <span class="m-pastille" id="m-num">1</span>
+      <div class="m-titres">
+        <span class="m-rang" id="m-rang">Mission 1 sur 6</span>
+        <b id="m-titre">—</b>
+        <span id="m-but"></span>
+      </div>
+      <button class="m-plier" id="m-plier" aria-label="Afficher toutes les étapes"
+              aria-expanded="false">▼</button>
+    </div>
+    <div class="m-jauge"><i id="m-jauge" style="width:0"></i></div>
+    <div id="etapes"></div>
+  </section>
+</div>
+
+<main>
+  <div id="atelier">
+    <svg id="plan" viewBox="0 0 660 330" preserveAspectRatio="xMidYMid meet" role="img"
+         aria-label="Le quartier, avec ses sources de pollution et le capteur d'air"></svg>
+    <div id="lecture">
+      <div class="l-titre">Capteur d'air <span id="l-lieu"></span></div>
+      <div class="l-vals">
+        <div class="l-val"><b id="l-pm">—</b><span>poussières fines<br>µg/m³</span></div>
+        <div class="l-val"><b id="l-co">—</b><span>monoxyde de carbone<br>ppm</span></div>
+      </div>
+      <div id="l-verdict">Fais glisser le capteur le long de la rue</div>
+      <div id="l-dit" hidden></div>
+    </div>
+    <div id="bilan" role="status" aria-live="polite"></div>
+  </div>
+
+  <div id="actions">
+    <button class="btn btn-fantome" id="btn-noter">📝 Noter cette mesure</button>
+    <button class="btn" id="btn-tester">✅ Vérifier la mission</button>
+  </div>
+</main>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<div class="voile" id="v-carnet">
+  <div class="carte-modale">
+    <button class="fermer-x" data-ferme="v-carnet" aria-label="Fermer">✕</button>
+    <h2>📝 Mon carnet de mesures</h2>
+    <p>Les relevés que tu as notés. C'est sur eux que tu t'appuieras pour juger.</p>
+    <div id="liste-carnet"></div>
+    <button class="btn btn-fantome btn-large" id="btn-vider-carnet"
+            style="margin-top:6px;color:var(--destructive)">↺ Effacer mes relevés</button>
+  </div>
+</div>
+
+<div class="voile" id="v-agir">
+  <div class="carte-modale">
+    <button class="fermer-x" data-ferme="v-agir" aria-label="Fermer">✕</button>
+    <h2>🌿 Agir sur le quartier</h2>
+    <p>Chaque action réduit ce qui est rejeté dans l'air chaque jour. Coche celles que tu décides
+       de mener, et regarde l'air du quartier changer.</p>
+    <div id="liste-actions"></div>
+    <div id="indice-quartier"></div>
+  </div>
+</div>
+
+<div class="voile" id="v-tribunal">
+  <div class="carte-modale" id="tribunal-carte"></div>
+</div>
+
+<div class="voile" id="v-lexique">
+  <div class="carte-modale">
+    <button class="fermer-x" data-ferme="v-lexique" aria-label="Fermer">✕</button>
+    <h2>📖 Les mots de la pollution</h2>
+    <p>Ce qu'on rejette dans l'air, et ce que cela fait.</p>
+    <div id="liste-lexique"></div>
+  </div>
+</div>
+
+<div class="voile" id="v-missions">
+  <div class="carte-modale">
+    <button class="fermer-x" data-ferme="v-missions" aria-label="Fermer">✕</button>
+    <h2>🎯 Les missions</h2>
+    <p>Elles se suivent : termine l'une pour ouvrir la suivante.</p>
+    <div id="liste-missions"></div>
+    <button class="btn btn-fantome btn-large" id="btn-rezero"
+            style="margin-top:6px;color:var(--destructive)">↺ Recommencer tout le parcours</button>
+  </div>
+</div>
+
+<div class="voile" id="v-aide">
+  <div class="carte-modale">
+    <button class="fermer-x" data-ferme="v-aide" aria-label="Fermer">✕</button>
+    <h2>🔬 Bienvenue dans ton quartier</h2>
+    <p>Le journal titre : « <b>Feu de brousse dans la région de Sota : 100 hectares de forêt
+       partis en fumée</b> ». Autour de toi, quatre personnes en discutent — et chacune est
+       sûre d'avoir raison.</p>
+    <div class="g-etape"><span class="num">1</span><span class="t">
+      <b>Fais glisser le capteur</b> le long de la rue. Il mesure en direct ce qu'il y a
+      dans l'air, là où tu le places.</span></div>
+    <div class="g-etape"><span class="num">2</span><span class="t">
+      <b>Note tes mesures</b> dans ton carnet quand elles t'intéressent : elles te serviront
+      de preuves.</span></div>
+    <div class="g-etape"><span class="num">3</span><span class="t">
+      <b>Compare</b> ce que disent les gens et ce que dit ton capteur. Tu verras que
+      l'œil se trompe souvent : une fumée bien blanche n'est pas une fumée propre.</span></div>
+    <div class="g-etape"><span class="num">4</span><span class="t">
+      À la fin, tu <b>prendras position</b> — et tu choisiras ce qu'on fait pour
+      améliorer l'air du quartier.</span></div>
+    <button class="btn btn-large" data-ferme="v-aide">Commencer l'enquête !</button>
+  </div>
+</div>
+
+<div class="voile" id="v-qcm">
+  <div class="carte-modale" id="qcm-carte"></div>
+</div>
+
+<div class="voile" id="v-passage">
+  <div class="carte-modale" id="passage-carte"></div>
+</div>
+
+<script>
+'use strict';
+
+/* ============================================================================
+   1. Le quartier — les sources que le guide cite, et les gens qui en parlent
+   ========================================================================== */
+
+// x : position dans la rue (unités du dessin) · 11 unités ≈ 1 mètre
+// pm : poussières fines à la source (µg/m³) · co : monoxyde de carbone (ppm)
+// emisJour : ce qui part dans l'air chaque jour (g) — indépendant de la distance
+const SOURCES = {
+  manguier: { nom:'Sous le manguier', court:'Manguier', x:56, pm:0, co:0, emisJour:0, hauteur:0,
+              fumee:null, qui:null,
+              desc:"Loin de tout, à l'ombre. C'est ici que l'air est le plus respirable." },
+  moto:     { nom:'La moto de Yèmi', court:'Moto de Yèmi', x:166, pm:60, co:90, emisJour:45, hauteur:.6,
+              fumee:{ coul:'#CFD8DC', densite:.2 }, qui:'Yèmi',
+              dit:"Je suis tranquille face à la pollution : je ne pollue pas et je me tiens loin des pollueurs.",
+              desc:"Une moto neuve, à quatre temps. On ne voit presque rien sortir du pot." },
+  zem:      { nom:'Le Zem d’Élie', court:'Zem d’Élie', x:284, pm:900, co:180, emisJour:190, hauteur:.6,
+              fumee:{ coul:'#ECEFF1', densite:1 }, qui:'Élie',
+              dit:"Je mets beaucoup d'huile dans l'essence pour que le moteur soit bien huilé : ça sort une fumée bien blanche, qui ne peut pas salir comme la fumée noire !",
+              desc:"Un moteur à deux temps noyé d'huile. La fumée est blanche et abondante." },
+  moulin:   { nom:'Le moulin de Faton', court:'Moulin de Faton', x:400, pm:600, co:60, emisJour:240, hauteur:.8,
+              fumee:{ coul:'#616161', densite:.85 }, qui:'Faton',
+              dit:"Cette fumée noire, c'est le gas-oil, je n'y peux rien ! J'ai orienté le tuyau vers le haut, comme ça elle ne gêne personne.",
+              desc:"Un moulin à gas-oil. La fumée est noire et bien visible." },
+  cuisine:  { nom:'La cuisine', court:'Cuisine', x:504, pm:700, co:150, emisJour:120, hauteur:.4,
+              fumee:{ coul:'#B0BEC5', densite:.75 }, qui:'Fignon',
+              dit:"Ce sont vos engins et machines importés qui polluent nos pays. De mon temps, on ne savait rien de tout cela !",
+              desc:"On y cuisine au coal-pot, comme depuis toujours." },
+  ordures:  { nom:'Les ordures brûlées', court:'Ordures', x:560, pm:1100, co:100, emisJour:160, hauteur:.5,
+              fumee:{ coul:'#8D6E63', densite:.9 }, qui:null,
+              desc:"Un tas d'ordures qu'on brûle au fond de la parcelle, plastiques compris." },
+  brousse:  { nom:'Le feu de brousse', court:'Brousse', x:614, pm:1500, co:120, emisJour:900, hauteur:2,
+              fumee:{ coul:'#A1887F', densite:1 }, qui:null,
+              desc:"Au loin, la brousse brûle : cent hectares de forêt partis en fumée." },
+};
+const FOND = { pm:12, co:.5 };
+const METRE = 11;              // 11 unités de dessin pour 1 mètre
+
+const ACTIONS = {
+  regler:  { nom:'Régler le moteur du Zem', detail:'moins d’huile dans l’essence', gain:120, cible:'zem' },
+  tuyau:   { nom:'Relever le tuyau du moulin', detail:'ce que fait Faton aujourd’hui', gain:0, cible:'moulin', hauteur:4 },
+  gaz:     { nom:'Cuisiner au gaz', detail:'au lieu du coal-pot', gain:108, cible:'cuisine' },
+  ordures: { nom:'Ne plus brûler les ordures', detail:'les trier et les ramasser', gain:160, cible:'ordures' },
+  brousse: { nom:'Empêcher les feux de brousse', detail:'pare-feux et surveillance', gain:900, cible:'brousse' },
+  arbres:  { nom:'Planter des arbres', detail:'ils filtrent une partie des poussières', gain:40, cible:null },
+};
+
+const LEXIQUE = [
+  { mot:'Pollution de l’air', def:"La présence, dans l'air qu'on respire, de substances qui nuisent à la santé ou à l'environnement." },
+  { mot:'Poussières fines', def:"De minuscules particules solides en suspension, si petites qu'elles entrent au fond des poumons. On les mesure en <em>microgrammes par mètre cube</em> (µg/m³). Au-delà de <em>25</em>, l'air devient malsain." },
+  { mot:'Monoxyde de carbone (CO)', def:"Un gaz <em>invisible et inodore</em>, produit quand une combustion est incomplète. Il est toxique : c'est lui qui tue dans les pièces mal aérées. On le mesure en <em>ppm</em>." },
+  { mot:'Dioxyde de carbone (CO₂)', def:"Le gaz produit par toute combustion complète. Il n'est pas toxique à l'air libre, mais il retient la chaleur : c'est le principal gaz à <em>effet de serre</em>." },
+  { mot:'Combustion incomplète', def:"Quand un combustible brûle mal — faute d'air, ou parce qu'il y a trop d'huile — il ne se transforme pas entièrement. Il reste des <em>imbrûlés</em> : suie, fumée, monoxyde de carbone." },
+  { mot:'Imbrûlés', def:"Ce qui n'a pas brûlé et part dans l'air : gouttelettes d'huile, morceaux de carbone. C'est ce qui fait la fumée, blanche ou noire." },
+  { mot:'Moteur à deux temps', def:"Un moteur simple où l'huile brûle avec l'essence. Il rejette beaucoup d'imbrûlés : sa fumée <em>blanche</em> est très polluante, malgré les apparences." },
+  { mot:'Effet de serre', def:"Certains gaz de l'atmosphère retiennent la chaleur du Soleil, comme une couverture. Trop de ces gaz, et la Terre se réchauffe." },
+  { mot:'Réchauffement climatique', def:"L'augmentation de la température moyenne de la Terre. Elle fait <em>fondre les glaciers</em>, monter la mer, et accélère la <em>désertification</em>." },
+  { mot:'Couche d’ozone', def:"Une couche de gaz, très haut dans l'atmosphère, qui nous protège des rayons dangereux du Soleil. Certains produits l'abîment — c'est un problème <em>différent</em> de l'effet de serre." },
+  { mot:'Déforestation', def:"La disparition des forêts. Les feux de brousse en sont une cause majeure : moins d'arbres, c'est moins d'air filtré et plus de désert." },
+  { mot:'Développement durable', def:"Satisfaire nos besoins d'aujourd'hui sans empêcher ceux de demain d'être satisfaits." },
+  { mot:'Prendre position', def:"Se faire un avis <em>à partir de faits vérifiés</em>, savoir l'expliquer, et agir en conséquence." },
+];
+
+/* ============================================================================
+   2. Le moteur — un champ de pollution, mesuré là où l'élève place le capteur
+   ========================================================================== */
+
+const etat = {
+  capteur:170, notes:[], actions:{}, verdicts:{},
+  mission:0, faites:[], teste:false, libre:false, repliFait:false,
+};
+
+function hauteurDe(cle) {
+  const s = SOURCES[cle];
+  if (cle === 'moulin' && etat.actions.tuyau) return ACTIONS.tuyau.hauteur;
+  return s.hauteur;
+}
+function facteurAction(cle) {
+  // Une action réduit ce que la source rejette ; relever un tuyau ne réduit rien
+  if (cle === 'zem' && etat.actions.regler) return .25;
+  if (cle === 'cuisine' && etat.actions.gaz) return .12;
+  if (cle === 'ordures' && etat.actions.ordures) return 0;
+  if (cle === 'brousse' && etat.actions.brousse) return 0;
+  return 1;
+}
+
+// Ce que respire quelqu'un placé en x : toutes les sources s'additionnent
+function mesurerEn(x) {
+  let pm = FOND.pm, co = FOND.co;
+  for (const cle in SOURCES) {
+    const s = SOURCES[cle];
+    const d = Math.max(.5, Math.abs(x - s.x) / METRE);
+    const dilution = 1 / (1 + Math.pow(d / 2.5, 2.5));
+    const h = hauteurDe(cle);
+    const effetHauteur = 1 / (1 + h / (1 + d / 4));
+    const k = dilution * effetHauteur * facteurAction(cle);
+    pm += s.pm * k;
+    co += s.co * k;
+  }
+  const filtre = etat.actions.arbres ? .88 : 1;
+  return { pm:Math.round(pm * filtre), co:Math.round(co * filtre * 10) / 10 };
+}
+
+const NIVEAUX = [
+  { max:25, nom:'bon', coul:'#2A9D8F', txt:'On respire bien ici.' },
+  { max:55, nom:'moyen', coul:'#C4D94E', txt:'L’air est acceptable, sans plus.' },
+  { max:150, nom:'mauvais', coul:'#F7A430', txt:'L’air est malsain : à éviter longtemps.' },
+  { max:1e9, nom:'dangereux', coul:'#E83A4B', txt:'Air dangereux ! Personne ne devrait respirer ça.' },
+];
+const niveauDe = pm => NIVEAUX.find(n => pm < n.max);
+
+// La source la plus proche du capteur, pour nommer le lieu
+function lieuLePlusProche(x) {
+  let meilleur = null, dMin = Infinity;
+  for (const cle in SOURCES) {
+    const d = Math.abs(x - SOURCES[cle].x);
+    if (d < dMin) { dMin = d; meilleur = cle; }
+  }
+  return { cle:meilleur, distance:Math.round(dMin / METRE * 10) / 10 };
+}
+
+// Ce que le quartier rejette chaque jour, en tenant compte des actions
+function emissionsQuartier() {
+  let t = 0;
+  for (const cle in SOURCES) t += SOURCES[cle].emisJour * facteurAction(cle);
+  return Math.round(t);
+}
+const EMISSIONS_DEPART = (() => {
+  let t = 0;
+  for (const cle in SOURCES) t += SOURCES[cle].emisJour;
+  return t;
+})();
+
+// Un relevé noté dans le carnet
+function noterMesure() {
+  const m = mesurerEn(etat.capteur);
+  const l = lieuLePlusProche(etat.capteur);
+  const distances = {};
+  for (const c in SOURCES) distances[c] = Math.round(Math.abs(etat.capteur - SOURCES[c].x) / METRE * 10) / 10;
+  const note = { lieu:SOURCES[l.cle].nom, cle:l.cle, distance:l.distance, distances,
+    pm:m.pm, co:m.co, niveau:niveauDe(m.pm).nom,
+    tuyauHaut:!!etat.actions.tuyau, gaz:!!etat.actions.gaz };
+  etat.notes.push(note);
+  sauver();
+  toast(`📝 Noté : ${note.lieu} — ${note.pm} µg/m³`);
+  majTout();
+}
+
+// Ai-je un relevé près de telle source ? (les missions s'appuient là-dessus)
+const noteDe = cle => etat.notes.filter(n => n.cle === cle);
+const distanceA = (n, cle) => (n.distances && n.distances[cle] != null)
+  ? n.distances[cle] : (n.cle === cle ? n.distance : 99);
+const notePres = (cle, dMax) => etat.notes.some(n => distanceA(n, cle) <= (dMax || 3));
+const noteLoin = (cle, dMin) => etat.notes.some(n => distanceA(n, cle) >= (dMin || 8));
+
+/* ============================================================================
+   3. Les missions — enquêter, comparer, puis prendre position
+   ========================================================================== */
+
+const MISSIONS = [
+  {
+    titre:'Relève l’air du quartier',
+    but:'Promène le capteur et note au moins quatre mesures à des endroits différents.',
+    acquis:'On ne juge pas l’air <b>à l’œil</b> : on le <b>mesure</b>. Le capteur donne des chiffres, et ce sont eux qui font foi.',
+    indice:"Fais glisser le capteur le long de la rue. À chaque endroit intéressant, appuie sur « Noter cette mesure ».",
+    etapes:[
+      { t:'Mesure sous le <b>manguier</b>, loin de tout', fait:() => notePres('manguier', 4) },
+      { t:'Mesure près d’une source de fumée', fait:() =>
+        ['zem','moulin','cuisine','ordures'].some(c => notePres(c, 3)) },
+      { t:'Note <b>quatre mesures</b> en tout', fait:() => etat.notes.length >= 4 },
+    ],
+    test:() => etat.notes.length >= 4 && notePres('manguier', 4),
+    qcm:[
+      { q:'Sous le manguier, le capteur affiche moins de 25 µg/m³. Ailleurs, bien plus. Qu’est-ce que cela montre ?',
+        choix:['Que l’air n’est pas le même partout : il dépend de ce qu’on rejette à côté',
+               'Que le capteur est cassé', 'Que le manguier fabrique de l’air'], bonne:0,
+        expl:"L’air se charge de ce qu’on y rejette. Plus on est près d’une source, plus la concentration est forte — mais l’air se mélange, et personne n’est totalement à l’abri." },
+    ],
+  },
+  {
+    titre:'La fumée blanche d’Élie',
+    but:'Élie dit que sa fumée blanche ne salit pas comme la fumée noire. Vérifie-le au capteur.',
+    acquis:'Une fumée <b>blanche</b> n’est pas une fumée propre : celle du deux-temps est pleine d’<b>huile imbrûlée</b>. Elle pollue <b>plus</b> que la fumée noire du moulin.',
+    indice:"Mesure tout près du Zem d'Élie, note le relevé, puis va mesurer tout près du moulin de Faton. Compare les deux chiffres dans ton carnet.",
+    etapes:[
+      { t:'Mesure tout près du <b>Zem d’Élie</b>', fait:() => notePres('zem', 3) },
+      { t:'Mesure tout près du <b>moulin de Faton</b>', fait:() => notePres('moulin', 3) },
+      { t:'Compare : laquelle des deux fumées est la pire ?', fait:() => notePres('zem', 3) && notePres('moulin', 3) },
+    ],
+    test:() => notePres('zem', 3) && notePres('moulin', 3),
+    qcm:[
+      { q:'Ton capteur affiche plus de poussières près du Zem (fumée blanche) que près du moulin (fumée noire). Pourquoi ?',
+        choix:['La fumée blanche du deux-temps est faite d’huile imbrûlée : très fine, mais très abondante',
+               'Parce que le Zem est plus gros que le moulin',
+               'Parce que le blanc salit plus que le noir'], bonne:0,
+        expl:"Le moteur à deux temps brûle l’huile avec l’essence. Quand on en met trop, elle ne brûle pas complètement et part en gouttelettes minuscules : c’est cette fumée blanche. <b>La couleur ne dit rien de la dangerosité.</b>" },
+      { q:'Que faudrait-il conseiller à Élie ?',
+        choix:['Mettre la bonne quantité d’huile et faire régler son moteur',
+               'Mettre encore plus d’huile pour que la fumée soit plus blanche',
+               'Rouler plus vite'], bonne:0,
+        expl:"Trop d’huile n’améliore pas le moteur : elle l’encrasse et part en fumée. Un moteur bien réglé consomme moins, dure plus longtemps et pollue beaucoup moins." },
+    ],
+  },
+  {
+    titre:'Le tuyau de Faton',
+    but:'Faton a relevé son tuyau « pour que ça ne gêne personne ». Mesure de près, puis de loin.',
+    acquis:'Relever un tuyau <b>déplace</b> la fumée, il ne la <b>supprime pas</b> : ce qui est rejeté chaque jour reste identique, et l’air du quartier est le même pour tous.',
+    indice:"Mesure tout près du moulin, puis éloigne-toi de plus de 8 mètres du côté du manguier, là où il n'y a rien d'autre. Regarde ensuite ce que le quartier rejette chaque jour, dans le panneau 🌿 Agir.",
+    etapes:[
+      { t:'Mesure <b>tout près</b> du moulin', fait:() => notePres('moulin', 3) },
+      { t:'Mesure <b>loin</b> du moulin (plus de 8 m)', fait:() => noteLoin('moulin', 8) },
+      { t:'Ouvre 🌿 <b>Agir</b> et regarde ce que rejette le quartier', fait:() => etat.vuAgir === true },
+    ],
+    test:() => notePres('moulin', 3) && noteLoin('moulin', 8) && etat.vuAgir === true,
+    qcm:[
+      { q:'Faton relève son tuyau. Qu’est-ce que cela change vraiment ?',
+        choix:['Celui qui est juste à côté respire mieux, mais le quartier reçoit toujours autant',
+               'La fumée disparaît complètement',
+               'Le moulin rejette moins de fumée'], bonne:0,
+        expl:"La quantité rejetée ne change pas d’un gramme : elle est simplement lâchée plus haut. Elle redescend un peu plus loin. <b>On ne fait pas disparaître une pollution en la déplaçant.</b>" },
+    ],
+  },
+  {
+    titre:'Yèmi ne pollue pas ?',
+    but:'Yèmi dit qu’elle ne pollue pas, parce qu’on ne voit rien sortir de sa moto neuve.',
+    acquis:'Un moteur peut <b>polluer sans fumée visible</b> : le <b>monoxyde de carbone</b> est invisible et inodore — mais toxique. L’œil ne suffit pas.',
+    indice:"Mesure tout près de la moto de Yèmi. Regarde bien les DEUX chiffres du capteur, pas seulement les poussières.",
+    etapes:[
+      { t:'Mesure tout près de la <b>moto de Yèmi</b>', fait:() => notePres('moto', 3) },
+      { t:'Compare son <b>monoxyde de carbone</b> à celui du moulin', fait:() =>
+        notePres('moto', 3) && notePres('moulin', 3) },
+    ],
+    test:() => notePres('moto', 3) && notePres('moulin', 3),
+    qcm:[
+      { q:'La moto de Yèmi ne fume presque pas. Pourtant le capteur détecte du monoxyde de carbone. Pourquoi ?',
+        choix:['Le monoxyde de carbone est un gaz invisible : on ne peut pas le voir sortir',
+               'Le capteur s’est trompé de moteur',
+               'C’est la fumée du Zem qui est arrivée jusque-là'], bonne:0,
+        expl:"Le <b>monoxyde de carbone</b> (CO) est incolore et inodore. C’est justement ce qui le rend dangereux : on ne se méfie pas. Tout moteur qui brûle du carburant en produit." },
+      { q:'« Je me tiens loin des pollueurs, donc je suis tranquille. » Qu’en dis-tu, après tes mesures ?',
+        choix:['S’éloigner aide, mais l’air se mélange : même loin, il n’est jamais totalement propre',
+               'C’est vrai : à 10 mètres, l’air est parfaitement pur',
+               'C’est faux : la distance ne change rien du tout'], bonne:0,
+        expl:"Tes relevés le montrent : la concentration baisse nettement avec la distance, mais elle ne retombe jamais au niveau du manguier. <b>Et surtout, en roulant, Yèmi rejette elle aussi.</b>" },
+    ],
+  },
+  {
+    titre:'Le temps du vieux Fignon',
+    but:'Fignon accuse « les engins importés ». Compare le coal-pot d’autrefois et la cuisinière à gaz.',
+    acquis:'Le passé n’était pas sans pollution : le <b>feu de bois</b> en dégage beaucoup. Mais Fignon a raison sur un point — le <b>feu de brousse</b> pèse plus lourd que tout le reste réuni.',
+    indice:"Mesure près de la cuisine au coal-pot. Puis, dans 🌿 Agir, coche « Cuisiner au gaz » et remesure au même endroit.",
+    etapes:[
+      { t:'Mesure près de la <b>cuisine au coal-pot</b>', fait:() => notePres('cuisine', 3) },
+      { t:'Dans 🌿 Agir, passe la cuisine <b>au gaz</b>', fait:() => !!etat.actions.gaz },
+      { t:'Remesure au même endroit et note la différence', fait:() =>
+        etat.notes.some(n => distanceA(n, 'cuisine') <= 3 && n.gaz) },
+    ],
+    test:() => etat.notes.some(n => distanceA(n, 'cuisine') <= 3 && !n.gaz)
+            && etat.notes.some(n => distanceA(n, 'cuisine') <= 3 && n.gaz),
+    qcm:[
+      { q:'« De mon temps, on ne savait rien de tout cela. » Le feu de bois d’autrefois polluait-il ?',
+        choix:['Oui, beaucoup : la fumée de bois est pleine de poussières fines et de CO',
+               'Non, le bois est naturel donc il ne pollue pas',
+               'Non, seuls les moteurs polluent'], bonne:0,
+        expl:"Cuisiner au feu de bois dans un espace fermé est l’une des pollutions les plus nocives qui soient, en particulier pour les femmes et les enfants qui restent à la cuisine. <b>Naturel ne veut pas dire sans danger.</b>" },
+      { q:'Sur quel point le vieux Fignon a-t-il raison ?',
+        choix:['Le feu de brousse rejette à lui seul plus que toutes les autres sources du quartier',
+               'Rien de ce qu’il dit n’est vrai',
+               'Les motos ne polluent pas du tout'], bonne:0,
+        expl:"Il se trompe en croyant que le passé était propre, mais il vise juste sur l’essentiel : les <b>feux de brousse</b> et la <b>déforestation</b> pèsent bien plus lourd que les moteurs du quartier." },
+    ],
+  },
+  {
+    titre:'Prends position, puis agis',
+    but:'Juge les quatre affirmations à partir de tes mesures, puis choisis ce qu’on fait pour le quartier.',
+    acquis:'Prendre position, ce n’est pas donner son opinion : c’est <b>s’appuyer sur des faits vérifiés</b>, puis <b>agir</b>.',
+    indice:"Appuie sur « Vérifier la mission » pour ouvrir le tribunal des idées. Ensuite, dans 🌿 Agir, choisis les actions qui réduisent le plus ce que rejette le quartier.",
+    etapes:[
+      { t:'Rends ton verdict sur les <b>quatre affirmations</b>', fait:() => Object.keys(etat.verdicts).length >= 4 },
+      { t:'Fais tomber les rejets du quartier <b>sous 400 g/jour</b>', fait:() => emissionsQuartier() < 400 },
+    ],
+    test:() => Object.keys(etat.verdicts).length >= 4 && emissionsQuartier() < 400,
+    qcm:[
+      { q:'Quelle action réduit le plus ce que le quartier rejette chaque jour ?',
+        choix:['Empêcher les feux de brousse', 'Planter quelques arbres',
+               'Relever le tuyau du moulin'], bonne:0,
+        expl:"Les feux de brousse représentent à eux seuls plus de la moitié des rejets. Planter des arbres aide, mais ne compense pas ; relever un tuyau ne réduit rien du tout." },
+      { q:'À quoi servent les sciences physiques et chimiques, dans cette histoire ?',
+        choix:['À mesurer pour savoir ce qui est vrai, au lieu de se fier aux apparences',
+               'À fabriquer des moteurs qui fument',
+               'À donner raison à celui qui parle le plus fort'], bonne:0,
+        expl:"C’est tout l’objet de cette enquête : quatre personnes étaient sûres d’elles, et <b>seule la mesure</b> a permis de trancher. La science sert à décider sur des faits, puis à trouver des solutions." },
+    ],
+  },
+];
+
+// Le tribunal : ce que chacun affirme, et ce que les mesures en disent
+const AFFIRMATIONS = [
+  { qui:'Élie', cle:'elie',
+    dit:"Ma fumée blanche ne peut pas salir comme la fumée noire du moulin.",
+    bonne:'faux',
+    expl:"Tes mesures montrent l’inverse : près du Zem, les poussières fines dépassent celles du moulin. La fumée blanche du deux-temps est faite d’<b>huile imbrûlée</b> — invisible à l’œil, redoutable pour les poumons." },
+  { qui:'Faton', cle:'faton',
+    dit:"J’ai orienté le tuyau vers le haut, donc ma fumée ne gêne plus personne.",
+    bonne:'partiel',
+    expl:"En partie vrai : celui qui travaille juste à côté respire mieux. Mais à quelques mètres, ton capteur ne voit presque plus de différence, et le moulin rejette exactement <b>la même quantité</b> chaque jour." },
+  { qui:'Yèmi', cle:'yemi',
+    dit:"Je ne pollue pas, et je me tiens loin des pollueurs.",
+    bonne:'faux',
+    expl:"Sa moto neuve fume peu, mais elle rejette du <b>monoxyde de carbone</b>, invisible, autant que le moulin. Et s’éloigner ne met à l’abri qu’en partie : l’air se mélange." },
+  { qui:'le vieux Fignon', cle:'fignon',
+    dit:"Ce sont vos engins importés qui polluent ; de mon temps, on ne savait rien de tout cela.",
+    bonne:'partiel',
+    expl:"En partie vrai : les <b>feux de brousse</b>, qu’il dénonce, sont bien le premier pollueur du quartier. Mais le feu de bois d’autrefois polluait beaucoup, lui aussi — simplement, on ne le mesurait pas." },
+];
+const VERDICTS = { vrai:'✅ Vrai', partiel:'🟡 En partie vrai', faux:'❌ Faux' };
+
+/* ============================================================================
+   4. Progression
+   ========================================================================== */
+
+const CLE = 'ike-pollution-progression';
+function sauver() {
+  try {
+    localStorage.setItem(CLE, JSON.stringify({ mission:etat.mission, faits:etat.faites,
+      notes:etat.notes, actions:etat.actions, verdicts:etat.verdicts, vuAgir:etat.vuAgir }));
+  } catch (e) {}
+}
+function charger() {
+  try {
+    const d = JSON.parse(localStorage.getItem(CLE));
+    if (!d) return;
+    if (Array.isArray(d.faits)) etat.faites = d.faits;
+    if (Array.isArray(d.notes)) etat.notes = d.notes;
+    if (d.actions) etat.actions = d.actions;
+    if (d.verdicts) etat.verdicts = d.verdicts;
+    etat.vuAgir = !!d.vuAgir;
+    etat.mission = Math.min(d.mission || 0, MISSIONS.length - 1);
+  } catch (e) {}
+}
+
+const $ = id => document.getElementById(id);
+const missionCourante = () => etat.libre ? null : MISSIONS[etat.mission];
+const deverrouillee = i => i === 0 || etat.faites.indexOf(i - 1) !== -1 || etat.faites.indexOf(i) !== -1;
+function etapeCourante() {
+  const m = missionCourante();
+  if (!m) return null;
+  for (let i = 0; i < m.etapes.length; i++) if (!m.etapes[i].fait()) return { e:m.etapes[i], i };
+  return null;
+}
+
+/* ============================================================================
+   5. Le quartier dessiné
+   ========================================================================== */
+
+const plan = $('plan');
+const NS = 'http://www.w3.org/2000/svg';
+const el = (nom, attrs, texte) => {
+  const n = document.createElementNS(NS, nom);
+  for (const k in attrs) n.setAttribute(k, attrs[k]);
+  if (texte != null) n.textContent = texte;
+  return n;
+};
+const SOL = 250;
+const refs = {};
+let tAnim = 0;
+
+function dessiner() {
+  plan.textContent = '';
+  for (const k in refs) delete refs[k];
+
+  // ciel et sol
+  plan.appendChild(el('rect', { x:0, y:0, width:660, height:SOL, fill:'#D6EAF6', 'fill-opacity':.5 }));
+  plan.appendChild(el('rect', { x:0, y:SOL, width:660, height:330 - SOL, fill:'#C8A165', 'fill-opacity':.35 }));
+  plan.appendChild(el('line', { x1:0, y1:SOL, x2:660, y2:SOL, stroke:'#A1887F', 'stroke-width':2 }));
+
+  refs.panaches = {};
+  let rang = 0;
+  for (const cle in SOURCES) {
+    const s = SOURCES[cle];
+    dessinerSource(cle, s);
+    if (s.fumee) {
+      const g = el('g');
+      for (let k = 0; k < 6; k++) g.appendChild(el('circle', { fill:s.fumee.coul }));
+      plan.appendChild(g);
+      refs.panaches[cle] = g;
+    }
+    // étiquette du lieu
+    plan.appendChild(el('text', { x:s.x, y:SOL + (rang++ % 2 ? 36 : 22), class:'etiq-lieu' },
+      s.court || s.nom));
+  }
+
+  // règle des distances, pour que la notion de « près / loin » soit lisible
+  for (let m = 0; m <= 58; m += 10) {
+    const x = SOURCES.manguier.x + m * METRE;
+    if (x > 655) break;
+    plan.appendChild(el('line', { x1:x, y1:SOL + 48, x2:x, y2:SOL + 54,
+      stroke:'var(--border-strong)', 'stroke-width':1.5 }));
+    plan.appendChild(el('text', { x, y:SOL + 68, class:'etiq-lieu' }, m + ' m'));
+  }
+
+  // le capteur, que l'élève déplace
+  refs.capteur = el('g', { class:'capteur', role:'slider', tabindex:'0',
+    'aria-label':'Capteur d’air : déplace-le le long de la rue' });
+  refs.capteur.appendChild(el('line', { x1:0, y1:-58, x2:0, y2:0, stroke:'var(--neutral)', 'stroke-width':3 }));
+  refs.capteurBoite = el('rect', { x:-26, y:-84, width:52, height:30, rx:8,
+    fill:'var(--surface)', stroke:'var(--neutral)', 'stroke-width':2.5 });
+  refs.capteur.appendChild(refs.capteurBoite);
+  refs.capteurPoint = el('circle', { cx:0, cy:-69, r:7, fill:'#2A9D8F' });
+  refs.capteur.appendChild(refs.capteurPoint);
+  refs.capteur.appendChild(el('path', { d:'M -9 0 L 9 0 L 0 12 z', fill:'var(--neutral)' }));
+  plan.appendChild(refs.capteur);
+
+  animer();
+}
+
+function dessinerSource(cle, s) {
+  const x = s.x, y = SOL;
+  const g = el('g');
+  if (cle === 'manguier') {
+    g.appendChild(el('rect', { x:x - 4, y:y - 34, width:8, height:34, fill:'#795548' }));
+    g.appendChild(el('circle', { cx:x, cy:y - 48, r:26, fill:'#66BB6A' }));
+    g.appendChild(el('circle', { cx:x - 16, cy:y - 38, r:17, fill:'#81C784' }));
+    g.appendChild(el('circle', { cx:x + 16, cy:y - 38, r:17, fill:'#81C784' }));
+  } else if (cle === 'moto') {
+    g.appendChild(el('circle', { cx:x - 12, cy:y - 8, r:8, fill:'none', stroke:'#37474F', 'stroke-width':3 }));
+    g.appendChild(el('circle', { cx:x + 12, cy:y - 8, r:8, fill:'none', stroke:'#37474F', 'stroke-width':3 }));
+    g.appendChild(el('path', { d:`M ${x - 12} ${y - 8} L ${x - 2} ${y - 24} L ${x + 12} ${y - 8}`,
+      fill:'none', stroke:'#5BC5F2', 'stroke-width':4 }));
+  } else if (cle === 'zem') {
+    g.appendChild(el('circle', { cx:x - 12, cy:y - 8, r:8, fill:'none', stroke:'#37474F', 'stroke-width':3 }));
+    g.appendChild(el('circle', { cx:x + 12, cy:y - 8, r:8, fill:'none', stroke:'#37474F', 'stroke-width':3 }));
+    g.appendChild(el('path', { d:`M ${x - 12} ${y - 8} L ${x - 2} ${y - 24} L ${x + 12} ${y - 8}`,
+      fill:'none', stroke:'#F7A430', 'stroke-width':4 }));
+    g.appendChild(el('circle', { cx:x - 2, cy:y - 32, r:6, fill:'#F7A430' }));
+  } else if (cle === 'moulin') {
+    g.appendChild(el('rect', { x:x - 26, y:y - 44, width:52, height:44, rx:4,
+      fill:'#90A4AE', 'fill-opacity':.7, stroke:'#607D8B', 'stroke-width':2 }));
+    const h = etat.actions.tuyau ? 40 : 12;
+    g.appendChild(el('rect', { x:x + 14, y:y - 44 - h, width:8, height:h + 6, fill:'#546E7A' }));
+  } else if (cle === 'cuisine') {
+    g.appendChild(el('rect', { x:x - 28, y:y - 40, width:56, height:40, rx:3,
+      fill:'#BCAAA4', 'fill-opacity':.75, stroke:'#8D6E63', 'stroke-width':2 }));
+    g.appendChild(el('path', { d:`M ${x - 34} ${y - 40} L ${x} ${y - 58} L ${x + 34} ${y - 40} z`,
+      fill:'#A1887F' }));
+    g.appendChild(el('rect', { x:x - 9, y:y - 16, width:18, height:16, rx:2,
+      fill:etat.actions.gaz ? '#5BC5F2' : '#5D4037' }));
+  } else if (cle === 'ordures') {
+    g.appendChild(el('path', { d:`M ${x - 22} ${y} q 10 -22 22 -22 q 12 0 22 22 z`,
+      fill:'#8D6E63', 'fill-opacity':.8 }));
+  } else if (cle === 'brousse') {
+    if (etat.actions.brousse) {
+      // la brousse est protégée : les arbres ont repoussé
+      for (let k = 0; k < 3; k++) {
+        const bx = x - 16 + k * 16;
+        g.appendChild(el('rect', { x:bx - 2, y:y - 16, width:4, height:16, fill:'#795548' }));
+        g.appendChild(el('circle', { cx:bx, cy:y - 22, r:11, fill:'#66BB6A' }));
+      }
+    } else {
+      for (let k = 0; k < 3; k++) g.appendChild(el('path', {
+        d:`M ${x - 16 + k * 14} ${y} q -5 -20 0 -30 q 5 10 0 30 z`, fill:'#FF7043' }));
+    }
+  }
+  plan.appendChild(g);
+  // arbres plantés en plus, si l'action est prise
+  if (etat.actions.arbres && cle !== 'manguier' && cle !== 'brousse') {
+    const a = el('g', { opacity:'.8' });
+    a.appendChild(el('rect', { x:x + 34, y:y - 20, width:5, height:20, fill:'#795548' }));
+    a.appendChild(el('circle', { cx:x + 36, cy:y - 26, r:12, fill:'#66BB6A' }));
+    plan.appendChild(a);
+  }
+}
+
+/* ---- Rafraîchissement : panaches, capteur, lecture ---- */
+function animer() {
+  const m = mesurerEn(etat.capteur);
+  const n = niveauDe(m.pm);
+  const l = lieuLePlusProche(etat.capteur);
+
+  if (refs.capteur) {
+    refs.capteur.setAttribute('transform', `translate(${etat.capteur} ${SOL})`);
+    refs.capteurPoint.setAttribute('fill', n.coul);
+    refs.capteurBoite.setAttribute('stroke', n.coul);
+  }
+
+  for (const cle in refs.panaches) {
+    const s = SOURCES[cle];
+    const k = facteurAction(cle);
+    const g = refs.panaches[cle];
+    const h = hauteurDe(cle) * 12;
+    g.setAttribute('opacity', String(s.fumee.densite * k * .75));
+    [...g.children].forEach((c, i) => {
+      const ph = ((tAnim * .25) + i * .17) % 1;
+      c.setAttribute('cx', s.x + 16 + Math.sin(ph * 4 + i) * 16 + ph * 26);
+      c.setAttribute('cy', SOL - 40 - h - ph * 90);
+      c.setAttribute('r', 7 + ph * 17);
+      c.setAttribute('fill-opacity', String(.55 * (1 - ph)));
+    });
+  }
+
+  $('l-pm').textContent = m.pm;
+  $('l-co').textContent = m.co;
+  $('l-pm').style.color = n.coul;
+  $('l-lieu').textContent = l.distance <= 2
+    ? `· ${SOURCES[l.cle].nom}` : `· à ${l.distance} m de « ${SOURCES[l.cle].nom} »`;
+  const v = $('l-verdict');
+  v.textContent = n.txt;
+  v.style.background = n.coul;
+  v.style.color = n.nom === 'moyen' ? 'var(--neutral)' : '#fff';
+  // la personne qui se trouve là dit ce qu'elle croit : à confronter au chiffre
+  const s = SOURCES[l.cle];
+  const d = $('l-dit');
+  if (s.qui && l.distance <= 4) {
+    d.hidden = false;
+    d.innerHTML = '<b>' + s.qui + ' :</b> « ' + s.dit + ' »';
+  } else d.hidden = true;
+}
+
+function boucle(ts) {
+  tAnim = ts / 1000;
+  animer();
+  requestAnimationFrame(boucle);
+}
+
+/* ---- Déplacement du capteur ---- */
+function deplacerCapteur(clientX) {
+  const r = plan.getBoundingClientRect();
+  // conversion écran → repère du dessin, en tenant compte des marges de cadrage
+  const echelle = Math.min(r.width / 660, r.height / 330);
+  const marge = (r.width - 660 * echelle) / 2;
+  const x = (clientX - r.left - marge) / echelle;
+  etat.capteur = Math.max(20, Math.min(650, x));
+  animer();
+}
+
+let glisse = false;
+plan.addEventListener('pointerdown', e => {
+  glisse = true;
+  plan.setPointerCapture(e.pointerId);
+  deplacerCapteur(e.clientX);
+});
+plan.addEventListener('pointermove', e => { if (glisse) deplacerCapteur(e.clientX); });
+plan.addEventListener('pointerup', () => { glisse = false; majMission(); });
+plan.addEventListener('pointercancel', () => { glisse = false; });
+plan.addEventListener('keydown', e => {
+  const pas = e.shiftKey ? 40 : 12;
+  if (e.key === 'ArrowLeft') { etat.capteur = Math.max(20, etat.capteur - pas); animer(); e.preventDefault(); }
+  if (e.key === 'ArrowRight') { etat.capteur = Math.min(650, etat.capteur + pas); animer(); e.preventDefault(); }
+});
+
+/* ============================================================================
+   6. Carnet, actions, tribunal
+   ========================================================================== */
+
+const LEXIQUE_HTML = () => LEXIQUE.map(l =>
+  `<div class="lex-entree"><b>${l.mot}</b><span>${l.def}</span></div>`).join('');
+
+function rendreCarnet() {
+  const z = $('liste-carnet');
+  if (!etat.notes.length) {
+    z.innerHTML = `<p class="vide-carnet">Ton carnet est vide. Place le capteur quelque part,
+      puis appuie sur « 📝 Noter cette mesure ».</p>`;
+    return;
+  }
+  z.innerHTML = etat.notes.map((n, i) => {
+    const niv = NIVEAUX.find(x => x.nom === n.niveau) || NIVEAUX[0];
+    return `<div class="note">
+      <span class="pastille" style="background:${niv.coul}"></span>
+      <span class="txt"><b>${n.lieu}</b>
+        <span>à ${n.distance} m · ${n.pm} µg/m³ · ${n.co} ppm de CO${
+          n.gaz && n.cle === 'cuisine' ? ' · au gaz' : ''}${
+          n.tuyauHaut && n.cle === 'moulin' ? ' · tuyau relevé' : ''}</span></span>
+      <button class="oter" data-oter="${i}" aria-label="Retirer ce relevé">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function rendreActions() {
+  $('liste-actions').innerHTML = Object.keys(ACTIONS).map(cle => {
+    const a = ACTIONS[cle];
+    const prise = !!etat.actions[cle];
+    return `<button class="action${prise ? ' prise' : ''}" data-action="${cle}">
+      <span class="coche">${prise ? '✓' : ''}</span>
+      <span class="txt"><b>${a.nom}</b><span>${a.detail}</span></span>
+      <span class="gain">${a.gain ? '−' + a.gain + ' g/j' : 'ne réduit rien'}</span>
+    </button>`;
+  }).join('');
+  const e = emissionsQuartier();
+  const pct = Math.round(e / EMISSIONS_DEPART * 100);
+  const niv = e < 400 ? NIVEAUX[0] : e < 900 ? NIVEAUX[1] : e < 1400 ? NIVEAUX[2] : NIVEAUX[3];
+  $('indice-quartier').innerHTML = `
+    <div class="iq-titre">Ce que le quartier rejette chaque jour</div>
+    <div class="iq-val" style="color:${niv.coul}">${e} <small>g/jour</small></div>
+    <div class="barre"><i style="width:${pct}%;background:${niv.coul}"></i></div>
+    <div class="iq-note">Au départ : ${EMISSIONS_DEPART} g/jour${
+      e < EMISSIONS_DEPART ? ` · tu as évité <b>${EMISSIONS_DEPART - e} g</b> chaque jour` : ''}</div>`;
+}
+
+function ouvrirTribunal() {
+  $('tribunal-carte').innerHTML = `
+    <button class="fermer-x" data-ferme="v-tribunal" aria-label="Fermer">✕</button>
+    <h2>⚖️ Le tribunal des idées</h2>
+    <p>Chacun a donné son avis. À toi de juger — <b>en t'appuyant sur tes mesures</b>,
+       pas sur ce que tu crois.</p>
+    ${AFFIRMATIONS.map(a => {
+      const rendu = etat.verdicts[a.cle];
+      return `<div class="affirm${rendu ? ' rendu' : ''}" data-affirm="${a.cle}">
+        <div class="a-qui">${a.qui} affirme :</div>
+        <div class="a-dit">« ${a.dit} »</div>
+        <div class="a-choix">${Object.keys(VERDICTS).map(v =>
+          `<button class="a-btn${rendu === v ? ' choisi' : ''}${
+            rendu && v === a.bonne ? ' bon' : ''}${
+            rendu === v && v !== a.bonne ? ' mauvais' : ''}"
+            data-verdict="${a.cle}:${v}" ${rendu ? 'disabled' : ''}>${VERDICTS[v]}</button>`).join('')}</div>
+        ${rendu ? `<div class="a-expl">${a.expl}</div>` : ''}
+      </div>`;
+    }).join('')}
+    ${Object.keys(etat.verdicts).length >= AFFIRMATIONS.length
+      ? `<button class="btn btn-large" data-ferme="v-tribunal">J'ai rendu mes verdicts →</button>` : ''}`;
+  $('v-tribunal').classList.add('visible');
+}
+
+/* ============================================================================
+   7. Vérification de mission, bilan, QCM, passage
+   ========================================================================== */
+
+function verifier() {
+  const m = missionCourante();
+  etat.teste = true;
+  // La dernière mission passe par le tribunal : on l'ouvre si ce n'est pas fait
+  if (m && m.titre.startsWith('Prends position') && Object.keys(etat.verdicts).length < AFFIRMATIONS.length) {
+    ouvrirTribunal();
+    return;
+  }
+  const gagne = m && m.test();
+  if (gagne && etat.faites.indexOf(etat.mission) === -1) {
+    etat.faites.push(etat.mission);
+    sauver();
+  }
+  majMission();
+  afficherBilan(gagne);
+}
+
+function afficherBilan(gagne) {
+  const m = missionCourante();
+  const z = $('bilan');
+  const croix = '<button class="reduire" data-ferme-bilan aria-label="Réduire">✕</button>';
+  if (!m) { toast('Tu explores librement : promène le capteur où tu veux.'); return; }
+  if (gagne) {
+    z.innerHTML = `
+      <div class="verdict"><span class="em">🎉</span><h3>Mission réussie !</h3>${croix}</div>
+      <p class="phrase">${m.acquis}</p>
+      <div class="actions"><button class="btn btn-large" id="btn-continuer">Continuer →</button></div>`;
+  } else {
+    const ec = etapeCourante();
+    z.innerHTML = `
+      <div class="verdict"><span class="em">🔎</span><h3>Pas encore</h3>${croix}</div>
+      <p class="phrase">${ec ? 'Il te reste à faire : <b>' + ec.e.t.replace(/<[^>]+>/g, '') + '</b>'
+        : 'Continue ton enquête.'}</p>
+      <div class="objectif">💡 <b>Astuce :</b> ${m.indice}</div>
+      <div class="actions"><button class="btn btn-contour" data-ferme-bilan>Je continue</button></div>`;
+  }
+  z.classList.add('visible');
+  $('atelier').classList.add('avec-bilan');
+  $('toast').classList.remove('visible');
+  const c = $('btn-continuer');
+  if (c) c.addEventListener('click', () => { cacherBilan(); ouvrirQcm(); });
+}
+function cacherBilan() {
+  $('bilan').classList.remove('visible');
+  $('atelier').classList.remove('avec-bilan');
+}
+
+let qcm = { liste:[], n:0 };
+function ouvrirQcm() {
+  const m = MISSIONS[etat.mission];
+  if (!m || !m.qcm || !m.qcm.length) { ouvrirPassage(); return; }
+  qcm = { liste:m.qcm, n:0 };
+  rendreQcm();
+  $('v-qcm').classList.add('visible');
+}
+function rendreQcm() {
+  const q = qcm.liste[qcm.n];
+  $('qcm-carte').innerHTML = `
+    <div class="q-avance">✅ Mission réussie · question ${qcm.n + 1} sur ${qcm.liste.length}</div>
+    <div class="q-question">${q.q}</div>
+    <div id="q-choix">${q.choix.map((c, i) =>
+      `<button class="q-choix" data-rep="${i}">${c}</button>`).join('')}</div>
+    <div class="q-expl" id="q-expl"></div><div id="q-suite"></div>`;
+}
+function repondre(i) {
+  const q = qcm.liste[qcm.n];
+  $('q-choix').querySelectorAll('.q-choix').forEach((b, k) => {
+    b.disabled = true;
+    if (k === q.bonne) { b.classList.add('bon'); b.textContent = '✔️ ' + b.textContent; }
+    else if (k === i) { b.classList.add('mauvais'); b.textContent = '❌ ' + b.textContent; }
+  });
+  const e = $('q-expl');
+  e.innerHTML = q.expl;
+  e.classList.add('visible');
+  const dernier = qcm.n === qcm.liste.length - 1;
+  $('q-suite').innerHTML = `<button class="btn btn-large" style="margin-top:12px" id="q-continuer">${
+    dernier ? 'Mission suivante →' : 'Question suivante →'}</button>`;
+  $('q-continuer').addEventListener('click', () => {
+    if (dernier) { $('v-qcm').classList.remove('visible'); ouvrirPassage(); }
+    else { qcm.n++; rendreQcm(); }
+  });
+}
+
+function ouvrirPassage() {
+  const finie = MISSIONS[etat.mission];
+  const suivante = MISSIONS[etat.mission + 1];
+  $('passage-carte').innerHTML = `
+    <div class="p-fanion"><span class="rond">✅</span>
+      <span><b>Mission ${etat.mission + 1} réussie !</b><span>${finie.titre}</span></span></div>
+    <div class="p-acquis">📘 <b>Ce que tu as appris :</b> ${finie.acquis}</div>
+    ${suivante
+      ? `<div class="p-suite"><div class="etiq">Mission ${etat.mission + 2} sur ${MISSIONS.length}</div>
+           <b>${suivante.titre}</b><span>${suivante.but}</span></div>
+         <button class="btn btn-large" id="btn-passer">Commencer la mission ${etat.mission + 2} →</button>
+         <p class="p-neuf">📝 Tes relevés restent dans ton carnet : ils te serviront encore.</p>`
+      : `<div class="p-suite"><div class="etiq">Bravo</div>
+           <b>Tu as terminé l'enquête !</b>
+           <span>Tu as mesuré, comparé, jugé sur des faits, et choisi d'agir.</span></div>
+         <button class="btn btn-large" id="btn-passer">Explorer librement →</button>`}`;
+  $('v-passage').classList.add('visible');
+  $('btn-passer').addEventListener('click', () => {
+    $('v-passage').classList.remove('visible');
+    if (etat.mission < MISSIONS.length - 1) etat.mission++;
+    else etat.libre = true;
+    etat.teste = false;
+    sauver();
+    cacherBilan();
+    ouvrirEtapes();
+    majTout();
+  });
+}
+function ouvrirEtapes() {
+  etat.repliFait = false;
+  $('mission').classList.add('ouvert');
+  $('m-plier').setAttribute('aria-expanded', 'true');
+}
+function replierSiPetitEcran() {
+  if (etat.repliFait || window.innerWidth >= 880) return;
+  etat.repliFait = true;
+  $('mission').classList.remove('ouvert');
+  $('m-plier').setAttribute('aria-expanded', 'false');
+}
+
+/* ============================================================================
+   8. Mise à jour
+   ========================================================================== */
+
+function majMission() {
+  const m = missionCourante();
+  if (!m) {
+    $('m-num').textContent = '∞';
+    $('m-rang').textContent = 'Enquête libre';
+    $('m-titre').textContent = 'Explore le quartier';
+    $('m-but').textContent = 'Mesure où tu veux, et agis sur ce que tu veux.';
+    $('etapes').innerHTML = '';
+    $('m-jauge').style.width = '100%';
+    return;
+  }
+  const fait = etat.faites.indexOf(etat.mission) !== -1;
+  $('m-num').textContent = fait ? '✓' : (etat.mission + 1);
+  $('m-rang').textContent = `Mission ${etat.mission + 1} sur ${MISSIONS.length}`;
+  $('m-titre').textContent = m.titre;
+  $('m-but').textContent = m.but;
+  const ec = etapeCourante();
+  const nb = m.etapes.filter(e => e.fait()).length;
+  $('m-jauge').style.width = Math.round(nb / m.etapes.length * 100) + '%';
+  const iMontrer = ec ? ec.i : m.etapes.length - 1;
+  $('etapes').innerHTML = m.etapes.map((e, i) => {
+    const f = e.fait();
+    const courante = ec && ec.i === i;
+    return `<div class="etape${f ? ' faite' : ''}${courante ? ' courante' : ''}${i === iMontrer ? ' a-montrer' : ''}">
+      <span class="coche">✓</span><span class="t">${e.t}</span></div>`;
+  }).join('') + (m.indice ? `<div class="m-indice">💡 <b>Astuce :</b> ${m.indice}</div>` : '');
+  $('btn-tester').classList.toggle('appelle', !ec);
+}
+
+function rendreMissions() {
+  $('liste-missions').innerHTML = MISSIONS.map((m, i) => {
+    const fait = etat.faites.indexOf(i) !== -1;
+    const ouverte = deverrouillee(i);
+    return `<button class="d-carte${fait ? ' fait' : ''}" data-mission="${i}" ${ouverte ? '' : 'disabled'}>
+      <span class="num">${fait ? '✓' : (ouverte ? i + 1 : '🔒')}</span>
+      <span class="txt"><b>${m.titre}</b><span>${ouverte ? m.but : 'Termine la mission précédente pour l’ouvrir.'}</span></span>
+    </button>`;
+  }).join('') + `<button class="d-carte" data-mission="libre"
+      ${etat.faites.length === MISSIONS.length ? '' : 'disabled'}>
+      <span class="num">${etat.faites.length === MISSIONS.length ? '∞' : '🔒'}</span>
+      <span class="txt"><b>Enquête libre</b><span>${etat.faites.length === MISSIONS.length
+        ? 'Mesure et agis à ta guise.' : 'Termine les 6 missions pour l’ouvrir.'}</span></span></button>`;
+}
+
+function majTout() { dessiner(); majMission(); }
+
+/* ============================================================================
+   9. Interactions
+   ========================================================================== */
+
+$('btn-noter').addEventListener('click', noterMesure);
+$('btn-tester').addEventListener('click', verifier);
+$('m-plier').addEventListener('click', () => {
+  const m = $('mission');
+  m.classList.toggle('ouvert');
+  $('m-plier').setAttribute('aria-expanded', m.classList.contains('ouvert'));
+});
+
+$('btn-carnet').addEventListener('click', () => { rendreCarnet(); ouvrir('v-carnet'); });
+$('btn-agir').addEventListener('click', () => {
+  etat.vuAgir = true; sauver();
+  rendreActions(); ouvrir('v-agir'); majMission();
+});
+$('btn-missions').addEventListener('click', () => { rendreMissions(); ouvrir('v-missions'); });
+$('btn-lexique').addEventListener('click', () => {
+  $('liste-lexique').innerHTML = LEXIQUE_HTML(); ouvrir('v-lexique');
+});
+$('btn-aide').addEventListener('click', () => ouvrir('v-aide'));
+
+$('liste-carnet').addEventListener('click', e => {
+  const b = e.target.closest('[data-oter]');
+  if (!b) return;
+  etat.notes.splice(+b.dataset.oter, 1);
+  sauver(); rendreCarnet(); majMission();
+});
+$('btn-vider-carnet').addEventListener('click', () => {
+  if (!window.confirm('Effacer tous tes relevés ?')) return;
+  etat.notes = []; sauver(); rendreCarnet(); majMission();
+  toast('↺ Carnet effacé');
+});
+
+$('liste-actions').addEventListener('click', e => {
+  const b = e.target.closest('[data-action]');
+  if (!b) return;
+  const cle = b.dataset.action;
+  etat.actions[cle] = !etat.actions[cle];
+  sauver();
+  rendreActions();
+  majTout();
+  toast(etat.actions[cle]
+    ? (ACTIONS[cle].gain ? `✅ ${ACTIONS[cle].nom} — ${ACTIONS[cle].gain} g/jour en moins`
+                         : `⚠️ ${ACTIONS[cle].nom} : cela ne réduit rien du tout`)
+    : `Action annulée : ${ACTIONS[cle].nom}`);
+});
+
+$('v-tribunal').addEventListener('click', e => {
+  const b = e.target.closest('[data-verdict]');
+  if (!b || b.disabled) return;
+  const [cle, v] = b.dataset.verdict.split(':');
+  etat.verdicts[cle] = v;
+  sauver();
+  ouvrirTribunal();
+  majMission();
+});
+$('v-qcm').addEventListener('click', e => {
+  const b = e.target.closest('[data-rep]');
+  if (b && !b.disabled) repondre(+b.dataset.rep);
+});
+
+$('liste-missions').addEventListener('click', e => {
+  const b = e.target.closest('[data-mission]');
+  if (!b || b.disabled) return;
+  if (b.dataset.mission === 'libre') etat.libre = true;
+  else { etat.libre = false; etat.mission = +b.dataset.mission; }
+  etat.teste = false;
+  sauver(); cacherBilan(); ouvrirEtapes(); majTout(); fermer('v-missions');
+});
+$('btn-rezero').addEventListener('click', () => {
+  if (!window.confirm('Effacer toute ta progression et repartir de la mission 1 ?')) return;
+  etat.faites = []; etat.mission = 0; etat.libre = false;
+  etat.notes = []; etat.actions = {}; etat.verdicts = {}; etat.vuAgir = false;
+  sauver(); cacherBilan(); ouvrirEtapes(); majTout(); fermer('v-missions');
+  toast('↺ Parcours remis à zéro');
+});
+
+document.addEventListener('click', e => {
+  const f = e.target.closest('[data-ferme]');
+  if (f) fermer(f.dataset.ferme);
+  if (e.target.closest('[data-ferme-bilan]')) cacherBilan();
+});
+const ancres = ['v-qcm', 'v-passage'];
+for (const v of document.querySelectorAll('.voile')) {
+  v.addEventListener('click', e => { if (e.target === v && ancres.indexOf(v.id) === -1) fermer(v.id); });
+}
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  for (const v of document.querySelectorAll('.voile.visible'))
+    if (ancres.indexOf(v.id) === -1) fermer(v.id);
+});
+
+const ouvrir = id => $(id).classList.add('visible');
+const fermer = id => $(id).classList.remove('visible');
+
+let minuteurToast = null;
+function toast(msg, alerte) {
+  const t = $('toast');
+  t.innerHTML = msg;
+  t.classList.toggle('alerte', !!alerte);
+  t.classList.add('visible');
+  clearTimeout(minuteurToast);
+  minuteurToast = setTimeout(() => t.classList.remove('visible'), 2600);
+}
+
+const btnTheme = $('btn-theme');
+function appliquerTheme(sombre) {
+  document.body.classList.toggle('sombre', sombre);
+  btnTheme.textContent = sombre ? '☀️' : '🌙';
+  document.querySelector('meta[name=theme-color]')
+    .setAttribute('content', sombre ? '#14181C' : '#F7F5F0');
+  try { localStorage.setItem('ike-theme', sombre ? 'sombre' : 'clair'); } catch (e) {}
+  dessiner();
+}
+btnTheme.addEventListener('click', () => appliquerTheme(!document.body.classList.contains('sombre')));
+try {
+  const t = localStorage.getItem('ike-theme');
+  appliquerTheme(t ? t === 'sombre' : window.matchMedia('(prefers-color-scheme: dark)').matches);
+} catch (e) { appliquerTheme(false); }
+
+/* ---- Démarrage ---- */
+charger();
+ouvrirEtapes();
+majTout();
+requestAnimationFrame(boucle);
+try {
+  if (!localStorage.getItem('ike-pollution-vu')) {
+    ouvrir('v-aide');
+    localStorage.setItem('ike-pollution-vu', '1');
+  }
+} catch (e) { ouvrir('v-aide'); }
+
+</script>
+</body>
+</html>

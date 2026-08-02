@@ -250,7 +250,7 @@
 </main>
 
 <footer class="enveloppe pied">
-  <span>Labo-Bénin · <span class="ver">v4.7.0</span></span>
+  <span>Labo-Bénin · <span class="ver">v4.8.0</span></span>
   <span>·</span>
   <span>Programme officiel du Bénin (APC)</span>
   <span>·</span>
@@ -272,6 +272,7 @@ const LIVREES = {
   'lampe-de-poche':     { cle: 'ike-lampe-progression',      missions: 6, champ: 'faits' },
   'alambic':            { cle: 'ike-alambic-progression',    missions: 6, champ: 'faits' },
   'tam-tam':            { cle: 'ike-tamtam-progression',     missions: 6, champ: 'faits' },
+  'pollution-air':      { cle: 'ike-pollution-progression',  missions: 6, champ: 'faits' },
   'circuit-electrique': { cle: 'ike-circuit-progression-v2', missions: 15 },
   'combustions':        { cle: 'ike-combustion-progression', missions: 10 },
   'etats-matiere':      { cle: 'ike-matiere-progression-v2', missions: 13 },
@@ -346,7 +347,7 @@ const CATALOGUE = [
           {
             n: 5, titre: "Pollution de l'air", heures: '26 h', cd: 'CD3',
             sims: [
-              { ico: '💬', nom: 'Qui pollue vraiment ?',
+              { dos: 'pollution-air', ico: '💬', nom: 'Qui pollue vraiment ?',
                 quoi: "Élie, Faton, Yèmi et le vieux Fignon : démêler le vrai du faux, puis prendre position." },
               { ico: '🏘️', nom: 'Mon quartier',
                 quoi: "Repérer les sources de pollution autour de soi et agir sur la qualité de l'air." },
