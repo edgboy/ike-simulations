@@ -5,6 +5,35 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v4.5.0 — 2026-08-02
+
+🔥 **L'alambic se déroule sous les yeux** — retour testeur, et il touchait le cœur pédagogique :
+la SA4 porte sur un **processus**, pas sur un résultat. Voir l'eau quitter la chaudière pour
+remplir le flacon *est* la leçon. La simulation calculait tout d'un coup ; elle se déroule
+maintenant dans le temps.
+
+- **Les flammes naissent à l'allumage**, et diffèrent selon le réchaud : bleue et régulière pour
+  le gaz, jaune franche pour le pétrole, orangée et vacillante pour le feu de bois
+- **La température monte progressivement** sur le thermomètre, jusqu'au **palier à 100 °C** —
+  2,4 min au gaz contre 7 min au feu de bois, la différence se voit et s'attend
+- **L'ébullition se déclenche** : frémissement dès 85 °C, puis bulles franches
+- **La vapeur circule dans le tuyau** sous forme de bouffées qui progressent, **blanches tant
+  qu'elles sont gazeuses, bleues une fois condensées** dans le réfrigérant — la transformation
+  se voit à l'endroit exact où elle se produit
+- **Le niveau d'eau baisse dans la chaudière** pendant que **le flacon se remplit**, les deux
+  volumes affichés en millilitres
+- **Le sel se dépose au fond** à mesure que l'eau s'en va : il ne s'évapore pas
+- **La vapeur s'échappe** en nuages selon le chapiteau — partout sans couvercle, sur les côtés
+  avec un couvercle simplement posé, nulle part avec un couvercle luté
+- **Le roseau noircit** progressivement au passage de la vapeur brûlante : la carbonisation
+  n'est plus annoncée, elle est visible
+- Le bouton devient **⏹ Arrêter le feu** pendant la chauffe puis **🔄 Recommencer**, avec un
+  **⏩ ×3** pour accélérer. Toute modification du montage interrompt le feu et repart à zéro
+- Une distillation complète se regarde en une vingtaine de secondes, moins en accéléré
+
+Effet de bord bienvenu : le plan de travail occupe désormais **72 % de l'écran en portrait**
+contre 24 % auparavant, les repères ayant été resserrés.
+
 ## v4.4.0 — 2026-08-01
 
 ⚗️ **Nouvelle simulation : « Construis ton alambic »** (PCT 6ᵉ, SA4) — deuxième atelier de

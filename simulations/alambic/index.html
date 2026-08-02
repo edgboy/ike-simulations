@@ -497,6 +497,7 @@ main { flex:1; min-height:0; display:flex; flex-direction:column; }
   </div>
   <div id="actions">
     <button class="btn btn-fantome" id="btn-vider">🗑 Tout enlever</button>
+    <button class="btn btn-contour" id="btn-vitesse" hidden>⏩ ×1</button>
     <button class="btn" id="btn-tester">🔥 Allumer le feu</button>
   </div>
 </main>
@@ -625,76 +626,174 @@ const LEXIQUE = [
   { mot:'Buée', def:"Les fines gouttes qui se déposent sur une surface froide : c'est de la vapeur d'eau qui vient de se condenser." },
 ];
 
+
 /* ============================================================================
-   2. Le moteur — validé par tests avant l'écriture de l'interface
+   MOTEUR TEMPOREL — la distillation se DÉROULE, elle ne se calcule pas d'un coup.
+   C'est le processus qui est au programme, pas le résultat.
    ========================================================================== */
 
-const C_EAU = 4185, L_VAP = 2260000, MASSE = .5, T0 = 25, T_EB = 100, DUREE = 900;
+const C_EAU = 4185, L_VAP = 2260000, MASSE0 = .5, T0 = 25, T_EB = 100;
+const DUREE = 900;              // 15 minutes de chauffe simulées, vues en ~22 s
+const ACCEL = 40;               // 1 seconde réelle ≈ 40 secondes de feu :
 
-function evaluer(m) {
+// Diagnostic du montage : ce qui empêche de bouillir, de recueillir, ou qui est dangereux
+function diagnostiquer(m) {
   const r = { pannes:[], dangers:[] };
-  const f = FOYERS[m.foyer], ch = CHAUDIERES[m.chaudiere];
-
+  const ch = CHAUDIERES[m.chaudiere];
   if (!ch) r.pannes.push('Il n’y a pas de chaudière : aucun récipient pour chauffer le liquide.');
   if (ch && !m.contenu) r.pannes.push('La chaudière est vide : il n’y a rien à distiller.');
-  if (!f) r.pannes.push('Il n’y a pas de source de chaleur : rien ne chauffe.');
-  if (ch && !ch.sur && f) r.dangers.push('Un bidon en plastique fond sur le feu : il ne faut jamais le poser dessus.');
-  if (r.pannes.length) return r;
+  if (!m.foyer) r.pannes.push('Il n’y a pas de source de chaleur : rien ne chauffe.');
+  if (ch && !ch.sur && m.foyer) r.dangers.push('Un bidon en plastique fond sur le feu : il ne faut jamais le poser dessus.');
+  if (m.chapiteau && !m.tube) r.dangers.push('Chaudière fermée sans tuyau : la vapeur ne peut pas sortir et la pression monte. Très dangereux.');
+  if (m.tube && !TUBES[m.tube].tient) r.dangers.push('Le roseau se carbonise au contact de la vapeur brûlante.');
+  if (m.recipient && !RECIPIENTS[m.recipient].tient) r.dangers.push('La bouteille en plastique se déforme sous la vapeur chaude.');
+  return r;
+}
 
-  // --- Thermique d'abord : une casserole d'eau sur le feu bout, couvercle ou pas ---
-  const pUtile = f.p * f.rendement;
-  const tChauffe = MASSE * C_EAU * (T_EB - T0) / pUtile;
-  r.tempsEbullition = Math.round(tChauffe / 6) / 10;
-  r.bout = tChauffe < DUREE;
-  r.temperature = r.bout ? T_EB : Math.round(T0 + pUtile * DUREE / (MASSE * C_EAU));
-  if (!r.bout) {
-    r.pannes.push(`En 15 minutes, l’eau ne monte qu’à ${r.temperature} °C : elle n’atteint jamais l’ébullition.`);
-    return r;
-  }
-
-  // --- Puis la distillation : ce qui manque empêche de RECUEILLIR, pas de bouillir ---
-  if (!m.chapiteau) {
-    r.pannes.push('Mais sans chapiteau, la vapeur s’échappe dans la cuisine : il ne reste rien à recueillir.');
-    return r;
-  }
-  if (!m.tube) {
-    r.dangers.push('Chaudière fermée sans tuyau : la vapeur ne peut pas sortir et la pression monte. Très dangereux.');
-    r.pannes.push('Il faut un tuyau pour conduire la vapeur hors de la chaudière.');
-    return r;
-  }
-  const tube = TUBES[m.tube];
-  if (!tube.tient) r.dangers.push('Le roseau se carbonise au contact de la vapeur brûlante.');
-  if (!m.refrigerant) {
-    r.pannes.push('La vapeur sort bien du tuyau, mais rien ne la refroidit : elle part en fumée sans redevenir liquide.');
-    return r;
-  }
-  if (!m.recipient) {
-    r.pannes.push('Il n’y a pas de flacon au bout du tuyau : le distillat tombe par terre.');
-    return r;
-  }
-
-  const masseVaporisee = Math.min(pUtile * (DUREE - tChauffe) / L_VAP, MASSE * .9);
+// Ce que devient la vapeur produite, selon le montage
+function cheminDeLaVapeur(m) {
+  const ch = CHAUDIERES[m.chaudiere];
+  if (!m.chapiteau) return { versTuyau:0, echappe:1, condense:0, recueilli:0 };
+  if (!m.tube) return { versTuyau:0, echappe:1, condense:0, recueilli:0, bloque:true };
   const etancheite = ch.etanche * CHAPITEAUX[m.chapiteau].etanche;
-  const rec = RECIPIENTS[m.recipient];
+  const cond = m.refrigerant ? REFRIGERANTS[m.refrigerant].efficacite : 0;
+  const garde = m.recipient ? RECIPIENTS[m.recipient].garde : 0;
+  return {
+    versTuyau:etancheite,
+    echappe:1 - etancheite,
+    condense:etancheite * cond,
+    recueilli:etancheite * cond * garde,
+  };
+}
 
-  r.temperature = T_EB;
-  r.vapeur = Math.round(masseVaporisee * 1000);
-  r.distillat = Math.round(masseVaporisee * 1000 * etancheite * REFRIGERANTS[m.refrigerant].efficacite * rec.garde);
-  r.rendement = Math.round(r.distillat / (MASSE * 1000) * 100);
-  r.perteVapeur = r.vapeur - r.distillat;
+const sim = {
+  actif:false, fini:false, t:0, T:T0,
+  mEau:MASSE0, mDistillat:0, mEchappee:0, mNonCondensee:0,
+  bulles:0, usureTube:0, vitesse:1, particules:[], derniereFrame:0,
+};
 
-  r.notePurete = 100;
-  if (tube.gout) { r.notePurete = 60; r.gout = 'Le roseau noirci donne au distillat un goût de fumée.'; }
-  if (!rec.tient) {
-    r.notePurete = Math.min(r.notePurete, 70);
-    r.dangers.push('La bouteille en plastique se déforme sous la vapeur chaude.');
+function reinitialiserSim() {
+  sim.actif = false; sim.fini = false; sim.t = 0; sim.T = T0;
+  sim.mEau = MASSE0; sim.mDistillat = 0; sim.mEchappee = 0; sim.mNonCondensee = 0;
+  sim.bulles = 0; sim.usureTube = 0; sim.vitesse = 1; sim.particules = [];
+}
+
+function demarrerSim() {
+  const m = maquette();
+  const d = diagnostiquer(m);
+  // Un montage sans chaudière, sans contenu ou sans feu ne peut même pas démarrer
+  if (d.pannes.length) {
+    etat.teste = true;
+    etat.resultat = resultatCourant();
+    afficherBilan(etat.resultat, m, false);
+    return;
   }
-  r.pur = r.notePurete === 100;
+  reinitialiserSim();
+  sim.actif = true;
+  etat.teste = true;
+  oublierMesures();
+  cacherBilan();
+  majBoutons();
+  sim.derniereFrame = performance.now();
+  requestAnimationFrame(boucleSim);
+}
+
+function arreterSim(fini) {
+  sim.actif = false;
+  sim.fini = !!fini;
+  majBoutons();
+  etat.resultat = resultatCourant();
+  const m = maquette();
+  const mis = missionCourante();
+  const gagne = mis && mis.test(etat.resultat, m);
+  if (gagne && etat.faites.indexOf(etat.mission) === -1) {
+    etat.faites.push(etat.mission);
+    sauver();
+  }
+  majMission();
+  $('btn-mesures').hidden = false;
+  if (etat.resultat.pannes.length || etat.resultat.dangers.length || gagne) {
+    $('btn-mesures').classList.remove('appelle');
+    afficherBilan(etat.resultat, m, gagne);
+  } else {
+    $('btn-mesures').classList.add('appelle');
+    toast('C’est terminé : touche 📊 pour voir ce que tu as recueilli');
+  }
+}
+
+// Photographie de l'état actuel, pour le bilan et les missions
+function resultatCourant() {
+  const m = maquette();
+  const d = diagnostiquer(m);
+  const r = { pannes:d.pannes.slice(), dangers:d.dangers.slice() };
+  const f = FOYERS[m.foyer];
+  r.bout = sim.T >= T_EB - .5;
+  r.temperature = Math.round(sim.T);
+  r.tempsEbullition = f ? Math.round(MASSE0 * C_EAU * (T_EB - T0) / (f.p * f.rendement) / 6) / 10 : 0;
+  r.distillat = Math.round(sim.mDistillat * 1000);
+  r.vapeur = Math.round((MASSE0 - sim.mEau) * 1000);
+  r.perteVapeur = Math.round((sim.mEchappee + sim.mNonCondensee) * 1000);
+  r.rendement = Math.round(r.distillat / (MASSE0 * 1000) * 100);
+  r.eauRestante = Math.round(sim.mEau * 1000);
+  r.selDepose = m.contenu === 'salee' && sim.mEau < MASSE0 * .35;
   r.sel = m.contenu === 'salee';
   r.essence = m.contenu === 'plante';
+
+  if (!r.pannes.length && !r.bout && sim.fini)
+    r.pannes.push(`En 15 minutes, l’eau n’est montée qu’à ${r.temperature} °C : elle n’atteint jamais l’ébullition.`);
+  else if (!r.pannes.length && r.bout) {
+    if (!m.chapiteau) r.pannes.push('Mais sans chapiteau, toute la vapeur s’est échappée dans la cuisine.');
+    else if (!m.tube) r.pannes.push('Il faut un tuyau pour conduire la vapeur hors de la chaudière.');
+    else if (!m.refrigerant) r.pannes.push('La vapeur est sortie du tuyau sans être refroidie : elle est partie en fumée.');
+    else if (!m.recipient) r.pannes.push('Il n’y avait pas de flacon au bout du tuyau : le distillat est tombé par terre.');
+  }
+
+  r.notePurete = 100;
+  if (m.tube && TUBES[m.tube].gout) { r.notePurete = 60; r.gout = 'Le roseau noirci a donné au distillat un goût de fumée.'; }
+  if (m.recipient && !RECIPIENTS[m.recipient].tient) r.notePurete = Math.min(r.notePurete, 70);
+  r.pur = r.notePurete === 100;
   r.securite = Math.max(1, 10 - r.dangers.length * 4);
   r.ok = r.distillat > 0;
   return r;
+}
+
+/* ---- Avance de la physique, pas à pas ---- */
+function avancer(dt) {
+  const m = maquette();
+  const f = FOYERS[m.foyer];
+  if (!f) return;
+  const pUtile = f.p * f.rendement;
+  sim.t += dt;
+
+  if (sim.T < T_EB) {
+    // Montée en température : toute la chaleur réchauffe l'eau
+    sim.T = Math.min(T_EB, sim.T + pUtile * dt / (sim.mEau * C_EAU));
+    sim.bulles = Math.max(0, (sim.T - 85) / 15);       // frémissement avant l'ébullition
+  } else {
+    // Palier : la chaleur ne fait plus monter la température, elle vaporise
+    sim.bulles = 1;
+    const dm = Math.min(pUtile * dt / L_VAP, sim.mEau - MASSE0 * .08);
+    if (dm > 0) {
+      sim.mEau -= dm;
+      const c = cheminDeLaVapeur(m);
+      sim.mEchappee += dm * c.echappe;
+      sim.mDistillat += dm * c.recueilli;
+      sim.mNonCondensee += dm * (c.versTuyau - c.recueilli);
+      // le roseau se carbonise au passage de la vapeur brûlante
+      if (m.tube && !TUBES[m.tube].tient) sim.usureTube = Math.min(1, sim.usureTube + dt / 260);
+    }
+  }
+  if (sim.t >= DUREE || sim.mEau <= MASSE0 * .081) arreterSim(true);
+}
+
+function boucleSim(ts) {
+  if (!sim.actif) return;
+  const dtReel = Math.min(.05, (ts - sim.derniereFrame) / 1000);
+  sim.derniereFrame = ts;
+  avancer(dtReel * ACCEL * sim.vitesse);
+  majParticules(dtReel * sim.vitesse);
+  animer();
+  if (sim.actif) requestAnimationFrame(boucleSim);
 }
 
 /* ============================================================================
@@ -832,6 +931,7 @@ const MISSIONS = [
   },
 ];
 
+
 /* ============================================================================
    4. État et progression
    ========================================================================== */
@@ -884,8 +984,10 @@ function etapeCourante() {
   return null;
 }
 
+
 /* ============================================================================
-   5. Dessin du plan de montage
+   RENDU — la structure est dessinée une fois, les éléments vivants sont
+   rafraîchis à chaque image : flammes, thermomètre, niveaux, vapeur.
    ========================================================================== */
 
 const plan = $('plan');
@@ -897,207 +999,363 @@ const el = (nom, attrs, texte) => {
   return n;
 };
 
-// Repères : chaudière à gauche sur son feu, réfrigérant au centre, flacon à droite
 const G = {
-  chX:78, chX2:196, chY:158, chY2:262,      // chaudière
-  feuY:266,                                  // dessus du foyer
-  tubeY:132,                                 // hauteur du tuyau horizontal
-  refX:312, refX2:452, refY:150, refY2:250,  // bac réfrigérant
-  sortieY:236,                               // hauteur de sortie vers le flacon
-  flX:492, flX2:566, flY:238, flY2:306,      // flacon
+  chX:80, chX2:198, chY:150, chY2:258,       // chaudière
+  feuY:262,
+  tubeY:118,
+  refX:312, refX2:452, refY:146, refY2:250,  // bac réfrigérant
+  sortieY:232,
+  flX:494, flX2:568, flY:234, flY2:302,      // flacon
 };
+const COUL_LIQUIDE = '#5BC5F2';
+const refs = {};                              // éléments à rafraîchir
 
-const COUL_LIQUIDE = '#5BC5F2', COUL_VAPEUR = '#CFD8DC';
+/* ---- Le chemin que suit la vapeur, de la chaudière au flacon ---- */
+function cheminVapeur() {
+  const xm = (G.chX + G.chX2) / 2;
+  let d = `M ${xm} ${G.chY - 22} L ${xm} ${G.tubeY} L ${G.refX + 26} ${G.tubeY}`;
+  if (etat.refrigerant === 'bac') {
+    const xg = G.refX + 20, xd = G.refX2 - 20, y0 = G.refY + 22;
+    d += ` L ${G.refX + 26} ${y0} L ${xd} ${y0}` +
+         ` L ${xd} ${y0 + 22} L ${xg} ${y0 + 22}` +
+         ` L ${xg} ${y0 + 44} L ${xd} ${y0 + 44}` +
+         ` L ${xd} ${G.sortieY}`;
+  } else {
+    d += ` L ${G.refX + 26} ${G.sortieY}`;
+  }
+  d += ` L ${G.flX + 22} ${G.sortieY}`;
+  return d;
+}
+
+function couleurTube() {
+  if (!etat.tube) return 'var(--border-strong)';
+  const base = etat.tube === 'cuivre' ? [201, 136, 90]
+    : etat.tube === 'verre' ? [144, 164, 174] : [141, 110, 99];
+  // le roseau noircit à mesure qu'il se carbonise
+  const k = etat.tube === 'roseau' ? sim.usureTube : 0;
+  return `rgb(${base.map(c => Math.round(c * (1 - k * .8))).join(',')})`;
+}
 
 function dessiner() {
   plan.textContent = '';
-  const r = evaluer(maquette());
-  const chauffe = etat.teste && !r.pannes.length;
-  const distille = chauffe && r.distillat > 0;
+  for (const k in refs) delete refs[k];
+  const d = diagnostiquer(maquette());
   const ec = etapeCourante();
   const vise = ec ? cibleEffective(ec.e) : null;
-  $('legende-etats').hidden = !chauffe;
-
   const ch = CHAUDIERES[etat.chaudiere];
+  $('legende-etats').hidden = !(sim.actif || sim.fini);
 
   /* ---- Foyer ---- */
   if (etat.foyer) {
-    const f = etat.foyer;
-    plan.appendChild(el('rect', { x:G.chX - 14, y:G.feuY + 26, width:(G.chX2 - G.chX) + 28, height:9, rx:4,
+    plan.appendChild(el('rect', { x:G.chX - 16, y:G.feuY + 28, width:(G.chX2 - G.chX) + 32, height:9, rx:4,
       fill:'#8D6E63' }));
-    if (f === 'bois') {
-      for (const dx of [-8, 12]) plan.appendChild(el('rect', {
-        x:(G.chX + G.chX2) / 2 + dx - 20, y:G.feuY + 16, width:44, height:7, rx:3,
-        fill:'#795548', transform:`rotate(${dx > 0 ? 8 : -8} ${(G.chX + G.chX2) / 2} ${G.feuY + 20})` }));
+    if (etat.foyer === 'bois') {
+      for (const [dx, a] of [[-16, -9], [10, 7]]) plan.appendChild(el('rect', {
+        x:(G.chX + G.chX2) / 2 + dx - 22, y:G.feuY + 18, width:46, height:8, rx:4, fill:'#795548',
+        transform:`rotate(${a} ${(G.chX + G.chX2) / 2} ${G.feuY + 22})` }));
     } else {
-      plan.appendChild(el('rect', { x:G.chX + 10, y:G.feuY + 12, width:G.chX2 - G.chX - 20, height:16, rx:4,
+      plan.appendChild(el('rect', { x:G.chX + 12, y:G.feuY + 14, width:G.chX2 - G.chX - 24, height:16, rx:4,
         fill:'#78909C' }));
     }
-    // flammes, seulement quand le feu est allumé
-    if (chauffe) {
-      for (let k = 0; k < 5; k++) {
-        const x = G.chX + 14 + k * ((G.chX2 - G.chX - 28) / 4);
-        const g = el('g', { class:'flamme', style:`animation-delay:${k * .09}s` });
-        g.appendChild(el('path', {
-          d:`M ${x} ${G.feuY + 14} q -7 -12 0 -22 q 7 10 0 22 z`,
-          fill:k % 2 ? '#FFB300' : '#FF7043',
-        }));
-        plan.appendChild(g);
-      }
+    // les flammes ne naissent qu'à l'allumage
+    refs.flammes = el('g', { opacity:'0' });
+    const nb = etat.foyer === 'bois' ? 6 : 5;
+    refs.langues = [];
+    for (let k = 0; k < nb; k++) {
+      const x = G.chX + 12 + k * ((G.chX2 - G.chX - 24) / (nb - 1));
+      const l = el('path', { fill:couleurFlamme(k) });
+      refs.langues.push({ n:l, x, k });
+      refs.flammes.appendChild(l);
     }
-    plan.appendChild(el('text', { x:(G.chX + G.chX2) / 2, y:G.feuY + 48, class:'etiq-slot' },
-      FOYERS[f].nom));
+    plan.appendChild(refs.flammes);
+    plan.appendChild(el('text', { x:(G.chX + G.chX2) / 2, y:G.feuY + 50, class:'etiq-slot' },
+      FOYERS[etat.foyer].nom));
   }
-  ajouterSlot('foyer', G.chX - 16, G.feuY + 2, (G.chX2 - G.chX) + 32, 36,
+  ajouterSlot('foyer', G.chX - 18, G.feuY + 2, (G.chX2 - G.chX) + 36, 38,
     'Source de chaleur', !!etat.foyer, vise);
 
-  /* ---- Chaudière et son contenu ---- */
+  /* ---- Chaudière ---- */
   if (ch) {
     plan.appendChild(el('path', {
       d:`M ${G.chX} ${G.chY} L ${G.chX} ${G.chY2 - 10} q 0 10 10 10 L ${G.chX2 - 10} ${G.chY2} ` +
         `q 10 0 10 -10 L ${G.chX2} ${G.chY}`,
-      fill:ch.couleur, 'fill-opacity':.28, stroke:ch.couleur, 'stroke-width':3, 'stroke-linejoin':'round',
+      fill:ch.couleur, 'fill-opacity':.26, stroke:ch.couleur, 'stroke-width':3, 'stroke-linejoin':'round',
     }));
-    plan.appendChild(el('text', { x:G.chX, y:G.chY - 56, class:'etiq-slot', 'text-anchor':'start' }, ch.nom));
+    plan.appendChild(el('text', { x:G.chX, y:G.chY - 54, class:'etiq-slot', 'text-anchor':'start' }, ch.nom));
 
     if (etat.contenu) {
-      const yEau = G.chY + 44;
-      plan.appendChild(el('path', {
-        d:`M ${G.chX + 3} ${yEau} L ${G.chX + 3} ${G.chY2 - 11} q 0 8 8 8 L ${G.chX2 - 11} ${G.chY2 - 3} ` +
-          `q 8 0 8 -8 L ${G.chX2 - 3} ${yEau} z`,
-        fill:COUL_LIQUIDE, 'fill-opacity':.55,
-      }));
-      if (etat.contenu === 'plante') for (let k = 0; k < 4; k++)
-        plan.appendChild(el('ellipse', { cx:G.chX + 24 + k * 32, cy:yEau + 26 + (k % 2) * 12, rx:11, ry:5,
-          fill:'#66BB6A', 'fill-opacity':.85, transform:`rotate(${k % 2 ? 18 : -14} ${G.chX + 24 + k * 32} ${yEau + 26})` }));
-      if (etat.contenu === 'salee' && chauffe) for (let k = 0; k < 9; k++)
-        plan.appendChild(el('circle', { cx:G.chX + 16 + k * 14, cy:G.chY2 - 9, r:2.2, fill:'#EFEBE9' }));
-      // bulles d'ébullition
-      if (chauffe && r.bout) for (let k = 0; k < 6; k++) {
-        const g = el('g', { class:'bulle', style:`animation-delay:${k * .22}s` });
-        g.appendChild(el('circle', { cx:G.chX + 20 + k * 19, cy:G.chY2 - 16, r:3 + (k % 3), fill:'#fff', 'fill-opacity':.7 }));
-        plan.appendChild(g);
+      // niveau d'eau : il baissera à mesure que l'eau se vaporise
+      refs.eau = el('path', { fill:COUL_LIQUIDE, 'fill-opacity':.55 });
+      plan.appendChild(refs.eau);
+      // dépôt de sel qui apparaît quand l'eau s'en va
+      refs.sel = el('rect', { x:G.chX + 4, y:G.chY2 - 8, width:G.chX2 - G.chX - 8, height:0, rx:2,
+        fill:'#EFEBE9', stroke:'#CFD8DC', 'stroke-width':1 });
+      plan.appendChild(refs.sel);
+      if (etat.contenu === 'plante') {
+        refs.feuilles = el('g');
+        for (let k = 0; k < 4; k++) refs.feuilles.appendChild(el('ellipse', {
+          cx:G.chX + 26 + k * 32, cy:0, rx:11, ry:5, fill:'#66BB6A', 'fill-opacity':.85 }));
+        plan.appendChild(refs.feuilles);
       }
-      if (chauffe) plan.appendChild(el('text', {
-        x:(G.chX + G.chX2) / 2, y:G.chY2 - 30, class:'etat-eau', fill:'#0F5C7A' }, 'LIQUIDE'));
-      plan.appendChild(el('text', { x:(G.chX + G.chX2) / 2, y:G.chY + 30, class:'etiq-slot' },
+      refs.bulles = el('g', { opacity:'0' });
+      for (let k = 0; k < 7; k++) refs.bulles.appendChild(el('circle', {
+        cx:G.chX + 16 + k * 16, cy:G.chY2 - 14, r:2.6 + (k % 3), fill:'#fff', 'fill-opacity':.75 }));
+      plan.appendChild(refs.bulles);
+      refs.etatEau = el('text', { x:(G.chX + G.chX2) / 2, y:0, class:'etat-eau', fill:'#0F5C7A', opacity:'0' },
+        'LIQUIDE');
+      plan.appendChild(refs.etatEau);
+      plan.appendChild(el('text', { x:(G.chX + G.chX2) / 2, y:G.chY + 26, class:'etiq-slot' },
         CONTENUS[etat.contenu].nom));
+      refs.restant = el('text', { x:G.chX2 - 8, y:G.chY + 44, class:'etiq-slot', 'text-anchor':'end' }, '');
+      plan.appendChild(refs.restant);
     }
+
     // thermomètre
-    if (chauffe) {
-      const tx = G.chX2 + 12;
-      plan.appendChild(el('rect', { x:tx, y:G.chY + 6, width:9, height:64, rx:4.5,
-        fill:'var(--surface)', stroke:'var(--border-strong)', 'stroke-width':1.5 }));
-      const h = Math.max(6, Math.min(58, (r.temperature - 20) / 80 * 58));
-      plan.appendChild(el('rect', { x:tx + 2, y:G.chY + 68 - h, width:5, height:h, rx:2.5,
-        fill:r.temperature >= 100 ? '#E83A4B' : '#F7A430' }));
-      plan.appendChild(el('text', { x:tx + 4, y:G.chY + 84, class:'etat-eau', fill:'var(--neutral)' },
-        r.temperature + ' °C'));
-    }
+    const tx = G.chX2 + 10;
+    plan.appendChild(el('rect', { x:tx, y:G.chY + 4, width:10, height:68, rx:5,
+      fill:'var(--surface)', stroke:'var(--border-strong)', 'stroke-width':1.5 }));
+    refs.mercure = el('rect', { x:tx + 2.5, y:G.chY + 68, width:5, height:0, rx:2.5, fill:'#F7A430' });
+    plan.appendChild(refs.mercure);
+    refs.tempTxt = el('text', { x:tx, y:G.chY + 86, class:'etat-eau', fill:'var(--neutral)', 'text-anchor':'start' }, '25 °C');
+    plan.appendChild(refs.tempTxt);
   }
   ajouterSlot('chaudiere', G.chX, G.chY, G.chX2 - G.chX, G.chY2 - G.chY, 'Chaudière', !!ch, vise);
-  if (ch) ajouterSlot('contenu', G.chX + 6, G.chY + 46, G.chX2 - G.chX - 12, G.chY2 - G.chY - 52,
+  if (ch) ajouterSlot('contenu', G.chX + 6, G.chY + 40, G.chX2 - G.chX - 12, G.chY2 - G.chY - 46,
     'Que distiller ?', !!etat.contenu, vise);
 
   /* ---- Chapiteau ---- */
   if (etat.chapiteau) {
     plan.appendChild(el('path', {
-      d:`M ${G.chX - 6} ${G.chY} L ${G.chX + 26} ${G.chY - 26} L ${G.chX2 - 26} ${G.chY - 26} L ${G.chX2 + 6} ${G.chY} z`,
+      d:`M ${G.chX - 6} ${G.chY} L ${G.chX + 26} ${G.chY - 24} L ${G.chX2 - 26} ${G.chY - 24} L ${G.chX2 + 6} ${G.chY} z`,
       fill:ch ? ch.couleur : '#AFB6BB', 'fill-opacity':.6,
       stroke:'var(--border-strong)', 'stroke-width':2.5, 'stroke-linejoin':'round',
     }));
-    plan.appendChild(el('text', { x:(G.chX + G.chX2) / 2 - 34, y:G.chY - 8, class:'etiq-slot' },
-      'chapiteau'));
     if (etat.chapiteau === 'ajuste') plan.appendChild(el('rect', {
       x:G.chX - 8, y:G.chY - 4, width:(G.chX2 - G.chX) + 16, height:6, rx:3, fill:'#A1887F' }));
+    plan.appendChild(el('text', { x:(G.chX + G.chX2) / 2 - 36, y:G.chY - 8, class:'etiq-slot' }, 'chapiteau'));
   }
-  ajouterSlot('chapiteau', G.chX + 8, G.chY - 30, G.chX2 - G.chX - 16, 30, 'Chapiteau', !!etat.chapiteau, vise);
+  ajouterSlot('chapiteau', G.chX + 8, G.chY - 28, G.chX2 - G.chX - 16, 28, 'Chapiteau', !!etat.chapiteau, vise);
 
-  /* ---- Tuyau ---- */
+  /* ---- Bac réfrigérant (derrière le tuyau) ---- */
+  if (etat.refrigerant === 'bac') {
+    plan.appendChild(el('rect', { x:G.refX, y:G.refY, width:G.refX2 - G.refX, height:G.refY2 - G.refY, rx:8,
+      fill:'#B3E5FC', 'fill-opacity':.5, stroke:'#4FC3F7', 'stroke-width':3 }));
+    plan.appendChild(el('text', { x:(G.refX + G.refX2) / 2, y:G.refY + 15, class:'etiq-slot' }, 'eau froide'));
+  } else if (etat.refrigerant === 'linge') {
+    for (let k = 0; k < 4; k++) plan.appendChild(el('rect', {
+      x:G.refX + 10, y:G.refY + 26 + k * 30, width:32, height:15, rx:7, fill:'#B0BEC5', 'fill-opacity':.75 }));
+    plan.appendChild(el('text', { x:G.refX + 76, y:G.refY + 15, class:'etiq-slot' }, 'linge mouillé'));
+  }
+
+  /* ---- Tuyau : un seul trajet, de la chaudière au flacon ---- */
   if (etat.tube) {
-    const t = etat.tube;
-    const coul = t === 'cuivre' ? '#C9885A' : (t === 'verre' ? '#90A4AE' : '#8D6E63');
-    plan.appendChild(el('path', {
-      d:`M ${(G.chX + G.chX2) / 2} ${G.chY - 24} L ${(G.chX + G.chX2) / 2} ${G.tubeY} L ${G.refX + 26} ${G.tubeY}`,
-      fill:'none', stroke:coul, 'stroke-width':7, 'stroke-linecap':'round', 'stroke-linejoin':'round',
-    }));
-    if (chauffe && r.bout) plan.appendChild(el('text', {
-      x:((G.chX + G.chX2) / 2 + G.refX + 26) / 2, y:G.tubeY - 11, class:'etat-eau', fill:'#546E7A' },
-      'VAPEUR (GAZ)'));
-    if (chauffe && r.bout) plan.appendChild(el('text', {
-      x:G.chX + 4, y:G.chY - 38, class:'chgt-etat', 'text-anchor':'start' }, '↑ vaporisation'));
+    refs.tuyau = el('path', { d:cheminVapeur(), fill:'none', stroke:couleurTube(),
+      'stroke-width':7, 'stroke-linecap':'round', 'stroke-linejoin':'round' });
+    plan.appendChild(refs.tuyau);
+    // trajet invisible qui sert de rail aux particules de vapeur
+    refs.rail = el('path', { d:cheminVapeur(), fill:'none', stroke:'none' });
+    plan.appendChild(refs.rail);
+    refs.longueur = refs.rail.getTotalLength();
+    refs.sRefrigerant = abscisseEntreeRefrigerant(refs.rail, refs.longueur);
+    refs.particules = el('g');
+    plan.appendChild(refs.particules);
+    refs.etiqVapeur = el('text', { x:((G.chX + G.chX2) / 2 + G.refX + 26) / 2, y:G.tubeY - 11,
+      class:'etat-eau', fill:'#546E7A', opacity:'0' }, 'VAPEUR (GAZ)');
+    plan.appendChild(refs.etiqVapeur);
   }
   ajouterSlot('tube', G.chX2 + 16, G.tubeY - 18, 116, 36, 'Tuyau', !!etat.tube, vise);
-
-  /* ---- Réfrigérant ---- */
-  if (etat.refrigerant) {
-    const coul = etat.tube === 'cuivre' ? '#C9885A' : (etat.tube === 'verre' ? '#90A4AE' : '#8D6E63');
-    if (etat.refrigerant === 'bac') {
-      plan.appendChild(el('rect', { x:G.refX, y:G.refY, width:G.refX2 - G.refX, height:G.refY2 - G.refY, rx:8,
-        fill:'#B3E5FC', 'fill-opacity':.5, stroke:'#4FC3F7', 'stroke-width':3 }));
-      plan.appendChild(el('text', { x:(G.refX + G.refX2) / 2, y:G.refY + 16, class:'etiq-slot' }, 'eau froide'));
-      // Serpentin : des allers-retours qui restent à l'intérieur du bac,
-      // pour que la vapeur ait le temps de se refroidir avant de sortir
-      const xg = G.refX + 20, xd = G.refX2 - 20, y0 = G.refY + 20;
-      const d = `M ${G.refX + 26} ${G.tubeY} L ${G.refX + 26} ${y0} L ${xd} ${y0}` +
-        ` L ${xd} ${y0 + 22} L ${xg} ${y0 + 22}` +
-        ` L ${xg} ${y0 + 44} L ${xd} ${y0 + 44}` +
-        ` L ${xd} ${G.sortieY} L ${G.flX + 22} ${G.sortieY}`;
-      plan.appendChild(el('path', { d, fill:'none', stroke:coul, 'stroke-width':6,
-        'stroke-linecap':'round', 'stroke-linejoin':'round' }));
-    } else {
-      plan.appendChild(el('path', {
-        d:`M ${G.refX + 26} ${G.tubeY} L ${G.refX + 26} ${G.sortieY} L ${G.flX + 22} ${G.sortieY}`,
-        fill:'none', stroke:coul, 'stroke-width':6, 'stroke-linecap':'round', 'stroke-linejoin':'round' }));
-      for (let k = 0; k < 4; k++) plan.appendChild(el('rect', {
-        x:G.refX + 12, y:G.refY + 30 + k * 34, width:30, height:14, rx:7,
-        fill:'#B0BEC5', 'fill-opacity':.75 }));
-      plan.appendChild(el('text', { x:(G.refX + G.refX2) / 2 + 10, y:G.refY + 16, class:'etiq-slot' },
-        'linge mouillé'));
-    }
-    if (chauffe && r.bout) {
-      plan.appendChild(el('text', { x:(G.refX + G.refX2) / 2, y:G.refY2 + 20, class:'chgt-etat' },
-        '↓ condensation'));
-    }
-  }
   ajouterSlot('refrigerant', G.refX, G.refY, G.refX2 - G.refX, G.refY2 - G.refY,
     'Réfrigérant', !!etat.refrigerant, vise);
 
+  /* ---- Changements d'état, nommés là où ils se produisent ---- */
+  refs.chgtVapo = el('text', { x:G.chX + 4, y:G.chY - 36, class:'chgt-etat', 'text-anchor':'start',
+    opacity:'0' }, '↑ vaporisation');
+  plan.appendChild(refs.chgtVapo);
+  refs.chgtCond = el('text', { x:(G.refX + G.refX2) / 2, y:G.refY2 + 20, class:'chgt-etat', opacity:'0' },
+    '↓ condensation');
+  plan.appendChild(refs.chgtCond);
+
+  /* ---- Vapeur qui s'échappe de la chaudière ---- */
+  refs.fuite = el('g', { opacity:'0' });
+  for (let k = 0; k < 5; k++) refs.fuite.appendChild(el('circle', {
+    cx:0, cy:0, r:5 + k, fill:'#CFD8DC', 'fill-opacity':.5 }));
+  plan.appendChild(refs.fuite);
+
   /* ---- Flacon ---- */
   if (etat.recipient) {
-    const plastique = etat.recipient === 'plastique';
     plan.appendChild(el('path', {
       d:`M ${G.flX} ${G.flY} L ${G.flX} ${G.flY2 - 10} q 0 10 10 10 L ${G.flX2 - 10} ${G.flY2} ` +
         `q 10 0 10 -10 L ${G.flX2} ${G.flY}`,
-      fill:'none', stroke:plastique ? '#B0BEC5' : '#90A4AE', 'stroke-width':3, 'stroke-linejoin':'round',
-    }));
-    if (distille) {
-      const hMax = G.flY2 - G.flY - 14;
-      const h = Math.max(8, Math.min(hMax, r.distillat / 450 * hMax));
-      plan.appendChild(el('path', {
-        d:`M ${G.flX + 3} ${G.flY2 - 3 - h} L ${G.flX + 3} ${G.flY2 - 11} q 0 8 8 8 L ${G.flX2 - 11} ${G.flY2 - 3} ` +
-          `q 8 0 8 -8 L ${G.flX2 - 3} ${G.flY2 - 3 - h} z`,
-        fill:COUL_LIQUIDE, 'fill-opacity':.65,
-      }));
-      plan.appendChild(el('text', { x:(G.flX + G.flX2) / 2, y:G.flY2 - 12, class:'etat-eau', fill:'#0F5C7A' },
-        'LIQUIDE'));
-      plan.appendChild(el('text', { x:(G.flX + G.flX2) / 2, y:G.flY2 + 20, class:'etiq-slot' },
-        r.distillat + ' mL'));
-      // gouttes qui tombent du tuyau
-      for (let k = 0; k < 3; k++) {
-        const g = el('g', { class:'goutte', style:`animation-delay:${k * .55}s` });
-        g.appendChild(el('ellipse', { cx:G.flX + 22, cy:G.sortieY + 6, rx:3.5, ry:5, fill:COUL_LIQUIDE }));
-        plan.appendChild(g);
-      }
-    }
+      fill:'none', stroke:RECIPIENTS[etat.recipient].tient ? '#90A4AE' : '#B0BEC5',
+      'stroke-width':3, 'stroke-linejoin':'round' }));
+    refs.distillat = el('path', { fill:COUL_LIQUIDE, 'fill-opacity':.65 });
+    plan.appendChild(refs.distillat);
+    refs.etatFlacon = el('text', { x:(G.flX + G.flX2) / 2, y:0, class:'etat-eau', fill:'#0F5C7A', opacity:'0' },
+      'LIQUIDE');
+    plan.appendChild(refs.etatFlacon);
+    refs.mlTxt = el('text', { x:(G.flX + G.flX2) / 2, y:G.flY2 + 18, class:'etiq-slot' }, '');
+    plan.appendChild(refs.mlTxt);
   }
   ajouterSlot('recipient', G.flX, G.flY, G.flX2 - G.flX, G.flY2 - G.flY, 'Flacon', !!etat.recipient, vise);
 
+  /* ---- Avertissement de sécurité ---- */
+  if (etat.teste && d.dangers.length) plan.appendChild(el('text', {
+    x:330, y:22, class:'chgt-etat',
+    style:'fill:var(--destructive);font-size:12px;font-weight:700' }, '⚠️ ' + d.dangers[0]));
 
-  // Avertissement de sécurité, bien visible sur le plan
-  if (etat.teste && r.dangers.length) {
-    plan.appendChild(el('text', { x:330, y:26, class:'chgt-etat',
-      style:'fill:var(--destructive);font-size:12px;font-weight:700' }, '⚠️ ' + r.dangers[0]));
+  animer();
+}
+
+// Où le tuyau entre-t-il dans le réfrigérant ? C'est là que la vapeur commence à se condenser.
+function abscisseEntreeRefrigerant(path, total) {
+  if (!etat.refrigerant) return total;
+  for (let s = 0; s < total; s += 4) {
+    const p = path.getPointAtLength(s);
+    if (p.x >= G.refX + 20) return s;
+  }
+  return total * .5;
+}
+
+const couleurFlamme = k => {
+  if (etat.foyer === 'gaz') return k % 2 ? '#42A5F5' : '#64B5F6';       // flamme bleue
+  if (etat.foyer === 'petrole') return k % 2 ? '#FFB300' : '#FFA726';   // jaune franche
+  return k % 2 ? '#FF7043' : '#FF8A65';                                  // bois : orangée
+};
+
+/* ---- Particules de vapeur qui circulent dans le tuyau ---- */
+function majParticules(dt) {
+  if (!refs.rail || !refs.longueur) return;
+  const m = maquette();
+  const c = cheminDeLaVapeur(m);
+  // on n'émet que si la vapeur part effectivement dans le tuyau
+  if (sim.actif && sim.T >= T_EB - .5 && c.versTuyau > .02) {
+    sim.emission = (sim.emission || 0) + dt * 9 * c.versTuyau;
+    while (sim.emission >= 1) { sim.emission -= 1; sim.particules.push({ s:0 }); }
+  }
+  const vitesse = refs.longueur / 3.4;      // ~3,4 s pour traverser tout le tuyau
+  for (const p of sim.particules) p.s += vitesse * dt;
+  sim.particules = sim.particules.filter(p => p.s < refs.longueur);
+
+  refs.particules.textContent = '';
+  const cond = m.refrigerant ? REFRIGERANTS[m.refrigerant].efficacite : 0;
+  for (const p of sim.particules) {
+    const pt = refs.rail.getPointAtLength(p.s);
+    // progression de la condensation dans le réfrigérant
+    const avance = refs.sRefrigerant < refs.longueur
+      ? Math.max(0, Math.min(1, (p.s - refs.sRefrigerant) / (refs.longueur - refs.sRefrigerant))) : 0;
+    const liquide = avance * cond;
+    const r = 4 - liquide * 1.6;
+    refs.particules.appendChild(el('circle', {
+      cx:pt.x, cy:pt.y, r,
+      fill:liquide > .5 ? COUL_LIQUIDE : '#ECEFF1',
+      'fill-opacity':liquide > .5 ? .95 : .8,
+      stroke:liquide > .5 ? '#0F5C7A' : '#B0BEC5', 'stroke-width':liquide > .5 ? 0 : 1,
+    }));
+  }
+}
+
+/* ---- Rafraîchissement des éléments vivants ---- */
+function animer() {
+  const enMarche = sim.actif;
+  const commence = sim.actif || sim.fini;
+  const m = maquette();
+  const c = cheminDeLaVapeur(m);
+  const bout = sim.T >= T_EB - .5;
+
+  // Flammes
+  if (refs.flammes) {
+    refs.flammes.setAttribute('opacity', enMarche ? '1' : '0');
+    if (enMarche) {
+      const grande = etat.foyer === 'bois' ? 26 : (etat.foyer === 'gaz' ? 16 : 21);
+      for (const l of refs.langues) {
+        const osc = 1 + .28 * Math.sin(sim.t * (etat.foyer === 'bois' ? 5 : 9) + l.k * 1.7);
+        const h = grande * osc;
+        l.n.setAttribute('d', `M ${l.x} ${G.feuY + 16} q -7 -${h * .55} 0 -${h} q 7 ${h * .55} 0 ${h} z`);
+      }
+    }
+  }
+
+  // Thermomètre
+  if (refs.mercure) {
+    const h = Math.max(3, Math.min(62, (sim.T - 20) / 82 * 62));
+    refs.mercure.setAttribute('y', G.chY + 68 - h);
+    refs.mercure.setAttribute('height', h);
+    refs.mercure.setAttribute('fill', bout ? '#E83A4B' : '#F7A430');
+    refs.tempTxt.textContent = Math.round(sim.T) + ' °C';
+  }
+
+  // Niveau d'eau dans la chaudière
+  if (refs.eau) {
+    const hMax = G.chY2 - G.chY - 44;
+    const h = Math.max(4, hMax * (sim.mEau / MASSE0));
+    const y = G.chY2 - 3 - h;
+    refs.eau.setAttribute('d',
+      `M ${G.chX + 3} ${y} L ${G.chX + 3} ${G.chY2 - 11} q 0 8 8 8 L ${G.chX2 - 11} ${G.chY2 - 3} ` +
+      `q 8 0 8 -8 L ${G.chX2 - 3} ${y} z`);
+    refs.etatEau.setAttribute('y', y + 18);
+    refs.etatEau.setAttribute('opacity', commence && sim.mEau > MASSE0 * .12 ? '1' : '0');
+    if (refs.feuilles) [...refs.feuilles.children].forEach((f, k) =>
+      f.setAttribute('cy', Math.min(G.chY2 - 12, y + 14 + (k % 2) * 12)));
+    if (refs.restant) refs.restant.textContent = commence
+      ? Math.round(sim.mEau * 1000) + ' mL' : '';
+    // dépôt de sel : il apparaît quand l'eau s'en va, car le sel ne s'évapore pas
+    if (refs.sel) {
+      const sel = etat.contenu === 'salee' ? Math.max(0, (1 - sim.mEau / MASSE0) * 14) : 0;
+      refs.sel.setAttribute('height', sel);
+      refs.sel.setAttribute('y', G.chY2 - 4 - sel);
+    }
+  }
+
+  // Bulles d'ébullition
+  if (refs.bulles) {
+    refs.bulles.setAttribute('opacity', enMarche ? String(Math.min(1, sim.bulles)) : '0');
+    if (enMarche && sim.bulles > 0) {
+      const yBas = G.chY2 - 8;
+      [...refs.bulles.children].forEach((b, k) => {
+        const ph = (sim.t * 1.7 + k * .37) % 1;
+        b.setAttribute('cy', yBas - ph * 26);
+        b.setAttribute('fill-opacity', String(.75 * (1 - ph)));
+      });
+    }
+  }
+
+  // Vapeur qui s'échappe de la chaudière
+  if (refs.fuite) {
+    const fuit = enMarche && bout && c.echappe > .05;
+    refs.fuite.setAttribute('opacity', fuit ? String(Math.min(1, c.echappe * 1.6)) : '0');
+    if (fuit) {
+      const xm = (G.chX + G.chX2) / 2 + (etat.chapiteau ? 52 : 0);
+      [...refs.fuite.children].forEach((n, k) => {
+        const ph = (sim.t * .9 + k * .2) % 1;
+        n.setAttribute('cx', xm + (etat.chapiteau ? 14 : 0) + Math.sin(ph * 5 + k) * 9);
+        n.setAttribute('cy', (etat.chapiteau ? G.chY - 12 : G.chY - 4) - ph * 62);
+        n.setAttribute('fill-opacity', String(.5 * (1 - ph)));
+      });
+    }
+  }
+
+  // Étiquettes d'état et de changement d'état
+  if (refs.etiqVapeur) refs.etiqVapeur.setAttribute('opacity',
+    commence && bout && c.versTuyau > .02 ? '1' : '0');
+  if (refs.chgtVapo) refs.chgtVapo.setAttribute('opacity', commence && bout ? '1' : '0');
+  if (refs.chgtCond) refs.chgtCond.setAttribute('opacity',
+    commence && bout && c.condense > .02 ? '1' : '0');
+
+  // Tuyau qui se carbonise
+  if (refs.tuyau) refs.tuyau.setAttribute('stroke', couleurTube());
+
+  // Flacon qui se remplit
+  if (refs.distillat) {
+    const mL = sim.mDistillat * 1000;
+    const hMax = G.flY2 - G.flY - 12;
+    const h = Math.max(0, Math.min(hMax, mL / 420 * hMax));
+    const y = G.flY2 - 3 - h;
+    refs.distillat.setAttribute('d', h < 1 ? '' :
+      `M ${G.flX + 3} ${y} L ${G.flX + 3} ${G.flY2 - 11} q 0 8 8 8 L ${G.flX2 - 11} ${G.flY2 - 3} ` +
+      `q 8 0 8 -8 L ${G.flX2 - 3} ${y} z`);
+    refs.etatFlacon.setAttribute('y', y + 17);
+    refs.etatFlacon.setAttribute('opacity', h > 14 ? '1' : '0');
+    refs.mlTxt.textContent = commence ? Math.round(mL) + ' mL' : '';
   }
 }
 
@@ -1172,18 +1430,26 @@ function fermerFeuille() {
   feuilleOuverte = null;
 }
 
+
 /* ============================================================================
    7. Actions
    ========================================================================== */
 
-function poser(cle, id) {
-  // Rechoisir la pièce déjà en place ne la retire pas : on retire en la touchant sur le plan
-  if (etat[cle] === id) { fermerFeuille(); return; }
-  etat[cle] = id;
+// Toute modification du montage arrête le feu : on repart d'une distillation neuve
+function remettreAZeroExperience() {
+  sim.actif = false;
+  reinitialiserSim();
   etat.teste = false;
   etat.resultat = null;
   oublierMesures();
   cacherBilan();
+  majBoutons();
+}
+
+function poser(cle, id) {
+  if (etat[cle] === id) { fermerFeuille(); return; }
+  etat[cle] = id;
+  remettreAZeroExperience();
   fermerFeuille();
   replierSiPetitEcran();
   majTout();
@@ -1191,21 +1457,15 @@ function poser(cle, id) {
 
 function retirer(cle) {
   etat[cle] = null;
-  if (cle === 'chaudiere') etat.contenu = null;   // plus de chaudière, plus de contenu
-  etat.teste = false;
-  etat.resultat = null;
-  oublierMesures();
-  cacherBilan();
+  if (cle === 'chaudiere') etat.contenu = null;
+  remettreAZeroExperience();
   majTout();
 }
 
 function vider() {
   etat.foyer = null; etat.chaudiere = null; etat.contenu = null; etat.chapiteau = null;
   etat.tube = null; etat.refrigerant = null; etat.recipient = null;
-  etat.teste = false;
-  etat.resultat = null;
-  oublierMesures();
-  cacherBilan();
+  remettreAZeroExperience();
   majTout();
 }
 
@@ -1216,28 +1476,19 @@ function replierSiPetitEcran() {
   $('m-plier').setAttribute('aria-expanded', 'false');
 }
 
-function tester() {
-  const m = maquette();
-  const r = evaluer(m);
-  etat.teste = true;
-  etat.resultat = r;
-  dessiner();
-  majMission();
-
-  const mis = missionCourante();
-  const gagne = mis && mis.test(r, m);
-  if (gagne && etat.faites.indexOf(etat.mission) === -1) {
-    etat.faites.push(etat.mission);
-    sauver();
-  }
-  $('btn-mesures').hidden = false;
-  if (r.pannes.length || r.dangers.length || gagne) {
-    $('btn-mesures').classList.remove('appelle');
-    afficherBilan(r, m, gagne);
+// Le bouton principal change de rôle selon l'avancement de l'expérience
+function majBoutons() {
+  const b = $('btn-tester'), v = $('btn-vitesse');
+  if (sim.actif) {
+    b.innerHTML = '⏹ Arrêter le feu';
+    b.classList.remove('appelle');
+    v.hidden = false;
+    v.textContent = sim.vitesse > 1 ? '⏩ ×3' : '⏩ ×1';
   } else {
-    cacherBilan();
-    $('btn-mesures').classList.add('appelle');
-    toast('Le feu est allumé : touche 📊 pour voir ce que tu as recueilli');
+    b.innerHTML = sim.fini ? '🔄 Recommencer' : '🔥 Allumer le feu';
+    v.hidden = true;
+    const ec = etapeCourante();
+    b.classList.toggle('appelle', !!(ec && cibleEffective(ec.e) === 'tester'));
   }
 }
 
@@ -1307,6 +1558,7 @@ function oublierMesures() {
   b.classList.remove('appelle');
 }
 const fnb = n => String(n).replace('.', ',');
+
 
 /* ============================================================================
    9. QCM et passage de mission
@@ -1385,6 +1637,7 @@ function missionSuivante() {
   sauver();
   vider();
   ouvrirEtapes();
+  majBoutons();
 }
 
 function ouvrirEtapes() {
@@ -1392,6 +1645,7 @@ function ouvrirEtapes() {
   $('mission').classList.add('ouvert');
   $('m-plier').setAttribute('aria-expanded', 'true');
 }
+
 
 /* ============================================================================
    10. Mise à jour de l'affichage
@@ -1406,7 +1660,7 @@ function majMission() {
     $('m-but').textContent = 'Monte l’alambic que tu veux et distille.';
     $('etapes').innerHTML = '';
     $('m-jauge').style.width = '100%';
-    $('btn-tester').classList.remove('appelle');
+    majBoutons();
     return;
   }
   const fait = etat.faites.indexOf(etat.mission) !== -1;
@@ -1426,8 +1680,7 @@ function majMission() {
     return `<div class="etape${f ? ' faite' : ''}${courante ? ' courante' : ''}${i === iMontrer ? ' a-montrer' : ''}">
       <span class="coche">✓</span><span class="t">${e.t}</span></div>`;
   }).join('') + (m.indice ? `<div class="m-indice">💡 <b>Astuce :</b> ${m.indice}</div>` : '');
-
-  $('btn-tester').classList.toggle('appelle', !!(ec && cibleEffective(ec.e) === 'tester'));
+  majBoutons();
 }
 
 function rendreMissions() {
@@ -1449,6 +1702,7 @@ function majTout() {
   dessiner();
   majMission();
 }
+
 
 /* ============================================================================
    11. Interactions
@@ -1478,7 +1732,14 @@ $('feuille').addEventListener('click', e => {
   poser(cle, id);
 });
 
-$('btn-tester').addEventListener('click', tester);
+$('btn-tester').addEventListener('click', () => {
+  if (sim.actif) arreterSim(false);
+  else demarrerSim();
+});
+$('btn-vitesse').addEventListener('click', () => {
+  sim.vitesse = sim.vitesse > 1 ? 1 : 3;
+  majBoutons();
+});
 $('btn-vider').addEventListener('click', vider);
 $('btn-mesures').addEventListener('click', () => {
   $('btn-mesures').classList.remove('appelle');
@@ -1573,12 +1834,14 @@ try {
 charger();
 ouvrirEtapes();
 majTout();
+majBoutons();
 try {
   if (!localStorage.getItem('ike-alambic-vu')) {
     ouvrir('v-aide');
     localStorage.setItem('ike-alambic-vu', '1');
   }
 } catch (e) { ouvrir('v-aide'); }
+
 
 </script>
 </body>
