@@ -5,6 +5,39 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v4.14.0 — 2026-08-02
+
+🧊 **Nouvelle simulation : Fabrique de la glace** (PCT 6ᵉ, SA4) — comment geler de l'eau en pleine
+chaleur, sans congélateur. Cinq missions sur le gabarit atelier, avec une **courbe
+température-temps** qui se trace pendant l'expérience.
+
+**Ce que l'élève fait**
+- **Mission 1 — De la glace, et rien d'autre.** Le flacon d'eau dans la glace pilée : le mélange
+  ne descend jamais sous 0 °C et l'eau ne gèle pas. Il faut plus froid
+- **Mission 2 — Le sel qui refroidit.** Le curseur de sel fait plonger le mélange jusqu'à
+  **−21 °C** vers 23 %. Au-delà, le sel ne se dissout plus : les grains s'accumulent au fond et
+  rien ne change
+- **Mission 3 — Garder le froid.** Deux essais de cinq minutes, sans rien puis avec du
+  polystyrène, et le relevé se prend tout seul : **1,2 °C** contre **−13,9 °C**. Un isolant ne
+  fabrique pas de froid, il ralentit la chaleur qui entre
+- **Mission 4 — Fabrique ta glace.** Avec 23 % de sel et du polystyrène, l'eau du flacon gèle. La
+  courbe montre le **palier de solidification** : la température reste bloquée à 0 °C pendant six
+  minutes, puis repart vers le bas une fois la glace complète
+- **Mission 5 — Le givre sur le flacon.** Un dépôt blanc se forme sur la paroi glacée. Essuyé, il
+  revient : il ne sort pas du flacon fermé mais de la **vapeur d'eau de l'air**, qui se dépose
+  directement en glace — la **condensation solide**
+
+**Le modèle, validé avant l'interface**
+Douze vérifications passées sous Node : la courbe de température du mélange interpolée entre des
+points mesurés (0, −6,5, −11, −16,5, −21,1 °C) plutôt qu'inventée, la saturation à 23,3 %, le
+classement des quatre isolants, l'échec de la congélation sans isolant, et l'existence d'un palier
+d'au moins une minute à 0 °C.
+
+**Deux dispositions selon l'écran**
+Le plan choisit sa mise en page : montage à gauche et courbe à droite quand c'est large, l'un
+au-dessus de l'autre en portrait. Le montage se décale de lui-même pour ne jamais passer sous le
+panneau des deux thermomètres.
+
 ## v4.13.0 — 2026-08-02
 
 🕯️ **Nouvelle simulation : La flamme de la bougie** (PCT 6ᵉ, SA3) — complément de la SA3, qui

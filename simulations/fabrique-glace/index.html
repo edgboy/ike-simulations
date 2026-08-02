@@ -1,0 +1,1538 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fabrique de la glace — Labo-Bénin</title>
+<meta name="theme-color" content="#F7F5F0">
+<link rel="stylesheet" href="../../assets/polices.css">
+<style>
+
+/* ===== Jetons du design system Labo-Bénin (intégrés : fichier autonome) ===== */
+:root {
+  --primary:#C4D94E; --accent:#5BC5F2; --accent-doux:#D6F0FB;
+  --tertiary:#F7A430; --destructive:#E83A4B; --success:#2A9D8F;
+  --neutral:#3A3632; --background:#F7F5F0; --surface:#FFFFFF; --surface-muted:#F0EEE9;
+  --border:#D3CFC8; --border-strong:#B0ABA3; --ring:#5BC5F2;
+  --accent-texte:#0F6E93;   /* le bleu d’accent ne passe pas les 4,5 de contraste en texte */
+  --font-display:'Baloo 2','Segoe UI',system-ui,sans-serif;
+  --font-body:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;
+  --radius-sm:8px; --radius-md:12px; --radius-lg:16px; --radius-xl:24px; --radius-full:9999px;
+  --shadow-soft:0 4px 16px rgba(58,54,50,.05);
+  --shadow-raised:0 6px 20px rgba(58,54,50,.06);
+  --ease:cubic-bezier(.4,0,.2,1);
+  --metal:#B0ABA3; --cuivre:#C9885A;
+}
+body.sombre {
+  --neutral:#ECEFF1; --background:#14181C; --surface:#1C232A; --surface-muted:#232C34;
+  --border:#333E47; --border-strong:#4A5762; --accent-doux:#17323F; --accent-texte:#7FD4F5;
+  --shadow-soft:0 4px 16px rgba(0,0,0,.28); --shadow-raised:0 6px 20px rgba(0,0,0,.34);
+  --metal:#8A9299;
+}
+
+*,*::before,*::after { box-sizing:border-box; }
+body {
+  margin:0; font-family:var(--font-body); font-size:16px; color:var(--neutral);
+  background:var(--background); overflow:hidden;
+  height:100dvh; display:flex; flex-direction:column;
+  -webkit-tap-highlight-color:transparent; -webkit-text-size-adjust:100%;
+}
+h1,h2,h3,h4 { font-family:var(--font-display); margin:0; line-height:1.2; }
+p { margin:0; }
+:focus-visible { outline:2px solid var(--ring); outline-offset:2px; border-radius:var(--radius-sm); }
+
+/* ============================ En-tête ============================ */
+header {
+  display:flex; align-items:center; gap:8px; flex:none;
+  padding:6px 10px; background:var(--surface); border-bottom:1px solid var(--border);
+}
+header h1 { font-size:15px; font-weight:800; line-height:1.15; }
+header .sous { font-size:10.5px; opacity:.6; }
+.icone-btn {
+  width:40px; height:40px; flex:none; display:grid; place-items:center;
+  border:none; background:none; border-radius:var(--radius-md);
+  font-size:18px; color:inherit; cursor:pointer; text-decoration:none;
+}
+.icone-btn:hover { background:var(--surface-muted); }
+.tete-fin { margin-left:auto; display:flex; gap:2px; align-items:center; }
+
+/* ===================== Bandeau de mission (EN HAUT) ===================== */
+#mission {
+  flex:none; background:var(--surface); border-bottom:1px solid var(--border);
+  padding:8px 12px 9px;
+}
+.m-haut { display:flex; align-items:center; gap:9px; }
+.m-pastille {
+  width:30px; height:30px; flex:none; border-radius:var(--radius-sm);
+  display:grid; place-items:center; background:var(--accent-doux);
+  font-family:var(--font-display); font-weight:800; font-size:13px;
+}
+.m-titres { flex:1; min-width:0; }
+.m-titres b { display:block; font-size:14px; font-weight:600; line-height:1.2; }
+.m-titres span { font-size:11.5px; opacity:.65; line-height:1.35; display:block; }
+.m-rang {
+  font-size:10.5px !important; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--accent-texte); opacity:1 !important; margin-bottom:1px;
+}
+.m-plier {
+  width:34px; height:34px; flex:none; border:none; background:none; cursor:pointer;
+  border-radius:var(--radius-sm); font-size:14px; color:inherit;
+  transition:transform .2s var(--ease);
+}
+.m-plier:hover { background:var(--surface-muted); }
+#mission.ouvert .m-plier { transform:rotate(180deg); }
+/* Replié, on ne montre que l'étape en cours : la lampe reste visible */
+#mission:not(.ouvert) .etape:not(.a-montrer) { display:none; }
+#mission:not(.ouvert) .m-indice { display:none; }
+.m-jauge { height:5px; border-radius:var(--radius-full); background:var(--surface-muted); margin-top:8px; overflow:hidden; }
+.m-jauge i { display:block; height:100%; background:var(--accent); transition:width .4s var(--ease); }
+
+/* ---- Liste des étapes : le guidage pas à pas ---- */
+#etapes { margin-top:9px; }
+.etape {
+  display:flex; align-items:flex-start; gap:9px; padding:5px 0;
+  font-size:13px; line-height:1.4;
+}
+.etape .coche {
+  width:21px; height:21px; flex:none; margin-top:1px; border-radius:var(--radius-full);
+  display:grid; place-items:center; font-size:11px; font-weight:700;
+  border:2px solid var(--border-strong); color:transparent; background:none;
+}
+.etape.faite .coche { background:var(--success); border-color:var(--success); color:#fff; }
+.etape.faite .t { opacity:.5; text-decoration:line-through; }
+.etape.courante .coche { border-color:var(--accent-texte); animation:pulseCoche 1.5s infinite; }
+.etape.courante .t { font-weight:600; }
+@keyframes pulseCoche { 50% { box-shadow:0 0 0 5px var(--accent-doux); } }
+.etape .t { flex:1; }
+.m-indice {
+  margin-top:8px; padding:9px 11px; border-radius:var(--radius-md);
+  background:var(--accent-doux); font-size:12.5px; line-height:1.5;
+}
+.m-indice b { font-weight:600; }
+
+/* ============================ Atelier ============================ */
+main { flex:1; min-height:0; display:flex; flex-direction:column; }
+#atelier { flex:1; min-height:0; position:relative; display:flex; }
+#plan { flex:1; min-height:0; width:100%; display:block; touch-action:manipulation; }
+
+/* Emplacements sur la lampe */
+.slot { cursor:pointer; }
+.slot .zone {
+  fill:var(--surface); fill-opacity:.5; stroke:var(--border-strong); stroke-width:2;
+  stroke-dasharray:6 5; rx:7;
+}
+.slot:hover .zone, .slot:focus-visible .zone { stroke:var(--accent); fill:var(--accent-doux); fill-opacity:1; }
+.slot.plein .zone { display:none; }
+/* Surbrillance de l'emplacement attendu par l'étape en cours */
+.slot.vise .zone { stroke:var(--accent); stroke-width:3; stroke-dasharray:none;
+  fill:var(--accent-doux); fill-opacity:1; animation:viseur 1.5s infinite; }
+@keyframes viseur { 50% { stroke-opacity:.35; } }
+.slot.vise .etiq-slot { opacity:1; font-weight:700; }
+.etiq-slot {
+  font-family:var(--font-body); font-size:11px; font-weight:600;
+  fill:var(--neutral); opacity:.55; text-anchor:middle; pointer-events:none;
+}
+.txt-piece {
+  font-family:var(--font-body); font-size:11px; font-weight:700;
+  fill:var(--neutral); text-anchor:middle; pointer-events:none;
+}
+.retirer { cursor:pointer; }
+.retirer circle { fill:var(--border-strong); transition:fill .15s var(--ease); }
+.retirer:hover circle, .retirer:focus-visible circle { fill:var(--destructive); }
+.retirer text { fill:#fff; font-size:13px; font-weight:700; text-anchor:middle; font-family:var(--font-body); }
+
+/* ============ Bouton d'accès aux mesures, sur le plan de travail ============ */
+#btn-mesures {
+  position:absolute; right:12px; bottom:12px; z-index:5;
+  display:flex; align-items:center; gap:7px;
+  min-height:44px; padding:0 16px;
+  background:var(--surface); color:var(--neutral);
+  border:2px solid var(--border-strong); border-radius:var(--radius-full);
+  box-shadow:var(--shadow-raised);
+  font-family:var(--font-body); font-size:13.5px; font-weight:600; cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+#btn-mesures:hover { background:var(--surface-muted); border-color:var(--neutral); }
+#btn-mesures[hidden] { display:none; }
+#btn-mesures.appelle { border-color:var(--accent-texte); animation:appelleMesures 1.4s infinite; }
+@keyframes appelleMesures { 50% { box-shadow:0 0 0 8px var(--accent-doux), var(--shadow-raised); } }
+
+/* ============================ Bilan ============================ */
+#bilan {
+  position:absolute; left:8px; right:8px; bottom:8px; z-index:6;
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-raised); padding:13px 15px;
+  display:none; max-width:520px; margin:0 auto;
+}
+#bilan.visible { display:block; animation:monte .3s var(--ease); }
+#atelier.avec-bilan #plan { align-self:flex-start; max-height:48%; }
+@keyframes monte { from { opacity:0; transform:translateY(10px); } }
+#bilan .verdict { display:flex; align-items:center; gap:9px; margin-bottom:4px; }
+#bilan .verdict .em { font-size:23px; line-height:1; }
+#bilan .verdict h3 { font-size:16px; flex:1; }
+#bilan .reduire {
+  width:32px; height:32px; flex:none; margin:-4px -6px 0 0;
+  border:none; background:none; border-radius:var(--radius-sm);
+  font-size:17px; color:inherit; cursor:pointer; opacity:.6;
+}
+#bilan .reduire:hover { background:var(--surface-muted); opacity:1; }
+#bilan .objectif {
+  margin-top:10px; padding:9px 11px; border-radius:var(--radius-md);
+  background:var(--accent-doux); font-size:12.5px; line-height:1.5;
+}
+#bilan .phrase { font-size:12.5px; opacity:.78; line-height:1.5; margin:0 0 10px; }
+.jauges { display:grid; grid-template-columns:repeat(auto-fit,minmax(115px,1fr)); gap:8px 14px; }
+.jauge .haut { display:flex; justify-content:space-between; font-size:11.5px; margin-bottom:3px; }
+.jauge .haut b { font-weight:600; }
+.jauge .haut span { opacity:.65; }
+.barre { height:7px; border-radius:var(--radius-full); background:var(--surface-muted); overflow:hidden; }
+.barre i { display:block; height:100%; background:var(--accent); border-radius:inherit; transition:width .5s var(--ease); }
+.barre.faible i { background:var(--tertiary); }
+.barre.mauvais i { background:var(--destructive); }
+#bilan .actions { display:flex; gap:8px; margin-top:11px; }
+
+/* ============================ Barre d'action ============================ */
+#actions {
+  flex:none; display:flex; gap:8px; align-items:center; justify-content:flex-end;
+  padding:8px 12px calc(8px + env(safe-area-inset-bottom));
+  background:var(--surface); border-top:1px solid var(--border);
+}
+.btn {
+  display:inline-flex; align-items:center; justify-content:center; gap:7px;
+  min-height:44px; padding:0 18px; border:none; border-radius:var(--radius-lg);
+  font-family:var(--font-body); font-size:14px; font-weight:600;
+  color:var(--neutral); background:var(--primary); cursor:pointer;
+  transition:filter .15s var(--ease);
+}
+.btn:hover { filter:brightness(.94); }
+.btn:active { filter:brightness(.88); }
+.btn[disabled] { opacity:.45; cursor:not-allowed; filter:none; }
+.btn-contour { background:var(--surface); border:2px solid var(--neutral); }
+.btn-contour:hover { background:var(--surface-muted); filter:none; }
+.btn-fantome { background:transparent; }
+.btn-fantome:hover { background:var(--surface-muted); filter:none; }
+.btn-large { width:100%; }
+#btn-tester.appelle { animation:appelle 1.3s infinite; }
+@keyframes appelle { 50% { box-shadow:0 0 0 7px rgba(196,217,78,.35); } }
+
+/* ================== Feuille de choix d'un composant ================== */
+#feuille {
+  position:fixed; inset:0; z-index:35; display:none;
+  background:rgba(38,50,56,.5);
+}
+#feuille.visible { display:block; }
+.f-carte {
+  position:absolute; left:0; right:0; bottom:0;
+  max-height:82dvh; overflow-y:auto;
+  background:var(--surface); border-radius:var(--radius-xl) var(--radius-xl) 0 0;
+  padding:8px 16px calc(18px + env(safe-area-inset-bottom));
+  box-shadow:var(--shadow-raised);
+  animation:glisse .28s var(--ease);
+}
+@keyframes glisse { from { transform:translateY(100%); } }
+.f-poignee { width:40px; height:4px; border-radius:2px; background:var(--border); margin:2px auto 12px; }
+.f-tete { display:flex; align-items:center; gap:9px; margin-bottom:4px; }
+.f-tete h2 { font-size:18px; flex:1; }
+.f-role { font-size:12.5px; line-height:1.5; opacity:.75; margin-bottom:13px; }
+.f-liste { display:grid; gap:9px; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); }
+.option {
+  display:flex; flex-direction:column; gap:3px; text-align:left; position:relative;
+  padding:12px 13px; min-height:62px;
+  background:var(--surface); border:2px solid var(--border); border-radius:var(--radius-md);
+  font-family:var(--font-body); color:var(--neutral); cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+.option:hover { border-color:var(--border-strong); background:var(--surface-muted); }
+.option.pose { border-color:var(--accent-texte); background:var(--accent-doux); }
+.option.conseil { border-color:var(--primary); }
+.option.conseil::after {
+  content:'conseillé'; position:absolute; top:-9px; right:9px;
+  padding:1px 8px; border-radius:var(--radius-full);
+  background:var(--primary); color:var(--neutral);
+  font-size:9.5px; font-weight:700; letter-spacing:.04em; text-transform:uppercase;
+}
+.option b { font-size:13.5px; font-weight:600; }
+.option span { font-size:11.5px; opacity:.68; line-height:1.4; }
+.option[disabled] { opacity:.42; cursor:not-allowed; }
+.f-vide { text-align:center; padding:18px 0; font-size:13px; opacity:.6; }
+
+/* ============================ Voiles ============================ */
+.voile {
+  position:fixed; inset:0; z-index:40; display:none;
+  background:rgba(38,50,56,.55); padding:14px; overflow-y:auto;
+}
+.voile.visible { display:flex; align-items:center; justify-content:center; }
+.carte-modale {
+  position:relative; width:100%; max-width:470px; margin:auto;
+  background:var(--surface); border-radius:var(--radius-lg); padding:22px 20px;
+  box-shadow:var(--shadow-raised);
+}
+.carte-modale h2 { font-size:20px; margin-bottom:9px; padding-right:34px; }
+.carte-modale > p { font-size:13.5px; line-height:1.6; opacity:.8; margin-bottom:10px; }
+.fermer-x {
+  position:absolute; top:8px; right:10px; width:36px; height:36px;
+  border:none; background:none; font-size:20px; color:inherit; cursor:pointer;
+  border-radius:var(--radius-md);
+}
+.fermer-x:hover { background:var(--surface-muted); }
+
+/* Cartes de mission */
+.d-carte {
+  display:flex; align-items:center; gap:11px; width:100%; text-align:left;
+  padding:11px 13px; margin-bottom:8px;
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md);
+  font-family:var(--font-body); color:inherit; cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+.d-carte:hover:not([disabled]) { border-color:var(--border-strong); background:var(--surface-muted); }
+.d-carte[disabled] { opacity:.5; cursor:not-allowed; }
+.d-carte .num {
+  width:30px; height:30px; flex:none; border-radius:var(--radius-sm);
+  display:grid; place-items:center; background:var(--accent-doux);
+  font-family:var(--font-display); font-weight:800; font-size:13px;
+}
+.d-carte.fait .num { background:var(--success); color:#fff; }
+.d-carte .txt { flex:1; min-width:0; }
+.d-carte .txt b { display:block; font-size:13.5px; font-weight:600; }
+.d-carte .txt span { font-size:11.5px; opacity:.65; line-height:1.4; }
+
+/* Guide d'accueil */
+.g-etape { display:flex; gap:11px; margin-bottom:13px; }
+.g-etape .num {
+  width:26px; height:26px; flex:none; border-radius:var(--radius-full);
+  display:grid; place-items:center; background:var(--accent-doux);
+  font-family:var(--font-display); font-weight:800; font-size:12.5px;
+}
+.g-etape .t { font-size:13.5px; line-height:1.5; opacity:.85; flex:1; }
+.g-etape .t b { opacity:1; }
+
+/* Lexique */
+.lex-entree {
+  padding:11px 0; border-bottom:1px solid var(--border);
+}
+.lex-entree:last-child { border-bottom:none; }
+.lex-entree b { display:block; font-size:14px; font-weight:600; margin-bottom:2px; }
+.lex-entree span { font-size:12.5px; line-height:1.55; opacity:.78; }
+.lex-entree em { font-style:normal; color:var(--accent-texte); font-weight:600; }
+
+/* Écran de passage d'une mission à la suivante */
+.p-fanion {
+  display:flex; align-items:center; gap:10px; margin-bottom:12px;
+}
+.p-fanion .rond {
+  width:44px; height:44px; flex:none; border-radius:var(--radius-full);
+  display:grid; place-items:center; background:var(--success); font-size:22px;
+}
+.p-fanion b { display:block; font-size:17px; font-family:var(--font-display); font-weight:800; }
+.p-fanion span { font-size:12px; opacity:.65; }
+.p-acquis {
+  padding:12px 14px; border-radius:var(--radius-md); background:var(--accent-doux);
+  font-size:13px; line-height:1.55; margin-bottom:14px;
+}
+.p-acquis b { font-weight:600; }
+.p-suite {
+  border:2px dashed var(--border-strong); border-radius:var(--radius-md);
+  padding:12px 14px; margin-bottom:14px;
+}
+.p-suite .etiq {
+  font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--accent-texte); margin-bottom:3px;
+}
+.p-suite b { display:block; font-size:15px; font-family:var(--font-display); font-weight:800; }
+.p-suite span { font-size:12.5px; opacity:.7; line-height:1.45; }
+.p-neuf { font-size:12px; opacity:.6; text-align:center; margin-top:9px; line-height:1.45; }
+
+/* QCM */
+.q-question { font-size:15px; font-weight:600; line-height:1.4; margin-bottom:12px; }
+.q-choix {
+  display:block; width:100%; text-align:left; margin-bottom:8px;
+  padding:12px 14px; min-height:46px;
+  background:var(--surface); border:2px solid var(--border); border-radius:var(--radius-md);
+  font-family:var(--font-body); font-size:13.5px; color:var(--neutral); cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+.q-choix:hover:not([disabled]) { border-color:var(--border-strong); background:var(--surface-muted); }
+.q-choix.bon { border-color:var(--success); background:rgba(42,157,143,.12); font-weight:600; }
+.q-choix.mauvais { border-color:var(--destructive); background:rgba(232,58,75,.1); }
+.q-choix[disabled] { cursor:default; }
+.q-expl {
+  margin-top:4px; padding:11px 13px; border-radius:var(--radius-md);
+  background:var(--accent-doux); font-size:12.5px; line-height:1.55;
+  display:none;
+}
+.q-expl.visible { display:block; }
+.q-avance { font-size:11.5px; opacity:.55; margin-bottom:10px; letter-spacing:.04em; text-transform:uppercase; font-weight:600; }
+
+/* ============================ Toast ============================ */
+#toast {
+  position:fixed; left:50%; bottom:calc(70px + env(safe-area-inset-bottom));
+  transform:translateX(-50%);
+  max-width:calc(100vw - 28px); padding:10px 16px; z-index:45;
+  background:var(--neutral); color:var(--background);
+  border-radius:var(--radius-full); font-size:13px; font-weight:600;
+  opacity:0; pointer-events:none; transition:opacity .2s var(--ease); text-align:center;
+}
+#toast.visible { opacity:1; }
+#toast.alerte { background:var(--destructive); color:#fff; }
+
+/* ================= Adaptations d'écran ================= */
+
+/* Paysage sur téléphone : chaque pixel de hauteur compte */
+@media (orientation:landscape) and (max-height:520px) {
+  header { padding:3px 8px; }
+  header h1 { font-size:13px; }
+  header .sous { display:none; }
+  .icone-btn { width:34px; height:34px; font-size:16px; }
+  #mission { padding:5px 10px 6px; }
+  .m-pastille { width:24px; height:24px; font-size:11px; }
+  .m-titres b { font-size:12.5px; }
+  .m-titres span { display:none; }
+  #mission.ouvert .m-titres span { display:block; }
+  .m-jauge { margin-top:5px; }
+  #actions { padding:5px 10px calc(5px + env(safe-area-inset-bottom)); }
+  .btn { min-height:38px; padding:0 14px; font-size:13px; }
+  #atelier.avec-bilan #plan { max-height:none; }
+  #bilan { max-width:none; right:8px; left:auto; width:min(58%,420px); bottom:6px; }
+  .f-carte { max-height:96dvh; }
+}
+
+/* Écran large : la mission passe en colonne, l'atelier prend le reste */
+@media (min-width:880px) {
+  body { flex-direction:row; }
+  #colonne {
+    width:330px; flex:none; display:flex; flex-direction:column;
+    background:var(--surface); border-right:1px solid var(--border);
+    overflow-y:auto;
+  }
+  header { border-bottom:1px solid var(--border); }
+  #mission { border-bottom:none; padding:12px 16px; }
+  /* la place ne manque pas : toutes les étapes restent visibles */
+  #mission:not(.ouvert) .etape:not(.a-montrer) { display:flex; }
+  #mission:not(.ouvert) .m-indice { display:block; }
+  .m-plier { display:none; }
+  main { flex:1; min-width:0; }
+  #actions { justify-content:center; }
+  #bilan { left:16px; right:16px; }
+  .f-carte {
+    position:absolute; top:50%; left:50%; right:auto; bottom:auto;
+    transform:translate(-50%,-50%); width:min(560px,92vw);
+    border-radius:var(--radius-lg); max-height:86dvh;
+    animation:apparait .2s var(--ease);
+  }
+  @keyframes apparait { from { opacity:0; } }
+  .f-poignee { display:none; }
+}
+
+@media (prefers-reduced-motion:reduce) {
+  *,*::before,*::after { animation-duration:.01ms !important; transition-duration:.01ms !important; }
+}
+
+/* ===================== Propre à l'alambic ===================== */
+.flamme { animation:vacille .5s infinite alternate; transform-origin:center bottom; }
+@keyframes vacille { to { transform:scaleY(1.14) scaleX(.94); } }
+.bulle { animation:monteBulle 1.5s infinite ease-in; }
+@keyframes monteBulle { from { transform:translateY(0); opacity:.9; } to { transform:translateY(-42px); opacity:0; } }
+.goutte { animation:tombe 1.8s infinite ease-in; }
+@keyframes tombe { from { transform:translateY(0); opacity:1; } to { transform:translateY(46px); opacity:.2; } }
+.etat-eau {
+  font-family:var(--font-body); font-size:10.5px; font-weight:700;
+  text-anchor:middle; pointer-events:none;
+}
+.chgt-etat {
+  font-family:var(--font-body); font-size:10px; font-weight:600;
+  fill:var(--accent); text-anchor:middle; pointer-events:none;
+}
+#legende-etats {
+  position:absolute; left:10px; top:8px; z-index:4;
+  display:flex; gap:10px; flex-wrap:wrap;
+  padding:7px 11px; border-radius:var(--radius-md);
+  background:var(--surface); border:1px solid var(--border); box-shadow:var(--shadow-soft);
+  font-size:11px; font-weight:600;
+}
+#legende-etats[hidden] { display:none; }
+#legende-etats i { display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:4px; }
+
+
+/* ===================== Propre à la fabrique de glace ===================== */
+
+/* Les deux thermomètres, lus d’un coup d’œil */
+#lecture {
+  position:absolute; top:8px; left:8px; width:184px; max-width:44%;
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--radius-md); box-shadow:var(--shadow-soft);
+  padding:9px 11px; pointer-events:none;
+}
+#lecture .l-titre {
+  font-size:10px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--accent-texte); margin-bottom:1px;
+}
+#lecture .l-temp {
+  font-size:22px; font-weight:800; font-family:var(--font-display); line-height:1.15;
+}
+#lecture .l-temp.gele { color:var(--accent-texte); }
+#lecture .l-temp.chaud { color:#A85F00; }
+#lecture .l-sep { height:1px; background:var(--border); margin:6px 0 5px; }
+#lecture .l-quoi { font-size:11.5px; line-height:1.4; opacity:.75; margin-top:5px; }
+
+#chrono {
+  position:absolute; top:8px; right:8px;
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--radius-full); box-shadow:var(--shadow-soft);
+  padding:5px 12px; font-size:13px; pointer-events:none;
+}
+#chrono b { font-family:var(--font-display); font-weight:800; font-size:15px; }
+#chrono.court { border-color:var(--tertiary); }
+
+/* Le pupitre de réglages */
+#reglages {
+  flex:none; border-top:1px solid var(--border); background:var(--surface);
+  padding:8px 12px 9px; display:flex; gap:16px; align-items:flex-end; flex-wrap:wrap;
+}
+.rg-bloc { flex:1 1 200px; min-width:0; }
+.rg-titre { display:block; font-size:11.5px; opacity:.7; margin-bottom:5px; }
+.rg-titre b { font-family:var(--font-display); font-weight:800; font-size:14px; opacity:1; }
+#reglages input[type=range] {
+  width:100%; margin:0; accent-color:var(--accent); height:26px;
+}
+#reglages input[type=range]:disabled { opacity:.4; }
+.rg-choix { display:flex; gap:6px; flex-wrap:wrap; }
+.iso {
+  flex:none; display:flex; align-items:center; gap:5px; cursor:pointer;
+  padding:5px 10px 5px 8px; border-radius:var(--radius-full);
+  border:2px solid var(--border); background:var(--surface-muted);
+  font-family:inherit; font-size:12px; font-weight:600; color:var(--neutral);
+  transition:background .16s var(--ease), border-color .16s var(--ease);
+}
+.iso .em { font-size:15px; line-height:1; }
+.iso[aria-pressed="true"] { border-color:var(--accent); background:var(--accent-doux); }
+.iso:disabled { opacity:.42; cursor:not-allowed; }
+.iso.appelle, .btn.appelle, #sel.appelle { animation:appelReglage 1.4s infinite; }
+@keyframes appelReglage {
+  0%,100% { box-shadow:0 0 0 0 rgba(91,197,242,.55); }
+  60%     { box-shadow:0 0 0 8px rgba(91,197,242,0); }
+}
+
+.etiq-svg { font-family:var(--font-body); font-size:11px; font-weight:600; }
+.chiffre-svg { font-family:var(--font-display); font-size:12.5px; font-weight:800; }
+
+@media (max-width:560px) {
+  #lecture { width:150px; padding:7px 9px; }
+  #lecture .l-temp { font-size:19px; }
+  #lecture .l-quoi { display:none; }
+  #reglages { gap:10px; padding:7px 10px 8px; }
+  .rg-bloc { flex:1 1 100%; }
+}
+@media (max-height:430px) and (orientation:landscape) {
+  #lecture .l-quoi { display:none; }
+  #reglages { padding:5px 10px 6px; gap:12px; }
+  .rg-bloc { flex:1 1 180px; }
+  #reglages input[type=range] { height:20px; }
+  #actions { padding:6px 8px; }
+}
+
+</style>
+</head>
+<body>
+<div id="colonne">
+  <header>
+    <a class="icone-btn" href="../../index.html#/pct/6e" title="Retour au catalogue" aria-label="Retour">←</a>
+    <div>
+      <h1>Fabrique de la glace</h1>
+      <div class="sous">PCT · 6ᵉ · SA4</div>
+    </div>
+    <div class="tete-fin">
+      <button class="icone-btn" id="btn-missions" title="Les missions" aria-label="Missions">🎯</button>
+      <button class="icone-btn" id="btn-lexique" title="Lexique" aria-label="Lexique">📖</button>
+      <button class="icone-btn" id="btn-aide" title="Comment jouer" aria-label="Aide">❓</button>
+      <button class="icone-btn" id="btn-theme" title="Thème" aria-label="Thème">🌙</button>
+    </div>
+  </header>
+  <section id="mission">
+    <div class="m-haut">
+      <span class="m-pastille" id="m-num">1</span>
+      <div class="m-titres">
+        <span class="m-rang" id="m-rang">Mission 1 sur 5</span>
+        <b id="m-titre">—</b>
+        <span id="m-but"></span>
+      </div>
+      <button class="m-plier" id="m-plier" aria-label="Afficher toutes les étapes" aria-expanded="false">▼</button>
+    </div>
+    <div class="m-jauge"><i id="m-jauge" style="width:0"></i></div>
+    <div id="etapes"></div>
+  </section>
+</div>
+
+<main>
+  <div id="atelier">
+    <svg id="plan" viewBox="0 0 660 340" preserveAspectRatio="xMidYMid meet" role="img"
+         aria-label="Un flacon d’eau plongé dans un mélange de glace et de sel"></svg>
+    <div id="lecture">
+      <div class="l-titre">Le mélange</div>
+      <div class="l-temp" id="l-bain">—</div>
+      <div class="l-sep"></div>
+      <div class="l-titre">L’eau du flacon</div>
+      <div class="l-temp" id="l-flacon">—</div>
+      <div class="l-quoi" id="l-quoi">Prépare ton mélange.</div>
+    </div>
+    <div id="chrono">⏱ <b id="chrono-val">0:00</b></div>
+    <div id="bilan" role="status" aria-live="polite"></div>
+  </div>
+
+  <div id="reglages">
+    <div class="rg-bloc">
+      <label class="rg-titre" for="sel">Sel dans la glace : <b id="sel-val">0 %</b></label>
+      <input type="range" id="sel" min="0" max="30" step="1" value="0">
+    </div>
+    <div class="rg-bloc">
+      <span class="rg-titre">Autour du récipient :</span>
+      <div class="rg-choix" id="liste-isolants"></div>
+    </div>
+  </div>
+
+  <div id="actions"></div>
+</main>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<div class="voile" id="v-lexique">
+  <div class="carte-modale">
+    <button class="fermer-x" data-ferme="v-lexique" aria-label="Fermer">✕</button>
+    <h2>📖 Les mots du froid</h2>
+    <p>Ce qui se passe quand l’eau devient glace.</p>
+    <div id="liste-lexique"></div>
+  </div>
+</div>
+
+<div class="voile" id="v-missions">
+  <div class="carte-modale">
+    <button class="fermer-x" data-ferme="v-missions" aria-label="Fermer">✕</button>
+    <h2>🎯 Les missions</h2>
+    <p>Elles se suivent : termine l’une pour ouvrir la suivante.</p>
+    <div id="liste-missions"></div>
+    <button class="btn btn-fantome btn-large" id="btn-rezero"
+            style="margin-top:6px;color:var(--destructive)">↺ Recommencer tout le parcours</button>
+  </div>
+</div>
+
+<div class="voile" id="v-aide">
+  <div class="carte-modale">
+    <button class="fermer-x" data-ferme="v-aide" aria-label="Fermer">✕</button>
+    <h2>🧊 Faire de la glace sans congélateur</h2>
+    <p>Avec de la glace pilée, du sel et de quoi isoler, on peut geler de l’eau
+       en pleine chaleur. Ton atelier est prêt.</p>
+    <div class="g-etape"><span class="num">1</span><span class="t">
+      <b>Règle ton mélange :</b> la dose de sel, et ce que tu mets autour du récipient
+      pour garder le froid.</span></div>
+    <div class="g-etape"><span class="num">2</span><span class="t">
+      <b>Lance le chrono.</b> Les deux thermomètres et la courbe se remplissent
+      pendant que l’expérience avance.</span></div>
+    <div class="g-etape"><span class="num">3</span><span class="t">
+      Surveille la courbe du flacon : quand elle <b>s’arrête net à 0 °C</b>, l’eau
+      est en train de devenir glace.</span></div>
+    <button class="btn btn-large" data-ferme="v-aide">Ouvrir l’atelier</button>
+  </div>
+</div>
+
+<div class="voile" id="v-qcm"><div class="carte-modale" id="qcm-carte"></div></div>
+<div class="voile" id="v-passage"><div class="carte-modale" id="passage-carte"></div></div>
+
+<script>
+'use strict';
+/* =====================================================================
+   Fabrique de la glace — PCT 6ᵉ, SA4
+   Modèle validé par test-glace.js avant l'écriture de l'interface.
+   ===================================================================== */
+
+const $ = id => document.getElementById(id);
+const el = (n, a = {}) => { const e = document.createElementNS('http://www.w3.org/2000/svg', n);
+  for (const k in a) e.setAttribute(k, a[k]); return e; };
+
+/* ---------------- La température du mélange réfrigérant ----------------
+   Le sel abaisse le point de fusion de la glace. On interpole entre des
+   points mesurés : la courbe n'est pas une droite. */
+const COURBE = [[0, 0], [5, -3], [10, -6.5], [15, -11], [20, -16.5], [23.3, -21.1]];
+const SEL_SATURE = 23.3;          // au-delà, le sel ne se dissout plus
+
+function tempMelange(pourcentSel) {
+  const s = Math.max(0, Math.min(SEL_SATURE, pourcentSel));
+  for (let i = 1; i < COURBE.length; i++) {
+    const [s0, t0] = COURBE[i - 1], [s1, t1] = COURBE[i];
+    if (s <= s1) return t0 + (t1 - t0) * (s - s0) / (s1 - s0);
+  }
+  return COURBE[COURBE.length - 1][1];
+}
+
+/* ------------------------ Ce qu'on met autour ------------------------ */
+const ISOLANTS = {
+  aucun:       { nom:'Rien',          em:'🪣', fuite:1,   tient:'2 min',  desMission:0 },
+  chiffon:     { nom:'Chiffons',      em:'🧣', fuite:.45, tient:'5 min',  desMission:2 },
+  coton:       { nom:'Coton',         em:'☁️', fuite:.3,  tient:'7 min',  desMission:2 },
+  polystyrene: { nom:'Polystyrène',   em:'📦', fuite:.12, tient:'18 min', desMission:2 },
+};
+
+const T_PIECE = 30;               // il fait chaud dehors
+const C_EAU = 4185, L_FUSION = 334000;
+const MASSE = .05;                // 50 g d'eau dans le flacon
+const K_FLACON = .012;            // échange entre le flacon et le mélange
+
+// Le bain remonte vers la température de la pièce, d'autant plus vite
+// que le récipient est mal isolé.
+function bainApres(secondes, sel, isolant) {
+  const cible = tempMelange(sel);
+  const k = ISOLANTS[isolant].fuite * .0016;
+  return cible + (T_PIECE - cible) * (1 - Math.exp(-k * secondes));
+}
+
+// Le givre apparaît sur le flacon quand sa paroi passe sous 0 °C :
+// la vapeur d'eau de l'air s'y dépose directement en glace.
+const givreVisible = (tFlacon) => tFlacon <= .2;
+
+
+/* ============================ Les missions ============================ */
+const MISSIONS = [
+  { titre:'De la glace, et rien d’autre',
+    but:'Pose le flacon d’eau dans la glace pilée et lance le chrono. Regarde jusqu’où l’eau descend.',
+    selBloque:true,
+    etapes:[
+      { t:'Lance le chrono', cible:'btn-lancer', ok:e => e.t > 2 },
+      { t:'Laisse passer trois minutes', ok:e => e.t >= 180 },
+      { t:'Constate : l’eau du flacon n’a pas gelé', cible:'btn-tester', ok:e => e.lu1 },
+    ],
+    gagne:e => e.lu1,
+    retenir:'La glace pilée seule ne descend pas sous <b>0 °C</b>. L’eau du flacon s’en approche mais ne gèle pas : pour la faire geler, il faut un mélange <b>plus froid que 0 °C</b>.',
+    qcm:{ q:'Pourquoi la glace pilée seule ne fait-elle pas geler le flacon ?',
+      r:['Elle reste à 0 °C : ce n’est pas assez froid',
+         'Elle n’est pas en contact avec le flacon',
+         'Le flacon est trop petit'], bonne:0,
+      pourquoi:'Tant qu’il reste de la glace et de l’eau ensemble, le mélange se tient à 0 °C. L’eau du flacon ne peut donc pas descendre plus bas — et sans descendre plus bas, elle ne gèle pas.' } },
+
+  { titre:'Le sel qui refroidit',
+    but:'Ajoute du sel à la glace et lis la température du mélange. Cherche la dose la plus froide.',
+    etapes:[
+      { t:'Mets un peu de sel : au moins 5 %', cible:'sel', ok:e => e.doses.some(d => d >= 5) },
+      { t:'Monte à 15 % et compare', ok:e => e.doses.some(d => d >= 15) },
+      { t:'Trouve le mélange le plus froid', ok:e => e.doses.some(d => d >= 23) },
+      { t:'Vérifie s’il sert à rien d’en mettre plus', cible:'btn-tester', ok:e => e.lu2 },
+    ],
+    gagne:e => e.lu2 && e.doses.some(d => d >= 23),
+    retenir:'Le sel <b>abaisse le point de fusion</b> de la glace : le mélange descend jusqu’à <b>−21 °C</b> vers 23 % de sel. Au-delà, le sel ne se dissout plus et rien ne change.',
+    qcm:{ q:'Pourquoi sale-t-on les routes en pays froid ?',
+      r:['Pour que la glace fonde à une température plus basse',
+         'Pour réchauffer la chaussée',
+         'Pour rendre la route moins glissante par frottement'], bonne:0,
+      pourquoi:'Avec du sel, l’eau ne gèle plus à 0 °C mais bien plus bas. La glace déjà formée fond, et il faut qu’il fasse beaucoup plus froid pour qu’elle se reforme.' } },
+
+  { titre:'Garder le froid',
+    but:'Le mélange se réchauffe tout seul. Compare ce que valent les différentes protections.',
+    etapes:[
+      { t:'Fais un essai sans rien autour du récipient', cible:'i-aucun',
+        ok:e => e.essais.aucun != null },
+      { t:'Recommence en entourant de polystyrène', cible:'i-polystyrene',
+        ok:e => e.essais.polystyrene != null },
+      { t:'Compare les deux relevés', cible:'btn-tester', ok:e => e.lu3 },
+    ],
+    gagne:e => e.lu3 && e.essais.aucun != null && e.essais.polystyrene != null,
+    retenir:'Sans protection, la chaleur de la pièce entre dans le récipient : la glace fond et le mélange remonte vers 0 °C en deux minutes. Un bon <b>isolant</b> — le polystyrène — ralentit ce passage de chaleur et tient le froid bien plus longtemps.',
+    qcm:{ q:'À quoi sert le polystyrène autour du récipient ?',
+      r:['À ralentir la chaleur qui entre depuis la pièce',
+         'À produire du froid supplémentaire',
+         'À empêcher le sel de s’échapper'], bonne:0,
+      pourquoi:'Un isolant ne fabrique pas de froid : il freine les échanges de chaleur. La chaleur de la pièce met beaucoup plus longtemps à atteindre le mélange.' } },
+
+  { titre:'Fabrique ta glace',
+    but:'Tu sais tout ce qu’il faut. Règle ton mélange et fais geler l’eau du flacon.',
+    etapes:[
+      { t:'Mets au moins 20 % de sel', cible:'sel', ok:e => e.sel >= 20 },
+      { t:'Entoure le récipient de polystyrène', cible:'i-polystyrene',
+        ok:e => e.isolant === 'polystyrene' },
+      { t:'Lance et attends le palier à 0 °C', cible:'btn-lancer', ok:e => e.palierVu },
+      { t:'Continue jusqu’à la glace complète', ok:e => e.glace >= 1 },
+    ],
+    gagne:e => e.glace >= 1,
+    retenir:'Pendant que l’eau devient glace, sa température <b>ne bouge plus</b> : elle reste à 0 °C. Toute la chaleur retirée sert au changement d’état, pas au refroidissement. C’est le <b>palier de solidification</b>.',
+    qcm:{ q:'Pendant la prise en glace, le thermomètre du flacon ne bouge plus. Pourquoi ?',
+      r:['La chaleur retirée sert à changer l’état de l’eau',
+         'Le thermomètre est bloqué par la glace',
+         'Le mélange ne refroidit plus le flacon'], bonne:0,
+      pourquoi:'Un changement d’état se fait à température constante. Tant qu’il reste de l’eau liquide, tout le froid apporté sert à la solidifier ; la température ne redescend qu’une fois la glace complète.' } },
+
+  { titre:'Le givre sur le flacon',
+    but:'Regarde de près la paroi du flacon glacé : un dépôt blanc s’y forme. D’où vient-il ?',
+    etapes:[
+      { t:'Refais un mélange bien froid et lance', cible:'btn-lancer', ok:e => e.tFlacon <= .2 },
+      { t:'Laisse le givre se former sur le flacon', ok:e => e.givre >= .6 },
+      { t:'Essuie-le et regarde s’il revient', cible:'btn-essuyer', ok:e => e.givreRevenu },
+      { t:'Nomme ce qui vient de se passer', cible:'btn-tester', ok:e => e.lu5 },
+    ],
+    gagne:e => e.lu5 && e.givreRevenu,
+    retenir:'L’air contient de la <b>vapeur d’eau</b>, invisible. Au contact d’une paroi sous 0 °C, elle se dépose directement en glace, sans passer par l’état liquide : c’est la <b>condensation solide</b>. Le givre ne sort pas du flacon — il vient de l’air.',
+    qcm:{ q:'D’où vient le givre déposé sur le flacon ?',
+      r:['De la vapeur d’eau contenue dans l’air',
+         'De l’eau du flacon qui traverse la paroi',
+         'Du sel du mélange qui remonte'], bonne:0,
+      pourquoi:'Le flacon est fermé : rien n’en sort. C’est la vapeur d’eau de l’air qui se solidifie au contact de la paroi glacée. Essuie le givre : il se reforme, parce que l’air en apporte encore.' } },
+];
+
+const LEXIQUE = [
+  ['Solidification', 'Le passage de l’état liquide à l’état solide. Pour l’eau, elle se fait à 0 °C.'],
+  ['Fusion', 'Le passage de l’état solide à l’état liquide : la glace qui fond.'],
+  ['Point de fusion', 'La température à laquelle un solide fond. Celui de la glace pure est 0 °C ; le sel l’abaisse.'],
+  ['Mélange réfrigérant', 'Glace pilée et sel mélangés : le tout descend bien plus bas que 0 °C.'],
+  ['Palier', 'Le moment où la température ne bouge plus, parce que toute la chaleur sert au changement d’état.'],
+  ['Isolant', 'Une matière qui ralentit le passage de la chaleur. Elle ne produit pas de froid : elle le garde.'],
+  ['Condensation solide', 'Le passage direct de la vapeur d’eau à la glace, sans état liquide : le givre.'],
+  ['Vapeur d’eau', 'L’eau à l’état gazeux. Elle est invisible et présente partout dans l’air.'],
+];
+
+
+/* ============================ L’état du jeu ============================ */
+const CLE = 'ike-glace-progression';
+const ACCEL = 25;                 // une seconde de jeu vaut 25 secondes d’expérience
+
+const vierge = () => ({
+  sel:0, isolant:'aucun',
+  enCours:false, t:0, tBain:T_PIECE, tFlacon:28, glace:0,
+  courbe:[], doses:[], essais:{},
+  palierVu:false, palierDebut:null, palierFin:null, bainMin:null, flaconMin:null,
+  givre:0, givreEssuye:false, givreRevenu:false, chiffonSorti:false,
+  lu1:false, lu2:false, lu3:false, lu5:false,
+});
+let etat = Object.assign({ mission:0, faits:[] }, vierge());
+
+function sauver() {
+  try { localStorage.setItem(CLE, JSON.stringify({ mission:etat.mission, faits:etat.faits })); }
+  catch (e) {}
+}
+function charger() {
+  try {
+    const d = JSON.parse(localStorage.getItem(CLE) || '{}');
+    if (typeof d.mission === 'number') etat.mission = Math.min(d.mission, MISSIONS.length - 1);
+    if (Array.isArray(d.faits)) etat.faits = d.faits;
+  } catch (e) {}
+}
+function reprendre() { Object.assign(etat, vierge()); }
+
+// Remet la paillasse en ordre sans toucher aux réglages ni à la progression
+function nouvelEssai() {
+  etat.enCours = false; etat.t = 0; etat.tBain = tempMelange(etat.sel);
+  etat.tFlacon = 28; etat.glace = 0; etat.courbe = [];
+  etat.palierVu = false; etat.givre = 0; etat.givreEssuye = false;
+  etat.chiffonSorti = false; etat.palierDebut = null; etat.palierFin = null;
+  etat.bainMin = null; etat.flaconMin = null;
+}
+
+/* ======================= Le plan de travail (SVG) ======================= */
+let Wp = 660, Hp = 340;
+const refs = {};
+let temps = 0, t0 = performance.now();
+const nuit = () => document.body.classList.contains('sombre');
+
+// Deux dispositions : côte à côte quand c’est large, l’une sous l’autre sinon
+let zoneScene = { x:0, y:0, w:0, h:0 }, zoneGraphe = { x:0, y:0, w:0, h:0 };
+
+function mesurerPlan() {
+  const r = refs.plan.getBoundingClientRect();
+  Wp = Math.max(260, Math.round(r.width));
+  Hp = Math.max(180, Math.round(r.height));
+  refs.plan.setAttribute('viewBox', '0 0 ' + Wp + ' ' + Hp);
+
+  if (Wp / Hp >= 1.15) {                       // large : le montage à gauche, la courbe à droite
+    const wg = Math.min(Wp * .46, 380);
+    const hg = Math.min(Hp * .74, 330);
+    zoneScene  = { x:0, y:0, w:Wp - wg, h:Hp };
+    zoneGraphe = { x:Wp - wg + 6, y:Math.max(40, (Hp - hg) / 2), w:wg - 18, h:hg };
+  } else {                                      // étroit : le montage en haut, la courbe en bas
+    const hg = Math.min(Hp * .38, 210);
+    zoneScene  = { x:0, y:0, w:Wp, h:Hp - hg };
+    zoneGraphe = { x:36, y:Hp - hg + 10, w:Wp - 52, h:hg - 34 };
+  }
+}
+
+function texteSvg(g, x, y, txt, cou, anc, cls) {
+  const e = el('text', { x, y, fill:cou, 'text-anchor':anc || 'start' });
+  e.setAttribute('class', cls || 'etiq-svg'); e.textContent = txt; g.appendChild(e);
+  return e;
+}
+
+function definitions(g) {
+  const defs = el('defs');
+  defs.innerHTML =
+    '<linearGradient id="gSaumure" x1="0" y1="0" x2="0" y2="1">' +
+      '<stop offset="0%" stop-color="#BFE6F7"/><stop offset="100%" stop-color="#6FB6D8"/></linearGradient>' +
+    '<linearGradient id="gEau" x1="0" y1="0" x2="0" y2="1">' +
+      '<stop offset="0%" stop-color="#9FD9F4"/><stop offset="100%" stop-color="#5AAAD0"/></linearGradient>' +
+    '<linearGradient id="gGlace" x1="0" y1="0" x2="0" y2="1">' +
+      '<stop offset="0%" stop-color="#FFFFFF"/><stop offset="100%" stop-color="#CFEAF7"/></linearGradient>' +
+    '<linearGradient id="gVerre" x1="0" y1="0" x2="1" y2="0">' +
+      '<stop offset="0%" stop-color="#FFFFFF" stop-opacity=".45"/>' +
+      '<stop offset="30%" stop-color="#FFFFFF" stop-opacity=".05"/>' +
+      '<stop offset="100%" stop-color="#FFFFFF" stop-opacity=".28"/></linearGradient>';
+  g.appendChild(defs);
+}
+
+/* ---------------------- Le montage : seau, mélange, flacon ---------------------- */
+// Les grains de glace sont tirés une fois pour toutes : ils ne doivent pas
+// scintiller à chaque image.
+const GRAINS = [];
+for (let i = 0; i < 46; i++) {
+  GRAINS.push({ u:Math.random(), v:Math.random(), r:.35 + Math.random() * .5,
+    a:Math.random() * 360 });
+}
+
+function dessinerScene(g) {
+  const sombre = nuit();
+  const Z = zoneScene;
+  const hSeau = Math.min(Z.h * .62, 330);
+  const wSeau = Math.min(Z.w * .56, hSeau * 1.15);
+  const bas = Z.y + Z.h * .86;
+  const haut = bas - hSeau;
+  const ep = Math.max(7, wSeau * .075);          // épaisseur de l’isolant
+  // Le panneau de lecture occupe le coin haut gauche. Quand la place manque,
+  // le montage se décale pour ne pas passer dessous — sans sortir du plan.
+  const gene = (Hp < 360 || Z.w < 430) ? 196 : 0;
+  const cx = Math.min(Z.x + Z.w - wSeau / 2 - ep - 6,
+                      Math.max(Z.x + Z.w * .5, gene + wSeau / 2 + ep + 6));
+
+  // la table
+  g.appendChild(el('rect', { x:0, y:bas + ep + 2, width:Wp, height:Hp - bas - ep,
+    fill:sombre ? '#2A2119' : '#B98A5E' }));
+
+  // la couche isolante autour du récipient
+  const iso = ISOLANTS[etat.isolant];
+  if (etat.isolant !== 'aucun') {
+    const teinte = etat.isolant === 'polystyrene' ? (sombre ? '#5A6069' : '#E8E6E1')
+      : etat.isolant === 'coton' ? (sombre ? '#6B6F74' : '#F3F1EC')
+      : (sombre ? '#5E5348' : '#D9C6A8');
+    g.appendChild(el('rect', { x:cx - wSeau / 2 - ep, y:haut - ep, width:wSeau + ep * 2,
+      height:hSeau + ep * 2, rx:ep, fill:teinte,
+      stroke:sombre ? '#41474D' : '#C6C2BA', 'stroke-width':1.5 }));
+    texteSvg(g, cx, haut - ep - 7, iso.nom + ' — tient ' + iso.tient,
+      sombre ? '#ECEFF1' : '#3A3632', 'middle');
+  } else {
+    texteSvg(g, cx, haut - 9, 'Rien autour : le froid s’échappe',
+      sombre ? '#ECEFF1' : '#3A3632', 'middle');
+  }
+
+  // le récipient
+  g.appendChild(el('rect', { x:cx - wSeau / 2, y:haut, width:wSeau, height:hSeau, rx:6,
+    fill:sombre ? '#232C34' : '#F0EEE9', stroke:sombre ? '#4A5762' : '#B0ABA3',
+    'stroke-width':2.5 }));
+
+  // le mélange : de la saumure, et d’autant plus de glace qu’il fait froid
+  const nivMel = haut + hSeau * .12;
+  g.appendChild(el('rect', { x:cx - wSeau / 2 + 3, y:nivMel, width:wSeau - 6,
+    height:bas - nivMel - 3, rx:4, fill:'url(#gSaumure)' }));
+  const partGlace = Math.max(0, Math.min(1, (0 - etat.tBain) / 10 + .35));
+  const gr = Math.max(3.5, wSeau * .05);
+  GRAINS.forEach((p, i) => {
+    if (i / GRAINS.length > partGlace) return;
+    const x = cx - wSeau / 2 + 8 + p.u * (wSeau - 16);
+    const y = nivMel + 6 + p.v * (bas - nivMel - 16);
+    g.appendChild(el('rect', { x:x - gr * p.r, y:y - gr * p.r, width:gr * p.r * 2,
+      height:gr * p.r * 1.6, rx:1.5, fill:'url(#gGlace)', opacity:.92,
+      transform:`rotate(${p.a} ${x} ${y})` }));
+  });
+
+  // les grains de sel non dissous, quand on dépasse la saturation
+  if (etat.sel > SEL_SATURE) {
+    for (let i = 0; i < 9; i++) {
+      g.appendChild(el('circle', { cx:cx - wSeau / 2 + 12 + i * (wSeau - 24) / 9,
+        cy:bas - 6, r:2, fill:sombre ? '#DCE3E8' : '#FFFFFF', opacity:.9 }));
+    }
+  }
+
+  // le flacon d’eau, au milieu du mélange
+  const wF = Math.max(26, wSeau * .26), hF = hSeau * .62;
+  const xF = cx - wF / 2, yF = haut + hSeau * .04;
+  g.appendChild(el('rect', { x:xF, y:yF, width:wF, height:hF, rx:4,
+    fill:sombre ? '#1C232A' : '#FFFFFF', opacity:.5 }));
+  // le contenu : d’abord l’eau, puis la glace qui prend depuis les bords
+  const hCont = hF - 8, yCont = yF + 6;
+  g.appendChild(el('rect', { x:xF + 3, y:yCont, width:wF - 6, height:hCont, rx:3,
+    fill:'url(#gEau)' }));
+  if (etat.glace > .01) {
+    const e2 = Math.min((wF - 6) / 2, (wF - 6) / 2 * etat.glace + 1);
+    g.appendChild(el('rect', { x:xF + 3, y:yCont, width:e2, height:hCont, rx:3,
+      fill:'url(#gGlace)' }));
+    g.appendChild(el('rect', { x:xF + wF - 3 - e2, y:yCont, width:e2, height:hCont, rx:3,
+      fill:'url(#gGlace)' }));
+  }
+  g.appendChild(el('rect', { x:xF, y:yF, width:wF, height:hF, rx:4, fill:'url(#gVerre)',
+    stroke:sombre ? '#7FA9C0' : '#8FB8CC', 'stroke-width':2 }));
+  // le bouchon
+  g.appendChild(el('rect', { x:xF + wF * .22, y:yF - 7, width:wF * .56, height:8, rx:2,
+    fill:sombre ? '#6E6862' : '#B0ABA3' }));
+
+  // le givre déposé sur la paroi
+  if (etat.givre > .02) {
+    const n = Math.round(etat.givre * 16);
+    for (let i = 0; i < n; i++) {
+      const cote = i % 2 ? xF + 2 : xF + wF - 2;
+      const y = yF + 8 + (i / n) * (hF - 16);
+      g.appendChild(el('circle', { cx:cote, cy:y, r:1.4 + etat.givre * 1.6,
+        fill:'#FFFFFF', opacity:.55 + .4 * etat.givre }));
+    }
+  }
+
+  // les deux thermomètres, pour dire où chaque mesure est prise
+  const therm = (x, y1, y2, couleur) => {
+    g.appendChild(el('line', { x1:x, y1, x2:x, y2, stroke:sombre ? '#8A9299' : '#6E6862',
+      'stroke-width':4, 'stroke-linecap':'round' }));
+    g.appendChild(el('circle', { cx:x, cy:y2, r:5.5, fill:couleur,
+      stroke:'#FFFFFF', 'stroke-width':1.4 }));
+  };
+  const cBain = etat.tBain < 0 ? '#5BC5F2' : '#A85F00';
+  therm(cx - wSeau * .34, haut - 14, bas - hSeau * .3, cBain);
+  therm(cx + wF * .18, yF - 22, yF + hF * .5, etat.tFlacon <= .2 ? '#5BC5F2' : '#E83A4B');
+}
+
+
+/* ----------------- La courbe : ce que les thermomètres racontent ----------------- */
+const T_HAUT = 32, T_BAS = -24, DUREE_GRAPHE = 600;   // 10 minutes d’expérience
+
+function dessinerGraphe(g) {
+  const sombre = nuit();
+  const Z = zoneGraphe;
+  if (Z.w < 90 || Z.h < 70) return;
+  const c = sombre ? '#ECEFF1' : '#3A3632';
+  const cGrille = sombre ? '#333E47' : '#D3CFC8';
+
+  const duree = Math.max(DUREE_GRAPHE, etat.t + 60);
+  const X = t => Z.x + Z.w * Math.min(1, t / duree);
+  const Y = T => Z.y + Z.h * (T_HAUT - Math.max(T_BAS, Math.min(T_HAUT, T))) / (T_HAUT - T_BAS);
+
+  g.appendChild(el('rect', { x:Z.x, y:Z.y, width:Z.w, height:Z.h, rx:6,
+    fill:sombre ? '#1C232A' : '#FFFFFF', stroke:cGrille, 'stroke-width':1 }));
+
+  // les graduations de température
+  for (const T of [30, 20, 10, 0, -10, -20]) {
+    const y = Y(T);
+    g.appendChild(el('line', { x1:Z.x, y1:y, x2:Z.x + Z.w, y2:y, stroke:cGrille,
+      'stroke-width':T === 0 ? 1.6 : 1, opacity:T === 0 ? .95 : .45,
+      'stroke-dasharray':T === 0 ? '' : '3 4' }));
+    texteSvg(g, Z.x - 5, y + 4, T + '°', c, 'end').setAttribute('opacity', T === 0 ? '1' : '.6');
+  }
+
+  // les minutes
+  for (let m = 0; m * 60 <= duree; m += 2) {
+    const x = X(m * 60);
+    if (x > Z.x + Z.w - 4) break;
+    texteSvg(g, x, Z.y + Z.h + 14, m + ' min', c, m ? 'middle' : 'start')
+      .setAttribute('opacity', '.55');
+  }
+
+  if (etat.courbe.length > 1) {
+    const trace = (champ, couleur) => {
+      let d = '';
+      etat.courbe.forEach((p, i) => {
+        d += (i ? 'L' : 'M') + X(p.t).toFixed(1) + ' ' + Y(p[champ]).toFixed(1) + ' ';
+      });
+      g.appendChild(el('path', { d, fill:'none', stroke:couleur, 'stroke-width':2.4,
+        'stroke-linejoin':'round', 'stroke-linecap':'round' }));
+      const fin = etat.courbe[etat.courbe.length - 1];
+      g.appendChild(el('circle', { cx:X(fin.t), cy:Y(fin[champ]), r:3.6, fill:couleur }));
+    };
+    trace('bain', '#5BC5F2');
+    trace('flacon', '#E83A4B');
+  }
+
+  // la légende, en haut à droite : la zone y reste libre passé les premières secondes
+  const lx = Z.x + Z.w - 12, ly = Z.y + 15;
+  texteSvg(g, lx, ly, 'mélange', c, 'end');
+  g.appendChild(el('line', { x1:lx - 54, y1:ly - 4, x2:lx - 40, y2:ly - 4, stroke:'#5BC5F2',
+    'stroke-width':2.6, 'stroke-linecap':'round' }));
+  texteSvg(g, lx, ly + 15, 'flacon', c, 'end');
+  g.appendChild(el('line', { x1:lx - 54, y1:ly + 11, x2:lx - 40, y2:ly + 11, stroke:'#E83A4B',
+    'stroke-width':2.6, 'stroke-linecap':'round' }));
+
+  // le palier, souligné dès qu’il est visible
+  if (etat.palierDebut != null && etat.t > etat.palierDebut + 25) {
+    const x1 = X(etat.palierDebut), x2 = X(etat.palierFin != null ? etat.palierFin : etat.t);
+    g.appendChild(el('rect', { x:x1, y:Y(0) - 7, width:Math.max(4, x2 - x1), height:14,
+      fill:'#E83A4B', opacity:.14, rx:3 }));
+    if (x2 - x1 > 46)
+      texteSvg(g, (x1 + x2) / 2, Y(0) - 12, 'palier : l’eau gèle', '#B02A38', 'middle',
+        'chiffre-svg');
+  }
+}
+
+/* ------------------------- Le rendu complet du plan ------------------------- */
+let derniereMesure = -9;
+function dessiner() {
+  if (temps - derniereMesure > .25) { derniereMesure = temps; mesurerPlan(); }
+  const g = refs.plan;
+  while (g.firstChild) g.removeChild(g.firstChild);
+  definitions(g);
+  dessinerScene(g);
+  dessinerGraphe(g);
+}
+
+
+/* ====================== Ce qui se passe avec le temps ====================== */
+function avancer(dtReel) {
+  if (!etat.enCours) {
+    // hors expérience, le mélange affiche déjà ce que le réglage promet
+    etat.tBain = tempMelange(etat.sel);
+    return;
+  }
+  const dt = dtReel * ACCEL;
+  etat.t += dt;
+  etat.tBain = bainApres(etat.t, etat.sel, etat.isolant);
+
+  if (etat.glace < 1) {
+    if (etat.tFlacon > 0 || etat.tBain >= 0) {
+      etat.tFlacon += K_FLACON * (etat.tBain - etat.tFlacon) * dt;
+      if (etat.tFlacon < 0) etat.tFlacon = 0;
+    }
+    if (etat.tFlacon <= .001 && etat.tBain < 0) {
+      // toute la chaleur retirée sert au changement d’état : la température ne bouge plus
+      if (etat.palierDebut == null) etat.palierDebut = etat.t;
+      if (etat.t > etat.palierDebut + 40 && !etat.palierVu) {
+        etat.palierVu = true;
+        toast('Le thermomètre du flacon s’est arrêté à 0 °C.');
+      }
+      const puissance = -K_FLACON * etat.tBain * MASSE * C_EAU;
+      etat.glace = Math.min(1, etat.glace + puissance * dt / (MASSE * L_FUSION));
+      if (etat.glace >= 1 && etat.palierFin == null) {
+        etat.palierFin = etat.t;
+        toast('L’eau du flacon est entièrement gelée !');
+        appelerBouton('btn-tester');
+      }
+    }
+  } else {
+    etat.tFlacon += K_FLACON * (etat.tBain - etat.tFlacon) * dt;
+  }
+
+  // le givre se dépose sur la paroi froide, et se reforme après essuyage
+  const cible = etat.tFlacon <= .2 ? 1 : 0;
+  etat.givre += (cible - etat.givre) * Math.min(1, dt * .006);
+  if (etat.mission === 4 && etat.givre > .5 && !etat.givreEssuye && !etat.chiffonSorti) {
+    etat.chiffonSorti = true;
+    rendreActions(); appelerBouton('btn-essuyer');
+  }
+  if (etat.givreEssuye && etat.givre > .5 && !etat.givreRevenu) {
+    etat.givreRevenu = true;
+    toast('Le givre est revenu : l’air en apporte encore.');
+    appelerBouton('btn-tester');
+  }
+
+  // un point de courbe toutes les cinq secondes d’expérience
+  etat.bainMin = Math.min(etat.bainMin != null ? etat.bainMin : 99, etat.tBain);
+  etat.flaconMin = Math.min(etat.flaconMin != null ? etat.flaconMin : 99, etat.tFlacon);
+
+  const der = etat.courbe[etat.courbe.length - 1];
+  if (!der || etat.t - der.t >= 5)
+    etat.courbe.push({ t:etat.t, bain:etat.tBain, flacon:etat.tFlacon });
+
+  // le relevé de comparaison des isolants se prend à cinq minutes
+  if (etat.t >= 300 && etat.essais[etat.isolant] == null) {
+    etat.essais[etat.isolant] = Math.round(etat.tBain * 10) / 10;
+    if (etat.mission === 2) toast('Relevé à 5 min : ' + nb(etat.essais[etat.isolant]) + ' °C');
+  }
+  if (etat.t >= 900) { etat.enCours = false; rendreActions(); }
+}
+
+/* ========================= Les panneaux de lecture ========================= */
+const nb = x => String(Math.round(x * 10) / 10).replace('.', ',');
+
+function majLecture() {
+  $('l-bain').textContent = nb(etat.tBain) + ' °C';
+  $('l-bain').className = 'l-temp ' + (etat.tBain < 0 ? 'gele' : 'chaud');
+  $('l-flacon').textContent = etat.glace >= 1 ? 'glace, ' + nb(etat.tFlacon) + ' °C'
+    : nb(etat.tFlacon) + ' °C';
+  $('l-flacon').className = 'l-temp ' + (etat.tFlacon <= .2 ? 'gele' : 'chaud');
+
+  let quoi;
+  if (!etat.enCours && etat.t === 0) quoi = etat.sel === 0
+    ? 'De la glace pilée seule : elle se tient à 0 °C.'
+    : 'Le sel fait descendre le mélange sous 0 °C.';
+  else if (etat.glace >= 1) quoi = 'Le flacon est pris en glace.';
+  else if (etat.palierDebut != null) quoi = 'L’eau gèle : la température ne bouge plus.';
+  else if (etat.tBain > -1 && etat.t > 120) quoi = 'Le mélange s’est réchauffé : le froid s’échappe.';
+  else quoi = 'L’eau du flacon se refroidit.';
+  $('l-quoi').textContent = quoi;
+
+  const m = Math.floor(etat.t / 60), s = Math.floor(etat.t % 60);
+  $('chrono-val').textContent = m + ':' + (s < 10 ? '0' : '') + s;
+  $('chrono').classList.toggle('court', etat.enCours);
+}
+
+/* ============================== Les réglages ============================== */
+function rendreReglages() {
+  const M = MISSIONS[etat.mission];
+  const curseur = $('sel');
+  curseur.disabled = !!M.selBloque || etat.enCours;
+  if (M.selBloque && etat.sel !== 0) { etat.sel = 0; curseur.value = 0; }
+  $('sel-val').textContent = etat.sel + ' %' +
+    (etat.sel > SEL_SATURE ? ' (le sel ne se dissout plus)' : '');
+
+  const liste = $('liste-isolants');
+  liste.innerHTML = '';
+  for (const cle in ISOLANTS) {
+    const o = ISOLANTS[cle];
+    const dispo = etat.mission >= o.desMission;
+    const b = document.createElement('button');
+    b.className = 'iso'; b.id = 'i-' + cle; b.type = 'button';
+    b.disabled = !dispo || etat.enCours;
+    b.setAttribute('aria-pressed', etat.isolant === cle ? 'true' : 'false');
+    b.innerHTML = '<span class="em">' + o.em + '</span>' + o.nom;
+    if (dispo) b.onclick = () => choisirIsolant(cle);
+    else b.title = 'Disponible à la mission ' + (o.desMission + 1);
+    liste.appendChild(b);
+  }
+  surbrillerCible();
+}
+function choisirIsolant(cle) {
+  if (etat.enCours) return;
+  etat.isolant = cle;
+  nouvelEssai();
+  rendreReglages(); rendreActions(); rendreEtapes(); cacherBilan();
+}
+function changerSel(v) {
+  etat.sel = v;
+  // relever une dose, c'est la lire sur le thermomètre du mélange
+  if (!etat.doses.includes(v)) etat.doses.push(v);
+  if (etat.t > 0) nouvelEssai();
+  etat.tBain = tempMelange(v);
+  rendreReglages(); rendreEtapes();
+}
+
+/* ====================== Les boutons du bas de l’écran ====================== */
+function rendreActions() {
+  const z = $('actions');
+  z.innerHTML = '';
+  const bouton = (id, txt, cls, act) => {
+    const b = document.createElement('button');
+    b.className = 'btn ' + (cls || ''); b.id = id; b.textContent = txt; b.onclick = act;
+    z.appendChild(b); return b;
+  };
+  bouton('btn-lancer', etat.enCours ? '⏸ Mettre en pause' : etat.t > 0 ? '▶ Reprendre' : '▶ Lancer le chrono',
+    etat.enCours ? 'btn-fantome' : '', () => {
+      etat.enCours = !etat.enCours;
+      rendreActions(); rendreReglages(); rendreEtapes();
+    });
+  if (etat.t > 0)
+    bouton('btn-nouveau', '↺ Nouvel essai', 'btn-fantome', () => {
+      nouvelEssai(); cacherBilan();
+      rendreActions(); rendreReglages(); rendreEtapes();
+      toast('Paillasse remise en ordre.');
+    });
+  if (etat.mission === 4 && etat.givre > .5 && !etat.givreEssuye)
+    bouton('btn-essuyer', '🧽 Essuyer le givre', 'btn-fantome', () => {
+      etat.givre = 0; etat.givreEssuye = true;
+      toast('Paroi essuyée. Regarde si le givre revient.');
+      rendreActions(); rendreEtapes();
+    });
+  bouton('btn-tester', '✅ Que conclure ?', '', conclure);
+  surbrillerCible();
+}
+function appelerBouton(id) { const b = $(id); if (b) b.classList.add('appelle'); }
+
+/* ====================== Le bilan : « que conclure ? » ====================== */
+function conclure() {
+  const b = $('btn-tester'); if (b) b.classList.remove('appelle');
+  const m = etat.mission;
+
+  if (m === 0) {
+    if (etat.t < 180) {
+      montrerBilan('⏳', 'Laisse le temps faire', '',
+        'Il faut trois minutes pour voir où l’eau du flacon s’arrête. Lance le chrono et attends.');
+      return;
+    }
+    etat.lu1 = true;
+    montrerBilan('🧊', 'La glace seule ne suffit pas',
+      'Le mélange n’est jamais descendu sous ' + nb(etat.bainMin) +
+      ' °C ; le flacon s’est arrêté à ' + nb(etat.flaconMin) + ' °C.',
+      'Tant que glace et eau sont ensemble, le mélange se tient à <b>0 °C</b> — jamais plus bas. L’eau du flacon s’en approche sans jamais geler : il lui faudrait un bain <b>plus froid que 0 °C</b>. Tu as vu aussi que le mélange se <b>réchauffe</b> peu à peu : on y reviendra.');
+  }
+
+  else if (m === 1) {
+    if (!etat.doses.some(d => d >= 23)) {
+      montrerBilan('🧂', 'Continue de saler', '',
+        'Monte encore la dose de sel et regarde le thermomètre du mélange. Cherche jusqu’où il descend.');
+      return;
+    }
+    etat.lu2 = true;
+    montrerBilan('🧂', 'Le sel abaisse le point de fusion',
+      'Le plus froid obtenu : ' + nb(tempMelange(SEL_SATURE)) + ' °C, vers 23 % de sel.',
+      'Le sel empêche l’eau de rester gelée à 0 °C : la glace fond, et cette fusion prend de la chaleur au mélange, qui refroidit. Au-delà de <b>23 %</b>, le sel ne se dissout plus — en ajouter davantage ne change rien.');
+  }
+
+  else if (m === 2) {
+    const a = etat.essais.aucun, p = etat.essais.polystyrene;
+    if (a == null || p == null) {
+      montrerBilan('🧣', 'Il te manque un essai', '',
+        'Fais tourner cinq minutes une fois <b>sans rien</b> autour du récipient, une fois avec du <b>polystyrène</b>. Le relevé se prend tout seul à 5 minutes.');
+      return;
+    }
+    etat.lu3 = true;
+    montrerBilan('📦', 'L’isolant garde le froid',
+      'À cinq minutes : ' + nb(a) + ' °C sans rien, ' + nb(p) + ' °C avec du polystyrène.',
+      'Un isolant ne fabrique pas de froid : il <b>ralentit la chaleur</b> qui entre depuis la pièce. Sans lui, la glace fond vite et le mélange remonte vers 0 °C.');
+  }
+
+  else if (m === 3) {
+    if (etat.glace < 1) {
+      montrerBilan(etat.palierVu ? '⏳' : '🤔',
+        etat.palierVu ? 'La prise en glace est en cours' : 'Pas encore de glace',
+        etat.palierVu ? 'Le flacon est à 0 °C : ' + Math.round(etat.glace * 100) + ' % de glace formée.' : '',
+        etat.palierVu
+          ? 'Laisse tourner : tant qu’il reste de l’eau liquide, la température ne redescendra pas.'
+          : 'Vérifie tes réglages : au moins <b>20 % de sel</b> et du <b>polystyrène</b> autour du récipient, puis lance le chrono.');
+      return;
+    }
+    const duree = etat.palierFin - etat.palierDebut;
+    montrerBilan('🧊', 'Le palier de solidification',
+      'La température est restée bloquée à 0 °C pendant ' + Math.round(duree / 60) + ' minutes.',
+      'Pendant qu’un corps change d’état, sa <b>température ne bouge pas</b> : toute la chaleur retirée sert à transformer l’eau en glace. Une fois la glace complète, le thermomètre repart vers le bas.');
+  }
+
+  else {
+    if (!etat.givreRevenu) {
+      montrerBilan('❄️', 'Regarde encore la paroi', '',
+        etat.givre > .5
+          ? 'Le givre est là. <b>Essuie-le</b>, puis attends : s’il revient, c’est qu’il ne vient pas du flacon.'
+          : 'Refroidis bien le flacon sous 0 °C et laisse le dépôt blanc se former sur sa paroi.');
+      return;
+    }
+    etat.lu5 = true;
+    montrerBilan('❄️', 'Le givre vient de l’air',
+      'Essuyé, le givre s’est reformé sur la paroi glacée.',
+      'Le flacon est fermé : rien n’en sort. C’est la <b>vapeur d’eau de l’air</b> qui se dépose directement en glace sur la paroi froide, sans passer par l’état liquide. Cette transformation s’appelle la <b>condensation solide</b>.');
+  }
+  rendreEtapes(); verifierProgres();
+}
+
+
+/* ====================== Le bilan : « que conclure ? » ====================== */
+function cacherBilan() {
+  $('bilan').classList.remove('visible');
+  $('atelier').classList.remove('avec-bilan');
+}
+function montrerBilan(em, titre, objectif, phrase, suite) {
+  const b = $('bilan');
+  b.innerHTML =
+    '<div class="verdict"><span class="em">' + em + '</span><h3>' + titre + '</h3>' +
+    '<button class="reduire" id="bilan-x" aria-label="Réduire">✕</button></div>' +
+    (objectif ? '<div class="objectif">' + objectif + '</div>' : '') +
+    '<p class="phrase">' + phrase + '</p>' +
+    '<div class="actions"><button class="btn btn-fantome" id="bilan-ok">' +
+      (suite || 'Continuer') + '</button></div>';
+  b.classList.add('visible');
+  $('atelier').classList.add('avec-bilan');
+  $('bilan-x').onclick = cacherBilan;
+  $('bilan-ok').onclick = cacherBilan;
+}
+
+/* ============================== Les missions ============================== */
+function rendreMission() {
+  const M = MISSIONS[etat.mission];
+  $('m-num').textContent = etat.mission + 1;
+  $('m-rang').textContent = 'Mission ' + (etat.mission + 1) + ' sur ' + MISSIONS.length;
+  $('m-titre').textContent = M.titre;
+  $('m-but').textContent = M.but;
+  rendreEtapes();
+}
+function rendreEtapes() {
+  const M = MISSIONS[etat.mission], z = $('etapes');
+  z.innerHTML = '';
+  let courante = -1;
+  const faites = M.etapes.map(e => !!e.ok(etat));
+  for (let i = 0; i < faites.length; i++) if (!faites[i]) { courante = i; break; }
+  M.etapes.forEach((e, i) => {
+    const d = document.createElement('div');
+    d.className = 'etape' + (faites[i] ? ' faite' : '') + (i === courante ? ' courante' : '');
+    d.innerHTML = '<span class="coche">' + (faites[i] ? '✓' : i + 1) + '</span><span>' + e.t + '</span>';
+    z.appendChild(d);
+  });
+  const n = faites.filter(Boolean).length;
+  $('m-jauge').style.width = Math.round(n / M.etapes.length * 100) + '%';
+  surbrillerCible();
+}
+// L’élément à montrer du doigt : celui de la première étape non franchie
+function cibleEffective() {
+  const M = MISSIONS[etat.mission];
+  for (const e of M.etapes) if (!e.ok(etat)) return e.cible || null;
+  return null;
+}
+function surbrillerCible() {
+  document.querySelectorAll('.appelle').forEach(n => n.classList.remove('appelle'));
+  const c = cibleEffective();
+  if (c && $(c)) $(c).classList.add('appelle');
+}
+
+function verifierProgres() {
+  const M = MISSIONS[etat.mission];
+  if (!M.gagne(etat)) { rendreEtapes(); return; }
+  if (etat.faits.includes(etat.mission)) { rendreEtapes(); return; }
+  etat.faits.push(etat.mission); sauver(); rendreEtapes();
+  setTimeout(ouvrirQcm, 620);
+}
+
+/* ================================ Le QCM ================================ */
+function ouvrirQcm() {
+  const M = MISSIONS[etat.mission], q = M.qcm;
+  const c = $('qcm-carte');
+  c.innerHTML = '<h2>🎓 Mission réussie !</h2><p class="q-question">' + q.q + '</p>' +
+    '<div class="q-choix" id="q-choix"></div><div id="q-retour"></div>';
+  const zc = $('q-choix');
+  q.r.forEach((txt, i) => {
+    const b = document.createElement('button');
+    b.className = 'q-rep'; b.type = 'button'; b.textContent = txt;
+    b.onclick = () => repondre(i, b);
+    zc.appendChild(b);
+  });
+  ouvrir('v-qcm');
+}
+function repondre(i, bouton) {
+  const M = MISSIONS[etat.mission], q = M.qcm;
+  const juste = i === q.bonne;
+  bouton.classList.add(juste ? 'juste' : 'faux');
+  document.querySelectorAll('.q-rep').forEach(b => b.disabled = true);
+  if (!juste) document.querySelectorAll('.q-rep')[q.bonne].classList.add('juste');
+  $('q-retour').innerHTML =
+    '<div class="q-mot ' + (juste ? 'ok' : 'non') + '">' +
+      (juste ? '✅ Bien vu.' : '💡 Regarde plutôt la bonne réponse.') + ' ' + q.pourquoi + '</div>' +
+    '<button class="btn btn-large" id="q-suite">Continuer</button>';
+  $('q-suite').onclick = () => { fermer('v-qcm'); ouvrirPassage(); };
+}
+
+/* ===================== L’écran de passage entre missions ===================== */
+function ouvrirPassage() {
+  const M = MISSIONS[etat.mission], suivante = MISSIONS[etat.mission + 1];
+  const c = $('passage-carte');
+  c.innerHTML =
+    '<div class="p-fanion"><span class="rond">🏅</span><div>' +
+      '<b>Mission ' + (etat.mission + 1) + ' terminée</b>' +
+      '<span>' + M.titre + '</span></div></div>' +
+    '<div class="p-acquis"><b>Ce que tu retiens :</b><br>' + M.retenir + '</div>' +
+    (suivante
+      ? '<div class="p-suite"><div class="etiq">Mission suivante</div><b>' + suivante.titre +
+        '</b><span>' + suivante.but + '</span></div>' +
+        '<button class="btn btn-large" id="p-go">Commencer la mission ' + (etat.mission + 2) + '</button>' +
+        '<p class="p-neuf">La paillasse est remise en ordre pour la nouvelle expérience.</p>'
+      : '<div class="p-suite"><div class="etiq">Parcours terminé</div><b>Tu sais fabriquer de la glace</b>' +
+        '<span>Le mélange réfrigérant, le rôle de l’isolant, le palier de solidification et l’origine du givre.</span></div>' +
+        '<button class="btn btn-large" id="p-go">Revenir au plan de travail</button>');
+  $('p-go').onclick = () => {
+    fermer('v-passage');
+    if (suivante) { etat.mission++; sauver(); reprendre(); demarrerMission(); }
+    else { cacherBilan(); rendreEtapes(); }
+  };
+  ouvrir('v-passage');
+}
+
+function demarrerMission() {
+  cacherBilan();
+  nouvelEssai();
+  rendreMission(); rendreReglages(); rendreActions(); majLecture();
+}
+
+
+/* ============================== Les fenêtres ============================== */
+function ouvrir(id) { $(id).classList.add('visible'); }
+function fermer(id) { $(id).classList.remove('visible'); }
+
+let minuteurToast = null;
+function toast(txt, alerte) {
+  const t = $('toast');
+  t.textContent = txt;
+  t.classList.toggle('alerte', !!alerte);
+  t.classList.add('visible');
+  clearTimeout(minuteurToast);
+  minuteurToast = setTimeout(() => t.classList.remove('visible'), 2600);
+}
+
+function rendreLexique() {
+  $('liste-lexique').innerHTML = LEXIQUE.map(([m, d]) =>
+    '<div class="lex-entree"><em>' + m + '</em>' + d + '</div>').join('');
+}
+function rendreListeMissions() {
+  $('liste-missions').innerHTML = MISSIONS.map((m, i) => {
+    const fait = etat.faits.includes(i), ouverte = i <= etat.mission;
+    return '<div class="d-carte' + (fait ? ' fait' : ouverte ? '' : ' verrou') + '">' +
+      '<span class="num">' + (fait ? '✓' : i + 1) + '</span>' +
+      '<div><b>' + m.titre + '</b><span>' +
+      (ouverte ? m.but : 'Termine la mission précédente pour l’ouvrir.') +
+      '</span></div></div>';
+  }).join('');
+}
+
+/* ================================ Le thème ================================ */
+function appliquerTheme(t) {
+  document.body.classList.toggle('sombre', t === 'sombre');
+  $('btn-theme').textContent = t === 'sombre' ? '☀️' : '🌙';
+  try { localStorage.setItem('ike-theme', t); } catch (e) {}
+}
+
+/* ================== Repli du panneau sur les petits écrans ================== */
+function replierSiPetitEcran() {
+  const petit = window.innerHeight < 620 || window.innerWidth < 560;
+  document.body.classList.toggle('replie', petit);
+  $('m-plier').setAttribute('aria-expanded', petit ? 'false' : 'true');
+}
+
+/* ============================ La boucle du temps ============================ */
+function boucle(maintenant) {
+  const dt = Math.min(.05, (maintenant - t0) / 1000);
+  t0 = maintenant; temps += dt;
+  avancer(dt);
+  dessiner();
+  majLecture();
+  if (Math.floor(temps * 5) !== Math.floor((temps - dt) * 5)) verifierProgres();
+  requestAnimationFrame(boucle);
+}
+
+/* ============================== Le démarrage ============================== */
+function init() {
+  refs.plan = $('plan');
+  charger();
+  mesurerPlan();
+
+  let th = 'clair';
+  try { th = localStorage.getItem('ike-theme') || 'clair'; } catch (e) {}
+  appliquerTheme(th);
+  $('btn-theme').onclick = () =>
+    appliquerTheme(document.body.classList.contains('sombre') ? 'clair' : 'sombre');
+
+  $('btn-lexique').onclick = () => { rendreLexique(); ouvrir('v-lexique'); };
+  $('btn-missions').onclick = () => { rendreListeMissions(); ouvrir('v-missions'); };
+  $('btn-aide').onclick = () => ouvrir('v-aide');
+  document.querySelectorAll('[data-ferme]').forEach(b =>
+    b.onclick = () => fermer(b.getAttribute('data-ferme')));
+  document.querySelectorAll('.voile').forEach(v =>
+    v.addEventListener('click', ev => { if (ev.target === v) v.classList.remove('visible'); }));
+  document.addEventListener('keydown', ev => {
+    if (ev.key === 'Escape') document.querySelectorAll('.voile.visible')
+      .forEach(v => v.classList.remove('visible'));
+  });
+
+  $('btn-rezero').onclick = () => {
+    try { localStorage.removeItem(CLE); } catch (e) {}
+    etat.mission = 0; etat.faits = []; reprendre();
+    fermer('v-missions'); demarrerMission();
+    toast('Parcours remis à zéro.');
+  };
+
+  $('m-plier').onclick = () => {
+    const r = document.body.classList.toggle('replie');
+    $('m-plier').setAttribute('aria-expanded', r ? 'false' : 'true');
+    mesurerPlan();
+  };
+
+  $('sel').addEventListener('input', ev => changerSel(+ev.target.value));
+  replierSiPetitEcran();
+  window.addEventListener('resize', () => { replierSiPetitEcran(); mesurerPlan(); });
+  window.addEventListener('orientationchange', () => { replierSiPetitEcran(); mesurerPlan(); });
+
+  demarrerMission();
+  try { if (!localStorage.getItem('ike-glace-vu')) { ouvrir('v-aide');
+    localStorage.setItem('ike-glace-vu', '1'); } } catch (e) { ouvrir('v-aide'); }
+
+  requestAnimationFrame(m => { t0 = m; requestAnimationFrame(boucle); });
+}
+init();
+
+</script>
+</body>
+</html>
