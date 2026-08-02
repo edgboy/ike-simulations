@@ -425,6 +425,38 @@ nav#palette button.actif { border-color:var(--accent); background:var(--accent-d
 @media (prefers-reduced-motion:reduce) {
   *,*::before,*::after { animation-duration:.01ms !important; transition-duration:.01ms !important; }
 }
+
+/* « Ce que tu as appris » : le bloc est désormais porté par .p-acquis.
+   L'ancien encadré vert imbriqué faisait un double fond illisible. */
+#mfin-retenir, body.sombre #mfin-retenir {
+  background:none !important; color:inherit !important;
+  padding:0 !important; margin:0 !important; border-radius:0 !important;
+  font-size:inherit !important; line-height:inherit !important;
+}
+.retenir-label { display:none; }
+
+/* Panneau de formule : une police lisible et du texte qui revient à la ligne.
+   La monospace en nowrap coupait les phrases (« la cire de la boug… »). */
+#formule .fmath {
+  font-family:var(--font-body) !important; font-size:12px !important;
+  white-space:normal !important; overflow-x:visible !important;
+  line-height:1.5; padding:5px 9px !important; border-radius:var(--radius-sm) !important;
+}
+#formule .ftitre { font-size:10.5px; letter-spacing:.06em; }
+#formule .fnote { font-size:11.5px; line-height:1.45; }
+/* L'action motrice de la simulation prend le lime des boutons principaux */
+#btn-allumer, #btn-chauffer, #btn-lancer {
+  background:var(--primary) !important; border-color:transparent !important;
+  color:var(--neutral) !important;
+}
+
+/* ===== Accessibilité : contraste des textes colorés =====
+   L'accent (#5BC5F2) et sa variante #2196C4 sont des couleurs de fond.
+   Sur clair, elles tombent sous 3 de contraste : on passe à une teinte lisible. */
+:root { --accent-texte:#0F6E93; }
+body.sombre { --accent-texte:#7FD4F5; }
+#mchip, .p-suite .etiq, #formule .ftitre, .retenir-label, .lien,
+#mfin-titre, .m-pct { color:var(--accent-texte) !important; }
 </style>
 </head>
 <body>
@@ -741,12 +773,12 @@ function redimensionner() {
 
 const PALETTES = {
   clair: {
-    table: '#8d6e63', tableBord: '#5d4037', texte: '#37474f', doux: '#90a4ae',
+    table: '#C8A165', tableBord: '#A1887F', texte: '#3A3632', doux: '#7A736C',
     cire: '#fff8e1', cireBord: '#d7ccc8', verre: 'rgba(174,213,229,.20)',
     verreBord: '#78909c', jaugeFond: '#eceff1',
   },
   sombre: {
-    table: '#5d4037', tableBord: '#3e2723', texte: '#cfd8dc', doux: '#78909c',
+    table: '#5D4A3A', tableBord: '#3E332A', texte: '#ECEFF1', doux: '#A8B0B6',
     cire: '#efebe9', cireBord: '#8d6e63', verre: 'rgba(100,181,246,.12)',
     verreBord: '#90a4ae', jaugeFond: '#22303a',
   },
@@ -762,7 +794,7 @@ function vigueur() {
 function dessiner() {
   ctx.clearRect(0, 0, largeur, hauteur);
   const t = T_();
-  const tableY = hauteur * 0.78;
+  const tableY = hauteur * 0.85;
   const bx = largeur * 0.42;                    // position de la bougie
 
   // Table
@@ -772,7 +804,7 @@ function dessiner() {
   ctx.fillRect(0, tableY, largeur, 6);
 
   // Bougie
-  const bh = 74, bw = 26;
+  const bh = Math.max(74, Math.min(132, hauteur * .17)), bw = bh * .35;
   ctx.fillStyle = t.cire;
   ctx.strokeStyle = t.cireBord; ctx.lineWidth = 2;
   ctx.beginPath(); ctx.roundRect(bx - bw / 2, tableY - bh, bw, bh, 4);

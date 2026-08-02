@@ -478,6 +478,14 @@ main { flex:1; min-height:0; display:flex; flex-direction:column; }
   text-anchor:middle; pointer-events:none; }
 .chgt-etat { font-family:var(--font-body); font-size:10px; font-weight:600;
   fill:var(--accent); text-anchor:middle; pointer-events:none; }
+
+/* ===== Accessibilité : contraste des textes colorés =====
+   L'accent (#5BC5F2) est une couleur de fond. Sur blanc, il tombe à 2,0 de
+   contraste : illisible. On lui adjoint une variante foncée pour le texte. */
+:root { --accent-texte:#0F6E93; --vert-fonce:#1F7A6F; --orange-fonce:#A85F00; --rouge-fonce:#C62828; }
+body.sombre { --accent-texte:#7FD4F5; --vert-fonce:#2A9D8F; --orange-fonce:#F7A430; --rouge-fonce:#EF5350; }
+.m-rang, .a-qui, .p-suite .etiq, .chgt-etat, .q-avance,
+#mchip, .iq-titre, .l-titre span, .etiq { color:var(--accent-texte) !important; }
 </style>
 </head>
 <body>

@@ -534,6 +534,14 @@ main { flex:1; min-height:0; display:flex; flex-direction:column; }
 .a-btn.choisi { font-weight:700; opacity:1; }
 .a-expl { margin-top:9px; padding:10px 12px; border-radius:var(--radius-sm);
   background:var(--accent-doux); font-size:12.5px; line-height:1.55; }
+
+/* ===== Accessibilité : contraste des textes colorés =====
+   L'accent (#5BC5F2) est une couleur de fond. Sur blanc, il tombe à 2,0 de
+   contraste : illisible. On lui adjoint une variante foncée pour le texte. */
+:root { --accent-texte:#0F6E93; --vert-fonce:#1F7A6F; --orange-fonce:#A85F00; --rouge-fonce:#C62828; }
+body.sombre { --accent-texte:#7FD4F5; --vert-fonce:#2A9D8F; --orange-fonce:#F7A430; --rouge-fonce:#EF5350; }
+.m-rang, .a-qui, .p-suite .etiq, .chgt-etat, .q-avance,
+#mchip, .iq-titre, .l-titre span, .etiq { color:var(--accent-texte) !important; }
 </style>
 </head>
 <body>
@@ -778,10 +786,10 @@ function mesurerEn(x) {
 }
 
 const NIVEAUX = [
-  { max:25, nom:'bon', coul:'#2A9D8F', txt:'On respire bien ici.' },
+  { max:25, nom:'bon', coul:'#2A9D8F', coulTexte:'#1F7A6F', txt:'On respire bien ici.' },
   { max:55, nom:'moyen', coul:'#C4D94E', txt:'L’air est acceptable, sans plus.' },
-  { max:150, nom:'mauvais', coul:'#F7A430', txt:'L’air est malsain : à éviter longtemps.' },
-  { max:1e9, nom:'dangereux', coul:'#E83A4B', txt:'Air dangereux ! Personne ne devrait respirer ça.' },
+  { max:150, nom:'mauvais', coul:'#F7A430', coulTexte:'#A85F00', txt:'L’air est malsain : à éviter longtemps.' },
+  { max:1e9, nom:'dangereux', coul:'#E83A4B', coulTexte:'#C62828', txt:'Air dangereux ! Personne ne devrait respirer ça.' },
 ];
 const niveauDe = pm => NIVEAUX.find(n => pm < n.max);
 
@@ -1181,7 +1189,8 @@ function animer() {
     ? `· ${SOURCES[l.cle].nom}` : `· à ${l.distance} m de « ${SOURCES[l.cle].nom} »`;
   const v = $('l-verdict');
   v.textContent = n.txt;
-  v.style.background = n.coul;
+  // teinte assombrie quand le bandeau porte du texte blanc
+  v.style.background = n.coulTexte || n.coul;
   v.style.color = n.nom === 'moyen' ? 'var(--neutral)' : '#fff';
   // la personne qui se trouve là dit ce qu'elle croit : à confronter au chiffre
   const s = SOURCES[l.cle];

@@ -499,6 +499,14 @@ main { flex:1; min-height:0; display:flex; flex-direction:column; }
   .reg { padding:2px 6px; }
   .reg input[type=range] { height:24px; }
 }
+
+/* ===== Accessibilité : contraste des textes colorés =====
+   L'accent (#5BC5F2) est une couleur de fond. Sur blanc, il tombe à 2,0 de
+   contraste : illisible. On lui adjoint une variante foncée pour le texte. */
+:root { --accent-texte:#0F6E93; --vert-fonce:#1F7A6F; --orange-fonce:#A85F00; --rouge-fonce:#C62828; }
+body.sombre { --accent-texte:#7FD4F5; --vert-fonce:#2A9D8F; --orange-fonce:#F7A430; --rouge-fonce:#EF5350; }
+.m-rang, .a-qui, .p-suite .etiq, .chgt-etat, .q-avance,
+#mchip, .iq-titre, .l-titre span, .etiq { color:var(--accent-texte) !important; }
 </style>
 </head>
 <body>
@@ -1088,7 +1096,8 @@ function animer() {
   const z = $('etat-flamme');
   if (vivante) {
     z.hidden = false;
-    const coul = r.complete && r.suie === 0 ? '#2A9D8F' : r.exces < .4 ? '#F7A430' : '#E83A4B';
+    // teintes assombries : le bandeau porte du texte blanc
+    const coul = r.complete && r.suie === 0 ? '#1F7A6F' : r.exces < .4 ? '#A85F00' : '#C62828';
     z.style.background = coul;
     z.innerHTML = `Flamme <b>${r.couleur}</b> · ${r.complete && r.suie === 0
       ? 'combustion complète' : 'combustion incomplète'} · ${sim.minutesEcoulees} min` +

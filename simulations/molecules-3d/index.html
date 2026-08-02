@@ -447,6 +447,23 @@ nav#palette button.actif { border-color:var(--accent); background:var(--accent-d
 @media (prefers-reduced-motion:reduce) {
   *,*::before,*::after { animation-duration:.01ms !important; transition-duration:.01ms !important; }
 }
+
+/* « Ce que tu as appris » : le bloc est désormais porté par .p-acquis.
+   L'ancien encadré vert imbriqué faisait un double fond illisible. */
+#mfin-retenir, body.sombre #mfin-retenir {
+  background:none !important; color:inherit !important;
+  padding:0 !important; margin:0 !important; border-radius:0 !important;
+  font-size:inherit !important; line-height:inherit !important;
+}
+.retenir-label { display:none; }
+
+/* ===== Accessibilité : contraste des textes colorés =====
+   L'accent (#5BC5F2) et sa variante #2196C4 sont des couleurs de fond.
+   Sur clair, elles tombent sous 3 de contraste : on passe à une teinte lisible. */
+:root { --accent-texte:#0F6E93; }
+body.sombre { --accent-texte:#7FD4F5; }
+#mchip, .p-suite .etiq, #formule .ftitre, .retenir-label, .lien,
+#mfin-titre, .m-pct { color:var(--accent-texte) !important; }
 </style>
 </head>
 <body>
