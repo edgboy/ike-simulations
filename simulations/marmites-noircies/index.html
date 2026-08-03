@@ -507,6 +507,12 @@ main { flex:1; min-height:0; display:flex; flex-direction:column; }
 body.sombre { --accent-texte:#7FD4F5; --vert-fonce:#2A9D8F; --orange-fonce:#F7A430; --rouge-fonce:#EF5350; }
 .m-rang, .a-qui, .p-suite .etiq, .chgt-etat, .q-avance,
 #mchip, .iq-titre, .l-titre span, .etiq { color:var(--accent-texte) !important; }
+
+.temoin { cursor:pointer; }
+.temoin:hover { opacity:.85; }
+.temoin:focus-visible { outline:2px solid var(--ring); outline-offset:3px; }
+.etiq-temoin { font-family:var(--font-body); font-size:11px; font-weight:600;
+  text-anchor:middle; fill:currentColor; opacity:.75; }
 </style>
 </head>
 <body>
@@ -681,6 +687,15 @@ function bruler(m) {
   return r;
 }
 
+// Les trois témoins posés sur la paillasse. Chacun se prend d'un doigt et se
+// tient au-dessus de la flamme ; sa réaction met quelques secondes à venir.
+const TEMOINS = {
+  soucoupe: { nom:'Soucoupe', x:436, aide:'Tiens-la au-dessus de la flamme et regarde son dessous.' },
+  chaux:    { nom:'Eau de chaux', x:520, aide:'Un liquide transparent, qu\'on expose aux gaz de la flamme.' },
+  sulfate:  { nom:'Poudre blanche', x:600, aide:'Une poudre blanche qui change de couleur avec l\'eau.' },
+};
+const VITESSE_REAC = .3;         // la réaction est nette au bout de deux à trois secondes
+
 const TESTS = {
   soucoupe: { nom:'Une soucoupe froide', ico:'🥄',
     quoi:"On la tient un instant au-dessus de la flamme, puis on regarde son dessous.",
@@ -734,10 +749,10 @@ const MISSIONS = [
     ],
     test:r => !r.eteint,
     qcm:[
-      { q:'Que faut-il réunir pour qu’une flamme brûle ?',
+      { q:'De quoi une flamme a-t-elle besoin pour brûler ?',
         choix:['Un combustible, du dioxygène et de la chaleur',
                'Seulement du pétrole', 'De l’eau et du feu'], bonne:0,
-        expl:"C’est le <b>triangle du feu</b>. Retire un seul des trois — le combustible, le dioxygène ou la chaleur — et la flamme s’éteint. C’est ainsi qu’on éteint un incendie." },
+        expl:"Il faut les trois à la fois : quelque chose qui brûle (ici le <b>pétrole</b>), le gaz qui permet de brûler (le <b>dioxygène</b> de l’air), et de la <b>chaleur</b> pour démarrer. On appelle cela le <b>triangle du feu</b>. Enlève un seul des trois, et la flamme s’arrête. C’est exactement ce qu’on fait pour éteindre un incendie." },
     ],
   },
   {
@@ -753,12 +768,12 @@ const MISSIONS = [
     test:r => !r.eteint && r.suie > 0 && sim.suieTotale > 400,
     qcm:[
       { q:'D’où vient le noir qui se dépose sur la marmite ?',
-        choix:['C’est du carbone : du pétrole qui n’a pas brûlé faute de dioxygène',
+        choix:['C’est du pétrole qui n’a pas fini de brûler, parce qu’il manquait d’air',
                'C’est de la poussière de la cuisine', 'C’est le métal de la marmite qui rouille'], bonne:0,
-        expl:"Sans assez de dioxygène, une partie du combustible ne brûle pas et se dépose en fines particules de <b>carbone</b>. C’est le <b>noir de fumée</b> — sur les marmites, sur les murs, et dans les poumons." },
-      { q:'Quelle couleur prend une flamme à qui il manque du dioxygène ?',
+        expl:"Reprenons dans l’ordre. La mèche apporte le <b>pétrole</b>. L’arrivée d’air apporte le <b>dioxygène</b>. Quand tu montes la mèche et que tu fermes l’air, il y a beaucoup de pétrole et très peu de dioxygène : une partie du pétrole ne peut pas brûler. Elle s’envole en fines poussières noires qui se collent sur la marmite. Ces poussières, on les appelle du <b>carbone</b>, et le dépôt s’appelle le <b>noir de fumée</b>." },
+      { q:'De quelle couleur devient la flamme quand elle manque d’air ?',
         choix:['Elle devient jaune et fumeuse', 'Elle devient bleue', 'Elle devient verte'], bonne:0,
-        expl:"Le jaune vient des particules de carbone chauffées à blanc dans la flamme. Une flamme <b>bleue</b>, elle, brûle tout : elle ne fume pas." },
+        expl:"Le jaune, ce sont les poussières de carbone qui deviennent brûlantes et éclairent, comme un fer chauffé au rouge. Elles éclairent… puis elles salissent. Une flamme <b>bleue</b>, au contraire, a tout l’air qu’il lui faut : elle brûle tout, et elle ne fume pas." },
     ],
   },
   {
@@ -778,31 +793,84 @@ const MISSIONS = [
         choix:['Parce que le réglage de l’air n’est pas le même',
                'Parce que son pétrole est de mauvaise qualité',
                'Parce que ses marmites sont plus vieilles'], bonne:0,
-        expl:"Tout se joue dans le <b>réglage</b> : assez d’air pour tout brûler, et une marmite pas trop basse. Même combustible, même appareil — résultat opposé." },
+        expl:"Elles ont le même réchaud et le même pétrole : la différence ne peut donc venir que du <b>réglage</b>. Thérèse ouvre assez l’air pour que tout le pétrole brûle, et elle ne colle pas sa marmite sur la flamme. Même matériel, résultat contraire." },
     ],
   },
   {
-    titre:'Qu’est-ce qui se forme ?',
-    but:'Utilise les trois témoins pour découvrir ce que fabrique la flamme.',
-    acquis:'Toute combustion forme de l’<b>eau</b> (le sulfate de cuivre bleuit) et du <b>dioxyde de carbone</b> (l’eau de chaux se trouble). La combustion <b>incomplète</b> ajoute du <b>carbone</b> et du <b>monoxyde de carbone</b>.',
-    indice:"Ouvre le bouton 🧪 pendant que le réchaud est allumé. Fais les trois tests, une fois avec une flamme bleue et une fois avec une flamme jaune.",
+    titre:'La soucoupe au-dessus de la flamme',
+    but:'Prends la soucoupe sur la paillasse et tiens-la au-dessus du feu. Fais l’essai deux fois : avec une flamme qui fume, puis avec une flamme bleue.',
+    acquis:'La soucoupe ressort <b>noircie</b> au-dessus d’une flamme qui fume : ce noir, c’est du <b>carbone</b>, du pétrole qui n’a pas fini de brûler. Au-dessus d’une flamme bleue, elle reste <b>propre</b>.',
+    indice:"Règle d'abord une flamme jaune qui fume (mèche haute, air presque fermé), allume, puis touche la soucoupe sur la paillasse pour la prendre. Ensuite nettoie, règle une flamme bleue, et recommence.",
     etapes:[
-      { t:'Teste avec <b>l’eau de chaux</b>', cible:'tests', fait:() => !!etat.testsFaits.chaux },
-      { t:'Teste avec le <b>sulfate de cuivre</b>', cible:'tests', fait:() => !!etat.testsFaits.sulfate },
-      { t:'Teste la <b>soucoupe</b> sur une flamme qui fume', cible:'tests', fait:() => etat.testsFaits.soucoupe === 'noircie' },
-      { t:'Teste la <b>soucoupe</b> sur une flamme bleue', cible:'tests', fait:() => etat.testsFaits.soucoupePropre === true },
+      { t:'Fais une flamme <b>qui fume</b> et allume', cible:'meche',
+        fait:() => etat.resultat && !etat.resultat.complete && allume() },
+      { t:'Prends la <b>soucoupe</b> et tiens-la au-dessus', cible:'plan',
+        fait:() => etat.testsFaits.soucoupe === 'noircie' },
+      { t:'Nettoie, puis règle une flamme <b>bleue</b>', cible:'nettoyer',
+        fait:() => etat.testsFaits.soucoupe === 'noircie' && etat.resultat && etat.resultat.couleur === 'bleue' },
+      { t:'Remets la soucoupe : elle reste <b>propre</b>', cible:'plan',
+        fait:() => etat.testsFaits.soucoupePropre === true },
     ],
-    test:() => etat.testsFaits.chaux && etat.testsFaits.sulfate
-      && etat.testsFaits.soucoupe === 'noircie' && etat.testsFaits.soucoupePropre === true,
+    test:() => etat.testsFaits.soucoupe === 'noircie' && etat.testsFaits.soucoupePropre === true,
     qcm:[
-      { q:'L’eau de chaux se trouble au-dessus de la flamme. Qu’est-ce que cela prouve ?',
-        choix:['Qu’il s’est formé du dioxyde de carbone',
-               'Qu’il s’est formé de l’eau', 'Que la flamme est bleue'], bonne:0,
-        expl:"L’eau de chaux est le <b>test du dioxyde de carbone</b> : elle se trouble en sa présence. Toute combustion en produit, complète ou non." },
-      { q:'Le sulfate de cuivre blanc devient bleu. Qu’est-ce que cela prouve ?',
-        choix:['Qu’il s’est formé de l’eau',
-               'Qu’il s’est formé du carbone', 'Que la flamme est trop chaude'], bonne:0,
-        expl:"C’est le <b>test de l’eau</b>. Le pétrole contient de l’hydrogène : en brûlant, il forme de la vapeur d’eau. Une combustion, ça fabrique de l’eau — même si on ne la voit pas." },
+      { q:'Pourquoi la soucoupe noircit-elle au-dessus d’une flamme qui fume ?',
+        choix:['Du pétrole n’a pas fini de brûler et se dépose dessus',
+               'Parce que la soucoupe est trop chaude',
+               'Parce que la flamme a touché la soucoupe'], bonne:0,
+        expl:"Dans une flamme qui fume, il manque de l’air : une partie du pétrole ne brûle pas. Elle part en petites poussières noires, et ces poussières se collent sur le premier objet froid qu’elles rencontrent — ta soucoupe, ou le fond d’une marmite." },
+      { q:'Au-dessus d’une flamme bleue, la soucoupe reste propre. Pourquoi ?',
+        choix:['Tout le pétrole a brûlé : il ne reste rien à déposer',
+               'La flamme bleue est moins chaude',
+               'La flamme bleue ne monte pas assez haut'], bonne:0,
+        expl:"Une flamme bleue reçoit assez d’air pour brûler tout le pétrole. Il ne reste donc plus de poussière noire à déposer. La petite buée que tu vois, elle, c’est de l’eau — on verra pourquoi juste après." },
+    ],
+  },
+  {
+    titre:'L’eau de chaux',
+    but:'La flamme fabrique un gaz qu’on ne voit pas. Un liquide va le trahir : prends le verre d’eau de chaux et tiens-le au-dessus.',
+    acquis:'L’eau de chaux <b>se trouble</b> au-dessus de la flamme : c’est la preuve qu’il s’est formé du <b>dioxyde de carbone</b>. Toutes les flammes en fabriquent, qu’elles fument ou non.',
+    indice:"Allume le réchaud, puis touche le verre d'eau de chaux sur la paillasse. Laisse-le quelques secondes au-dessus de la flamme.",
+    etapes:[
+      { t:'Allume le réchaud', cible:'tester', fait:allume },
+      { t:'Prends le <b>verre d’eau de chaux</b>', cible:'plan', fait:() => etat.temoin === 'chaux' },
+      { t:'Regarde le liquide devenir blanc', cible:'plan', fait:() => !!etat.testsFaits.chaux },
+    ],
+    test:() => !!etat.testsFaits.chaux,
+    qcm:[
+      { q:'L’eau de chaux devient blanche et trouble. Qu’est-ce que cela nous apprend ?',
+        choix:['La flamme fabrique du dioxyde de carbone',
+               'La flamme fabrique de l’eau',
+               'La flamme est bleue'], bonne:0,
+        expl:"L’eau de chaux est transparente au départ. Elle ne devient blanche que pour un seul gaz : le <b>dioxyde de carbone</b>. Si elle blanchit au-dessus du réchaud, c’est donc que la flamme en fabrique." },
+      { q:'Une flamme bleue, bien réglée, fabrique-t-elle aussi du dioxyde de carbone ?',
+        choix:['Oui, toutes les flammes en fabriquent',
+               'Non, seulement les flammes qui fument',
+               'Non, une flamme bleue ne fabrique rien'], bonne:0,
+        expl:"Recommence l’essai avec une flamme bleue : l’eau de chaux se trouble tout autant. Le dioxyde de carbone n’est pas un signe de mauvais réglage — c’est ce que produit toute combustion." },
+    ],
+  },
+  {
+    titre:'Le sulfate de cuivre',
+    but:'Il reste une chose que la flamme fabrique, et qu’on ne voit pas du tout. Prends la coupelle de poudre blanche.',
+    acquis:'Le sulfate de cuivre blanc <b>bleuit</b> au-dessus de la flamme : il s’est formé de l’<b>eau</b>. Elle part en vapeur, c’est pourquoi on ne la voit pas.',
+    indice:"Allume, puis touche la coupelle de poudre blanche sur la paillasse et laisse-la au-dessus de la flamme.",
+    etapes:[
+      { t:'Allume le réchaud', cible:'tester', fait:allume },
+      { t:'Prends la <b>coupelle de poudre blanche</b>', cible:'plan', fait:() => etat.temoin === 'sulfate' },
+      { t:'Regarde la poudre bleuir', cible:'plan', fait:() => !!etat.testsFaits.sulfate },
+    ],
+    test:() => !!etat.testsFaits.sulfate,
+    qcm:[
+      { q:'La poudre blanche devient bleue. Qu’est-ce que cela prouve ?',
+        choix:['La flamme fabrique de l’eau',
+               'La flamme fabrique du carbone',
+               'La poudre a trop chauffé'], bonne:0,
+        expl:"Cette poudre a une seule particularité : elle devient bleue quand elle rencontre de l’<b>eau</b>. Si elle bleuit au-dessus de la flamme, c’est donc que la flamme fabrique de l’eau." },
+      { q:'Pourquoi ne voit-on pas cette eau sortir de la flamme ?',
+        choix:['Elle sort en vapeur, qui est invisible',
+               'Elle reste enfermée dans le pétrole',
+               'Elle brûle tout de suite'], bonne:0,
+        expl:"Juste au-dessus de la flamme, il fait bien trop chaud pour que l’eau reste liquide : elle part en <b>vapeur</b>, qui ne se voit pas. C’est la même eau que la buée déposée sur la soucoupe froide." },
     ],
   },
   {
@@ -821,10 +889,10 @@ const MISSIONS = [
       && sim.minutesEcoulees <= 15,
     qcm:[
       { q:'Une flamme jaune fumeuse consomme plus de pétrole. Pourquoi chauffe-t-elle pourtant moins ?',
-        choix:['Une partie du pétrole part en fumée sans brûler : cette énergie est perdue',
+        choix:['Une partie du pétrole s’en va en fumée sans brûler : elle ne chauffe rien',
                'Parce que le jaune est une couleur froide',
                'Parce que la marmite est sale'], bonne:0,
-        expl:"Ce qui part en <b>suie</b> et en <b>monoxyde de carbone</b>, c’est du combustible <b>non brûlé</b> : il a coûté, et il n’a pas chauffé. Bien régler son réchaud fait économiser du pétrole." },
+        expl:"Le pétrole qui s’échappe en fumée noire, tu l’as payé — et il n’a chauffé personne. Il est parti dans l’air au lieu de chauffer la marmite. Bien régler son réchaud, c’est donc dépenser moins de pétrole pour le même repas." },
     ],
   },
   {
@@ -842,10 +910,10 @@ const MISSIONS = [
         choix:['Le pétrole flotte sur l’eau : le feu se répand au lieu de s’éteindre',
                'Parce que l’eau devient inflammable',
                'Parce que cela abîme la lanterne'], bonne:0,
-        expl:"Le pétrole est <b>moins dense que l’eau</b> et ne s’y mélange pas : il flotte, déborde et emporte les flammes avec lui. Il faut <b>étouffer</b> : sable, couverture, extincteur." },
+        expl:"Le pétrole ne se mélange pas à l’eau : il reste au-dessus et <b>flotte</b>. En versant de l’eau, on fait déborder le pétrole enflammé, qui se répand par terre en brûlant toujours. Il faut faire le contraire : <b>étouffer</b> le feu avec du sable, une couverture ou un extincteur." },
       { q:'Étouffer un feu avec du sable, cela revient à retirer quoi du triangle ?',
         choix:['Le dioxygène', 'Le combustible', 'La chaleur'], bonne:0,
-        expl:"Le sable forme une couche qui <b>empêche l’air d’atteindre les flammes</b> : sans dioxygène, la combustion s’arrête. C’est le même principe que le couvercle sur une casserole qui prend feu." },
+        expl:"Le sable fait un couvercle : l’air ne passe plus. Sans <b>dioxygène</b>, la flamme n’a plus de quoi brûler et elle s’arrête. C’est pour cela qu’on pose un couvercle sur une casserole qui prend feu." },
     ],
   },
 ];
@@ -868,6 +936,8 @@ const MOYENS = [
 const etat = {
   meche:0, air:0, marmite:1, resultat:null,
   testsFaits:{}, feuVu:false, feuEteint:false,
+  temoin:null,                                        // le témoin tenu au-dessus de la flamme
+  reac:{ soucoupe:0, buee:0, chaux:0, sulfate:0 },    // avancement de chaque réaction
   mission:0, faites:[], libre:false, repliFait:false,
 };
 const sim = { actif:false, fini:false, t:0, T:T0, suieTotale:0, minutesEcoulees:0, derniere:0 };
@@ -934,6 +1004,56 @@ function eteindre(fini) {
   if (gagne || r.suie > 0) { $('btn-mesures').classList.remove('appelle'); afficherBilan(r, gagne); }
   else { $('btn-mesures').classList.add('appelle'); toast('Touche 📊 pour voir le bilan de cuisson'); }
 }
+// Un témoin : soucoupe, verre d'eau de chaux ou coupelle de poudre. Le dessin
+// montre directement où en est sa réaction.
+function dessinerTemoin(g, cle, cx, cy, tenu) {
+  const r = etat.reac;
+  if (tenu) g.appendChild(el('rect', { x:cx - 34, y:cy - 32, width:68, height:58, rx:8,
+    fill:'#5BC5F2', 'fill-opacity':.13 }));
+
+  if (cle === 'soucoupe') {
+    // on la tient à l'envers : c'est son dessous qui reçoit la fumée
+    g.appendChild(el('path', { d:'M ' + (cx - 26) + ' ' + cy + ' q 26 22 52 0 z',
+      fill:'#FFFFFF', stroke:'#B0ABA3', 'stroke-width':1.6 }));
+    if (r.soucoupe > .02) {
+      const m = 6 * (1 - r.soucoupe);
+      g.appendChild(el('path', { d:'M ' + (cx - 24 + m) + ' ' + (cy + 1) + ' q ' + (24 - m) +
+        ' ' + (17 * r.soucoupe + 3) + ' ' + (48 - 2 * m) + ' 0 z',
+        fill:'#241C16', 'fill-opacity':Math.min(.92, .3 + r.soucoupe) }));
+    }
+    if (r.buee > .05) for (let i = 0; i < 5; i++)
+      g.appendChild(el('circle', { cx:cx - 16 + i * 8, cy:cy + 6 + (i % 2) * 3,
+        r:1.6 + r.buee, fill:'#BFE6F7', 'fill-opacity':.75 }));
+    g.appendChild(el('rect', { x:cx + 24, y:cy - 3, width:22, height:4, rx:2, fill:'#6E6862' }));
+
+  } else if (cle === 'chaux') {
+    // un verre : le liquide passe de transparent à blanc laiteux
+    const h = 34, l = 26, g1 = cx - l / 2, d1 = cx + l / 2;
+    g.appendChild(el('path', { d:'M ' + g1 + ' ' + (cy - h) + ' L ' + (g1 + 3) + ' ' + cy +
+      ' L ' + (d1 - 3) + ' ' + cy + ' L ' + d1 + ' ' + (cy - h) + ' z',
+      fill:'#FFFFFF', 'fill-opacity':.22, stroke:'#8FB8CC', 'stroke-width':1.6 }));
+    const hl = h * .62;
+    g.appendChild(el('path', { d:'M ' + (g1 + 2.4) + ' ' + (cy - hl) + ' L ' + (g1 + 3.4) +
+      ' ' + (cy - 1.6) + ' L ' + (d1 - 3.4) + ' ' + (cy - 1.6) + ' L ' + (d1 - 2.4) + ' ' + (cy - hl) + ' z',
+      fill:r.chaux > .04 ? '#F4F7F8' : '#DCEEF6', 'fill-opacity':.35 + .6 * r.chaux }));
+    if (r.chaux > .25) for (let i = 0; i < 6; i++)
+      g.appendChild(el('circle', { cx:cx - 7 + (i % 3) * 7, cy:cy - 9 - Math.floor(i / 3) * 9,
+        r:1.5 + r.chaux, fill:'#FFFFFF', 'fill-opacity':.85 * r.chaux }));
+
+  } else {
+    // une coupelle de poudre : blanche, puis bleue
+    g.appendChild(el('path', { d:'M ' + (cx - 22) + ' ' + (cy - 8) + ' q 22 20 44 0 z',
+      fill:'#ECEFF1', stroke:'#B0ABA3', 'stroke-width':1.4 }));
+    const b = r.sulfate;
+    const teinte = b < .04 ? '#FFFFFF' : 'rgb(' + Math.round(255 - 200 * b) + ',' +
+      Math.round(255 - 160 * b) + ',' + Math.round(255 - 30 * b) + ')';
+    g.appendChild(el('ellipse', { cx:cx, cy:cy - 8, rx:20, ry:5.5, fill:teinte,
+      stroke:'#C6C2BA', 'stroke-width':1 }));
+  }
+
+  if (!tenu) g.appendChild(el('text', { x:cx, y:cy + 26, class:'etiq-temoin' }, TEMOINS[cle].nom));
+}
+
 function boucleSim(ts) {
   if (!sim.actif) return;
   const dtReel = Math.min(.05, (ts - sim.derniere) / 1000);
@@ -946,11 +1066,52 @@ function boucleSim(ts) {
   sim.minutesEcoulees = Math.round(sim.t / 6) / 10;
   if (sim.T < T_EB) sim.T = Math.min(T_EB, sim.T + r.puissance * dt / (EAU_L * C_EAU));
   sim.suieTotale += r.suie * dt / 60;
+  avancerTemoin(r, dtReel);
   animer();
   majMission();
-  // On arrête à l'ébullition, ou au bout de 25 minutes de cuisson
-  if (sim.T >= T_EB - .05 || sim.t > 1500) { eteindre(true); return; }
+  // On arrête à l'ébullition, ou au bout de 25 minutes de cuisson — sauf si un
+  // témoin est tenu au-dessus de la flamme : l'essai doit pouvoir aller au bout.
+  if ((sim.T >= T_EB - .05 && !etat.temoin) || sim.t > 1500) { eteindre(true); return; }
   requestAnimationFrame(boucleSim);
+}
+
+// Ce que devient le témoin tenu au-dessus de la flamme. Chaque réaction est
+// celle qu'on observe vraiment en classe.
+function avancerTemoin(r, dt) {
+  const cle = etat.temoin;
+  if (!cle || r.eteint) return;
+  const monter = (champ, vitesse) => {
+    etat.reac[champ] = Math.min(1, etat.reac[champ] + VITESSE_REAC * dt * (vitesse || 1));
+  };
+  if (cle === 'soucoupe') {
+    // une flamme qui fume dépose du carbone ; une flamme bleue ne laisse que de la buée
+    if (r.produits && r.produits.carbone) monter('soucoupe', 1);
+    else monter('buee', 1.4);
+    if (etat.reac.soucoupe >= .7 && etat.testsFaits.soucoupe !== 'noircie') {
+      etat.testsFaits.soucoupe = 'noircie';
+      toast('La soucoupe se couvre de noir de fumée.');
+      sauver();
+    }
+    if (etat.reac.buee >= .7 && etat.reac.soucoupe < .12 && !etat.testsFaits.soucoupePropre) {
+      etat.testsFaits.soucoupePropre = true;
+      toast('La soucoupe reste propre : juste un peu de buée.');
+      sauver();
+    }
+  } else if (cle === 'chaux') {
+    monter('chaux', 1);
+    if (etat.reac.chaux >= .7 && !etat.testsFaits.chaux) {
+      etat.testsFaits.chaux = true;
+      toast('L’eau de chaux se trouble.');
+      sauver();
+    }
+  } else if (cle === 'sulfate') {
+    monter('sulfate', 1);
+    if (etat.reac.sulfate >= .7 && !etat.testsFaits.sulfate) {
+      etat.testsFaits.sulfate = true;
+      toast('La poudre blanche devient bleue.');
+      sauver();
+    }
+  }
 }
 
 /* ---- Dessin ---- */
@@ -998,6 +1159,8 @@ function dessiner() {
   refs.flamme.appendChild(refs.flammeInt);
   plan.appendChild(refs.flamme);
 
+
+
   // la fumée
   refs.fumee = el('g', { opacity:'0' });
   for (let k = 0; k < 6; k++) refs.fumee.appendChild(el('circle', { fill:'#5D4037' }));
@@ -1006,6 +1169,17 @@ function dessiner() {
   // la marmite, dont le fond noircit
   refs.marmiteG = el('g');
   plan.appendChild(refs.marmiteG);
+
+  // La paillasse des témoins, à droite du réchaud. Dessinée en dernier :
+  // un témoin tenu au-dessus de la flamme doit passer devant la marmite.
+  plan.appendChild(el('rect', { x:398, y:216, width:242, height:7, rx:3, fill:'#8D6E63' }));
+  refs.temoins = {};
+  for (const cle in TEMOINS) {
+    const g = el('g', { class:'temoin', 'data-temoin':cle, tabindex:'0', role:'button',
+      'aria-label':'Prendre : ' + TEMOINS[cle].nom });
+    plan.appendChild(g);
+    refs.temoins[cle] = g;
+  }
 
   animer();
 }
@@ -1047,6 +1221,21 @@ function animer() {
       `M ${G.cx - 7} ${y0} q -3 ${-h * .28} 7 ${-h * .55} q 10 ${h * .27} 7 ${h * .55} z`);
     refs.flammeInt.setAttribute('fill', '#4FC3F7');
     refs.flammeInt.setAttribute('fill-opacity', r.complete ? '.95' : '.35');
+  }
+
+  // Tenir un témoin au-dessus du feu suppose d'ôter la marmite : elle s'écarte.
+  refs.marmiteG.setAttribute('opacity', etat.temoin ? '.18' : '1');
+
+  // Les témoins : sur la paillasse, ou tenus au-dessus de la flamme
+  const yFlamme = yBase - hMeche - 26 - etat.meche * 3;
+  for (const cle in TEMOINS) {
+    const g = refs.temoins && refs.temoins[cle];
+    if (!g) continue;
+    g.textContent = '';
+    const tenu = etat.temoin === cle;
+    const cx = tenu ? G.cx : TEMOINS[cle].x;
+    const cy = tenu ? Math.max(38, yFlamme) : 214;
+    dessinerTemoin(g, cle, cx, cy, tenu);
   }
 
   // fumée : seulement quand la combustion est incomplète
@@ -1290,7 +1479,7 @@ function ouvrirPassage() {
          <button class="btn btn-large" id="btn-passer">Commencer la mission ${etat.mission + 2} →</button>
          <p class="p-neuf">🧽 La marmite est nettoyée : on repart d'une cuisine propre.</p>`
       : `<div class="p-suite"><div class="etiq">Bravo</div>
-           <b>Tu as terminé les 6 missions !</b>
+           <b>Tu as terminé les 8 missions !</b>
            <span>Règle le réchaud comme tu veux et observe.</span></div>
          <button class="btn btn-large" id="btn-passer">Continuer librement →</button>`}`;
   $('v-passage').classList.add('visible');
@@ -1317,12 +1506,18 @@ function replierSiPetitEcran() {
   $('m-plier').setAttribute('aria-expanded', 'false');
 }
 
+function nettoyerTemoins() {
+  // on lave la soucoupe : elle retourne propre sur la paillasse
+  etat.reac.soucoupe = 0; etat.reac.buee = 0;
+  etat.temoin = null;
+}
 function nettoyer(silencieux) {
   sim.suieTotale = 0; sim.T = T0; sim.t = 0; sim.minutesEcoulees = 0;
   sim.actif = false; sim.fini = false;
+  nettoyerTemoins();                       // la soucoupe repart propre elle aussi
   cacherBilan(); oublierMesures(); majBouton();
   majTout();
-  if (!silencieux) toast('🧽 Marmite nettoyée, eau renouvelée');
+  if (!silencieux) toast('🧽 Marmite et soucoupe nettoyées, eau renouvelée');
 }
 
 function majBouton() {
@@ -1387,7 +1582,7 @@ function rendreMissions() {
       ${etat.faites.length === MISSIONS.length ? '' : 'disabled'}>
       <span class="num">${etat.faites.length === MISSIONS.length ? '∞' : '🔒'}</span>
       <span class="txt"><b>Cuisine libre</b><span>${etat.faites.length === MISSIONS.length
-        ? 'Règle et observe à ta guise.' : 'Termine les 6 missions pour l’ouvrir.'}</span></span></button>`;
+        ? 'Règle et observe à ta guise.' : 'Termine les 8 missions pour l’ouvrir.'}</span></span></button>`;
 }
 
 function majTout() { dessiner(); majMission(); }
@@ -1413,6 +1608,22 @@ for (const id of ['meche', 'air', 'marmite']) {
     majMission();
   });
 }
+
+// Prendre un témoin, ou le reposer sur la paillasse
+function prendreTemoin(cle) {
+  etat.temoin = (etat.temoin === cle) ? null : cle;
+  if (etat.temoin) toast(TEMOINS[etat.temoin].aide);
+  animer(); majMission();
+}
+plan.addEventListener('click', ev => {
+  const g = ev.target.closest ? ev.target.closest('.temoin') : null;
+  if (g) prendreTemoin(g.getAttribute('data-temoin'));
+});
+plan.addEventListener('keydown', ev => {
+  if (ev.key !== 'Enter' && ev.key !== ' ') return;
+  const g = ev.target.closest ? ev.target.closest('.temoin') : null;
+  if (g) { ev.preventDefault(); prendreTemoin(g.getAttribute('data-temoin')); }
+});
 
 $('btn-tester').addEventListener('click', () => { if (sim.actif) eteindre(true); else allumer(); });
 $('btn-nettoyer').addEventListener('click', () => nettoyer(false));

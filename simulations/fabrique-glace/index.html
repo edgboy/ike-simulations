@@ -726,7 +726,7 @@ const MISSIONS = [
       r:['Elle reste à 0 °C : ce n’est pas assez froid',
          'Elle n’est pas en contact avec le flacon',
          'Le flacon est trop petit'], bonne:0,
-      pourquoi:'Tant qu’il reste de la glace et de l’eau ensemble, le mélange se tient à 0 °C. L’eau du flacon ne peut donc pas descendre plus bas — et sans descendre plus bas, elle ne gèle pas.' } },
+      pourquoi:'Tant qu’il y a de la glace et de l’eau ensemble, le mélange reste à 0 °C : il ne descend pas plus bas. Or le flacon ne peut pas devenir plus froid que ce qui l’entoure. Il s’arrête donc juste au-dessus de 0 °C… et il faut atteindre 0 °C pour que l’eau commence à geler.' } },
 
   { titre:'Le sel qui refroidit',
     but:'Ajoute du sel à la glace et lis la température du mélange. Cherche la dose la plus froide.',
@@ -742,7 +742,7 @@ const MISSIONS = [
       r:['Pour que la glace fonde à une température plus basse',
          'Pour réchauffer la chaussée',
          'Pour rendre la route moins glissante par frottement'], bonne:0,
-      pourquoi:'Avec du sel, l’eau ne gèle plus à 0 °C mais bien plus bas. La glace déjà formée fond, et il faut qu’il fasse beaucoup plus froid pour qu’elle se reforme.' } },
+      pourquoi:'Avec du sel, l’eau ne gèle plus à 0 °C : il lui faut bien plus froid. Sur une route salée, la glace déjà formée se met donc à fondre, et il faudrait un froid beaucoup plus fort pour qu’elle revienne.' } },
 
   { titre:'Garder le froid',
     but:'Le mélange se réchauffe tout seul. Compare ce que valent les différentes protections.',
@@ -759,7 +759,7 @@ const MISSIONS = [
       r:['À ralentir la chaleur qui entre depuis la pièce',
          'À produire du froid supplémentaire',
          'À empêcher le sel de s’échapper'], bonne:0,
-      pourquoi:'Un isolant ne fabrique pas de froid : il freine les échanges de chaleur. La chaleur de la pièce met beaucoup plus longtemps à atteindre le mélange.' } },
+      pourquoi:'Attention au piège : le polystyrène ne fabrique pas de froid. Il fait barrage à la chaleur de la pièce, qui met bien plus longtemps à traverser jusqu’au mélange. Le froid dure donc plus longtemps.' } },
 
   { titre:'Fabrique ta glace',
     but:'Tu sais tout ce qu’il faut. Règle ton mélange et fais geler l’eau du flacon.',
@@ -776,7 +776,7 @@ const MISSIONS = [
       r:['La chaleur retirée sert à changer l’état de l’eau',
          'Le thermomètre est bloqué par la glace',
          'Le mélange ne refroidit plus le flacon'], bonne:0,
-      pourquoi:'Un changement d’état se fait à température constante. Tant qu’il reste de l’eau liquide, tout le froid apporté sert à la solidifier ; la température ne redescend qu’une fois la glace complète.' } },
+      pourquoi:'Le froid continue bien d’entrer dans le flacon. Mais il sert entièrement à transformer l’eau en glace, et non à la refroidir : le thermomètre reste donc bloqué à 0 °C. Il ne repart vers le bas qu’une fois toute l’eau devenue glace.' } },
 
   { titre:'Le givre sur le flacon',
     but:'Regarde de près la paroi du flacon glacé : un dépôt blanc s’y forme. D’où vient-il ?',
@@ -792,7 +792,7 @@ const MISSIONS = [
       r:['De la vapeur d’eau contenue dans l’air',
          'De l’eau du flacon qui traverse la paroi',
          'Du sel du mélange qui remonte'], bonne:0,
-      pourquoi:'Le flacon est fermé : rien n’en sort. C’est la vapeur d’eau de l’air qui se solidifie au contact de la paroi glacée. Essuie le givre : il se reforme, parce que l’air en apporte encore.' } },
+      pourquoi:'Le flacon est bouché : rien ne peut en sortir. Le givre vient donc d’ailleurs — de l’air. L’air contient de l’eau invisible, en vapeur ; au contact du verre glacé, cette vapeur se change directement en glace. La preuve : essuie le givre, il revient, parce que l’air en apporte encore.' } },
 ];
 
 const LEXIQUE = [

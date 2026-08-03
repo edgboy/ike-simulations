@@ -5,6 +5,36 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v4.16.0 — 2026-08-03
+
+🧑‍🏫 **Retours des testeurs — deuxième lot : le niveau de langue et les marmites.**
+
+**« Des enfants qui sortent juste de l'école primaire »** — la remarque la plus importante des
+retours. **Vingt-trois passages ont été réécrits** dans trois simulations. L'exemple cité était
+juste : la bonne réponse à « d'où vient le noir de la marmite ? » tenait en une phrase savante —
+« c'est du carbone : du pétrole qui n'a pas brûlé faute de dioxygène » — alors que la simulation
+venait d'enseigner la chose pas à pas. Elle devient : « c'est du pétrole qui n'a pas fini de
+brûler, parce qu'il manquait d'air », et l'explication refait tout le chemin dans l'ordre où
+l'élève l'a parcouru : la mèche apporte le pétrole, l'arrivée d'air apporte le dioxygène, il y a
+trop de l'un et pas assez de l'autre, donc une partie ne peut pas brûler. Même travail sur la
+flamme de la bougie et la fabrique de glace.
+
+**Les témoins sont sur l'établi** — *« au lieu d'aller cliquer sur l'icône du tube à essai qui
+affiche une modale, on ramène pour de vrai les éléments sur le plan de travail »*. Une paillasse
+porte maintenant la **soucoupe**, le **verre d'eau de chaux** et la **coupelle de poudre blanche**.
+On en prend un d'un doigt, il vient au-dessus de la flamme, et sa réaction se dessine sous les
+yeux : la soucoupe se couvre de noir, le liquide devient blanc et trouble, la poudre bleuit.
+Tenir un témoin au-dessus du feu suppose d'ôter la marmite : elle s'écarte d'elle-même.
+
+**Trois tests, trois missions** — *« vu que ce sont des notions importantes, qu'on les prenne un à
+un dans une mission dédiée »*. La mission unique qui enchaînait quatre tests devient **la
+soucoupe**, **l'eau de chaux** et **le sulfate de cuivre**, chacune avec ses étapes, sa conclusion
+et ses deux questions. La mission de la soucoupe fait faire l'essai **deux fois** — flamme qui
+fume, puis flamme bleue — comme demandé. Le parcours passe de six à **huit missions**.
+
+Nettoyer la marmite lave aussi la soucoupe et la repose sur la paillasse, pour que le second essai
+reparte d'un état propre.
+
 ## v4.15.0 — 2026-08-03
 
 🧪 **Retours des testeurs — premier lot : ce qui touchait toutes les simulations.**
