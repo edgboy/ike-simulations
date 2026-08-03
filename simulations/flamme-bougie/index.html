@@ -454,7 +454,8 @@ main { flex:1; min-height:0; display:flex; flex-direction:column; }
 
 
 /* ===================== Propre à la flamme de la bougie ===================== */
-#plan { cursor:crosshair; }
+#plan { cursor:grab; }
+#plan:active { cursor:grabbing; }
 
 /* Panneau de lecture : ce que l'outil ressent, à l'endroit où on regarde */
 #lecture {
@@ -525,6 +526,10 @@ main { flex:1; min-height:0; display:flex; flex-direction:column; }
   #bac-outils .bo-titre { display:none; }
 }
 
+
+.g-titre { font-family:var(--font-display); font-weight:800; font-size:14px;
+  margin:14px 0 7px; color:var(--accent-texte); }
+.g-titre:first-of-type { margin-top:8px; }
 </style>
 </head>
 <body>
@@ -606,6 +611,19 @@ main { flex:1; min-height:0; display:flex; flex-direction:column; }
     <h2>🕯️ Regarde de tout près</h2>
     <p>Une flamme de bougie n'est pas d'un seul bloc : elle a <b>trois parties</b>,
        et elles ne font pas du tout la même chose.</p>
+    <div class="g-titre">Où est quoi sur l’écran ?</div>
+    <div class="g-etape"><span class="num">🔎</span><span class="t">
+      <b>En haut à gauche</b> : ce que ton outil ressent — la partie de la flamme touchée
+      et sa température.</span></div>
+    <div class="g-etape"><span class="num">🕯️</span><span class="t">
+      <b>Au milieu</b> : la bougie, vue de très près.</span></div>
+    <div class="g-etape"><span class="num">🧰</span><span class="t">
+      <b>Sous le plan</b> : les objets que tu peux tenir. Ceux qui sont pâles s’ouvriront
+      aux missions suivantes.</span></div>
+    <div class="g-etape"><span class="num">🎯</span><span class="t">
+      <b>Tout en haut</b> : ta mission et ses étapes. Le chevron ▼ ouvre la liste
+      complète.</span></div>
+    <div class="g-titre">Comment on s’y prend</div>
     <div class="g-etape"><span class="num">1</span><span class="t">
       <b>Choisis un objet</b> en bas de l'écran : thermomètre, soucoupe, fil de cuivre
       ou allumette.</span></div>
@@ -1233,23 +1251,52 @@ function versPlan(ev) {
   const p = new DOMPoint(ev.clientX, ev.clientY).matrixTransform(ctm.inverse());
   return versModele(p.x, p.y);
 }
-function poser(ev) {
+// Distance d'un point à un segment : sert à savoir si le doigt s'est posé
+// sur le corps de l'outil, ou à côté.
+function distSegment(px, py, ax, ay, bx, by) {
+  const vx = bx - ax, vy = by - ay, l2 = vx * vx + vy * vy;
+  let t = l2 ? ((px - ax) * vx + (py - ay) * vy) / l2 : 0;
+  t = Math.max(0, Math.min(1, t));
+  return Math.hypot(px - (ax + t * vx), py - (ay + t * vy));
+}
+// Le corps de l'outil, en coordonnées du plan : manche compris, pas seulement
+// la pointe. C'est toute cette surface qui sert à l'attraper.
+function surCorpsOutil(sx, sy) {
+  const x = SX(etat.ox), y = SY(etat.oy);
+  if (etat.outil === 'allumette') {
+    const y2 = SY(etat.allumetteY != null ? etat.allumetteY : etat.oy);
+    return distSegment(sx, sy, SX(-21), y2, SX(21), y2) < Math.max(16, 3.4 * K);
+  }
+  const mx = Math.min(Wp - 6, x + 30 * E), my = Math.min(Hp - 6, y + 22 * E);
+  return distSegment(sx, sy, x, y, mx, my) < Math.max(18, 5.5 * K);
+}
+
+function poser(ev, saisie) {
   if (sceneCloche()) return;
   const m = versPlan(ev);
   if (!m) return;
+  // À la saisie, on mémorise l'écart entre le doigt et la pointe : l'outil
+  // suit la main sans sauter, et la pointe reste là où l'élève l'a mise.
+  if (saisie) {
+    const p = versPlan(ev), sx = SX(p.x), sy = SY(p.y);
+    etat.prise = surCorpsOutil(sx, sy)
+      ? { dx:etat.ox - m.x, dy:(etat.outil === 'allumette' ? etat.allumetteY : etat.oy) - m.y }
+      : { dx:0, dy:0 };                       // posé à côté : l'outil vient au doigt
+  }
+  const pr = etat.prise || { dx:0, dy:0 };
   if (etat.outil === 'allumette') {
-    etat.allumetteY = Math.max(-6, Math.min(H + 8, m.y));
+    etat.allumetteY = Math.max(-6, Math.min(H + 8, m.y + pr.dy));
     etat.marques = null; etat.tempsFeu = 0;
   } else {
-    etat.ox = Math.max(-34, Math.min(34, m.x));
-    etat.oy = Math.max(-14, Math.min(H + 16, m.y));
+    etat.ox = Math.max(-34, Math.min(34, m.x + pr.dx));
+    etat.oy = Math.max(-14, Math.min(H + 16, m.y + pr.dy));
   }
 }
 function brancherPlan() {
   const p = refs.plan;
   p.addEventListener('pointerdown', ev => {
     if (sceneCloche()) return;
-    etat.tient = true; p.setPointerCapture(ev.pointerId); poser(ev); ev.preventDefault();
+    etat.tient = true; p.setPointerCapture(ev.pointerId); poser(ev, true); ev.preventDefault();
   });
   p.addEventListener('pointermove', ev => { if (etat.tient) poser(ev); });
   const lacher = () => { etat.tient = false; };
@@ -1341,6 +1388,12 @@ function cacherBilan() {
   $('bilan').classList.remove('visible');
   $('atelier').classList.remove('avec-bilan');
 }
+let qcmEnAttente = false;
+// Referme le bilan, et enchaîne sur le questionnaire s'il attendait son tour
+function fermerBilan() {
+  cacherBilan();
+  if (qcmEnAttente) { qcmEnAttente = false; setTimeout(ouvrirQcm, 180); }
+}
 function montrerBilan(em, titre, objectif, phrase, suite) {
   const b = $('bilan');
   b.innerHTML =
@@ -1352,8 +1405,8 @@ function montrerBilan(em, titre, objectif, phrase, suite) {
       (suite || 'Continuer') + '</button></div>';
   b.classList.add('visible');
   $('atelier').classList.add('avec-bilan');
-  $('bilan-x').onclick = cacherBilan;
-  $('bilan-ok').onclick = cacherBilan;
+  $('bilan-x').onclick = fermerBilan;
+  $('bilan-ok').onclick = fermerBilan;
 }
 
 function conclure() {
@@ -1431,10 +1484,14 @@ function rendreEtapes() {
   let courante = -1;
   const faites = M.etapes.map(e => !!e.ok(etat));
   for (let i = 0; i < faites.length; i++) if (!faites[i]) { courante = i; break; }
+  // Panneau replié, seule l'étape en cours s'affiche : le chevron déploie le reste.
+  const iMontrer = courante >= 0 ? courante : faites.length - 1;
   M.etapes.forEach((e, i) => {
     const d = document.createElement('div');
-    d.className = 'etape' + (faites[i] ? ' faite' : '') + (i === courante ? ' courante' : '');
-    d.innerHTML = '<span class="coche">' + (faites[i] ? '✓' : i + 1) + '</span><span>' + e.t + '</span>';
+    d.className = 'etape' + (faites[i] ? ' faite' : '') + (i === courante ? ' courante' : '')
+      + (i === iMontrer ? ' a-montrer' : '');
+    d.innerHTML = '<span class="coche">' + (faites[i] ? '✓' : i + 1) +
+      '</span><span class="t">' + e.t + '</span>';
     z.appendChild(d);
   });
   const n = faites.filter(Boolean).length;
@@ -1458,12 +1515,32 @@ function verifierProgres() {
   if (!M.gagne(etat)) { rendreEtapes(); return; }
   if (etat.faits.includes(etat.mission)) { rendreEtapes(); return; }
   etat.faits.push(etat.mission); sauver(); rendreEtapes();
-  setTimeout(ouvrirQcm, 620);
+  // Si un bilan est ouvert, on ne le recouvre pas : c'est le bouton du bilan
+  // qui enchaîne sur le questionnaire, quand l'élève a fini de lire.
+  if ($('bilan').classList.contains('visible')) {
+    qcmEnAttente = true;
+    const ok = $('bilan-ok'); if (ok) ok.textContent = '🎓 Mission réussie — continuer';
+  } else setTimeout(ouvrirQcm, 620);
 }
 
 /* ================================ Le QCM ================================ */
+
+// Mélange les propositions : sans cela, la bonne réponse resterait toujours en
+// tête de liste et l'élève finirait par cliquer sans lire.
+function melangerQuestion(q) {
+  const ordre = q.r.map((_, i) => i);
+  for (let i = ordre.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = ordre[i]; ordre[i] = ordre[j]; ordre[j] = t;
+  }
+  return Object.assign({}, q, {
+    r: ordre.map(k => q.r[k]),
+    bonne: ordre.indexOf(q.bonne),
+  });
+}
 function ouvrirQcm() {
-  const M = MISSIONS[etat.mission], q = M.qcm;
+  const M = MISSIONS[etat.mission], q = melangerQuestion(M.qcm);
+  qcmCourant = q;
   const c = $('qcm-carte');
   c.innerHTML = '<h2>🎓 Mission réussie !</h2><p class="q-question">' + q.q + '</p>' +
     '<div class="q-choix" id="q-choix"></div><div id="q-retour"></div>';
@@ -1476,8 +1553,9 @@ function ouvrirQcm() {
   });
   ouvrir('v-qcm');
 }
+let qcmCourant = null;
 function repondre(i, bouton) {
-  const M = MISSIONS[etat.mission], q = M.qcm;
+  const q = qcmCourant;
   const juste = i === q.bonne;
   bouton.classList.add(juste ? 'juste' : 'faux');
   document.querySelectorAll('.q-rep').forEach(b => b.disabled = true);
@@ -1562,7 +1640,7 @@ function appliquerTheme(t) {
 /* ================== Repli du panneau sur les petits écrans ================== */
 function replierSiPetitEcran() {
   const petit = window.innerHeight < 620 || window.innerWidth < 560;
-  document.body.classList.toggle('replie', petit);
+  $('mission').classList.toggle('ouvert', !petit);
   $('m-plier').setAttribute('aria-expanded', petit ? 'false' : 'true');
 }
 
@@ -1609,8 +1687,8 @@ function init() {
   };
 
   $('m-plier').onclick = () => {
-    const r = document.body.classList.toggle('replie');
-    $('m-plier').setAttribute('aria-expanded', r ? 'false' : 'true');
+    const o = $('mission').classList.toggle('ouvert');
+    $('m-plier').setAttribute('aria-expanded', o ? 'true' : 'false');
     mesurerPlan();
   };
 
@@ -1620,8 +1698,11 @@ function init() {
   window.addEventListener('orientationchange', () => { replierSiPetitEcran(); mesurerPlan(); });
 
   demarrerMission();
-  try { if (!localStorage.getItem('ike-flamme-vu')) { ouvrir('v-aide');
-    localStorage.setItem('ike-flamme-vu', '1'); } } catch (e) { ouvrir('v-aide'); }
+  try {
+  // Le guide reste proposé tant que l'élève n'a pas gagné sa première mission :
+  // il ne suffit pas de l'avoir vu une fois pour savoir se repérer.
+  if (!(etat.faits && etat.faits.length)) ouvrir('v-aide');
+} catch (e) { ouvrir('v-aide'); }
 
   requestAnimationFrame(m => { t0 = m; requestAnimationFrame(boucle); });
 }

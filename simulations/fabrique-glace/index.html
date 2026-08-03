@@ -530,6 +530,9 @@ main { flex:1; min-height:0; display:flex; flex-direction:column; }
   #actions { padding:6px 8px; }
 }
 
+
+.g-titre { font-family:var(--font-display); font-weight:800; font-size:14px;
+  margin:14px 0 7px; color:var(--accent-texte); }
 </style>
 </head>
 <body>
@@ -620,6 +623,25 @@ main { flex:1; min-height:0; display:flex; flex-direction:column; }
     <h2>🧊 Faire de la glace sans congélateur</h2>
     <p>Avec de la glace pilée, du sel et de quoi isoler, on peut geler de l’eau
        en pleine chaleur. Ton atelier est prêt.</p>
+    <div class="g-titre">Où est quoi sur l’écran ?</div>
+    <div class="g-etape"><span class="num">🌡️</span><span class="t">
+      <b>En haut à gauche</b> : les deux thermomètres. Celui du <b>mélange</b>, et celui de
+      <b>l’eau du flacon</b>.</span></div>
+    <div class="g-etape"><span class="num">⏱</span><span class="t">
+      <b>En haut à droite</b> : le chrono de l’expérience.</span></div>
+    <div class="g-etape"><span class="num">🪣</span><span class="t">
+      <b>Au milieu</b> : ton montage — le récipient de glace pilée, le flacon d’eau planté
+      dedans, et ce que tu mets autour pour garder le froid.</span></div>
+    <div class="g-etape"><span class="num">📈</span><span class="t">
+      <b>La courbe</b> retrace les deux températures minute par minute. C’est là que se lit
+      le moment où l’eau gèle.</span></div>
+    <div class="g-etape"><span class="num">🎛️</span><span class="t">
+      <b>Sous le plan</b> : la dose de sel et la protection du récipient. Ce sont tes deux
+      réglages.</span></div>
+    <div class="g-etape"><span class="num">🎯</span><span class="t">
+      <b>Tout en haut</b> : ta mission et ses étapes. Le petit chevron ▼ ouvre ou referme
+      la liste complète.</span></div>
+    <div class="g-titre">Comment on s’y prend</div>
     <div class="g-etape"><span class="num">1</span><span class="t">
       <b>Règle ton mélange :</b> la dose de sel, et ce que tu mets autour du récipient
       pour garder le froid.</span></div>
@@ -848,6 +870,15 @@ function mesurerPlan() {
   }
 }
 
+// Étiquette sur pastille : lisible quel que soit ce qu'il y a derrière.
+function etiquettePastille(g, cx, y, txt, sombre) {
+  if (!txt) return;
+  const l = txt.length * 5.9 + 16, h = 18;
+  g.appendChild(el('rect', { x:cx - l / 2, y:y - h + 4, width:l, height:h, rx:9,
+    fill:sombre ? 'rgba(28,35,42,.92)' : 'rgba(255,255,255,.92)',
+    stroke:sombre ? '#333E47' : '#D3CFC8', 'stroke-width':1 }));
+  texteSvg(g, cx, y, txt, sombre ? '#ECEFF1' : '#3A3632', 'middle');
+}
 function texteSvg(g, x, y, txt, cou, anc, cls) {
   const e = el('text', { x, y, fill:cou, 'text-anchor':anc || 'start' });
   e.setAttribute('class', cls || 'etiq-svg'); e.textContent = txt; g.appendChild(e);
@@ -899,6 +930,7 @@ function dessinerScene(g) {
 
   // la couche isolante autour du récipient
   const iso = ISOLANTS[etat.isolant];
+  let etiqIsolant = '';
   if (etat.isolant !== 'aucun') {
     const teinte = etat.isolant === 'polystyrene' ? (sombre ? '#5A6069' : '#E8E6E1')
       : etat.isolant === 'coton' ? (sombre ? '#6B6F74' : '#F3F1EC')
@@ -906,11 +938,9 @@ function dessinerScene(g) {
     g.appendChild(el('rect', { x:cx - wSeau / 2 - ep, y:haut - ep, width:wSeau + ep * 2,
       height:hSeau + ep * 2, rx:ep, fill:teinte,
       stroke:sombre ? '#41474D' : '#C6C2BA', 'stroke-width':1.5 }));
-    texteSvg(g, cx, haut - ep - 7, iso.nom + ' — tient ' + iso.tient,
-      sombre ? '#ECEFF1' : '#3A3632', 'middle');
+    etiqIsolant = iso.nom + ' — tient ' + iso.tient;
   } else {
-    texteSvg(g, cx, haut - 9, 'Rien autour : le froid s’échappe',
-      sombre ? '#ECEFF1' : '#3A3632', 'middle');
+    etiqIsolant = 'Rien autour : le froid s’échappe';
   }
 
   // le récipient
@@ -918,20 +948,21 @@ function dessinerScene(g) {
     fill:sombre ? '#232C34' : '#F0EEE9', stroke:sombre ? '#4A5762' : '#B0ABA3',
     'stroke-width':2.5 }));
 
-  // le mélange : de la saumure, et d’autant plus de glace qu’il fait froid
-  const nivMel = haut + hSeau * .12;
-  g.appendChild(el('rect', { x:cx - wSeau / 2 + 3, y:nivMel, width:wSeau - 6,
-    height:bas - nivMel - 3, rx:4, fill:'url(#gSaumure)' }));
-  const partGlace = Math.max(0, Math.min(1, (0 - etat.tBain) / 10 + .35));
-  const gr = Math.max(3.5, wSeau * .05);
-  GRAINS.forEach((p, i) => {
-    if (i / GRAINS.length > partGlace) return;
+  // Le mélange n'est pas de l'eau : c'est de la glace pilée serrée, avec un
+  // fond de saumure. Le récipient n'est pas rempli à ras bord.
+  const nivMel = haut + hSeau * .30;
+  g.appendChild(el('rect', { x:cx - wSeau / 2 + 3, y:bas - (bas - nivMel) * .34,
+    width:wSeau - 6, height:(bas - nivMel) * .34 - 3, rx:4, fill:'url(#gSaumure)' }));
+  const gr = Math.max(4, wSeau * .062);
+  GRAINS.forEach(p => {
     const x = cx - wSeau / 2 + 8 + p.u * (wSeau - 16);
-    const y = nivMel + 6 + p.v * (bas - nivMel - 16);
-    g.appendChild(el('rect', { x:x - gr * p.r, y:y - gr * p.r, width:gr * p.r * 2,
-      height:gr * p.r * 1.6, rx:1.5, fill:'url(#gGlace)', opacity:.92,
+    const y = nivMel + 5 + p.v * (bas - nivMel - 12);
+    g.appendChild(el('rect', { x:x - gr * p.r, y:y - gr * p.r, width:gr * p.r * 2.1,
+      height:gr * p.r * 1.7, rx:1.5, fill:'url(#gGlace)', opacity:.97,
+      stroke:sombre ? '#9FC4D6' : '#B8DCEC', 'stroke-width':.7,
       transform:`rotate(${p.a} ${x} ${y})` }));
   });
+
 
   // les grains de sel non dissous, quand on dépasse la saturation
   if (etat.sel > SEL_SATURE) {
@@ -942,8 +973,8 @@ function dessinerScene(g) {
   }
 
   // le flacon d’eau, au milieu du mélange
-  const wF = Math.max(26, wSeau * .26), hF = hSeau * .62;
-  const xF = cx - wF / 2, yF = haut + hSeau * .04;
+  const wF = Math.max(26, wSeau * .26), hF = hSeau * .78;
+  const xF = cx - wF / 2, yF = haut - hSeau * .10;
   g.appendChild(el('rect', { x:xF, y:yF, width:wF, height:hF, rx:4,
     fill:sombre ? '#1C232A' : '#FFFFFF', opacity:.5 }));
   // le contenu : d’abord l’eau, puis la glace qui prend depuis les bords
@@ -963,12 +994,19 @@ function dessinerScene(g) {
   g.appendChild(el('rect', { x:xF + wF * .22, y:yF - 7, width:wF * .56, height:8, rx:2,
     fill:sombre ? '#6E6862' : '#B0ABA3' }));
 
+  // les deux étiquettes du montage : ce qu'il y a dans le récipient, et ce
+  // qu'il y a autour. Posées hors du dessin pour ne rien recouvrir.
+  etiquettePastille(g, cx, Math.max(52, yF - 10), etiqIsolant, sombre);
+  etiquettePastille(g, cx, Math.min(Hp - 6, bas + ep + 18),
+    'dans le récipient : glace pilée' + (etat.sel > 0 ? ' + sel' : ''), sombre);
+
   // le givre déposé sur la paroi
   if (etat.givre > .02) {
-    const n = Math.round(etat.givre * 16);
+    const n = Math.round(etat.givre * 18);
+    const basGivre = Math.min(nivMel, yF + hF) - 4;      // seulement la partie à l'air libre
     for (let i = 0; i < n; i++) {
       const cote = i % 2 ? xF + 2 : xF + wF - 2;
-      const y = yF + 8 + (i / n) * (hF - 16);
+      const y = yF + 8 + (i / n) * Math.max(12, basGivre - yF - 10);
       g.appendChild(el('circle', { cx:cote, cy:y, r:1.4 + etat.givre * 1.6,
         fill:'#FFFFFF', opacity:.55 + .4 * etat.givre }));
     }
@@ -1162,7 +1200,9 @@ function rendreReglages() {
   const M = MISSIONS[etat.mission];
   const curseur = $('sel');
   curseur.disabled = !!M.selBloque || etat.enCours;
-  if (M.selBloque && etat.sel !== 0) { etat.sel = 0; curseur.value = 0; }
+  if (M.selBloque && etat.sel !== 0) etat.sel = 0;
+  // le curseur suit toujours la valeur réelle, y compris au changement de mission
+  if (+curseur.value !== etat.sel) curseur.value = etat.sel;
   $('sel-val').textContent = etat.sel + ' %' +
     (etat.sel > SEL_SATURE ? ' (le sel ne se dissout plus)' : '');
 
@@ -1206,7 +1246,7 @@ function rendreActions() {
     b.className = 'btn ' + (cls || ''); b.id = id; b.textContent = txt; b.onclick = act;
     z.appendChild(b); return b;
   };
-  bouton('btn-lancer', etat.enCours ? '⏸ Mettre en pause' : etat.t > 0 ? '▶ Reprendre' : '▶ Lancer le chrono',
+  bouton('btn-lancer', etat.enCours ? '⏸ Pause' : etat.t > 0 ? '▶ Reprendre' : '▶ Lancer',
     etat.enCours ? 'btn-fantome' : '', () => {
       etat.enCours = !etat.enCours;
       rendreActions(); rendreReglages(); rendreEtapes();
@@ -1218,12 +1258,12 @@ function rendreActions() {
       toast('Paillasse remise en ordre.');
     });
   if (etat.mission === 4 && etat.givre > .5 && !etat.givreEssuye)
-    bouton('btn-essuyer', '🧽 Essuyer le givre', 'btn-fantome', () => {
+    bouton('btn-essuyer', '🧽 Essuyer', 'btn-fantome', () => {
       etat.givre = 0; etat.givreEssuye = true;
       toast('Paroi essuyée. Regarde si le givre revient.');
       rendreActions(); rendreEtapes();
     });
-  bouton('btn-tester', '✅ Que conclure ?', '', conclure);
+  bouton('btn-tester', '✅ Conclure', '', conclure);
   surbrillerCible();
 }
 function appelerBouton(id) { const b = $(id); if (b) b.classList.add('appelle'); }
@@ -1309,6 +1349,12 @@ function cacherBilan() {
   $('bilan').classList.remove('visible');
   $('atelier').classList.remove('avec-bilan');
 }
+let qcmEnAttente = false;
+// Referme le bilan, et enchaîne sur le questionnaire s'il attendait son tour
+function fermerBilan() {
+  cacherBilan();
+  if (qcmEnAttente) { qcmEnAttente = false; setTimeout(ouvrirQcm, 180); }
+}
 function montrerBilan(em, titre, objectif, phrase, suite) {
   const b = $('bilan');
   b.innerHTML =
@@ -1320,8 +1366,8 @@ function montrerBilan(em, titre, objectif, phrase, suite) {
       (suite || 'Continuer') + '</button></div>';
   b.classList.add('visible');
   $('atelier').classList.add('avec-bilan');
-  $('bilan-x').onclick = cacherBilan;
-  $('bilan-ok').onclick = cacherBilan;
+  $('bilan-x').onclick = fermerBilan;
+  $('bilan-ok').onclick = fermerBilan;
 }
 
 /* ============================== Les missions ============================== */
@@ -1339,10 +1385,14 @@ function rendreEtapes() {
   let courante = -1;
   const faites = M.etapes.map(e => !!e.ok(etat));
   for (let i = 0; i < faites.length; i++) if (!faites[i]) { courante = i; break; }
+  // Panneau replié, seule l'étape en cours s'affiche : le chevron déploie le reste.
+  const iMontrer = courante >= 0 ? courante : faites.length - 1;
   M.etapes.forEach((e, i) => {
     const d = document.createElement('div');
-    d.className = 'etape' + (faites[i] ? ' faite' : '') + (i === courante ? ' courante' : '');
-    d.innerHTML = '<span class="coche">' + (faites[i] ? '✓' : i + 1) + '</span><span>' + e.t + '</span>';
+    d.className = 'etape' + (faites[i] ? ' faite' : '') + (i === courante ? ' courante' : '')
+      + (i === iMontrer ? ' a-montrer' : '');
+    d.innerHTML = '<span class="coche">' + (faites[i] ? '✓' : i + 1) +
+      '</span><span class="t">' + e.t + '</span>';
     z.appendChild(d);
   });
   const n = faites.filter(Boolean).length;
@@ -1366,12 +1416,32 @@ function verifierProgres() {
   if (!M.gagne(etat)) { rendreEtapes(); return; }
   if (etat.faits.includes(etat.mission)) { rendreEtapes(); return; }
   etat.faits.push(etat.mission); sauver(); rendreEtapes();
-  setTimeout(ouvrirQcm, 620);
+  // Si un bilan est ouvert, on ne le recouvre pas : c'est le bouton du bilan
+  // qui enchaîne sur le questionnaire, quand l'élève a fini de lire.
+  if ($('bilan').classList.contains('visible')) {
+    qcmEnAttente = true;
+    const ok = $('bilan-ok'); if (ok) ok.textContent = '🎓 Mission réussie — continuer';
+  } else setTimeout(ouvrirQcm, 620);
 }
 
 /* ================================ Le QCM ================================ */
+
+// Mélange les propositions : sans cela, la bonne réponse resterait toujours en
+// tête de liste et l'élève finirait par cliquer sans lire.
+function melangerQuestion(q) {
+  const ordre = q.r.map((_, i) => i);
+  for (let i = ordre.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = ordre[i]; ordre[i] = ordre[j]; ordre[j] = t;
+  }
+  return Object.assign({}, q, {
+    r: ordre.map(k => q.r[k]),
+    bonne: ordre.indexOf(q.bonne),
+  });
+}
 function ouvrirQcm() {
-  const M = MISSIONS[etat.mission], q = M.qcm;
+  const M = MISSIONS[etat.mission], q = melangerQuestion(M.qcm);
+  qcmCourant = q;
   const c = $('qcm-carte');
   c.innerHTML = '<h2>🎓 Mission réussie !</h2><p class="q-question">' + q.q + '</p>' +
     '<div class="q-choix" id="q-choix"></div><div id="q-retour"></div>';
@@ -1384,8 +1454,9 @@ function ouvrirQcm() {
   });
   ouvrir('v-qcm');
 }
+let qcmCourant = null;
 function repondre(i, bouton) {
-  const M = MISSIONS[etat.mission], q = M.qcm;
+  const q = qcmCourant;
   const juste = i === q.bonne;
   bouton.classList.add(juste ? 'juste' : 'faux');
   document.querySelectorAll('.q-rep').forEach(b => b.disabled = true);
@@ -1468,7 +1539,7 @@ function appliquerTheme(t) {
 /* ================== Repli du panneau sur les petits écrans ================== */
 function replierSiPetitEcran() {
   const petit = window.innerHeight < 620 || window.innerWidth < 560;
-  document.body.classList.toggle('replie', petit);
+  $('mission').classList.toggle('ouvert', !petit);
   $('m-plier').setAttribute('aria-expanded', petit ? 'false' : 'true');
 }
 
@@ -1515,8 +1586,8 @@ function init() {
   };
 
   $('m-plier').onclick = () => {
-    const r = document.body.classList.toggle('replie');
-    $('m-plier').setAttribute('aria-expanded', r ? 'false' : 'true');
+    const o = $('mission').classList.toggle('ouvert');
+    $('m-plier').setAttribute('aria-expanded', o ? 'true' : 'false');
     mesurerPlan();
   };
 
@@ -1526,8 +1597,11 @@ function init() {
   window.addEventListener('orientationchange', () => { replierSiPetitEcran(); mesurerPlan(); });
 
   demarrerMission();
-  try { if (!localStorage.getItem('ike-glace-vu')) { ouvrir('v-aide');
-    localStorage.setItem('ike-glace-vu', '1'); } } catch (e) { ouvrir('v-aide'); }
+  try {
+  // Le guide reste proposé tant que l'élève n'a pas gagné sa première mission :
+  // il ne suffit pas de l'avoir vu une fois pour savoir se repérer.
+  if (!(etat.faits && etat.faits.length)) ouvrir('v-aide');
+} catch (e) { ouvrir('v-aide'); }
 
   requestAnimationFrame(m => { t0 = m; requestAnimationFrame(boucle); });
 }

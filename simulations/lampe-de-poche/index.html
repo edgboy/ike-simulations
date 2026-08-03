@@ -1320,10 +1320,24 @@ const fnb = n => String(n).replace('.', ',');
 
 let qcm = { liste:[], n:0, justes:0 };
 
+// Mélange les propositions : sans cela, la bonne réponse resterait toujours en
+// tête de liste et l'élève finirait par cliquer sans lire.
+function melangerQuestion(q) {
+  const ordre = q.choix.map((_, i) => i);
+  for (let i = ordre.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = ordre[i]; ordre[i] = ordre[j]; ordre[j] = t;
+  }
+  return Object.assign({}, q, {
+    choix: ordre.map(k => q.choix[k]),
+    bonne: ordre.indexOf(q.bonne),
+  });
+}
+
 function ouvrirQcm() {
   const m = MISSIONS[etat.mission];
   if (!m || !m.qcm || !m.qcm.length) { missionSuivante(); return; }
-  qcm = { liste:m.qcm, n:0, justes:0 };
+  qcm = { liste:m.qcm.map(melangerQuestion), n:0, justes:0 };
   rendreQcm();
   $('v-qcm').classList.add('visible');
 }
@@ -1599,10 +1613,9 @@ charger();
 ovrirDepart();
 majTout();
 try {
-  if (!localStorage.getItem('ike-lampe-vu')) {
-    ouvrir('v-aide');
-    localStorage.setItem('ike-lampe-vu', '1');
-  }
+  // Le guide reste proposé tant que l'élève n'a pas gagné sa première mission :
+  // il ne suffit pas de l'avoir vu une fois pour savoir se repérer.
+  if (!(etat.faits && etat.faits.length)) ouvrir('v-aide');
 } catch (e) { ouvrir('v-aide'); }
 </script>
 </body>

@@ -5,6 +5,55 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v4.15.0 — 2026-08-03
+
+🧪 **Retours des testeurs — premier lot : ce qui touchait toutes les simulations.**
+
+**La bonne réponse n'est plus toujours la première** — *« l'enfant peut cliquer nonchalamment sur
+le premier choix à chaque fois »*. Le constat était vérifié : sur huit simulations, la bonne
+réponse occupait la **première position dans 100 % des questions**. Les propositions sont
+désormais mélangées à l'ouverture de chaque questionnaire, et l'indice de la bonne réponse
+recalculé. Neuf simulations corrigées, vérifiées par tirage : sur 40 ouvertures, les trois
+positions sortent à parts comparables.
+
+**Le guide n'apparaissait plus** — il ne s'ouvrait qu'à la toute première visite, puis plus
+jamais : un élève qui revient, ou qui reprend l'appareil d'un camarade, tombait directement sur le
+plan de travail. Il est maintenant proposé **tant que la première mission n'est pas gagnée**, et
+reste accessible par le bouton ❓. Huit simulations.
+
+**Le guide présente les parties de l'écran** — pour les deux simulations les plus denses (la
+flamme et la fabrique de glace), il commence par un repérage : où sont les thermomètres, le
+chrono, le montage, la courbe, les réglages, la mission et son chevron.
+
+**Sur mobile, les étapes avaient disparu** — régression réelle : le style n'affiche, panneau
+replié, que l'étape portant une classe précise, et cette classe n'était jamais posée ; le repli
+basculait par-dessus le marché une classe inexistante. L'étape en cours est de nouveau visible, le
+chevron déploie la liste complète. Les étapes franchies retrouvent aussi leur texte barré.
+
+**Le bilan n'est plus recouvert** — *« on n'a même pas le temps de lire que la modale de mission
+réussie apparaît »*. Le questionnaire s'ouvrait sur minuterie. Il attend désormais que l'élève
+ferme son bilan : le bouton devient **« 🎓 Mission réussie — continuer »** et c'est lui qui
+enchaîne.
+
+**Les outils se saisissent par tout leur corps** (la flamme de la bougie) — le point de contact
+était la pointe même de l'objet, qui sautait sous le doigt. On attrape maintenant le thermomètre,
+la soucoupe, le fil ou l'allumette n'importe où sur leur longueur : la pointe garde sa position
+relative pendant le déplacement, et reste seule à donner la mesure. Poser le doigt à côté de
+l'outil l'y amène, comme avant.
+
+**Les curseurs partent au repos** (les marmites noircies) — mèche, air et hauteur étaient déjà
+réglés à l'ouverture. Ils sont à zéro au départ **et au début de chaque mission** : c'est l'élève
+qui pose son réglage.
+
+**Le curseur de sel ne mentait plus** (la fabrique de glace) — au changement de mission, la valeur
+repartait de zéro mais la poignée restait en place : l'affichage et l'effet se contredisaient.
+
+**Le récipient ne ressemble plus à de l'eau** (la fabrique de glace) — *« difficile de parler de
+givre alors que le flacon a l'air d'être dans de l'eau »*. Le mélange est redessiné en **glace
+pilée serrée** avec un simple fond de saumure, le flacon **émerge** nettement, et le givre ne se
+dépose que sur sa partie à l'air libre. Deux étiquettes sur pastille disent ce qu'il y a dans le
+récipient et ce qu'il y a autour.
+
 ## v4.14.0 — 2026-08-02
 
 🧊 **Nouvelle simulation : Fabrique de la glace** (PCT 6ᵉ, SA4) — comment geler de l'eau en pleine

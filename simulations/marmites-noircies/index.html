@@ -555,17 +555,17 @@ body.sombre { --accent-texte:#7FD4F5; --vert-fonce:#2A9D8F; --orange-fonce:#F7A4
   <div id="reglages">
     <label class="reg" data-reg="meche">
       <span class="r-nom">🔥 Mèche</span>
-      <input type="range" id="meche" min="0" max="10" step="1" value="5">
+      <input type="range" id="meche" min="0" max="10" step="1" value="0">
       <span class="r-val" id="v-meche">5</span>
     </label>
     <label class="reg" data-reg="air">
       <span class="r-nom">💨 Air</span>
-      <input type="range" id="air" min="0" max="10" step="1" value="6">
+      <input type="range" id="air" min="0" max="10" step="1" value="0">
       <span class="r-val" id="v-air">6</span>
     </label>
     <label class="reg" data-reg="marmite">
       <span class="r-nom">🍲 Marmite</span>
-      <input type="range" id="marmite" min="1" max="10" step="1" value="6">
+      <input type="range" id="marmite" min="1" max="10" step="1" value="1">
       <span class="r-val" id="v-marmite">6 cm</span>
     </label>
   </div>
@@ -866,7 +866,7 @@ const MOYENS = [
    ========================================================================== */
 
 const etat = {
-  meche:5, air:6, marmite:6, resultat:null,
+  meche:0, air:0, marmite:1, resultat:null,
   testsFaits:{}, feuVu:false, feuEteint:false,
   mission:0, faites:[], libre:false, repliFait:false,
 };
@@ -1230,10 +1230,24 @@ function oublierMesures() {
    ========================================================================== */
 
 let qcm = { liste:[], n:0 };
+// Mélange les propositions : sans cela, la bonne réponse resterait toujours en
+// tête de liste et l'élève finirait par cliquer sans lire.
+function melangerQuestion(q) {
+  const ordre = q.choix.map((_, i) => i);
+  for (let i = ordre.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = ordre[i]; ordre[i] = ordre[j]; ordre[j] = t;
+  }
+  return Object.assign({}, q, {
+    choix: ordre.map(k => q.choix[k]),
+    bonne: ordre.indexOf(q.bonne),
+  });
+}
+
 function ouvrirQcm() {
   const m = MISSIONS[etat.mission];
   if (!m || !m.qcm || !m.qcm.length) { ouvrirPassage(); return; }
-  qcm = { liste:m.qcm, n:0 };
+  qcm = { liste:m.qcm.map(melangerQuestion), n:0 };
   rendreQcm();
   $('v-qcm').classList.add('visible');
 }
@@ -1286,6 +1300,7 @@ function ouvrirPassage() {
     else etat.libre = true;
     sauver();
     nettoyer(true);
+    remettreCurseurs();
     ouvrirEtapes();
     majTout();
   });
@@ -1376,6 +1391,17 @@ function rendreMissions() {
 }
 
 function majTout() { dessiner(); majMission(); }
+
+// Chaque mission repart d'un réchaud au repos : c'est l'élève qui règle la
+// mèche, l'air et la hauteur, pas la simulation qui décide à sa place.
+function remettreCurseurs() {
+  etat.meche = 0; etat.air = 0; etat.marmite = 1;
+  for (const id of ['meche', 'air', 'marmite']) {
+    $(id).value = etat[id];
+    $('v-' + id).textContent = id === 'marmite' ? etat[id] + ' cm' : etat[id];
+  }
+  etat.resultat = bruler(reglage());
+}
 
 for (const id of ['meche', 'air', 'marmite']) {
   $(id).addEventListener('input', e => {
@@ -1487,10 +1513,9 @@ etat.resultat = bruler(reglage());
 ouvrirEtapes();
 majTout();
 try {
-  if (!localStorage.getItem('ike-marmites-vu')) {
-    ouvrir('v-aide');
-    localStorage.setItem('ike-marmites-vu', '1');
-  }
+  // Le guide reste proposé tant que l'élève n'a pas gagné sa première mission :
+  // il ne suffit pas de l'avoir vu une fois pour savoir se repérer.
+  if (!(etat.faits && etat.faits.length)) ouvrir('v-aide');
 } catch (e) { ouvrir('v-aide'); }
 
 </script>

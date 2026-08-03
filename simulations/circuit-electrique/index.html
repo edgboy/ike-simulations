@@ -1768,13 +1768,29 @@ document.getElementById('btn-fermer-intro').addEventListener('click', () => {
 /* ---- QCM « Je m'évalue » ---- */
 let qcmIdx = 0, qcmScore = 0;
 
+
+// Mélange les propositions : sans cela, la bonne réponse resterait toujours en
+// tête de liste et l'élève finirait par cliquer sans lire.
+function melangerQuestion(q) {
+  const ordre = q.choix.map((_, i) => i);
+  for (let i = ordre.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = ordre[i]; ordre[i] = ordre[j]; ordre[j] = t;
+  }
+  return Object.assign({}, q, {
+    choix: ordre.map(k => q.choix[k]),
+    bonne: ordre.indexOf(q.bonne),
+  });
+}
+let qcmMelange = [];
 function demarrerQCM() {
   qcmIdx = 0; qcmScore = 0;
+  qcmMelange = ((META[progression.m] || {}).qcm || []).map(melangerQuestion);
   afficherQuestion();
 }
 function afficherQuestion() {
   const m = missionCourante(), meta = META[progression.m] || {};
-  const liste = meta.qcm || [];
+  const liste = qcmMelange;
   if (!liste.length) { terminerQCM(); return; }
   const q = liste[qcmIdx];
   document.getElementById('q-num').textContent =
@@ -1811,7 +1827,7 @@ function afficherQuestion() {
   document.getElementById('mqcm').classList.add('visible');
 }
 document.getElementById('q-suivant').addEventListener('click', () => {
-  const liste = (META[progression.m] || {}).qcm || [];
+  const liste = qcmMelange;
   if (qcmIdx < liste.length - 1) { qcmIdx++; afficherQuestion(); }
   else terminerQCM();
 });
