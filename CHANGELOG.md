@@ -5,6 +5,29 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v4.17.0 — 2026-08-03
+
+🔥 **La lanterne de Sissi se joue sur le plan de travail.**
+
+*« Elle parle d'un scénario où une lanterne s'embrase, mais sur l'établi on ne voit pas de
+lanterne, ni de processus d'embrasement. Il serait intéressant de vraiment mener ces actions et
+voir les résultats. »* La mission se réduisait à une liste de choix dans une fenêtre. Elle devient
+une scène.
+
+**L'embrasement se regarde.** La nuit tombe sur l'établi : la table de Sissi, son cahier ouvert, sa
+lanterne allumée. Au lancement, le réservoir prend feu — les flammes montent seconde après seconde,
+le pétrole se répand en flaque sombre, la fumée noire s'élève.
+
+**Les quatre gestes se mènent pour de vrai**, chacun avec l'effet qu'il produit réellement :
+- **le seau d'eau** tombe en gouttes… et la flaque enflammée **s'élargit** : le pétrole flotte ;
+- **le sable** pleut sur le foyer et **étouffe** les flammes, qui s'éteignent ;
+- **les feuilles vertes** battent le feu et le **dispersent en quatre foyers** au lieu d'un ;
+- **l'extincteur** projette son nuage blanc et **éteint**.
+
+Chaque geste ouvre son bilan : ce qu'on vient de voir, et pourquoi. On peut tous les essayer — la
+mission ne demande pas de deviner du premier coup, mais d'avoir essayé l'eau et d'avoir trouvé un
+geste qui éteint vraiment.
+
 ## v4.16.0 — 2026-08-03
 
 🧑‍🏫 **Retours des testeurs — deuxième lot : le niveau de langue et les marmites.**
