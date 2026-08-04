@@ -5,6 +5,53 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v4.19.0 — 2026-08-05
+
+🏘️ **Qui pollue vraiment ? — le quartier prend forme, et les chiffres reviennent dans les bilans.**
+
+**Le quartier est redessiné.** *« Graphismes approximatifs : mets de vraies motos, arbres, etc. »*
+Chaque source est devenue une petite scène : un manguier avec ses mangues et son banc, deux
+**motos** complètes (roues à rayons, cadre, réservoir, selle, guidon, phare, pot d'échappement), le
+zem d'Élie avec son conducteur en chemise jaune, un moulin à gas-oil sous son abri de tôle — moteur,
+volant d'inertie, trémie, sacs de maïs et cheminée —, un coin cuisine avec son coal-pot, ses braises
+et sa marmite, un tas d'ordures où l'on reconnaît le pneu, le carton et la bouteille, et une brousse
+d'arbres calcinés dans les flammes. **Les quatre personnes qui donnent leur avis se tiennent
+désormais près de leur source**, chacune signalée par une bulle. Le décor s'y ajoute : ciel dégradé,
+collines, toits du quartier, et une bande de sol qui porte la rue. Les actions se voient : la cuisine
+reçoit sa bouteille de gaz, les ordures deviennent des sacs fermés, la brousse reverdit, les arbres
+plantés poussent dans les espaces libres de la rue.
+
+**« Agir » se prend sur le plan de travail.** Le bouton quitte la barre d'icônes de l'en-tête pour
+devenir une pastille posée sur la scène, en haut à droite — et **elle clignote quand la mission
+demande de l'ouvrir**.
+
+**La fiche du capteur ne déborde plus sur téléphone.** *« Modale du capteur trop encombrante sur
+mobile, surtout quand elle porte beaucoup d'informations. »* La longue phrase de la personne d'à côté
+en sort : elle a maintenant **sa propre bulle, sous la scène**, où la place ne manque pas. Le reste
+se resserre — nom de lieu abrégé, verdict en version courte, chiffres plus compacts. Téléphone
+couché, la fiche et la bulle se rangent dans les **marges de cadrage** laissées libres par la scène,
+au lieu de la recouvrir.
+
+**Les bilans citent les mesures.** *« Citer les valeurs mesurées dans les bilans des missions de
+comparaison. »* Chaque mission réussie rappelle les chiffres relevés par l'élève avant d'énoncer sa
+conclusion : « Près du Zem, dont la fumée est blanche : 612 µg/m³. Près du moulin, dont la fumée est
+noire : 418 µg/m³. Ton capteur en compte 194 de plus du côté de la fumée blanche. » Les six missions
+en ont un, repris sur l'écran de passage.
+
+**Le plan de mission se replie de nouveau tout seul.** Sur téléphone, dès le premier glissement du
+capteur : la fonction existait mais n'était appelée nulle part.
+
+**Trois défauts trouvés au passage :** glisser le capteur sélectionnait les étiquettes de la rue
+(corrigé) ; les nombres décimaux s'écrivaient à l'anglaise, « 45.7 » au lieu de « 45,7 » (corrigé
+partout) ; et sur écran large, le titre de la simulation se cassait sur quatre lignes dans la
+colonne — les icônes passent maintenant sous le titre.
+
+**Le guide d'accueil ne s'ouvre plus indéfiniment (six simulations).** Il devait rester proposé
+*tant que la première mission n'est pas gagnée* ; il testait `etat.faits` alors que ces fichiers
+tiennent leur liste dans `etat.faites`, si bien qu'il s'ouvrait à **chaque** lancement, pour
+toujours. Corrigé dans l'alambic, la lampe de poche, les marmites, les premiers pas, le tam-tam et
+la pollution.
+
 ## v4.18.0 — 2026-08-03
 
 💬 **Qui pollue vraiment ? — les mesures et le panneau d'action.**

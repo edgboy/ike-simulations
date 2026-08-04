@@ -179,6 +179,13 @@ main { flex:1; min-height:0; display:flex; flex-direction:column; }
   background:var(--accent-doux); font-size:12.5px; line-height:1.5;
 }
 #bilan .phrase { font-size:12.5px; opacity:.78; line-height:1.5; margin:0 0 10px; }
+/* Les chiffres relevés par l'élève, rappelés au moment de conclure */
+.mesures {
+  margin:0 0 10px; padding:9px 11px; border-radius:var(--radius-md);
+  background:var(--surface-muted); font-size:12.5px; line-height:1.55;
+}
+.mesures b { font-weight:700; }
+.p-acquis + .mesures { margin-top:-6px; margin-bottom:14px; }
 .jauges { display:grid; grid-template-columns:repeat(auto-fit,minmax(115px,1fr)); gap:8px 14px; }
 .jauge .haut { display:flex; justify-content:space-between; font-size:11.5px; margin-bottom:3px; }
 .jauge .haut b { font-weight:600; }
@@ -402,7 +409,10 @@ main { flex:1; min-height:0; display:flex; flex-direction:column; }
     background:var(--surface); border-right:1px solid var(--border);
     overflow-y:auto;
   }
-  header { border-bottom:1px solid var(--border); }
+  /* la colonne est étroite : les icônes passent sous le titre au lieu de l'écraser */
+  header { border-bottom:1px solid var(--border); flex-wrap:wrap; }
+  header h1 { font-size:16px; }
+  .tete-fin { width:100%; justify-content:flex-end; }
   #mission { border-bottom:none; padding:12px 16px; }
   /* la place ne manque pas : toutes les étapes restent visibles */
   #mission:not(.ouvert) .etape:not(.a-montrer) { display:flex; }
@@ -453,7 +463,8 @@ main { flex:1; min-height:0; display:flex; flex-direction:column; }
 /* ===================== Propre à l'enquête pollution ===================== */
 .etiq-lieu { font-family:var(--font-body); font-size:10px; font-weight:600;
   fill:var(--neutral); opacity:.65; text-anchor:middle; pointer-events:none; }
-#plan { cursor:grab; touch-action:none; }
+/* le glissement du capteur ne doit pas sélectionner les étiquettes de la rue */
+#plan { cursor:grab; touch-action:none; -webkit-user-select:none; user-select:none; }
 #plan:active { cursor:grabbing; }
 .capteur { pointer-events:none; }
 
@@ -470,10 +481,72 @@ main { flex:1; min-height:0; display:flex; flex-direction:column; }
 .l-val span { font-size:9.5px; opacity:.6; line-height:1.25; display:block; }
 #l-verdict { margin-top:7px; padding:5px 9px; border-radius:var(--radius-sm);
   font-size:11px; font-weight:600; background:var(--surface-muted); }
+/* le verdict s'écrit court sur téléphone, en entier dès qu'il y a la place */
+.v-bref { display:inline; font-weight:700; }
+.v-long { display:none; }
+/* le verdict entier ne s'affiche que si l'écran a la largeur ET la hauteur pour lui */
+@media (min-width:600px) and (min-height:521px) { .v-bref { display:none; } .v-long { display:inline; } }
 
-#l-dit { margin-top:7px; padding:7px 10px; border-radius:var(--radius-sm);
-  background:var(--accent-doux); font-size:11px; line-height:1.45; max-width:250px; }
-#l-dit[hidden] { display:none; }
+/* Ce que dit la personne d'à côté : sa bulle, sous la scène */
+#parole {
+  position:absolute; left:10px; right:10px; bottom:10px; z-index:4;
+  max-width:460px; margin:0 auto;
+  padding:8px 13px 9px;
+  border-radius:var(--radius-lg) var(--radius-lg) var(--radius-lg) 5px;
+  background:var(--surface); border:2px solid var(--accent);
+  box-shadow:var(--shadow-soft); font-size:12.5px; line-height:1.45;
+}
+#parole[hidden] { display:none; }
+#parole b { display:block; font-size:10.5px; font-weight:700;
+  letter-spacing:.05em; text-transform:uppercase; color:var(--accent-texte); margin-bottom:2px; }
+/* le bilan reprend la même place : il passe devant */
+#atelier.avec-bilan #parole { display:none; }
+
+/* Agir : le panneau du quartier s'ouvre depuis le plan de travail lui-même */
+#btn-agir-plan {
+  position:absolute; right:10px; top:8px; z-index:5;
+  display:inline-flex; align-items:center; min-height:40px; padding:0 14px;
+  background:var(--surface); color:var(--neutral);
+  border:2px solid var(--border-strong); border-radius:var(--radius-full);
+  box-shadow:var(--shadow-soft);
+  font-family:var(--font-body); font-size:13px; font-weight:600; cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+#btn-agir-plan:hover { background:var(--surface-muted); border-color:var(--neutral); }
+#btn-agir-plan .long { display:none; }
+@media (min-width:880px) { #btn-agir-plan .long { display:inline; } }
+#btn-agir-plan.appelle { border-color:var(--primary); animation:appelleAgir 1.4s infinite; }
+@keyframes appelleAgir { 50% { box-shadow:0 0 0 8px rgba(196,217,78,.32), var(--shadow-soft); } }
+
+/* Sur téléphone tenu debout, la fiche du capteur se resserre : deux chiffres et un verdict.
+   Couché, c'est la règle « paysage » plus haut qui s'applique. */
+@media (max-width:599px) and (orientation:portrait) {
+  #lecture { left:6px; top:6px; padding:6px 9px; min-width:0; max-width:calc(100% - 108px); }
+  .l-titre { font-size:9.5px; margin-bottom:3px; }
+  .l-vals { gap:12px; }
+  .l-val b { font-size:18px; }
+  .l-val span { font-size:8.5px; }
+  #l-verdict { margin-top:5px; padding:3px 7px; font-size:10px; }
+  #btn-agir-plan { right:6px; top:6px; min-height:36px; padding:0 12px; font-size:12.5px; }
+}
+
+/* Téléphone couché : la scène est cadrée au centre et laisse deux marges vides
+   à gauche et à droite. C'est là que se rangent la fiche du capteur et la bulle,
+   pour ne pas recouvrir la rue — la hauteur, elle, manque complètement. */
+@media (orientation:landscape) and (max-height:520px) {
+  #lecture { left:6px; top:6px; padding:5px 8px; min-width:0; max-width:min(30%,190px); }
+  .l-titre { font-size:9px; margin-bottom:2px; }
+  .l-vals { gap:9px; }
+  .l-val b { font-size:15px; }
+  .l-val span { font-size:8px; }
+  #l-verdict { margin-top:4px; padding:2px 6px; font-size:9.5px; }
+  #parole {
+    left:auto; right:8px; bottom:8px; width:min(30%,200px); max-width:none; margin:0;
+    padding:6px 9px 7px; font-size:10.5px; line-height:1.4;
+  }
+  #parole b { font-size:9px; margin-bottom:1px; }
+  #btn-agir-plan { right:6px; top:6px; min-height:32px; padding:0 10px; font-size:11.5px; }
+}
 
 /* Carnet */
 .vide-carnet { font-size:13px; opacity:.65; line-height:1.55; padding:8px 0; }
@@ -559,7 +632,6 @@ body.sombre { --accent-texte:#7FD4F5; --vert-fonce:#2A9D8F; --orange-fonce:#F7A4
     </div>
     <div class="tete-fin">
       <button class="icone-btn" id="btn-carnet" title="Mon carnet de mesures" aria-label="Carnet">📝</button>
-      <button class="icone-btn" id="btn-agir" title="Agir sur le quartier" aria-label="Agir">🌿</button>
       <button class="icone-btn" id="btn-missions" title="Les missions" aria-label="Missions">🎯</button>
       <button class="icone-btn" id="btn-lexique" title="Lexique" aria-label="Lexique">📖</button>
       <button class="icone-btn" id="btn-aide" title="Comment jouer" aria-label="Aide">❓</button>
@@ -594,8 +666,9 @@ body.sombre { --accent-texte:#7FD4F5; --vert-fonce:#2A9D8F; --orange-fonce:#F7A4
         <div class="l-val"><b id="l-co">—</b><span>monoxyde de carbone<br>ppm</span></div>
       </div>
       <div id="l-verdict">Fais glisser le capteur le long de la rue</div>
-      <div id="l-dit" hidden></div>
     </div>
+    <button id="btn-agir-plan" title="Agir sur le quartier">🌿 Agir<span class="long">&nbsp;sur le quartier</span></button>
+    <div id="parole" hidden><b id="parole-qui"></b><span id="parole-txt"></span></div>
     <div id="bilan" role="status" aria-live="polite"></div>
   </div>
 
@@ -789,13 +862,20 @@ function mesurerEn(x) {
   return { pm:Math.round(pm * filtre), co:Math.round(co * filtre * 10) / 10 };
 }
 
+// « bref » : la version courte du verdict, celle qu'affiche un écran de téléphone
 const NIVEAUX = [
-  { max:25, nom:'bon', coul:'#2A9D8F', coulTexte:'#1F7A6F', txt:'On respire bien ici.' },
-  { max:55, nom:'moyen', coul:'#C4D94E', txt:'L’air est acceptable, sans plus.' },
-  { max:150, nom:'mauvais', coul:'#F7A430', coulTexte:'#A85F00', txt:'L’air est malsain : à éviter longtemps.' },
-  { max:1e9, nom:'dangereux', coul:'#E83A4B', coulTexte:'#C62828', txt:'Air dangereux ! Personne ne devrait respirer ça.' },
+  { max:25, nom:'bon', coul:'#2A9D8F', coulTexte:'#1F7A6F',
+    bref:'On respire bien', txt:'On respire bien ici.' },
+  { max:55, nom:'moyen', coul:'#C4D94E',
+    bref:'Air acceptable', txt:'L’air est acceptable, sans plus.' },
+  { max:150, nom:'mauvais', coul:'#F7A430', coulTexte:'#A85F00',
+    bref:'Air malsain', txt:'L’air est malsain : à éviter longtemps.' },
+  { max:1e9, nom:'dangereux', coul:'#E83A4B', coulTexte:'#C62828',
+    bref:'Air dangereux !', txt:'Air dangereux ! Personne ne devrait respirer ça.' },
 ];
 const niveauDe = pm => NIVEAUX.find(n => pm < n.max);
+// les nombres s'écrivent à la française : 45,7 et non 45.7
+const nb = v => String(v).replace('.', ',');
 
 // La source la plus proche du capteur, pour nommer le lieu
 function lieuLePlusProche(x) {
@@ -845,6 +925,26 @@ const distanceA = (n, cle) => (n.distances && n.distances[cle] != null)
 const notePres = (cle, dMax) => notesM().some(n => distanceA(n, cle) <= (dMax || 3));
 const noteLoin = (cle, dMin) => notesM().some(n => distanceA(n, cle) >= (dMin || 8));
 
+// Le relevé de la mission pris le plus près d'une source — c'est lui qu'on cite
+// dans le bilan : les testeurs veulent revoir les chiffres qui font la conclusion.
+function releveProche(cle, filtre) {
+  let choisi = null;
+  for (const n of notesM()) {
+    if (filtre && !filtre(n)) continue;
+    const d = distanceA(n, cle);
+    if (!choisi || d < choisi.d) choisi = { n, d };
+  }
+  return choisi;
+}
+function releveLoin(cle) {
+  let choisi = null;
+  for (const n of notesM()) {
+    const d = distanceA(n, cle);
+    if (!choisi || d > choisi.d) choisi = { n, d };
+  }
+  return choisi;
+}
+
 /* ============================================================================
    3. Les missions — enquêter, comparer, puis prendre position
    ========================================================================== */
@@ -862,6 +962,16 @@ const MISSIONS = [
       { t:'Note <b>quatre mesures</b> en tout', fait:() => notesM().length >= 4 },
     ],
     test:() => notesM().length >= 4 && notePres('manguier', 4),
+    chiffres:() => {
+      const ns = notesM();
+      if (ns.length < 2) return null;
+      const bas = ns.reduce((a, b) => b.pm < a.pm ? b : a);
+      const haut = ns.reduce((a, b) => b.pm > a.pm ? b : a);
+      const fois = Math.round(haut.pm / Math.max(1, bas.pm));
+      return `Ton relevé le plus propre : <b>${bas.pm} µg/m³</b> (${bas.lieu}).
+        Le plus chargé : <b>${haut.pm} µg/m³</b> (${haut.lieu}).
+        Cela fait <b>${fois} fois plus</b> de poussières, dans la même rue.`;
+    },
     qcm:[
       { q:'Sous le manguier, le capteur affiche moins de 25 µg/m³. Ailleurs, bien plus. Qu’est-ce que cela montre ?',
         choix:['Que l’air n’est pas le même partout : il dépend de ce qu’on rejette à côté',
@@ -880,6 +990,15 @@ const MISSIONS = [
       { t:'Compare : laquelle des deux fumées est la pire ?', fait:() => notePres('zem', 3) && notePres('moulin', 3) },
     ],
     test:() => notePres('zem', 3) && notePres('moulin', 3),
+    chiffres:() => {
+      const z = releveProche('zem'), mo = releveProche('moulin');
+      if (!z || !mo) return null;
+      const ecart = z.n.pm - mo.n.pm;
+      return `Près du <b>Zem</b>, dont la fumée est blanche : <b>${z.n.pm} µg/m³</b>.
+        Près du <b>moulin</b>, dont la fumée est noire : <b>${mo.n.pm} µg/m³</b>. ${ecart > 0
+          ? `Ton capteur en compte <b>${ecart} de plus</b> du côté de la fumée blanche.`
+          : `Les deux se valent, alors que l’une est blanche et l’autre bien noire.`}`;
+    },
     qcm:[
       { q:'Ton capteur affiche plus de poussières près du Zem (fumée blanche) que près du moulin (fumée noire). Pourquoi ?',
         choix:['La fumée blanche du deux-temps est faite d’huile imbrûlée : très fine, mais très abondante',
@@ -904,6 +1023,14 @@ const MISSIONS = [
       { t:'Ouvre 🌿 <b>Agir</b> et regarde ce que rejette le quartier', fait:() => etat.vuAgir === true },
     ],
     test:() => notePres('moulin', 3) && noteLoin('moulin', 8) && etat.vuAgir === true,
+    chiffres:() => {
+      const pres = releveProche('moulin'), loin = releveLoin('moulin');
+      if (!pres || !loin) return null;
+      return `Tout près du moulin : <b>${pres.n.pm} µg/m³</b>.
+        À <b>${nb(loin.d)} m</b> de là : <b>${loin.n.pm} µg/m³</b>.
+        En t’éloignant, tu respires mieux — mais le moulin lâche toujours
+        <b>${SOURCES.moulin.emisJour} g</b> dans l’air chaque jour, tuyau relevé ou non.`;
+    },
     qcm:[
       { q:'Faton relève son tuyau. Qu’est-ce que cela change vraiment ?',
         choix:['Celui qui est juste à côté respire mieux, mais le quartier reçoit toujours autant',
@@ -923,6 +1050,13 @@ const MISSIONS = [
         notePres('moto', 3) && notePres('moulin', 3) },
     ],
     test:() => notePres('moto', 3) && notePres('moulin', 3),
+    chiffres:() => {
+      const mo = releveProche('moto'), mu = releveProche('moulin');
+      if (!mo || !mu) return null;
+      return `Près de la moto de Yèmi : <b>${nb(mo.n.co)} ppm</b> de monoxyde de carbone,
+        alors qu’on ne voit rien sortir du pot. Près du moulin, qui fume beaucoup :
+        <b>${nb(mu.n.co)} ppm</b>. Le gaz le plus dangereux est celui qu’on ne voit pas.`;
+    },
     qcm:[
       { q:'La moto de Yèmi ne fume presque pas. Pourtant le capteur détecte du monoxyde de carbone. Pourquoi ?',
         choix:['Le monoxyde de carbone est un gaz invisible : on ne peut pas le voir sortir',
@@ -949,6 +1083,13 @@ const MISSIONS = [
     ],
     test:() => notesM().some(n => distanceA(n, 'cuisine') <= 3 && !n.gaz)
             && notesM().some(n => distanceA(n, 'cuisine') <= 3 && n.gaz),
+    chiffres:() => {
+      const feu = releveProche('cuisine', n => !n.gaz), gaz = releveProche('cuisine', n => n.gaz);
+      if (!feu || !gaz) return null;
+      return `Au coal-pot : <b>${feu.n.pm} µg/m³</b>. Au gaz, au même endroit :
+        <b>${gaz.n.pm} µg/m³</b>. Rien qu’en changeant de feu, tu as retiré
+        <b>${feu.n.pm - gaz.n.pm} µg/m³</b> de l’air de la cuisine.`;
+    },
     qcm:[
       { q:'« De mon temps, on ne savait rien de tout cela. » Le feu de bois d’autrefois polluait-il ?',
         choix:['Oui, beaucoup : la fumée de bois est pleine de poussières fines et de CO',
@@ -972,6 +1113,12 @@ const MISSIONS = [
       { t:'Fais tomber les rejets du quartier <b>sous 400 g/jour</b>', fait:() => emissionsQuartier() < 400 },
     ],
     test:() => Object.keys(etat.verdicts).length >= 4 && emissionsQuartier() < 400,
+    chiffres:() => {
+      const e = emissionsQuartier();
+      return `Le quartier rejetait <b>${EMISSIONS_DEPART} g</b> chaque jour.
+        Avec les actions que tu as choisies, il en rejette <b>${e} g</b> :
+        <b>${EMISSIONS_DEPART - e} g de moins</b>, tous les jours.`;
+    },
     qcm:[
       { q:'Quelle action réduit le plus ce que le quartier rejette chaque jour ?',
         choix:['Empêcher les feux de brousse', 'Planter quelques arbres',
@@ -1056,30 +1203,179 @@ const el = (nom, attrs, texte) => {
 const SOL = 250;
 const refs = {};
 let tAnim = 0;
+const estSombre = () => document.body.classList.contains('sombre');
+
+/* ---------------------------------------------------------------------------
+   Les briques du décor.
+   Les testeurs demandaient « de vraies motos, de vrais arbres » : chaque source
+   est maintenant une petite scène, et les quatre personnes qui donnent leur
+   avis se tiennent près de la leur — c'est à elles qu'on va parler.
+   ------------------------------------------------------------------------- */
+
+// Un arbre : tronc conique, deux branches, feuillage en cinq touffes
+function arbre(g, x, ySol, u, o) {
+  o = o || {};
+  const f = o.feuillage || ['#2E7D32', '#43A047', '#66BB6A'];
+  g.appendChild(el('ellipse', { cx:x, cy:ySol + 2, rx:24 * u, ry:4 * u,
+    fill:'#3A3632', 'fill-opacity':.14 }));
+  g.appendChild(el('path', { fill:o.tronc || '#6D4C41',
+    d:`M ${x - 5.5 * u} ${ySol} C ${x - 4 * u} ${ySol - 15 * u} ${x - 3 * u} ${ySol - 22 * u} ${x - 3 * u} ${ySol - 32 * u}`
+    + ` L ${x + 3 * u} ${ySol - 32 * u} C ${x + 3 * u} ${ySol - 22 * u} ${x + 4 * u} ${ySol - 15 * u} ${x + 5.5 * u} ${ySol} z` }));
+  g.appendChild(el('path', { fill:'none', stroke:o.tronc || '#6D4C41', 'stroke-width':3 * u,
+    'stroke-linecap':'round', d:`M ${x - 1 * u} ${ySol - 27 * u} L ${x - 13 * u} ${ySol - 37 * u}` }));
+  g.appendChild(el('path', { fill:'none', stroke:o.tronc || '#6D4C41', 'stroke-width':3 * u,
+    'stroke-linecap':'round', d:`M ${x + 1 * u} ${ySol - 29 * u} L ${x + 13 * u} ${ySol - 38 * u}` }));
+  g.appendChild(el('circle', { cx:x, cy:ySol - 50 * u, r:22 * u, fill:f[0] }));
+  g.appendChild(el('circle', { cx:x - 17 * u, cy:ySol - 41 * u, r:14 * u, fill:f[1] }));
+  g.appendChild(el('circle', { cx:x + 17 * u, cy:ySol - 42 * u, r:14 * u, fill:f[1] }));
+  g.appendChild(el('circle', { cx:x - 7 * u, cy:ySol - 59 * u, r:12 * u, fill:f[2] }));
+  g.appendChild(el('circle', { cx:x + 9 * u, cy:ySol - 56 * u, r:10 * u, fill:f[2] }));
+  // les mangues du manguier
+  if (o.fruits) [[-13, -46], [8, -41], [16, -53], [-4, -63]].forEach(p => {
+    g.appendChild(el('ellipse', { cx:x + p[0] * u, cy:ySol + p[1] * u,
+      rx:3.2 * u, ry:4.2 * u, fill:'#F2A93B' }));
+  });
+}
+
+// Quelqu'un, debout, vu de face — hauteur totale h
+function bonhomme(g, x, ySol, o) {
+  o = o || {};
+  const h = o.h || 34, u = h / 34;
+  const peau = o.peau || '#8D5524', haut = o.haut || '#5BC5F2', bas = o.bas || '#37474F';
+  g.appendChild(el('ellipse', { cx:x, cy:ySol + 1.5, rx:9 * u, ry:2.5 * u,
+    fill:'#3A3632', 'fill-opacity':.16 }));
+  g.appendChild(el('rect', { x:x - 5.4 * u, y:ySol - 13 * u, width:4.4 * u, height:13 * u, rx:1.8 * u, fill:bas }));
+  g.appendChild(el('rect', { x:x + 1 * u, y:ySol - 13 * u, width:4.4 * u, height:13 * u, rx:1.8 * u, fill:bas }));
+  g.appendChild(el('path', { fill:haut,
+    d:`M ${x - 6.5 * u} ${ySol - 12 * u} L ${x - 7.2 * u} ${ySol - 22 * u} q 0 ${-3 * u} ${3 * u} ${-3 * u}`
+    + ` l ${8.4 * u} 0 q ${3 * u} 0 ${3 * u} ${3 * u} L ${x + 6.5 * u} ${ySol - 12 * u} z` }));
+  g.appendChild(el('rect', { x:x - 10 * u, y:ySol - 24 * u, width:3.4 * u, height:12 * u, rx:1.7 * u, fill:haut }));
+  g.appendChild(el('rect', { x:x + 6.6 * u, y:ySol - 24 * u, width:3.4 * u, height:12 * u, rx:1.7 * u, fill:haut }));
+  g.appendChild(el('circle', { cx:x - 8.3 * u, cy:ySol - 11.5 * u, r:1.9 * u, fill:peau }));
+  g.appendChild(el('circle', { cx:x + 8.3 * u, cy:ySol - 11.5 * u, r:1.9 * u, fill:peau }));
+  g.appendChild(el('rect', { x:x - 1.8 * u, y:ySol - 27 * u, width:3.6 * u, height:3.5 * u, fill:peau }));
+  g.appendChild(el('circle', { cx:x, cy:ySol - 29.5 * u, r:5 * u, fill:peau }));
+  g.appendChild(el('path', { fill:o.cheveux || '#2B2118',
+    d:`M ${x - 5 * u} ${ySol - 30.5 * u} a ${5 * u} ${5 * u} 0 0 1 ${10 * u} 0 z` }));
+  if (o.canne) g.appendChild(el('line', { x1:x + 9 * u, y1:ySol - 12 * u, x2:x + 12 * u, y2:ySol,
+    stroke:'#8D6E63', 'stroke-width':2 * u, 'stroke-linecap':'round' }));
+}
+
+// Une moto de profil, tournée vers la droite
+function motocyclette(g, x, ySol, o) {
+  o = o || {};
+  const cadre = o.cadre || '#5BC5F2', yr = ySol - 10, R = 10;
+  g.appendChild(el('ellipse', { cx:x, cy:ySol + 1.5, rx:25, ry:3.5, fill:'#3A3632', 'fill-opacity':.16 }));
+  [x - 17, x + 17].forEach(rx => {
+    g.appendChild(el('circle', { cx:rx, cy:yr, r:R, fill:'#2B2F33' }));
+    g.appendChild(el('circle', { cx:rx, cy:yr, r:R - 3.4, fill:'none', stroke:'#B9BEC4', 'stroke-width':1.4 }));
+    for (let a = 0; a < 4; a++) {
+      const t = a * Math.PI / 4 + .4;
+      g.appendChild(el('line', { x1:rx - Math.cos(t) * 6.3, y1:yr - Math.sin(t) * 6.3,
+        x2:rx + Math.cos(t) * 6.3, y2:yr + Math.sin(t) * 6.3, stroke:'#9AA0A6', 'stroke-width':.9 }));
+    }
+    g.appendChild(el('circle', { cx:rx, cy:yr, r:2, fill:'#78838C' }));
+  });
+  // pot d'échappement, d'où sort la fumée
+  g.appendChild(el('path', { fill:'#C3C8CD',
+    d:`M ${x - 5} ${yr - 3} L ${x - 20} ${yr} q -5 .5 -5 2.4 q 0 1.9 5 2.1 l 15 -1 z` }));
+  g.appendChild(el('path', { fill:'none', stroke:cadre, 'stroke-width':3.4,
+    'stroke-linecap':'round', 'stroke-linejoin':'round',
+    d:`M ${x - 17} ${yr} L ${x - 6} ${yr - 6} L ${x - 2} ${yr - 16} M ${x - 6} ${yr - 6} L ${x + 8} ${yr - 7} L ${x + 15} ${yr - 17}` }));
+  g.appendChild(el('path', { fill:cadre, d:`M ${x - 1} ${yr - 17} q 9 -4 15 -1 l 0 5 q -8 3 -15 1 z` }));
+  g.appendChild(el('path', { fill:'#2B2F33', d:`M ${x - 17} ${yr - 14} q 8 -3 16 -1 l 0 3.6 q -8 1.6 -16 1 z` }));
+  g.appendChild(el('path', { fill:'#78838C', d:`M ${x - 25} ${yr - 8} q 8 -6 17 -3 l 0 2.6 q -9 -2 -16 3.4 z` }));
+  g.appendChild(el('line', { x1:x + 17, y1:yr, x2:x + 15, y2:yr - 18, stroke:'#78838C', 'stroke-width':3 }));
+  g.appendChild(el('line', { x1:x + 10, y1:yr - 20, x2:x + 21, y2:yr - 20,
+    stroke:'#2B2F33', 'stroke-width':2.6, 'stroke-linecap':'round' }));
+  g.appendChild(el('circle', { cx:x + 20, cy:yr - 13, r:3.4, fill:'#FFE082', stroke:'#78838C', 'stroke-width':1 }));
+}
+
+// Une flamme : une goutte renversée, avec un cœur clair
+function flamme(g, x, yBas, h, coul) {
+  const l = h * .4;
+  g.appendChild(el('path', { class:'flamme', fill:coul || '#FF7043',
+    d:`M ${x} ${yBas} C ${x - l} ${yBas - h * .35} ${x - l * .8} ${yBas - h * .72} ${x} ${yBas - h}`
+    + ` C ${x + l * .8} ${yBas - h * .72} ${x + l} ${yBas - h * .35} ${x} ${yBas} z` }));
+  g.appendChild(el('path', { class:'flamme', fill:'#FFC93C',
+    d:`M ${x} ${yBas - h * .08} C ${x - l * .5} ${yBas - h * .3} ${x - l * .42} ${yBas - h * .55} ${x} ${yBas - h * .72}`
+    + ` C ${x + l * .42} ${yBas - h * .55} ${x + l * .5} ${yBas - h * .3} ${x} ${yBas - h * .08} z` }));
+}
+
+// La petite bulle qui signale « ici, quelqu'un a un avis »
+function marqueParole(g, x, y) {
+  const m = el('g', { opacity:'.55' });
+  m.appendChild(el('rect', { x:x - 9, y:y - 8, width:18, height:12, rx:5,
+    fill:'var(--surface)', stroke:'var(--accent)', 'stroke-width':1.6 }));
+  m.appendChild(el('path', { d:`M ${x - 3} ${y + 3} L ${x - 1} ${y + 7} L ${x + 2} ${y + 3} z`, fill:'var(--accent)' }));
+  for (let k = -1; k <= 1; k++)
+    m.appendChild(el('circle', { cx:x + k * 4.5, cy:y - 2, r:1.4, fill:'var(--accent)' }));
+  g.appendChild(m);
+}
+
+// Le fond : ciel, soleil, collines, maisons au loin, bande de sol
+function decor() {
+  const nuit = estSombre();
+  const defs = el('defs');
+  const grad = el('linearGradient', { id:'ciel', x1:'0', y1:'0', x2:'0', y2:'1' });
+  grad.appendChild(el('stop', { offset:'0', 'stop-color':nuit ? '#16202B' : '#9AD3EC' }));
+  grad.appendChild(el('stop', { offset:'1', 'stop-color':nuit ? '#26363F' : '#E9F4F9' }));
+  defs.appendChild(grad);
+  plan.appendChild(defs);
+  plan.appendChild(el('rect', { x:0, y:0, width:660, height:SOL + 10, fill:'url(#ciel)' }));
+  plan.appendChild(el('circle', { cx:330, cy:34, r:nuit ? 13 : 17,
+    fill:nuit ? '#E8EEF2' : '#FFD25A', opacity:nuit ? .28 : .9 }));
+  // le relief au loin, puis les toits du quartier
+  plan.appendChild(el('path', { opacity:.55, fill:nuit ? '#2B3A31' : '#A8C384',
+    d:'M 0 234 q 88 -26 176 -6 q 78 18 148 -12 q 92 -28 168 -2 q 68 20 168 8 L 660 252 L 0 252 z' }));
+  [[128, 26], [232, 20], [468, 24], [572, 18]].forEach(m => {
+    const mx = m[0], mh = m[1], my = SOL - 6;
+    const gm = el('g', { opacity:.4 });
+    gm.appendChild(el('rect', { x:mx - 17, y:my - mh, width:34, height:mh, fill:nuit ? '#3A4650' : '#CDBBA4' }));
+    gm.appendChild(el('path', { d:`M ${mx - 22} ${my - mh} L ${mx} ${my - mh - 9} L ${mx + 22} ${my - mh} z`,
+      fill:nuit ? '#4A5762' : '#A08064' }));
+    plan.appendChild(gm);
+  });
+  // la bande de sol qui porte tout le quartier
+  plan.appendChild(el('rect', { x:0, y:SOL - 5, width:660, height:15, fill:nuit ? '#3B322A' : '#D9B984' }));
+  plan.appendChild(el('line', { x1:0, y1:SOL, x2:660, y2:SOL,
+    stroke:nuit ? '#5A4A3B' : '#B08E5E', 'stroke-width':2 }));
+  // sous le sol, la bande qui porte les étiquettes et la règle des distances
+  plan.appendChild(el('rect', { x:0, y:SOL + 10, width:660, height:330 - SOL - 10, fill:'var(--surface-muted)' }));
+}
 
 function dessiner() {
   plan.textContent = '';
   for (const k in refs) delete refs[k];
+  refs.quiX = {};
+  bulleQui = null;
 
-  // ciel et sol
-  plan.appendChild(el('rect', { x:0, y:0, width:660, height:SOL, fill:'#D6EAF6', 'fill-opacity':.5 }));
-  plan.appendChild(el('rect', { x:0, y:SOL, width:660, height:330 - SOL, fill:'#C8A165', 'fill-opacity':.35 }));
-  plan.appendChild(el('line', { x1:0, y1:SOL, x2:660, y2:SOL, stroke:'#A1887F', 'stroke-width':2 }));
+  decor();
+
+  // les sources d'abord, les fumées ensuite : aucune fumée ne passe derrière un objet
+  for (const cle in SOURCES) dessinerSource(cle, SOURCES[cle]);
+
+  // les arbres plantés, si l'action est prise : ils occupent les places libres de la rue
+  if (etat.actions.arbres) for (const px of [114, 226, 331, 450]) {
+    const a = el('g');
+    arbre(a, px, SOL, .42);
+    plan.appendChild(a);
+  }
 
   refs.panaches = {};
-  let rang = 0;
   for (const cle in SOURCES) {
     const s = SOURCES[cle];
-    dessinerSource(cle, s);
-    if (s.fumee) {
-      const g = el('g');
-      for (let k = 0; k < 6; k++) g.appendChild(el('circle', { fill:s.fumee.coul }));
-      plan.appendChild(g);
-      refs.panaches[cle] = g;
-    }
-    // étiquette du lieu
-    plan.appendChild(el('text', { x:s.x, y:SOL + (rang++ % 2 ? 36 : 22), class:'etiq-lieu' },
-      s.court || s.nom));
+    if (!s.fumee) continue;
+    const g = el('g');
+    for (let k = 0; k < 7; k++) g.appendChild(el('circle', { fill:s.fumee.coul }));
+    plan.appendChild(g);
+    refs.panaches[cle] = g;
+  }
+
+  let rang = 0;
+  for (const cle in SOURCES) {
+    plan.appendChild(el('text', { x:SOURCES[cle].x, y:SOL + (rang++ % 2 ? 36 : 24), class:'etiq-lieu' },
+      SOURCES[cle].court || SOURCES[cle].nom));
   }
 
   // règle des distances, pour que la notion de « près / loin » soit lisible
@@ -1106,61 +1402,193 @@ function dessiner() {
   animer();
 }
 
+/* ---- Ce que dit la personne d'à côté ----
+   Cette phrase encombrait la fiche du capteur, illisible sur téléphone. Elle
+   sort dans sa propre bulle, posée sous la scène, là où la place ne manque pas. */
+let bulleQui = null;
+
+function majBulle(cle) {
+  if (cle === bulleQui) return;
+  bulleQui = cle;
+  const z = $('parole');
+  if (!cle) { z.hidden = true; return; }
+  const s = SOURCES[cle];
+  $('parole-qui').textContent = s.qui;
+  $('parole-txt').textContent = '« ' + s.dit + ' »';
+  z.hidden = false;
+}
+
 function dessinerSource(cle, s) {
   const x = s.x, y = SOL;
   const g = el('g');
+
   if (cle === 'manguier') {
-    g.appendChild(el('rect', { x:x - 4, y:y - 34, width:8, height:34, fill:'#795548' }));
-    g.appendChild(el('circle', { cx:x, cy:y - 48, r:26, fill:'#66BB6A' }));
-    g.appendChild(el('circle', { cx:x - 16, cy:y - 38, r:17, fill:'#81C784' }));
-    g.appendChild(el('circle', { cx:x + 16, cy:y - 38, r:17, fill:'#81C784' }));
+    arbre(g, x, y, 1.15, { fruits:true });
+    // un banc à l'ombre : c'est le coin où l'on respire
+    g.appendChild(el('rect', { x:x + 18, y:y - 11, width:26, height:4, rx:1.5, fill:'#A1887F' }));
+    g.appendChild(el('rect', { x:x + 20, y:y - 7, width:3, height:7, fill:'#8D6E63' }));
+    g.appendChild(el('rect', { x:x + 39, y:y - 7, width:3, height:7, fill:'#8D6E63' }));
+
   } else if (cle === 'moto') {
-    g.appendChild(el('circle', { cx:x - 12, cy:y - 8, r:8, fill:'none', stroke:'#37474F', 'stroke-width':3 }));
-    g.appendChild(el('circle', { cx:x + 12, cy:y - 8, r:8, fill:'none', stroke:'#37474F', 'stroke-width':3 }));
-    g.appendChild(el('path', { d:`M ${x - 12} ${y - 8} L ${x - 2} ${y - 24} L ${x + 12} ${y - 8}`,
-      fill:'none', stroke:'#5BC5F2', 'stroke-width':4 }));
+    // la moto neuve de Yèmi : quatre temps, on ne voit presque rien sortir
+    motocyclette(g, x + 6, y, { cadre:'#3F8FD0' });
+    bonhomme(g, x - 30, y, { haut:'#E0648F', bas:'#37474F' });
+    refs.quiX[cle] = x - 30;
+    marqueParole(g, x - 30, y - 44);
+
   } else if (cle === 'zem') {
-    g.appendChild(el('circle', { cx:x - 12, cy:y - 8, r:8, fill:'none', stroke:'#37474F', 'stroke-width':3 }));
-    g.appendChild(el('circle', { cx:x + 12, cy:y - 8, r:8, fill:'none', stroke:'#37474F', 'stroke-width':3 }));
-    g.appendChild(el('path', { d:`M ${x - 12} ${y - 8} L ${x - 2} ${y - 24} L ${x + 12} ${y - 8}`,
-      fill:'none', stroke:'#F7A430', 'stroke-width':4 }));
-    g.appendChild(el('circle', { cx:x - 2, cy:y - 32, r:6, fill:'#F7A430' }));
+    // le zem d'Élie, et Élie dessus, en chemise jaune de conducteur
+    motocyclette(g, x, y, { cadre:'#D98324' });
+    const yr = y - 10;
+    g.appendChild(el('path', { fill:'none', stroke:'#37474F', 'stroke-width':5.4,
+      'stroke-linecap':'round', 'stroke-linejoin':'round',
+      d:`M ${x - 7} ${yr - 13} L ${x - 2} ${yr - 2} L ${x + 6} ${yr + 1}` }));
+    g.appendChild(el('path', { fill:'none', stroke:'#F2C230', 'stroke-width':11.5,
+      'stroke-linecap':'round', d:`M ${x - 9} ${yr - 14} L ${x - 2} ${yr - 28}` }));
+    g.appendChild(el('path', { fill:'none', stroke:'#F2C230', 'stroke-width':4.4,
+      'stroke-linecap':'round', d:`M ${x - 3} ${yr - 25} L ${x + 12} ${yr - 19}` }));
+    g.appendChild(el('circle', { cx:x - 1, cy:yr - 33, r:5.4, fill:'#8D5524' }));
+    g.appendChild(el('path', { fill:'#2E4A6B', d:`M ${x - 7} ${yr - 33.5} a 6 6 0 0 1 12 0 z` }));
+    refs.quiX[cle] = x - 4;
+    marqueParole(g, x - 4, y - 58);
+
   } else if (cle === 'moulin') {
-    g.appendChild(el('rect', { x:x - 26, y:y - 44, width:52, height:44, rx:4,
-      fill:'#90A4AE', 'fill-opacity':.7, stroke:'#607D8B', 'stroke-width':2 }));
+    // un moulin à gas-oil sous un abri de tôle, avec sa cheminée
     const h = etat.actions.tuyau ? 40 : 12;
-    g.appendChild(el('rect', { x:x + 14, y:y - 44 - h, width:8, height:h + 6, fill:'#546E7A' }));
+    const yToit = px => y - 46 - (px - (x - 38)) / 66 * 8;
+    [x - 30, x + 20].forEach(px => g.appendChild(el('rect', {
+      x:px - 2.5, y:yToit(px) + 7, width:5, height:y - yToit(px) - 7, fill:'#8D6E63' })));
+    // le bloc moteur, son volant d'inertie et la trémie où l'on verse le maïs
+    g.appendChild(el('path', { fill:'#A1887F',
+      d:`M ${x - 13} ${y - 28} L ${x - 18} ${y - 42} L ${x + 4} ${y - 42} L ${x + 1} ${y - 28} z` }));
+    g.appendChild(el('rect', { x:x - 22, y:y - 28, width:30, height:28, rx:3, fill:'#5E6B72' }));
+    g.appendChild(el('rect', { x:x - 22, y:y - 28, width:30, height:6, rx:2, fill:'#78838C' }));
+    g.appendChild(el('rect', { x:x - 6, y:y - 20, width:12, height:9, rx:2, fill:'#455A64' }));
+    g.appendChild(el('circle', { cx:x - 27, cy:y - 12, r:11, fill:'#455A64' }));
+    g.appendChild(el('circle', { cx:x - 27, cy:y - 12, r:7, fill:'none', stroke:'#90A4AE', 'stroke-width':1.6 }));
+    g.appendChild(el('circle', { cx:x - 27, cy:y - 12, r:2.4, fill:'#90A4AE' }));
+    g.appendChild(el('line', { x1:x - 27, y1:y - 23, x2:x - 8, y2:y - 22,
+      stroke:'#37474F', 'stroke-width':2 }));
+    // deux sacs de maïs posés là
+    g.appendChild(el('path', { fill:'#D7CCC8', stroke:'#B0A99F', 'stroke-width':1,
+      d:`M ${x + 10} ${y} l 0 -12 q 6 -4 12 0 l 0 12 z` }));
+    g.appendChild(el('path', { fill:'#E5DDD6', stroke:'#B0A99F', 'stroke-width':1,
+      d:`M ${x + 22} ${y} l 0 -9 q 5 -3 10 0 l 0 9 z` }));
+    // la cheminée : c'est elle que Faton a relevée
+    g.appendChild(el('line', { x1:x + 6, y1:y - 25, x2:x + 34, y2:y - 25,
+      stroke:'#546E7A', 'stroke-width':5 }));
+    g.appendChild(el('rect', { x:x + 31, y:y - 44 - h, width:6, height:h + 20, fill:'#546E7A' }));
+    g.appendChild(el('rect', { x:x + 29, y:y - 47 - h, width:10, height:4, rx:1.5, fill:'#78838C' }));
+    // le toit de tôle par-dessus
+    g.appendChild(el('path', { fill:'#9FA8AE', stroke:'#78838C', 'stroke-width':1,
+      d:`M ${x - 38} ${y - 46} L ${x + 28} ${y - 54} L ${x + 28} ${y - 47} L ${x - 38} ${y - 39} z` }));
+    for (let k = 1; k < 9; k++) {
+      const px = x - 38 + k / 9 * 66;
+      g.appendChild(el('line', { x1:px, y1:yToit(px), x2:px, y2:yToit(px) + 7,
+        stroke:'#78838C', 'stroke-width':.9 }));
+    }
+    bonhomme(g, x - 46, y, { haut:'#4CA37A', bas:'#455A64', h:35 });
+    refs.quiX[cle] = x - 46;
+    marqueParole(g, x - 46, y - 45);
+
   } else if (cle === 'cuisine') {
-    g.appendChild(el('rect', { x:x - 28, y:y - 40, width:56, height:40, rx:3,
-      fill:'#BCAAA4', 'fill-opacity':.75, stroke:'#8D6E63', 'stroke-width':2 }));
-    g.appendChild(el('path', { d:`M ${x - 34} ${y - 40} L ${x} ${y - 58} L ${x + 34} ${y - 40} z`,
-      fill:'#A1887F' }));
-    g.appendChild(el('rect', { x:x - 9, y:y - 16, width:18, height:16, rx:2,
-      fill:etat.actions.gaz ? '#5BC5F2' : '#5D4037' }));
+    // un coin cuisine dans la cour : mur bas, foyer, marmite
+    g.appendChild(el('rect', { x:x - 40, y:y - 19, width:70, height:19, fill:'#D7C4A8' }));
+    g.appendChild(el('rect', { x:x - 40, y:y - 21, width:70, height:3, fill:'#B49F80' }));
+    bonhomme(g, x - 30, y, { haut:'#C7BFA8', bas:'#6D6257', cheveux:'#E8E6E1', canne:true, h:32 });
+    refs.quiX[cle] = x - 30;
+    marqueParole(g, x - 30, y - 42);
+    if (etat.actions.gaz) {
+      // la bouteille de gaz et son brûleur : une flamme bleue, propre
+      g.appendChild(el('rect', { x:x + 15, y:y - 28, width:15, height:28, rx:4, fill:'#1E7FC2' }));
+      g.appendChild(el('rect', { x:x + 20, y:y - 32, width:5, height:5, fill:'#78838C' }));
+      g.appendChild(el('path', { fill:'none', stroke:'#455A64', 'stroke-width':2,
+        d:`M ${x + 15} ${y - 24} q -10 2 -12 8` }));
+      g.appendChild(el('rect', { x:x - 11, y:y - 24, width:22, height:4, rx:2, fill:'#78838C' }));
+      [-6, 0, 6].forEach(d => flamme(g, x + d, y - 24, 8, '#4FA3E3'));
+      g.appendChild(el('rect', { x:x - 8, y:y - 20, width:16, height:20, rx:2, fill:'#8C939A' }));
+    } else {
+      // le coal-pot : braises rouges et petites flammes
+      [-9, 0, 9].forEach(d => g.appendChild(el('rect', {
+        x:x + d - 1.5, y:y - 9, width:3, height:9, fill:'#78838C' })));
+      g.appendChild(el('path', { fill:'#9AA0A6', stroke:'#78838C', 'stroke-width':1,
+        d:`M ${x - 16} ${y - 22} L ${x + 16} ${y - 22} L ${x + 10} ${y - 8} L ${x - 10} ${y - 8} z` }));
+      [-8, -2, 5, 10].forEach((d, i) => g.appendChild(el('ellipse', {
+        cx:x + d, cy:y - 23, rx:3.6, ry:2, fill:['#E64A19', '#FF7043', '#FF8A50', '#E64A19'][i] })));
+      flamme(g, x - 6, y - 23, 9);
+      flamme(g, x + 5, y - 23, 11);
+      // le sac de charbon de bois
+      g.appendChild(el('path', { fill:'#4E4640',
+        d:`M ${x + 20} ${y} l 0 -11 q 6 -4 12 0 l 0 11 z` }));
+    }
+    // la marmite, posée au-dessus du feu
+    g.appendChild(el('path', { fill:'#454C50',
+      d:`M ${x - 12} ${y - 42} L ${x - 11} ${y - 30} q 11 5 22 0 L ${x + 12} ${y - 42} z` }));
+    g.appendChild(el('ellipse', { cx:x, cy:y - 42, rx:12.5, ry:3.4, fill:'#5C666B' }));
+    g.appendChild(el('circle', { cx:x, cy:y - 45, r:2.4, fill:'#454C50' }));
+
   } else if (cle === 'ordures') {
-    g.appendChild(el('path', { d:`M ${x - 22} ${y} q 10 -22 22 -22 q 12 0 22 22 z`,
-      fill:'#8D6E63', 'fill-opacity':.8 }));
+    if (etat.actions.ordures) {
+      // les ordures sont triées et ramassées : des sacs fermés, plus rien qui brûle
+      [[-11, 21], [9, 25]].forEach(p => {
+        g.appendChild(el('path', { fill:'#4E7A63',
+          d:`M ${x + p[0] - 10} ${y} q -1 ${-p[1]} 10 ${-p[1]} q 11 0 10 ${p[1]} z` }));
+        g.appendChild(el('path', { fill:'none', stroke:'#2F4F41', 'stroke-width':2, 'stroke-linecap':'round',
+          d:`M ${x + p[0] - 4} ${y - p[1] + 1} l 4 -4 l 4 4` }));
+      });
+      plan.appendChild(g);
+      return;
+    }
+    // le tas qu'on brûle au fond de la parcelle, plastiques compris
+    g.appendChild(el('path', { fill:'#8D6E63',
+      d:`M ${x - 26} ${y} q 3 -13 13 -17 q 7 -3 10 -7 q 5 7 11 8 q 10 3 13 16 z` }));
+    g.appendChild(el('path', { fill:'#6D4C41', 'fill-opacity':.55,
+      d:`M ${x - 13} ${y} q 4 -10 11 -13 q 6 -2 9 -6 l 4 19 z` }));
+    g.appendChild(el('ellipse', { cx:x - 15, cy:y - 6, rx:8, ry:6,
+      fill:'none', stroke:'#37474F', 'stroke-width':4 }));
+    g.appendChild(el('rect', { x:x + 4, y:y - 14, width:15, height:11, rx:1.5,
+      fill:'#C89B6A', stroke:'#9E7B52', 'stroke-width':1,
+      transform:`rotate(-12 ${x + 11} ${y - 8})` }));
+    g.appendChild(el('path', { fill:'#B3E5FC', stroke:'#81D4FA', 'stroke-width':1,
+      d:`M ${x - 5} ${y - 13} l 6 0 l 0 -5 l 2 0 l 0 -5 l -10 0 l 0 5 l 2 0 z` }));
+    g.appendChild(el('path', { fill:'#37474F', 'fill-opacity':.8,
+      d:`M ${x - 25} ${y - 2} q 4 -10 12 -6 q 3 6 -2 6 z` }));
+    flamme(g, x - 8, y - 14, 17);
+    flamme(g, x + 4, y - 19, 23);
+    flamme(g, x + 15, y - 10, 14);
+
   } else if (cle === 'brousse') {
     if (etat.actions.brousse) {
-      // la brousse est protégée : les arbres ont repoussé
-      for (let k = 0; k < 3; k++) {
-        const bx = x - 16 + k * 16;
-        g.appendChild(el('rect', { x:bx - 2, y:y - 16, width:4, height:16, fill:'#795548' }));
-        g.appendChild(el('circle', { cx:bx, cy:y - 22, r:11, fill:'#66BB6A' }));
-      }
+      // la brousse est protégée : la forêt a repris
+      arbre(g, x - 24, y, .5);
+      arbre(g, x, y, .64);
+      arbre(g, x + 23, y, .52);
     } else {
-      for (let k = 0; k < 3; k++) g.appendChild(el('path', {
-        d:`M ${x - 16 + k * 14} ${y} q -5 -20 0 -30 q 5 10 0 30 z`, fill:'#FF7043' }));
+      g.appendChild(el('ellipse', { cx:x, cy:y, rx:44, ry:5, fill:'#3E2723', 'fill-opacity':.45 }));
+      const brule = { feuillage:['#4E342E', '#5D4037', '#6D4C41'], tronc:'#3E2723' };
+      arbre(g, x - 24, y, .5, brule);
+      arbre(g, x, y, .64, brule);
+      arbre(g, x + 23, y, .52, brule);
+      flamme(g, x - 31, y, 26);
+      flamme(g, x - 13, y, 35);
+      flamme(g, x + 5, y, 30);
+      flamme(g, x + 24, y, 37);
+      flamme(g, x + 38, y, 22);
     }
   }
   plan.appendChild(g);
-  // arbres plantés en plus, si l'action est prise
-  if (etat.actions.arbres && cle !== 'manguier' && cle !== 'brousse') {
-    const a = el('g', { opacity:'.8' });
-    a.appendChild(el('rect', { x:x + 34, y:y - 20, width:5, height:20, fill:'#795548' }));
-    a.appendChild(el('circle', { cx:x + 36, cy:y - 26, r:12, fill:'#66BB6A' }));
-    plan.appendChild(a);
-  }
+}
+
+// Par où la fumée quitte chaque source : le pot, la cheminée, le foyer, le tas
+function sortieFumee(cle) {
+  const x = SOURCES[cle].x;
+  if (cle === 'moto')    return { x:x - 19, y:SOL - 12 };
+  if (cle === 'zem')     return { x:x - 25, y:SOL - 13 };
+  if (cle === 'moulin')  return { x:x + 34, y:SOL - 48 - (etat.actions.tuyau ? 40 : 12) };
+  if (cle === 'cuisine') return { x, y:SOL - 44 };
+  if (cle === 'ordures') return { x:x + 3, y:SOL - 30 };
+  if (cle === 'brousse') return { x, y:SOL - 44 };
+  return { x, y:SOL - 20 };
 }
 
 /* ---- Rafraîchissement : panaches, capteur, lecture ---- */
@@ -1179,34 +1607,31 @@ function animer() {
     const s = SOURCES[cle];
     const k = facteurAction(cle);
     const g = refs.panaches[cle];
-    const h = hauteurDe(cle) * 12;
-    g.setAttribute('opacity', String(s.fumee.densite * k * .75));
+    const o = sortieFumee(cle);
+    g.setAttribute('opacity', String(s.fumee.densite * k * .8));
     [...g.children].forEach((c, i) => {
-      const ph = ((tAnim * .25) + i * .17) % 1;
-      c.setAttribute('cx', s.x + 16 + Math.sin(ph * 4 + i) * 16 + ph * 26);
-      c.setAttribute('cy', SOL - 40 - h - ph * 90);
-      c.setAttribute('r', 7 + ph * 17);
-      c.setAttribute('fill-opacity', String(.55 * (1 - ph)));
+      const ph = ((tAnim * .25) + i * .145) % 1;
+      c.setAttribute('cx', o.x + Math.sin(ph * 3.4 + i) * 9 + ph * 24);
+      c.setAttribute('cy', o.y - 4 - ph * 84);
+      c.setAttribute('r', 5 + ph * 16);
+      c.setAttribute('fill-opacity', String(.5 * (1 - ph)));
     });
   }
 
   $('l-pm').textContent = m.pm;
-  $('l-co').textContent = m.co;
+  $('l-co').textContent = nb(m.co);
   $('l-pm').style.color = n.coul;
+  // nom court : sur téléphone, la fiche du capteur ne doit pas tenir sur trois lignes
   $('l-lieu').textContent = l.distance <= 2
-    ? `· ${SOURCES[l.cle].nom}` : `· à ${l.distance} m de « ${SOURCES[l.cle].nom} »`;
+    ? `· ${SOURCES[l.cle].court}` : `· à ${nb(l.distance)} m de ${SOURCES[l.cle].court}`;
   const v = $('l-verdict');
-  v.textContent = n.txt;
+  v.innerHTML = `<b class="v-bref">${n.bref}</b><span class="v-long">${n.txt}</span>`;
   // teinte assombrie quand le bandeau porte du texte blanc
   v.style.background = n.coulTexte || n.coul;
   v.style.color = n.nom === 'moyen' ? 'var(--neutral)' : '#fff';
-  // la personne qui se trouve là dit ce qu'elle croit : à confronter au chiffre
+  // la personne qui se trouve là dit ce qu'elle croit, dans une bulle près d'elle
   const s = SOURCES[l.cle];
-  const d = $('l-dit');
-  if (s.qui && l.distance <= 4) {
-    d.hidden = false;
-    d.innerHTML = '<b>' + s.qui + ' :</b> « ' + s.dit + ' »';
-  } else d.hidden = true;
+  majBulle(s.qui && l.distance <= 4 ? l.cle : null);
 }
 
 function boucle(ts) {
@@ -1233,7 +1658,9 @@ plan.addEventListener('pointerdown', e => {
   deplacerCapteur(e.clientX);
 });
 plan.addEventListener('pointermove', e => { if (glisse) deplacerCapteur(e.clientX); });
-plan.addEventListener('pointerup', () => { glisse = false; majMission(); });
+// Dès que l'élève promène le capteur, le plan de mission se replie sur téléphone :
+// il a lu ses consignes, il lui faut maintenant voir la rue.
+plan.addEventListener('pointerup', () => { glisse = false; replierSiPetitEcran(); majMission(); });
 plan.addEventListener('pointercancel', () => { glisse = false; });
 plan.addEventListener('keydown', e => {
   const pas = e.shiftKey ? 40 : 12;
@@ -1260,7 +1687,7 @@ function rendreCarnet() {
     return `<div class="note">
       <span class="pastille" style="background:${niv.coul}"></span>
       <span class="txt"><b>${n.lieu}</b>
-        <span>à ${n.distance} m · ${n.pm} µg/m³ · ${n.co} ppm de CO${
+        <span>à ${nb(n.distance)} m · ${n.pm} µg/m³ · ${nb(n.co)} ppm de CO${
           n.gaz && n.cle === 'cuisine' ? ' · au gaz' : ''}${
           n.tuyauHaut && n.cle === 'moulin' ? ' · tuyau relevé' : ''}</span></span>
       <button class="oter" data-oter="${i}" aria-label="Retirer ce relevé">✕</button>
@@ -1350,8 +1777,11 @@ function afficherBilan(gagne) {
   const croix = '<button class="reduire" data-ferme-bilan aria-label="Réduire">✕</button>';
   if (!m) { toast('Tu explores librement : promène le capteur où tu veux.'); return; }
   if (gagne) {
+    // on redonne les chiffres relevés : la conclusion vient d'eux, pas d'ailleurs
+    const c = m.chiffres ? m.chiffres() : null;
     z.innerHTML = `
       <div class="verdict"><span class="em">🎉</span><h3>Mission réussie !</h3>${croix}</div>
+      ${c ? `<div class="mesures">📏 <b>Ce que ton capteur a mesuré :</b> ${c}</div>` : ''}
       <p class="phrase">${m.acquis}</p>
       <div class="actions"><button class="btn btn-large" id="btn-continuer">Continuer →</button></div>`;
   } else {
@@ -1427,10 +1857,12 @@ function repondre(i) {
 function ouvrirPassage() {
   const finie = MISSIONS[etat.mission];
   const suivante = MISSIONS[etat.mission + 1];
+  const chiffres = finie.chiffres ? finie.chiffres() : null;
   $('passage-carte').innerHTML = `
     <div class="p-fanion"><span class="rond">✅</span>
       <span><b>Mission ${etat.mission + 1} réussie !</b><span>${finie.titre}</span></span></div>
     <div class="p-acquis">📘 <b>Ce que tu as appris :</b> ${finie.acquis}</div>
+    ${chiffres ? `<div class="mesures">📏 <b>Tes relevés :</b> ${chiffres}</div>` : ''}
     ${suivante
       ? `<div class="p-suite"><div class="etiq">Mission ${etat.mission + 2} sur ${MISSIONS.length}</div>
            <b>${suivante.titre}</b><span>${suivante.but}</span></div>
@@ -1478,6 +1910,7 @@ function majMission() {
     $('m-but').textContent = 'Mesure où tu veux, et agis sur ce que tu veux.';
     $('etapes').innerHTML = '';
     $('m-jauge').style.width = '100%';
+    $('btn-agir-plan').classList.remove('appelle');
     return;
   }
   const fait = etat.faites.indexOf(etat.mission) !== -1;
@@ -1496,6 +1929,8 @@ function majMission() {
       <span class="coche">✓</span><span class="t">${e.t}</span></div>`;
   }).join('') + (m.indice ? `<div class="m-indice">💡 <b>Astuce :</b> ${m.indice}</div>` : '');
   $('btn-tester').classList.toggle('appelle', !ec);
+  // quand l'étape en cours demande d'ouvrir Agir, le bouton du plan se signale
+  $('btn-agir-plan').classList.toggle('appelle', !!(ec && /Agir/.test(ec.e.t)));
 }
 
 function rendreMissions() {
@@ -1528,7 +1963,8 @@ $('m-plier').addEventListener('click', () => {
 });
 
 $('btn-carnet').addEventListener('click', () => { rendreCarnet(); ouvrir('v-carnet'); });
-$('btn-agir').addEventListener('click', () => {
+// « Agir » se prend sur le plan de travail : c'est là que l'élève regarde
+$('btn-agir-plan').addEventListener('click', () => {
   etat.vuAgir = true; sauver();
   rendreActions(); ouvrir('v-agir'); majMission();
 });
@@ -1646,7 +2082,7 @@ requestAnimationFrame(boucle);
 try {
   // Le guide reste proposé tant que l'élève n'a pas gagné sa première mission :
   // il ne suffit pas de l'avoir vu une fois pour savoir se repérer.
-  if (!(etat.faits && etat.faits.length)) ouvrir('v-aide');
+  if (!(etat.faites && etat.faites.length)) ouvrir('v-aide');
 } catch (e) { ouvrir('v-aide'); }
 
 </script>

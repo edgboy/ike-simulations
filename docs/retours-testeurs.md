@@ -46,34 +46,46 @@ Ce fichier est le **point de reprise** : il vaut plus que la mémoire d'une sess
 | Les mesures sont héritées, les étapes déjà barrées | Chaque relevé porte sa mission ; une mission ne valide ses étapes qu'avec **ses propres** mesures. Le carnet garde l'historique |
 | « Agir » permet de cocher trop tôt | Panneau en lecture seule avant la mission 5, avec un mot qui dit pourquoi et quand il s'ouvrira |
 
+### v4.19.0 — pollution : le quartier et les chiffres
+
+| Constat | Traitement |
+|---|---|
+| Graphismes approximatifs, « mets de vraies motos, arbres, etc. » | Chaque source est une scène dessinée : motos complètes (roues à rayons, cadre, réservoir, pot), zem avec son conducteur, moulin à gas-oil sous abri, coal-pot et marmite, tas d'ordures identifiable, brousse en feu. Les quatre personnes se tiennent près de leur source. Décor : ciel, collines, toits, sol |
+| Bouton « Agir » mal placé | Il quitte l'en-tête pour une pastille sur la scène, qui clignote quand la mission le demande |
+| Modale du capteur trop encombrante sur mobile | La parole de la personne sort dans **sa propre bulle sous la scène** ; la fiche se resserre (nom court, verdict bref). Téléphone couché, fiche et bulle se rangent dans les marges de cadrage |
+| Citer les valeurs mesurées dans les bilans | Les six missions rappellent les relevés de l'élève avant leur conclusion, dans le bilan et sur l'écran de passage |
+| Le plan de mission ne se replie pas | `replierSiPetitEcran()` existait sans être appelée nulle part : elle l'est au premier glissement du capteur |
+
+Trouvés au passage et corrigés : le glissement du capteur sélectionnait les étiquettes ; les
+décimales s'écrivaient « 45.7 » ; le titre se cassait sur quatre lignes dans la colonne large.
+
+### v4.19.0 — transversal
+
+| Constat | Traitement |
+|---|---|
+| Le guide d'accueil se rouvre à chaque lancement, pour toujours | Il testait `etat.faits` là où six fichiers tiennent leur liste dans `etat.faites`. Corrigé dans alambic, lampe de poche, marmites, premiers pas, tam-tam, pollution |
+
 ---
 
 ## Reste à faire, dans l'ordre
 
-### 1. Pollution — ce qui reste
-- **Graphismes approximatifs** : « mets de vraies motos, arbres, etc. »
-- **Bouton « Agir » à déplacer sur le plan de travail** (sa position actuelle gêne)
-- **Modale du capteur trop encombrante sur mobile**, surtout quand elle porte beaucoup d'informations
-- **Citer les valeurs mesurées** dans les bilans des missions de comparaison
-- Vérifier que le plan de mission **se replie automatiquement** après le démarrage sur mobile
-
-### 2. Les premiers pas du circuit
+### 1. Les premiers pas du circuit
 - **Voir la circulation du courant**
 - **Objets dessinés pour de vrai** : un vrai clou en fer, une règle graduée, un bout de bois — pas un rectangle avec le nom écrit dessus
 - **Mission 4, la DEL** : la broche la plus longue doit être **dessinée** plus longue
 - **Mission 5, le tourniquet** : faire **tourner les hélices** pour de vrai, à une vitesse qui laisse reconnaître le sens
 
-### 3. Alambic
+### 2. Alambic
 - **La vapeur qui s'échappe** en sortie de tuyau quand il n'y a ni réfrigérant ni flacon
 - **Les gouttes qui tombent** dans le flacon — on ne voit que le niveau monter
 - **Le linge mouillé** enroulé autour du tuyau : mal représenté et mal disposé
 - **Les feuilles de plante** : de simples ellipses vertes, à redessiner
 
-### 4. Passe générale
+### 3. Passe générale
 - **UI des modales** (missions, questionnaires, lexique) : « elles sont bancales »
 - Poursuivre la **passe de langue** sur les simulations non encore reprises
 
-### 5. « Trouve la bonne pile »
+### 4. « Trouve la bonne pile »
 Simulation dédiée, tirée de la lampe de poche et réorientée sur **sous-tension / tension d'usage /
 surtension** spécifiquement.
 
