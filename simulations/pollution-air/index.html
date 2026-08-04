@@ -542,6 +542,10 @@ main { flex:1; min-height:0; display:flex; flex-direction:column; }
 body.sombre { --accent-texte:#7FD4F5; --vert-fonce:#2A9D8F; --orange-fonce:#F7A430; --rouge-fonce:#EF5350; }
 .m-rang, .a-qui, .p-suite .etiq, .chgt-etat, .q-avance,
 #mchip, .iq-titre, .l-titre span, .etiq { color:var(--accent-texte) !important; }
+
+.a-verrou { font-size:12.5px; line-height:1.5; padding:10px 12px; margin-bottom:10px;
+  background:var(--surface-muted); border-radius:var(--radius-md); opacity:.9; }
+.en-lecture .action { opacity:.55; cursor:default; }
 </style>
 </head>
 <body>
@@ -821,7 +825,7 @@ function noterMesure() {
   const l = lieuLePlusProche(etat.capteur);
   const distances = {};
   for (const c in SOURCES) distances[c] = Math.round(Math.abs(etat.capteur - SOURCES[c].x) / METRE * 10) / 10;
-  const note = { lieu:SOURCES[l.cle].nom, cle:l.cle, distance:l.distance, distances,
+  const note = { mission:etat.mission, lieu:SOURCES[l.cle].nom, cle:l.cle, distance:l.distance, distances,
     pm:m.pm, co:m.co, niveau:niveauDe(m.pm).nom,
     tuyauHaut:!!etat.actions.tuyau, gaz:!!etat.actions.gaz };
   etat.notes.push(note);
@@ -830,12 +834,16 @@ function noterMesure() {
   majTout();
 }
 
+// Les relevés de la mission en cours. Une mesure prise en mission 2 ne vaut pas
+// pour la mission 3 : l'élève refait ses mesures et compare lui-même.
+const notesM = () => etat.notes.filter(n => n.mission === etat.mission);
+
 // Ai-je un relevé près de telle source ? (les missions s'appuient là-dessus)
-const noteDe = cle => etat.notes.filter(n => n.cle === cle);
+const noteDe = cle => notesM().filter(n => n.cle === cle);
 const distanceA = (n, cle) => (n.distances && n.distances[cle] != null)
   ? n.distances[cle] : (n.cle === cle ? n.distance : 99);
-const notePres = (cle, dMax) => etat.notes.some(n => distanceA(n, cle) <= (dMax || 3));
-const noteLoin = (cle, dMin) => etat.notes.some(n => distanceA(n, cle) >= (dMin || 8));
+const notePres = (cle, dMax) => notesM().some(n => distanceA(n, cle) <= (dMax || 3));
+const noteLoin = (cle, dMin) => notesM().some(n => distanceA(n, cle) >= (dMin || 8));
 
 /* ============================================================================
    3. Les missions — enquêter, comparer, puis prendre position
@@ -851,9 +859,9 @@ const MISSIONS = [
       { t:'Mesure sous le <b>manguier</b>, loin de tout', fait:() => notePres('manguier', 4) },
       { t:'Mesure près d’une source de fumée', fait:() =>
         ['zem','moulin','cuisine','ordures'].some(c => notePres(c, 3)) },
-      { t:'Note <b>quatre mesures</b> en tout', fait:() => etat.notes.length >= 4 },
+      { t:'Note <b>quatre mesures</b> en tout', fait:() => notesM().length >= 4 },
     ],
-    test:() => etat.notes.length >= 4 && notePres('manguier', 4),
+    test:() => notesM().length >= 4 && notePres('manguier', 4),
     qcm:[
       { q:'Sous le manguier, le capteur affiche moins de 25 µg/m³. Ailleurs, bien plus. Qu’est-ce que cela montre ?',
         choix:['Que l’air n’est pas le même partout : il dépend de ce qu’on rejette à côté',
@@ -937,10 +945,10 @@ const MISSIONS = [
       { t:'Mesure près de la <b>cuisine au coal-pot</b>', fait:() => notePres('cuisine', 3) },
       { t:'Dans 🌿 Agir, passe la cuisine <b>au gaz</b>', fait:() => !!etat.actions.gaz },
       { t:'Remesure au même endroit et note la différence', fait:() =>
-        etat.notes.some(n => distanceA(n, 'cuisine') <= 3 && n.gaz) },
+        notesM().some(n => distanceA(n, 'cuisine') <= 3 && n.gaz) },
     ],
-    test:() => etat.notes.some(n => distanceA(n, 'cuisine') <= 3 && !n.gaz)
-            && etat.notes.some(n => distanceA(n, 'cuisine') <= 3 && n.gaz),
+    test:() => notesM().some(n => distanceA(n, 'cuisine') <= 3 && !n.gaz)
+            && notesM().some(n => distanceA(n, 'cuisine') <= 3 && n.gaz),
     qcm:[
       { q:'« De mon temps, on ne savait rien de tout cela. » Le feu de bois d’autrefois polluait-il ?',
         choix:['Oui, beaucoup : la fumée de bois est pleine de poussières fines et de CO',
@@ -1242,12 +1250,12 @@ const LEXIQUE_HTML = () => LEXIQUE.map(l =>
 
 function rendreCarnet() {
   const z = $('liste-carnet');
-  if (!etat.notes.length) {
+  if (!notesM().length) {
     z.innerHTML = `<p class="vide-carnet">Ton carnet est vide. Place le capteur quelque part,
       puis appuie sur « 📝 Noter cette mesure ».</p>`;
     return;
   }
-  z.innerHTML = etat.notes.map((n, i) => {
+  z.innerHTML = notesM().map((n, i) => {
     const niv = NIVEAUX.find(x => x.nom === n.niveau) || NIVEAUX[0];
     return `<div class="note">
       <span class="pastille" style="background:${niv.coul}"></span>
@@ -1260,11 +1268,21 @@ function rendreCarnet() {
   }).join('');
 }
 
+// L'élève peut agir à partir de la mission qui le lui demande. Avant, le
+// panneau sert seulement à voir ce que le quartier rejette chaque jour.
+const peutAgir = () => etat.mission >= MISSION_ACTION || etat.libre;
+const MISSION_ACTION = 4;
+
 function rendreActions() {
-  $('liste-actions').innerHTML = Object.keys(ACTIONS).map(cle => {
+  const ouvert = peutAgir();
+  $('liste-actions').classList.toggle('en-lecture', !ouvert);
+  $('liste-actions').innerHTML = (ouvert ? '' :
+    '<p class="a-verrou">🔒 Pour l’instant, tu observes seulement ce que le quartier rejette. ' +
+    'Tu pourras agir à la mission ' + (MISSION_ACTION + 1) + '.</p>') +
+    Object.keys(ACTIONS).map(cle => {
     const a = ACTIONS[cle];
     const prise = !!etat.actions[cle];
-    return `<button class="action${prise ? ' prise' : ''}" data-action="${cle}">
+    return `<button class="action${prise ? ' prise' : ''}" data-action="${cle}"${ouvert ? '' : ' disabled'}>
       <span class="coche">${prise ? '✓' : ''}</span>
       <span class="txt"><b>${a.nom}</b><span>${a.detail}</span></span>
       <span class="gain">${a.gain ? '−' + a.gain + ' g/j' : 'ne réduit rien'}</span>
@@ -1440,6 +1458,7 @@ function ouvrirEtapes() {
   $('m-plier').setAttribute('aria-expanded', 'true');
 }
 function replierSiPetitEcran() {
+  // le plan se replie dès que l'élève a commencé à agir, à chaque mission
   if (etat.repliFait || window.innerWidth >= 880) return;
   etat.repliFait = true;
   $('mission').classList.remove('ouvert');
@@ -1535,6 +1554,7 @@ $('liste-actions').addEventListener('click', e => {
   const b = e.target.closest('[data-action]');
   if (!b) return;
   const cle = b.dataset.action;
+  if (!peutAgir()) { toast('Tu pourras agir à la mission ' + (MISSION_ACTION + 1) + '.'); return; }
   etat.actions[cle] = !etat.actions[cle];
   sauver();
   rendreActions();

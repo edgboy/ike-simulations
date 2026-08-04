@@ -5,6 +5,24 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v4.18.0 — 2026-08-03
+
+💬 **Qui pollue vraiment ? — les mesures et le panneau d'action.**
+
+**Les mesures ne se transmettent plus d'une mission à l'autre.** *« Une fois que des mesures sont
+prises, elles sont gardées, et toutes les étapes des missions suivantes liées à ces mesures sont
+directement barrées. Certes c'est un raccourci, mais cela donne une mauvaise UX d'apprentissage :
+l'enfant doit refaire les mesures et faire les comparaisons pertinentes pour bien assimiler. »*
+Chaque relevé porte désormais la mission où il a été pris, et une mission ne valide ses étapes
+qu'avec **ses propres mesures**. Vérifié : quatre mesures prises en mission 1 y valident les trois
+étapes, et laissent la mission 2 entièrement à faire. Le carnet conserve l'historique complet.
+
+**Le panneau « Agir » s'ouvre en lecture seule.** *« Lorsqu'il est suggéré pour la première fois
+d'ouvrir Agir et de voir ce que le quartier rejette chaque jour, que l'enfant n'ait pas la
+possibilité de cocher une des cases. »* Avant la mission qui le demande, les six actions sont
+visibles mais désactivées, avec un mot qui explique pourquoi et à quel moment elles s'ouvriront.
+Le clic ne fait plus rien d'autre que le rappeler.
+
 ## v4.17.0 — 2026-08-03
 
 🔥 **La lanterne de Sissi se joue sur le plan de travail.**
