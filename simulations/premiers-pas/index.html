@@ -402,7 +402,10 @@ main { flex:1; min-height:0; display:flex; flex-direction:column; }
     background:var(--surface); border-right:1px solid var(--border);
     overflow-y:auto;
   }
-  header { border-bottom:1px solid var(--border); }
+  /* la colonne est étroite : les icônes passent sous le titre au lieu de l'écraser */
+  header { border-bottom:1px solid var(--border); flex-wrap:wrap; }
+  header h1 { font-size:16px; }
+  .tete-fin { width:100%; justify-content:flex-end; }
   #mission { border-bottom:none; padding:12px 16px; }
   /* la place ne manque pas : toutes les étapes restent visibles */
   #mission:not(.ouvert) .etape:not(.a-montrer) { display:flex; }
@@ -455,14 +458,28 @@ main { flex:1; min-height:0; display:flex; flex-direction:column; }
 body.sombre { --metal:#8A9299; }
 .etiq-lieu { font-family:var(--font-body); font-size:11px; font-weight:600;
   fill:var(--neutral); opacity:.65; text-anchor:middle; pointer-events:none; }
-.etiq-pile { font-family:var(--font-display); font-size:17px; font-weight:800;
-  fill:#fff; text-anchor:middle; pointer-events:none; }
+/* l'étiquette de la pile est imprimée sur son papier : elle s'écrit en foncé */
+.etiq-pile { font-family:var(--font-display); font-size:21px; font-weight:800;
+  fill:#2F2A25; text-anchor:middle; pointer-events:none; }
+.etiq-marque { font-family:var(--font-body); font-size:9.5px; font-weight:700;
+  letter-spacing:.08em; fill:#3A3632; text-anchor:middle; pointer-events:none; }
 .etiq-borne { font-family:var(--font-body); font-size:11.5px; font-weight:600;
-  fill:var(--neutral); opacity:.8; pointer-events:none; }
+  fill:var(--neutral); opacity:.8; text-anchor:middle; pointer-events:none; }
+/* les mentions portées sur une pièce : nom d'une broche, graduation d'une règle */
+.etiq-mini { font-family:var(--font-body); font-size:9.5px; font-weight:600;
+  fill:var(--neutral); opacity:.62; text-anchor:middle; pointer-events:none; }
+.txt-grad { font-family:var(--font-body); font-size:7px; font-weight:600;
+  fill:#175E7F; text-anchor:middle; pointer-events:none; }
+.etiq-courant { font-family:var(--font-body); font-size:11.5px; font-weight:600;
+  fill:var(--accent-texte); text-anchor:middle; pointer-events:none; }
+/* le + et le − se lisent sur la pastille de la borne, dans les deux thèmes :
+   en clair la pastille est foncée, en sombre elle est claire */
 .txt-borne { font-family:var(--font-display); font-size:16px; font-weight:800;
-  fill:#fff; text-anchor:middle; pointer-events:none; }
+  fill:var(--background); text-anchor:middle; pointer-events:none; }
 .txt-objet { font-family:var(--font-body); font-size:11px; font-weight:700;
   fill:var(--neutral); text-anchor:middle; pointer-events:none; }
+/* la vignette de l'objet, dans le bac du bas */
+.objet .ico { flex:none; display:block; line-height:0; }
 
 .borne circle { fill:var(--neutral); stroke:var(--surface); stroke-width:3;
   transition:fill .15s var(--ease); cursor:pointer; }
@@ -852,22 +869,135 @@ const P = {
   recA:{ x:430, y:150 }, recB:{ x:430, y:230 },
   objet:{ x:340, y:230 },
 };
+const refs = {};
+
+/* ---------------------------------------------------------------------------
+   Les objets à tester, dessinés pour ce qu'ils sont.
+   Un rectangle bleu portant le mot « Règle » n'apprend rien : l'élève doit
+   reconnaître l'objet qu'il prend dans sa classe. Chacun est dessiné dans son
+   propre repère, large de 76 et haut de 30, centré sur (0, 0).
+   ------------------------------------------------------------------------- */
+function dessinerObjet(parent, cle, cx, cy, ech) {
+  const g = el('g', { transform:`translate(${cx} ${cy}) scale(${ech || 1})` });
+  const a = (nom, attrs, txt) => g.appendChild(el(nom, attrs, txt));
+
+  if (cle === 'fil') {
+    // du fil de cuivre nu, enroulé comme celui qu'on déroule d'une bobine
+    a('path', { fill:'none', stroke:'#A56A3E', 'stroke-width':5, 'stroke-linecap':'round',
+      d:'M -34 2 L -22 2 M 22 -2 L 34 -2' });
+    a('path', { fill:'none', stroke:'#A56A3E', 'stroke-width':5, 'stroke-linejoin':'round',
+      d:'M -22 2 q 6 -16 12 0 q 6 16 12 0 q 6 -16 12 0 q 4 10 8 -2' });
+    a('path', { fill:'none', stroke:'#E0A878', 'stroke-width':1.6, 'stroke-linecap':'round',
+      d:'M -20 0 q 6 -14 12 0 q 6 14 12 0 q 6 -14 12 0' });
+
+  } else if (cle === 'clou') {
+    // un clou en fer : tête plate, tige qui s'affine, pointe
+    a('path', { fill:'#9AA1A6', d:'M -22 -4 L 20 -1.6 L 34 0 L 20 1.6 L -22 4 z' });
+    a('path', { fill:'#C2C8CC', d:'M -22 -4 L 20 -1.6 L 20 -.4 L -22 -.6 z' });
+    a('ellipse', { cx:-24, cy:0, rx:4, ry:9, fill:'#B6BDC2', stroke:'#7D858A', 'stroke-width':1.2 });
+    a('ellipse', { cx:-25.5, cy:0, rx:2, ry:6.5, fill:'#8C9499' });
+
+  } else if (cle === 'alu') {
+    // du fil d'aluminium : plus clair, plié en angles vifs
+    a('path', { fill:'none', stroke:'#AEB6BB', 'stroke-width':5,
+      'stroke-linecap':'round', 'stroke-linejoin':'round',
+      d:'M -34 4 L -16 4 L -6 -9 L 6 4 L 16 -9 L 34 -9' });
+    a('path', { fill:'none', stroke:'#DCE1E4', 'stroke-width':1.6,
+      'stroke-linecap':'round', 'stroke-linejoin':'round',
+      d:'M -32 2.2 L -17 2.2 L -6 -11 L 5 2.2' });
+
+  } else if (cle === 'regle') {
+    // une règle graduée : ses traits et ses chiffres se lisent
+    a('rect', { x:-36, y:-9, width:72, height:18, rx:2.5,
+      fill:'#8CD7F5', 'fill-opacity':.92, stroke:'#2E93C4', 'stroke-width':1.5 });
+    for (let k = 0; k <= 16; k++) {
+      const gx = -32 + k * 4;
+      a('line', { x1:gx, y1:-9, x2:gx, y2:-9 + (k % 4 === 0 ? 8 : 4.5),
+        stroke:'#175E7F', 'stroke-width':1 });
+    }
+    for (let k = 0; k <= 4; k++)
+      a('text', { x:-32 + k * 16, y:7.5, class:'txt-grad' }, String(k * 5));
+
+  } else if (cle === 'craie') {
+    // un bâton de craie, avec sa bague de papier
+    a('rect', { x:-30, y:-8.5, width:60, height:17, rx:5,
+      fill:'#F6F4EF', stroke:'#C6C1B5', 'stroke-width':1.4 });
+    a('path', { fill:'#E6E2D8', d:'M 22 -8.5 q 10 3 10 8.5 q 0 5.5 -10 8.5 z' });
+    a('rect', { x:-16, y:-8.5, width:15, height:17, fill:'#D9C39C', 'fill-opacity':.75 });
+    a('line', { x1:-16, y1:-8.5, x2:-16, y2:8.5, stroke:'#B9A47E', 'stroke-width':1.2 });
+    a('line', { x1:-1, y1:-8.5, x2:-1, y2:8.5, stroke:'#B9A47E', 'stroke-width':1.2 });
+
+  } else if (cle === 'bois') {
+    // un bout de bois sec : écorce aux deux bouts, veines sur la longueur
+    a('path', { fill:'#A97D50',
+      d:'M -30 -8 q 15 -3.5 31 -1.5 q 19 2 33 1.5 l 0 16 q -14 .5 -33 2.5 q -16 2 -31 -1.5 z' });
+    a('ellipse', { cx:34, cy:0, rx:3.4, ry:8.4, fill:'#7A5533' });
+    a('ellipse', { cx:-30, cy:0, rx:3, ry:8, fill:'#7A5533' });
+    a('path', { fill:'none', stroke:'#8A6239', 'stroke-width':1.3, d:'M -24 -3.5 q 20 2.5 44 -1' });
+    a('path', { fill:'none', stroke:'#8A6239', 'stroke-width':1.3, d:'M -22 3 q 22 -3 46 2' });
+    a('path', { fill:'none', stroke:'#C29B6E', 'stroke-width':1.1, d:'M -20 -.5 q 22 1.5 46 -1' });
+
+  } else if (cle === 'gomme') {
+    // une gomme à deux bouts, comme celles des trousses
+    a('path', { fill:'#F4F0E8', stroke:'#C6C1B5', 'stroke-width':1.3,
+      d:'M -32 -9 L 26 -9 L 34 -2 L 34 9 L -24 9 L -32 2 z' });
+    a('path', { fill:'#EE9A9A', d:'M 4 -9 L 26 -9 L 34 -2 L 34 9 L 12 9 L 4 2 z' });
+    a('path', { fill:'#fff', 'fill-opacity':.35, d:'M -32 -9 L 26 -9 L 34 -2 L -24 -2 z' });
+  }
+  parent.appendChild(g);
+  return g;
+}
+
+// Une pince crocodile, qui tient l'objet dans le circuit. dir = -1 : mors à droite
+function pince(parent, x, y, dir) {
+  const g = el('g', { transform:`translate(${x} ${y}) scale(${dir} 1)` });
+  g.appendChild(el('path', { d:'M 0 -7.5 L 13 -5 L 13 5 L 0 7.5 z', fill:'#B0392E' }));
+  g.appendChild(el('path', { d:'M 1 -6.5 L -11 -3 L 1 -.6 z', fill:'#9AA1A6' }));
+  g.appendChild(el('path', { d:'M 1 6.5 L -11 3 L 1 .6 z', fill:'#9AA1A6' }));
+  parent.appendChild(g);
+}
+
+/* ---- La circulation du courant : des flèches qui avancent sur les fils ----
+   Les testeurs ne voyaient rien bouger. Chaque tronçon parcouru par le courant
+   porte maintenant des flèches qui vont du + vers le −, dans le sens
+   conventionnel du courant. */
+function railCourant(d, sens, combien) {
+  const rail = el('path', { d, fill:'none', stroke:'none' });
+  plan.appendChild(rail);
+  const L = rail.getTotalLength();
+  const n = combien || 2;
+  for (let k = 0; k < n; k++) {
+    const noeud = el('g');
+    noeud.appendChild(el('path', { d:'M -5 -4.8 L 6.5 0 L -5 4.8 z',
+      fill:'#1565C0', stroke:'#fff', 'stroke-width':1.2, 'stroke-linejoin':'round' }));
+    plan.appendChild(noeud);
+    refs.fleches.push({ rail, L, noeud, sens, decal:k / n });
+  }
+}
 
 function dessiner() {
   plan.textContent = '';
+  refs.fleches = [];
+  refs.helice = null;
   const r = etat.resultat || evaluer();
   const brille = etat.teste && r.allume;
+  const rec = RECEPTEURS[etat.recepteur];
 
-  /* ---- La pile ---- */
-  plan.appendChild(el('rect', { x:96, y:142, width:110, height:96, rx:8,
-    fill:'#4A5762', stroke:'#2F3A44', 'stroke-width':2.5 }));
-  plan.appendChild(el('text', { x:151, y:196, class:'etiq-pile' }, 'PILE'));
-  plan.appendChild(el('text', { x:151, y:258, class:'etiq-lieu' }, '4,5 V'));
-  // les deux lamelles
-  plan.appendChild(el('path', { d:`M 206 158 L 240 158 L 240 ${P.pilePlus.y}`,
-    fill:'none', stroke:'var(--cuivre-fil)', 'stroke-width':5, 'stroke-linecap':'round' }));
-  plan.appendChild(el('path', { d:`M 206 222 L 240 222 L 240 ${P.pileMoins.y}`,
-    fill:'none', stroke:'var(--cuivre-fil)', 'stroke-width':5, 'stroke-linecap':'round' }));
+  /* ---- La pile plate 4,5 V ---- */
+  plan.appendChild(el('rect', { x:96, y:142, width:110, height:98, rx:7,
+    fill:'#3E4A54', stroke:'#28323A', 'stroke-width':2.5 }));
+  plan.appendChild(el('rect', { x:104, y:152, width:94, height:64, rx:4, fill:'#E9DFC6' }));
+  plan.appendChild(el('rect', { x:104, y:152, width:94, height:15, rx:4, fill:'#C4D94E' }));
+  plan.appendChild(el('text', { x:151, y:164, class:'etiq-marque' }, 'PILE PLATE'));
+  plan.appendChild(el('text', { x:151, y:198, class:'etiq-pile' }, '4,5 V'));
+  plan.appendChild(el('text', { x:151, y:258, class:'etiq-lieu' }, 'Pile — le générateur'));
+  // les deux lamelles d'acier, celle du + plus courte que celle du −
+  plan.appendChild(el('path', { d:`M 206 152 L 224 152 L 236 ${P.pilePlus.y} L ${P.pilePlus.x} ${P.pilePlus.y}`,
+    fill:'none', stroke:'var(--metal)', 'stroke-width':7,
+    'stroke-linecap':'round', 'stroke-linejoin':'round' }));
+  plan.appendChild(el('path', { d:`M 206 230 L 218 230 L 218 246 L 238 246 L ${P.pileMoins.x} ${P.pileMoins.y}`,
+    fill:'none', stroke:'var(--metal)', 'stroke-width':7,
+    'stroke-linecap':'round', 'stroke-linejoin':'round' }));
 
   /* ---- Le récepteur ---- */
   dessinerRecepteur(brille, r);
@@ -882,29 +1012,51 @@ function dessiner() {
       stroke:brille ? '#E8A05C' : 'var(--cuivre-fil)',
       'stroke-width':brille ? 6 : 5, 'stroke-linecap':'round', class:'fil',
       'data-fil':i, role:'button', tabindex:'0', 'aria-label':'Débrancher ce fil' }));
-    // l'objet intercalé se pose au milieu du fil du bas
+    // l'objet intercalé se pose au milieu du fil, tenu par deux pinces crocodiles
     if (f.objet) {
-      // l'objet se pose au milieu du fil qui le porte, quel que soit le branchement
       const o = OBJETS[f.objet];
       const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
-      plan.appendChild(el('rect', { x:mx - 36, y:my - 15, width:72, height:30, rx:6,
-        fill:o.coul, 'fill-opacity':.92, stroke:'var(--border-strong)', 'stroke-width':2 }));
-      plan.appendChild(el('text', { x:mx, y:my + 4, class:'txt-objet' }, o.nom.split(' ')[0]));
+      pince(plan, mx - 40, my, -1);
+      pince(plan, mx + 40, my, 1);
+      dessinerObjet(plan, f.objet, mx, my, 1);
+      plan.appendChild(el('text', { x:mx, y:my + 30, class:'txt-objet' }, o.nom));
     }
+    // le courant y circule : du + vers le récepteur, du récepteur vers le −
+    if (brille) railCourant(courbe, f.pile === 'plus' ? 1 : -1, 3);
   }
 
   /* ---- Les bornes, que l'on touche pour brancher ---- */
   borne('plus', P.pilePlus, '+', 'Borne + de la pile');
   borne('moins', P.pileMoins, '−', 'Borne − de la pile');
-  const rec = RECEPTEURS[etat.recepteur];
   borne('rec:' + rec.bornes[0][0], P.recA, '', rec.bornes[0][1]);
   borne('rec:' + rec.bornes[1][0], P.recB, '', rec.bornes[1][1]);
-  plan.appendChild(el('text', { x:P.recA.x + 22, y:P.recA.y + 4, class:'etiq-borne', 'text-anchor':'start' },
-    rec.bornes[0][1]));
-  plan.appendChild(el('text', { x:P.recB.x + 22, y:P.recB.y + 4, class:'etiq-borne', 'text-anchor':'start' },
-    rec.bornes[1][1]));
+  // les noms se placent au-dessus et au-dessous : à droite, ils recouvraient l'appareil
+  plan.appendChild(el('text', { x:P.recA.x, y:P.recA.y - 22, class:'etiq-borne' }, rec.bornes[0][1]));
+  plan.appendChild(el('text', { x:P.recB.x, y:P.recB.y + 30, class:'etiq-borne' }, rec.bornes[1][1]));
+
+  if (brille) plan.appendChild(el('text', { x:330, y:308, class:'etiq-courant' },
+    `Le courant sort de la borne + , traverse ${rec.nom === 'Lampe' ? 'la lampe'
+      : rec.nom === 'DEL' ? 'la DEL' : 'le moteur'}, et revient à la borne −`));
 
   majVerdict(r);
+}
+
+/* ---- Le mouvement : flèches du courant et hélice du tourniquet ---- */
+function boucle(ts) {
+  requestAnimationFrame(boucle);
+  const t = ts / 1000;
+  if (refs.helice) refs.helice.noeud.setAttribute('transform',
+    `translate(${refs.helice.x} ${refs.helice.y}) rotate(${(t * refs.helice.vitesse) % 360})`);
+  if (!refs.fleches) return;
+  for (const f of refs.fleches) {
+    let u = (t * .3 + f.decal) % 1;
+    if (f.sens < 0) u = 1 - u;
+    const d = u * f.L;
+    const p = f.rail.getPointAtLength(d);
+    const q = f.rail.getPointAtLength(Math.min(f.L, Math.max(0, d + f.sens * 3)));
+    const ang = Math.atan2(q.y - p.y, q.x - p.x) * 180 / Math.PI;
+    f.noeud.setAttribute('transform', `translate(${p.x} ${p.y}) rotate(${ang})`);
+  }
 }
 
 function bornePos(cle) {
@@ -921,62 +1073,121 @@ function borne(cle, pos, libelle, aria) {
   plan.appendChild(g);
 }
 
+// Un fil de liaison entre une borne et l'appareil, avec ses flèches si ça conduit
+function liaison(d, sens, brille) {
+  plan.appendChild(el('path', { d, fill:'none', stroke:'var(--cuivre-fil)',
+    'stroke-width':4.5, 'stroke-linecap':'round', 'stroke-linejoin':'round' }));
+  if (brille) railCourant(d, sens, 2);
+}
+
+// Quelle borne du récepteur reçoit le + de la pile ? (elle donne le sens des flèches)
+function borneDuPlus() {
+  const f = etat.fils.find(x => x.pile === 'plus');
+  return f ? f.rec : null;
+}
+
 function dessinerRecepteur(brille, r) {
-  const x = 520, y = 190;
+  const y = 190;
+  const rec = RECEPTEURS[etat.recepteur];
+  const plus = borneDuPlus();
+  const sensA = plus === rec.bornes[0][0] ? 1 : -1;   // 1 : la borne alimente l'appareil
+
   if (etat.recepteur === 'lampe') {
-    plan.appendChild(el('path', { d:`M ${P.recA.x} ${P.recA.y} L ${x - 26} ${y - 14}`,
-      stroke:'var(--metal)', 'stroke-width':4 }));
-    plan.appendChild(el('path', { d:`M ${P.recB.x} ${P.recB.y} L ${x - 26} ${y + 14}`,
-      stroke:'var(--metal)', 'stroke-width':4 }));
-    plan.appendChild(el('rect', { x:x - 26, y:y - 16, width:20, height:32, rx:3, fill:'var(--metal)' }));
-    plan.appendChild(el('circle', { cx:x + 14, cy:y, r:26,
-      fill:brille ? '#FFE082' : '#ECEFF1', stroke:'#B0ABA3', 'stroke-width':2.5 }));
-    plan.appendChild(el('path', { d:`M ${x + 2} ${y} l 7 -9 l 7 18 l 7 -9`, fill:'none',
-      stroke:brille ? '#8D6E32' : '#B0ABA3', 'stroke-width':2.5 }));
-    if (brille) for (let k = 0; k < 6; k++) {
-      const a = k * Math.PI / 3;
-      plan.appendChild(el('line', { x1:x + 14 + Math.cos(a) * 33, y1:y + Math.sin(a) * 33,
-        x2:x + 14 + Math.cos(a) * 44, y2:y + Math.sin(a) * 44,
-        stroke:'#FFB300', 'stroke-width':3, 'stroke-linecap':'round' }));
+    // une vraie lampe : plot au bout, culot fileté, ampoule de verre et filament
+    liaison(`M ${P.recA.x} ${P.recA.y} L 466 150 L 466 190 L 486 190`, sensA, brille);
+    liaison(`M ${P.recB.x} ${P.recB.y} L 496 230 L 512 210`, -sensA, brille);
+    plan.appendChild(el('circle', { cx:488, cy:190, r:7, fill:'#8C9499', stroke:'#5F676B', 'stroke-width':1.5 }));
+    plan.appendChild(el('rect', { x:493, y:180, width:7, height:20, rx:2, fill:'#2B2118' }));
+    plan.appendChild(el('rect', { x:499, y:173, width:30, height:34, rx:2.5,
+      fill:'var(--metal)', stroke:'#8A8378', 'stroke-width':1.5 }));
+    for (let k = 0; k < 4; k++) plan.appendChild(el('path', {
+      d:`M ${501 + k * 7} 173 q 4 17 0 34`, fill:'none', stroke:'#8A8378', 'stroke-width':1.4 }));
+    plan.appendChild(el('path', { fill:brille ? '#FFDE7A' : '#E7EAEC',
+      stroke:'#A9B0B4', 'stroke-width':2,
+      d:'M 529 176 q 4 -20 30 -20 q 32 0 32 34 q 0 34 -32 34 q -26 0 -30 -20 z' }));
+    // le filament, entre ses deux supports
+    plan.appendChild(el('path', { fill:'none', stroke:'#98A0A5', 'stroke-width':1.6,
+      d:'M 534 182 L 548 182 M 534 198 L 548 198' }));
+    plan.appendChild(el('path', { fill:'none', 'stroke-width':2.4, 'stroke-linejoin':'round',
+      stroke:brille ? '#E8901A' : '#A9B0B4',
+      d:'M 548 182 l 6 8 l 6 -8 l 6 8 l 6 -8 l 6 8 l -6 8 l -6 -8 l -6 8 l -6 -8 l -6 8 z' }));
+    if (brille) for (let k = 0; k < 8; k++) {
+      const a = k * Math.PI / 4;
+      plan.appendChild(el('line', { x1:562 + Math.cos(a) * 40, y1:190 + Math.sin(a) * 38,
+        x2:562 + Math.cos(a) * 52, y2:190 + Math.sin(a) * 50,
+        stroke:'#F2B01E', 'stroke-width':3, 'stroke-linecap':'round' }));
     }
-    plan.appendChild(el('text', { x:x + 14, y:y + 58, class:'etiq-lieu' }, 'Lampe'));
+    plan.appendChild(el('text', { x:544, y:258, class:'etiq-lieu' }, 'Lampe'));
+
   } else if (etat.recepteur === 'del') {
-    plan.appendChild(el('path', { d:`M ${P.recA.x} ${P.recA.y} L ${x - 14} ${y - 20}`,
-      stroke:'var(--metal)', 'stroke-width':4 }));
-    plan.appendChild(el('path', { d:`M ${P.recB.x} ${P.recB.y} L ${x + 6} ${y + 22}`,
-      stroke:'var(--metal)', 'stroke-width':3 }));
-    plan.appendChild(el('path', { d:`M ${x - 18} ${y - 16} L ${x + 18} ${y - 16} ` +
-      `q 18 0 18 20 q 0 22 -36 22 q -18 0 -18 -22 z`,
-      fill:brille ? '#EF5350' : '#EF9A9A', 'fill-opacity':brille ? .95 : .5,
-      stroke:'#C62828', 'stroke-width':2 }));
+    // une DEL couchée : sa broche longue est dessinée longue, la courte est courte
+    liaison(`M ${P.recA.x} ${P.recA.y} L 452 158 L 464 164`, sensA, brille);
+    liaison(`M ${P.recB.x} ${P.recB.y} L 492 222 L 506 214`, -sensA, brille);
+    plan.appendChild(el('path', { fill:'none', stroke:'var(--metal)', 'stroke-width':3.6,
+      'stroke-linecap':'round', 'stroke-linejoin':'round', d:'M 464 164 L 512 174 L 538 178' }));
+    plan.appendChild(el('path', { fill:'none', stroke:'var(--metal)', 'stroke-width':3.6,
+      'stroke-linecap':'round', 'stroke-linejoin':'round', d:'M 506 214 L 538 202' }));
+    plan.appendChild(el('text', { x:498, y:186, class:'etiq-mini' }, 'broche longue'));
+    plan.appendChild(el('text', { x:524, y:230, class:'etiq-mini' }, 'broche courte'));
+    // le corps : collerette, dôme, et la cuve où brille la puce
+    plan.appendChild(el('path', { fill:brille ? '#F0453F' : '#E79B99',
+      'fill-opacity':brille ? 1 : .65, stroke:'#B32A26', 'stroke-width':2,
+      d:'M 538 168 L 556 168 a 24 22 0 0 1 0 44 L 538 212 z' }));
+    plan.appendChild(el('rect', { x:534, y:200, width:12, height:14, rx:2,
+      fill:brille ? '#C93732' : '#CE8B89', stroke:'#B32A26', 'stroke-width':1.6 }));
+    plan.appendChild(el('path', { fill:brille ? '#FFD9A8' : '#C9807E',
+      d:'M 552 178 l 12 6 l -12 6 z' }));
+    plan.appendChild(el('path', { fill:'#fff', 'fill-opacity':brille ? .5 : .3,
+      d:'M 560 176 q 14 4 14 14 q 0 -12 -14 -14 z' }));
     if (brille) for (let k = 0; k < 5; k++) {
-      const a = -Math.PI / 2 + (k - 2) * .38;
-      plan.appendChild(el('line', { x1:x + Math.cos(a) * 34, y1:y + Math.sin(a) * 34,
-        x2:x + Math.cos(a) * 46, y2:y + Math.sin(a) * 46,
-        stroke:'#EF5350', 'stroke-width':3, 'stroke-linecap':'round' }));
+      const a = (k - 2) * .42;
+      plan.appendChild(el('line', { x1:566 + Math.cos(a) * 32, y1:190 + Math.sin(a) * 32,
+        x2:566 + Math.cos(a) * 46, y2:190 + Math.sin(a) * 46,
+        stroke:'#F0453F', 'stroke-width':3, 'stroke-linecap':'round' }));
     }
-    plan.appendChild(el('text', { x, y:y + 62, class:'etiq-lieu' }, 'DEL'));
+    plan.appendChild(el('text', { x:552, y:258, class:'etiq-lieu' }, 'DEL'));
+
   } else {
-    plan.appendChild(el('path', { d:`M ${P.recA.x} ${P.recA.y} L ${x - 30} ${y - 16}`,
-      stroke:'var(--metal)', 'stroke-width':4 }));
-    plan.appendChild(el('path', { d:`M ${P.recB.x} ${P.recB.y} L ${x - 30} ${y + 16}`,
-      stroke:'var(--metal)', 'stroke-width':4 }));
-    plan.appendChild(el('circle', { cx:x, cy:y, r:30, fill:'#B0BEC5', 'fill-opacity':.6,
-      stroke:'#78909C', 'stroke-width':2.5 }));
-    plan.appendChild(el('text', { x, y:y + 6, class:'txt-borne', fill:'var(--neutral)' }, 'M'));
-    // les pales du tourniquet, orientées selon le sens de rotation
+    // le tourniquet : un petit moteur, son axe, et une hélice qui tourne vraiment
+    liaison(`M ${P.recA.x} ${P.recA.y} L 470 150 L 484 172`, sensA, brille);
+    liaison(`M ${P.recB.x} ${P.recB.y} L 470 230 L 484 208`, -sensA, brille);
+    plan.appendChild(el('rect', { x:482, y:166, width:46, height:48, rx:10,
+      fill:'#8E979D', stroke:'#68727A', 'stroke-width':2 }));
+    plan.appendChild(el('rect', { x:482, y:180, width:46, height:8, fill:'#A7B0B6' }));
+    plan.appendChild(el('rect', { x:482, y:196, width:46, height:8, fill:'#A7B0B6' }));
+    plan.appendChild(el('rect', { x:526, y:184, width:50, height:6, rx:3, fill:'#7C858B' }));
+    plan.appendChild(el('text', { x:505, y:250, class:'etiq-lieu' }, 'Moteur'));
+    const cx = 578, cy = 187;
+    // l'hélice : un groupe que la boucle d'animation fait tourner
+    const h = el('g');
+    for (let k = 0; k < 4; k++) {
+      h.appendChild(el('path', { transform:`rotate(${k * 90})`,
+        fill:k % 2 ? '#3AA9DC' : '#F2A93B', stroke:'#8A6520', 'stroke-width':1,
+        'stroke-opacity':.35,
+        d:'M 0 0 L 30 -8 Q 46 -2 38 14 Q 22 22 0 0 z' }));
+    }
+    h.appendChild(el('circle', { cx:0, cy:0, r:7, fill:'#5F676B', stroke:'#3E4548', 'stroke-width':1.5 }));
+    const g = el('g', { transform:`translate(${cx} ${cy})` });
+    g.appendChild(h);
+    plan.appendChild(g);
     if (etat.teste && r.sens) {
+      // 200°/s : assez lent pour qu'on reconnaisse le sens, assez vif pour qu'on le voie
+      refs.helice = { noeud:h, x:0, y:0, vitesse:r.sens === 'horaire' ? 200 : -200 };
+      g.setAttribute('transform', `translate(${cx} ${cy})`);
+      refs.helice.x = 0; refs.helice.y = 0;
+      // la flèche de rotation, autour de l'hélice
       const s = r.sens === 'horaire' ? 1 : -1;
-      for (let k = 0; k < 3; k++) {
-        const a = k * 2 * Math.PI / 3;
-        plan.appendChild(el('path', {
-          d:`M ${x} ${y} L ${x + Math.cos(a) * 44} ${y + Math.sin(a) * 44} ` +
-            `L ${x + Math.cos(a + s * .5) * 34} ${y + Math.sin(a + s * .5) * 34} z`,
-          fill:'#F7A430', 'fill-opacity':.85 }));
-      }
-      plan.appendChild(el('text', { x, y:y + 74, class:'etiq-lieu' },
-        r.sens === 'horaire' ? '↻ tourne à droite' : '↺ tourne à gauche'));
-    } else plan.appendChild(el('text', { x, y:y + 62, class:'etiq-lieu' }, 'Tourniquet'));
+      plan.appendChild(el('path', { fill:'none', stroke:'var(--accent-texte)', 'stroke-width':3,
+        'stroke-linecap':'round',
+        d:`M ${cx - 52 * s} ${cy - 26} A 58 58 0 0 ${s > 0 ? 1 : 0} ${cx + 52 * s} ${cy - 26}` }));
+      plan.appendChild(el('path', { fill:'var(--accent-texte)',
+        transform:`translate(${cx + 52 * s} ${cy - 26}) rotate(${s > 0 ? 62 : 118})`,
+        d:'M -6 -6 L 7 0 L -6 6 z' }));
+      plan.appendChild(el('text', { x:cx, y:cy + 82, class:'etiq-lieu' },
+        r.sens === 'horaire' ? '↻ il tourne à droite' : '↺ il tourne à gauche'));
+    } else {
+      plan.appendChild(el('text', { x:cx, y:cy + 82, class:'etiq-lieu' }, 'Tourniquet'));
+    }
   }
 }
 
@@ -1030,6 +1241,8 @@ function toucherBorne(cle) {
   etat.enAttente = null;
   etat.teste = false;
   etat.resultat = null;
+  // l'élève a branché : sur téléphone, le plan de mission laisse la place au montage
+  replierSiPetitEcran();
   majTout();
 }
 
@@ -1238,11 +1451,20 @@ function rendreObjets() {
     const o = OBJETS[cle];
     const su = etat.classement[cle];
     return `<button class="objet${etat.objet === cle ? ' actif' : ''}" data-objet="${cle}">
-      <span class="pastille" style="background:${o.coul}"></span>
+      <span class="ico" data-ico="${cle}"></span>
       <span>${o.nom}</span>
       ${su === undefined ? '' : `<b class="verd">${su ? '⚡' : '🚫'}</b>`}
     </button>`;
   }).join('');
+  // chaque objet du bac porte son propre dessin, le même que dans le circuit
+  for (const z of $('liste-objets').querySelectorAll('.ico')) {
+    const s = document.createElementNS(NS, 'svg');
+    s.setAttribute('viewBox', '-40 -16 80 32');
+    s.setAttribute('width', '42'); s.setAttribute('height', '17');
+    s.setAttribute('aria-hidden', 'true');
+    dessinerObjet(s, z.dataset.ico, 0, 0, 1);
+    z.appendChild(s);
+  }
 }
 
 function rendreClassement() {
@@ -1377,6 +1599,7 @@ try {
 
 charger();
 nouvelleMission();
+requestAnimationFrame(boucle);   // flèches du courant et hélice du tourniquet
 try {
   // Le guide reste proposé tant que l'élève n'a pas gagné sa première mission :
   // il ne suffit pas de l'avoir vu une fois pour savoir se repérer.

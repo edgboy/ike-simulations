@@ -65,27 +65,34 @@ décimales s'écrivaient « 45.7 » ; le titre se cassait sur quatre lignes dans
 |---|---|
 | Le guide d'accueil se rouvre à chaque lancement, pour toujours | Il testait `etat.faits` là où six fichiers tiennent leur liste dans `etat.faites`. Corrigé dans alambic, lampe de poche, marmites, premiers pas, tam-tam, pollution |
 
+### v4.20.0 — les premiers pas du circuit
+
+| Constat | Traitement |
+|---|---|
+| Voir la circulation du courant | Des flèches avancent sur chaque tronçon parcouru, du + vers le −, fils de liaison compris. Rien ne bouge quand le courant ne passe pas |
+| Objets dessinés pour de vrai | Les sept objets ont leur dessin (fil enroulé, clou à tête et pointe, règle graduée et chiffrée, craie à bague de papier, bois veiné, gomme à deux bouts), repris en vignette dans le bac. Ils sont tenus par deux **pinces crocodiles**. La pile devient une pile plate 4,5 V, la lampe une vraie ampoule à filament, le tourniquet un moteur à carcasse |
+| Mission 4 : la broche longue doit être dessinée longue | La DEL est couchée, corps à droite : la broche de la grande borne fait plus du double de l'autre, chacune nommée |
+| Mission 5 : faire tourner les hélices | Quatre pales bicolores tournent à 200°/s, avec une flèche courbe dans le sens de rotation |
+
+Trouvés au passage et corrigés : les noms des bornes s'écrivaient par-dessus l'appareil ; en thème
+sombre le + et le − de la pile étaient blancs sur pastille blanche. Le titre se cassait sur quatre
+lignes dans la colonne large — corrigé sur les **huit** simulations à colonne.
+
 ---
 
 ## Reste à faire, dans l'ordre
 
-### 1. Les premiers pas du circuit
-- **Voir la circulation du courant**
-- **Objets dessinés pour de vrai** : un vrai clou en fer, une règle graduée, un bout de bois — pas un rectangle avec le nom écrit dessus
-- **Mission 4, la DEL** : la broche la plus longue doit être **dessinée** plus longue
-- **Mission 5, le tourniquet** : faire **tourner les hélices** pour de vrai, à une vitesse qui laisse reconnaître le sens
-
-### 2. Alambic
+### 1. Alambic
 - **La vapeur qui s'échappe** en sortie de tuyau quand il n'y a ni réfrigérant ni flacon
 - **Les gouttes qui tombent** dans le flacon — on ne voit que le niveau monter
 - **Le linge mouillé** enroulé autour du tuyau : mal représenté et mal disposé
 - **Les feuilles de plante** : de simples ellipses vertes, à redessiner
 
-### 3. Passe générale
+### 2. Passe générale
 - **UI des modales** (missions, questionnaires, lexique) : « elles sont bancales »
 - Poursuivre la **passe de langue** sur les simulations non encore reprises
 
-### 4. « Trouve la bonne pile »
+### 3. « Trouve la bonne pile »
 Simulation dédiée, tirée de la lampe de poche et réorientée sur **sous-tension / tension d'usage /
 surtension** spécifiquement.
 

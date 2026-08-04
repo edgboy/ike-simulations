@@ -5,6 +5,48 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v4.20.0 — 2026-08-05
+
+⚡ **Les premiers pas du circuit — on voit enfin le courant circuler.**
+
+**Le courant circule sous les yeux de l'élève.** *« Voir la circulation du courant. »* Dès que le
+circuit est fermé, des **flèches bleues avancent sur les fils** : elles sortent de la borne +,
+descendent jusqu'au récepteur, en ressortent et remontent vers la borne −. Chaque tronçon parcouru
+porte les siennes, y compris les fils de liaison qui relient les bornes à l'appareil, et une phrase
+sous le montage rappelle le trajet. Rien ne bouge quand le courant ne passe pas : DEL à l'envers,
+isolant intercalé, boucle ouverte — l'absence de mouvement fait partie de la leçon.
+
+**Les objets sont dessinés pour de vrai.** *« Un vrai clou en fer, une règle graduée, un bout de
+bois — pas un rectangle avec le nom écrit dessus. »* Les sept objets à tester ont chacun leur
+dessin : le fil de cuivre est enroulé, le clou a sa tête plate et sa pointe, la règle porte ses
+graduations et ses chiffres, la craie a sa bague de papier, le bois ses veines et son écorce, la
+gomme ses deux bouts. Le même dessin sert de vignette dans le bac du bas. Dans le circuit, l'objet
+est **tenu par deux pinces crocodiles**, comme sur une paillasse.
+
+**La pile, la lampe et le moteur aussi.** La pile est devenue une **pile plate 4,5 V** avec son
+étiquette et ses deux lamelles d'acier ; la lampe, une vraie ampoule — plot, bague isolante, culot
+fileté, verre et **filament** ; le tourniquet, un petit moteur à carcasse et arbre de sortie.
+
+**La broche longue de la DEL est dessinée longue.** *« Mission 4 : la broche la plus longue doit
+être dessinée plus longue. »* La DEL est maintenant couchée, son corps à droite : la broche de la
+grande borne mesure plus du double de l'autre, chacune nommée sur le plan. Les fils de liaison en
+cuivre les relient aux bornes, distincts des broches en métal.
+
+**Les hélices du tourniquet tournent vraiment.** *« Faire tourner les hélices pour de vrai, à une
+vitesse qui laisse reconnaître le sens. »* Quatre pales bicolores tournent à **200 degrés par
+seconde** — assez lentement pour qu'on lise le sens, assez vivement pour qu'on voie le mouvement —
+et une flèche courbe en fait le tour dans le sens de rotation.
+
+**Deux défauts trouvés au passage.** Les noms des bornes s'écrivaient à droite, par-dessus
+l'appareil : ils passent au-dessus et au-dessous. Et en thème sombre, le **+ et le − de la pile
+étaient blancs sur pastille blanche**, donc invisibles.
+
+**Le titre ne se casse plus dans la colonne (huit simulations).** Sur écran large, « Les premiers
+pas du circuit » s'affichait sur quatre lignes, écrasé par la rangée d'icônes. Les icônes passent
+sous le titre. Vérifié sur les huit simulations à colonne.
+
+Sur téléphone, le plan de mission se replie aussi dès le premier fil branché.
+
 ## v4.19.0 — 2026-08-05
 
 🏘️ **Qui pollue vraiment ? — le quartier prend forme, et les chiffres reviennent dans les bilans.**
