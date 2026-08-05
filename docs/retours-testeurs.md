@@ -80,21 +80,57 @@ lignes dans la colonne large — corrigé sur les **huit** simulations à colonn
 
 ---
 
-## Reste à faire, dans l'ordre
+## Deuxième vague de retours (5 août 2026)
 
-### 1. Alambic
-- **La vapeur qui s'échappe** en sortie de tuyau quand il n'y a ni réfrigérant ni flacon
-- **Les gouttes qui tombent** dans le flacon — on ne voit que le niveau monter
-- **Le linge mouillé** enroulé autour du tuyau : mal représenté et mal disposé
-- **Les feuilles de plante** : de simples ellipses vertes, à redessiner
+Reçue en une fois, sur huit simulations. Triée ci-dessous : d'abord ce qui casse, puis ce qui est
+commun à plusieurs simulations, puis le travail de dessin simulation par simulation.
 
-### 2. Passe générale
-- **UI des modales** (missions, questionnaires, lexique) : « elles sont bancales »
-- Poursuivre la **passe de langue** sur les simulations non encore reprises
+### A. Ce qui casse un parcours — **traité en v4.21.0**
 
-### 3. « Trouve la bonne pile »
-Simulation dédiée, tirée de la lampe de poche et réorientée sur **sous-tension / tension d'usage /
-surtension** spécifiquement.
+| # | Constat du testeur | Cause trouvée dans le code |
+|---|---|---|
+| A1 | Marmites : le mode libre ne se déclenche pas à la fin de la mission 8, le message de succès n'apparaît pas | `allumer()` détourne la mission du feu vers `lancerFeu()` et **sort par un `return`** : le chemin de réussite (`eteindre()` → `test()` → bilan → écran de passage) n'est jamais emprunté. La mission est gagnée dans l'état mais jamais enregistrée dans `faites` → le parcours ne se termine jamais |
+| A2 | Marmites mission 4 : la 1ʳᵉ étape se décoche quand on nettoie pour faire la flamme bleue | L'étape teste l'état **courant** (`!etat.resultat.complete`) au lieu de se souvenir de l'acte accompli. Dès que la flamme devient bleue, la condition redevient fausse |
+| A3 | Pollution : le tuyau relevé du moulin doit se voir | Plus grave que l'affichage : la mission 3 **raconte** que Faton a relevé son tuyau, mais `etat.actions.tuyau` est faux et le panneau Agir est en lecture seule jusqu'à la mission 5. Le tuyau est donc bas — au dessin **et dans le calcul des mesures** — pendant toute la mission qui parle de lui |
+| A4 | Pollution, dernière mission : l'astuce « appuie sur Vérifier » est cachée par le repli du plan | Le repli masque toute étape sans `a-montrer`, l'astuce comprise. Rien ne distingue cette mission, où l'action ne se fait pas sur le plan de travail |
+| A5 | « Trouve la bonne pile » est identique à « Fabrique ta lampe de poche » | Exact : le chantier n'a jamais commencé. Le catalogue affiche pourtant **deux cartes qui ouvrent le même fichier** (`dos: 'lampe-de-poche'` pour les deux) |
+| A6 | Flamme de la bougie : sur mobile, déplacer les instruments est très peu fluide | À instrumenter |
+
+**Audit mené (v4.21.0)** : les neuf simulations passées en revue. Un seul autre cas — « allume et
+laisse la marmite noircir », que le nettoyage effaçait —, corrigé de la même façon. Partout ailleurs
+les étapes décrivent une **configuration exigée**, et relire l'état courant est le comportement juste.
+
+Deux ajouts venus de A3 : le tuyau du moulin est le **seul réglage manipulable** avant la mission 5,
+puisqu'il est le sujet de la mission 3 et ne retire aucun rejet ; et la phrase du tribunal qui disait
+la moto de Yèmi « aussi polluante en CO que le moulin » a été refaite, le relèvement du tuyau ayant
+fait passer le moulin nettement sous la moto.
+
+### B. Commun à plusieurs simulations
+
+| # | Chantier | Où |
+|---|---|---|
+| B1 | **Le mode libre doit donner accès à tout le matériel de la simulation** | Premiers pas : la DEL et le moteur sont inaccessibles, seuls les objets à intercaler le sont · Marmites : les deux plans (réchaud + lanterne) · Flamme : les deux plans (« 3 parties de la flamme » + « bougie sur l'eau ») · Fabrique de glace : **aucun mode libre** |
+| B2 | **UI des modales à revoir** : questionnaires, bouton « Continuer » de la modale de réussite, missions, lexique | Flamme, fabrique de glace — et déjà noté à la vague précédente. Passe unique sur le gabarit commun |
+| B3 | **Guide de repérage de l'interface dès la première entrée** | « Non négociable » (pollution), « plus que jamais important » (fabrique de glace). À généraliser |
+| B4 | **Ramener l'écran d'accueil « Que veux-tu faire ? Apprendre / Expérimenter »** | Toutes. C'était la structure à deux volets de la vision v3.1.0 |
+| B5 | **Quiz libre à niveaux, avec score de maîtrise** | Nouveau. À la fin des parcours, quand le mode libre est débloqué. Deux à trois niveaux selon la densité de la simulation ; sert aussi au professeur en mode Expérimentation. Conception laissée au jugement pédagogique |
+
+### C. Dessin et animations, simulation par simulation
+
+| # | Simulation | Demande |
+|---|---|---|
+| C1 | **Tam-tam** | Une calebasse est un **demi-cercle**, pas la forme actuelle. Éléments ressemblants, animation de frappe (« médiocre franchement »), couleurs et dégradés pour un léger relief |
+| C2 | **Alambic** | Régressions : le **linge mouillé** et l'**écoulement du liquide dans le flacon** (animation disparue). Plus la passe déjà notée (vapeur en sortie de tuyau, gouttes, feuilles) et une reprise générale du design |
+| C3 | **Fabrique de glace** | Polystyrène, coton et ce qui entoure le bac : à rendre ressemblant. Plan de travail **encombré sur mobile** |
+| C4 | **Marmites** | Les **quatre gestes** de la lanterne : animations plus réalistes. Passe de design générale |
+| C5 | **Premiers pas** | Rien : « excellent côté design » |
+| C6 | **Pollution** | Rien : « les illustrations sont beaucoup mieux » |
+
+### D. Reste de la vague précédente, non traité
+
+- **« Trouve la bonne pile »** : simulation dédiée, tirée de la lampe de poche, réorientée sur
+  **sous-tension / tension d'usage / surtension**.
+- Poursuivre la **passe de langue** sur les simulations non encore reprises.
 
 ---
 

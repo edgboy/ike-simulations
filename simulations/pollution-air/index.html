@@ -82,6 +82,9 @@ header .sous { font-size:10.5px; opacity:.6; }
 /* Replié, on ne montre que l'étape en cours : la lampe reste visible */
 #mission:not(.ouvert) .etape:not(.a-montrer) { display:none; }
 #mission:not(.ouvert) .m-indice { display:none; }
+/* sauf celle qu'une mission épingle : quand l'action ne se fait pas sur le plan
+   de travail, cacher l'astuce laisse l'élève sans porte de sortie */
+#mission:not(.ouvert) .m-indice.epingle { display:block; }
 .m-jauge { height:5px; border-radius:var(--radius-full); background:var(--surface-muted); margin-top:8px; overflow:hidden; }
 .m-jauge i { display:block; height:100%; background:var(--accent); transition:width .4s var(--ease); }
 
@@ -463,6 +466,8 @@ main { flex:1; min-height:0; display:flex; flex-direction:column; }
 /* ===================== Propre à l'enquête pollution ===================== */
 .etiq-lieu { font-family:var(--font-body); font-size:10px; font-weight:600;
   fill:var(--neutral); opacity:.65; text-anchor:middle; pointer-events:none; }
+.etiq-tuyau { font-family:var(--font-body); font-size:9.5px; font-weight:700;
+  fill:var(--accent-texte); text-anchor:start; pointer-events:none; }
 /* le glissement du capteur ne doit pas sélectionner les étiquettes de la rue */
 #plan { cursor:grab; touch-action:none; -webkit-user-select:none; user-select:none; }
 #plan:active { cursor:grabbing; }
@@ -619,6 +624,8 @@ body.sombre { --accent-texte:#7FD4F5; --vert-fonce:#2A9D8F; --orange-fonce:#F7A4
 .a-verrou { font-size:12.5px; line-height:1.5; padding:10px 12px; margin-bottom:10px;
   background:var(--surface-muted); border-radius:var(--radius-md); opacity:.9; }
 .en-lecture .action { opacity:.55; cursor:default; }
+/* celle qui reste manipulable pendant que les autres attendent leur mission */
+.en-lecture .action.ouverte { opacity:1; cursor:pointer; border-color:var(--accent); }
 </style>
 </head>
 <body>
@@ -799,7 +806,10 @@ const METRE = 11;              // 11 unités de dessin pour 1 mètre
 
 const ACTIONS = {
   regler:  { nom:'Régler le moteur du Zem', detail:'moins d’huile dans l’essence', gain:120, cible:'zem' },
-  tuyau:   { nom:'Relever le tuyau du moulin', detail:'ce que fait Faton aujourd’hui', gain:0, cible:'moulin', hauteur:4 },
+  // Faton a déjà relevé son tuyau : c'est le point de départ de l'histoire, pas
+  // une action à faire. On peut le rabaisser pour comparer — les rejets, eux,
+  // ne bougent pas d'un gramme.
+  tuyau:   { nom:'Tuyau du moulin relevé', detail:'Faton l’a déjà fait', gain:0, cible:'moulin', hauteur:4 },
   gaz:     { nom:'Cuisiner au gaz', detail:'au lieu du coal-pot', gain:108, cible:'cuisine' },
   ordures: { nom:'Ne plus brûler les ordures', detail:'les trier et les ramasser', gain:160, cible:'ordures' },
   brousse: { nom:'Empêcher les feux de brousse', detail:'pare-feux et surveillance', gain:900, cible:'brousse' },
@@ -827,7 +837,9 @@ const LEXIQUE = [
    ========================================================================== */
 
 const etat = {
-  capteur:170, notes:[], actions:{}, verdicts:{},
+  // le tuyau du moulin est relevé dès le départ : Faton le dit lui-même dans la
+  // scène, et les mesures doivent correspondre à ce que l'élève a sous les yeux
+  capteur:170, notes:[], actions:{ tuyau:true }, verdicts:{},
   mission:0, faites:[], teste:false, libre:false, repliFait:false,
 };
 
@@ -1108,6 +1120,9 @@ const MISSIONS = [
     but:'Juge les quatre affirmations à partir de tes mesures, puis choisis ce qu’on fait pour le quartier.',
     acquis:'Prendre position, ce n’est pas donner son opinion : c’est <b>s’appuyer sur des faits vérifiés</b>, puis <b>agir</b>.',
     indice:"Appuie sur « Vérifier la mission » pour ouvrir le tribunal des idées. Ensuite, dans 🌿 Agir, choisis les actions qui réduisent le plus ce que rejette le quartier.",
+    // Ici, rien ne se fait sur le plan de travail : tout part du bouton « Vérifier ».
+    // L'astuce doit donc rester lisible même quand le plan de mission est replié.
+    indiceEpingle:true,
     etapes:[
       { t:'Rends ton verdict sur les <b>quatre affirmations</b>', fait:() => Object.keys(etat.verdicts).length >= 4 },
       { t:'Fais tomber les rejets du quartier <b>sous 400 g/jour</b>', fait:() => emissionsQuartier() < 400 },
@@ -1146,7 +1161,7 @@ const AFFIRMATIONS = [
   { qui:'Yèmi', cle:'yemi',
     dit:"Je ne pollue pas, et je me tiens loin des pollueurs.",
     bonne:'faux',
-    expl:"Sa moto neuve fume peu, mais elle rejette du <b>monoxyde de carbone</b>, invisible, autant que le moulin. Et s’éloigner ne met à l’abri qu’en partie : l’air se mélange." },
+    expl:"Sa moto neuve ne fume presque pas, et pourtant le capteur relève près d’elle <b>plus de monoxyde de carbone</b> que près du moulin, dont la fumée est bien noire. Ce gaz-là ne se voit pas. Et s’éloigner ne met à l’abri qu’en partie : l’air se mélange." },
   { qui:'le vieux Fignon', cle:'fignon',
     dit:"Ce sont vos engins importés qui polluent ; de mon temps, on ne savait rien de tout cela.",
     bonne:'partiel',
@@ -1172,6 +1187,8 @@ function charger() {
     if (Array.isArray(d.faits)) etat.faites = d.faits;
     if (Array.isArray(d.notes)) etat.notes = d.notes;
     if (d.actions) etat.actions = d.actions;
+    // parcours commencé avant que le tuyau relevé devienne l'état de départ
+    if (etat.actions.tuyau === undefined) etat.actions.tuyau = true;
     if (d.verdicts) etat.verdicts = d.verdicts;
     etat.vuAgir = !!d.vuAgir;
     etat.mission = Math.min(d.mission || 0, MISSIONS.length - 1);
@@ -1477,6 +1494,19 @@ function dessinerSource(cle, s) {
     // la cheminée : c'est elle que Faton a relevée
     g.appendChild(el('line', { x1:x + 6, y1:y - 25, x2:x + 34, y2:y - 25,
       stroke:'#546E7A', 'stroke-width':5 }));
+    // quand elle est relevée, on montre d'où elle vient : sans ce repère, on ne
+    // voyait pas que quelque chose avait changé
+    if (etat.actions.tuyau) {
+      g.appendChild(el('rect', { x:x + 31, y:y - 56, width:6, height:12,
+        fill:'none', stroke:'var(--border-strong)', 'stroke-width':1.4, 'stroke-dasharray':'3 3' }));
+      g.appendChild(el('line', { x1:x + 26, y1:y - 56, x2:x + 42, y2:y - 56,
+        stroke:'var(--border-strong)', 'stroke-width':1.4, 'stroke-dasharray':'3 3' }));
+      g.appendChild(el('path', { fill:'none', stroke:'var(--accent-texte)', 'stroke-width':2,
+        'stroke-linecap':'round', d:`M ${x + 46} ${y - 58} L ${x + 46} ${y - 44 - h}` }));
+      g.appendChild(el('path', { fill:'var(--accent-texte)',
+        d:`M ${x + 42} ${y - 40 - h} l 4 -8 l 4 8 z` }));
+      g.appendChild(el('text', { x:x + 52, y:y - 50 - h, class:'etiq-tuyau' }, 'relevé'));
+    }
     g.appendChild(el('rect', { x:x + 31, y:y - 44 - h, width:6, height:h + 20, fill:'#546E7A' }));
     g.appendChild(el('rect', { x:x + 29, y:y - 47 - h, width:10, height:4, rx:1.5, fill:'#78838C' }));
     // le toit de tôle par-dessus
@@ -1697,19 +1727,26 @@ function rendreCarnet() {
 
 // L'élève peut agir à partir de la mission qui le lui demande. Avant, le
 // panneau sert seulement à voir ce que le quartier rejette chaque jour.
-const peutAgir = () => etat.mission >= MISSION_ACTION || etat.libre;
+// Exception : le tuyau du moulin. Ce n'est pas une action contre la pollution
+// — il ne retire pas un gramme de rejets — c'est le sujet même de la mission 3.
+// Le laisser manipulable permet de vérifier au capteur ce que le relèvement
+// change vraiment : beaucoup au pied du moulin, rien pour le quartier.
 const MISSION_ACTION = 4;
+const peutAgir = cle => cle === 'tuyau' || etat.mission >= MISSION_ACTION || etat.libre;
 
 function rendreActions() {
-  const ouvert = peutAgir();
+  const ouvert = peutAgir(null);
   $('liste-actions').classList.toggle('en-lecture', !ouvert);
   $('liste-actions').innerHTML = (ouvert ? '' :
     '<p class="a-verrou">🔒 Pour l’instant, tu observes seulement ce que le quartier rejette. ' +
-    'Tu pourras agir à la mission ' + (MISSION_ACTION + 1) + '.</p>') +
+    'Tu pourras agir à la mission ' + (MISSION_ACTION + 1) + '. Seul le <b>tuyau du moulin</b> ' +
+    'se manipule dès maintenant : essaie de le baisser, puis remesure à son pied.</p>') +
     Object.keys(ACTIONS).map(cle => {
     const a = ACTIONS[cle];
     const prise = !!etat.actions[cle];
-    return `<button class="action${prise ? ' prise' : ''}" data-action="${cle}"${ouvert ? '' : ' disabled'}>
+    const actif = peutAgir(cle);
+    return `<button class="action${prise ? ' prise' : ''}${actif && !ouvert ? ' ouverte' : ''}"
+      data-action="${cle}"${actif ? '' : ' disabled'}>
       <span class="coche">${prise ? '✓' : ''}</span>
       <span class="txt"><b>${a.nom}</b><span>${a.detail}</span></span>
       <span class="gain">${a.gain ? '−' + a.gain + ' g/j' : 'ne réduit rien'}</span>
@@ -1927,7 +1964,9 @@ function majMission() {
     const courante = ec && ec.i === i;
     return `<div class="etape${f ? ' faite' : ''}${courante ? ' courante' : ''}${i === iMontrer ? ' a-montrer' : ''}">
       <span class="coche">✓</span><span class="t">${e.t}</span></div>`;
-  }).join('') + (m.indice ? `<div class="m-indice">💡 <b>Astuce :</b> ${m.indice}</div>` : '');
+  }).join('') + (m.indice
+    ? `<div class="m-indice${m.indiceEpingle ? ' epingle' : ''}">💡 <b>Astuce :</b> ${m.indice}</div>`
+    : '');
   $('btn-tester').classList.toggle('appelle', !ec);
   // quand l'étape en cours demande d'ouvrir Agir, le bouton du plan se signale
   $('btn-agir-plan').classList.toggle('appelle', !!(ec && /Agir/.test(ec.e.t)));
@@ -1990,7 +2029,7 @@ $('liste-actions').addEventListener('click', e => {
   const b = e.target.closest('[data-action]');
   if (!b) return;
   const cle = b.dataset.action;
-  if (!peutAgir()) { toast('Tu pourras agir à la mission ' + (MISSION_ACTION + 1) + '.'); return; }
+  if (!peutAgir(cle)) { toast('Tu pourras agir à la mission ' + (MISSION_ACTION + 1) + '.'); return; }
   etat.actions[cle] = !etat.actions[cle];
   sauver();
   rendreActions();

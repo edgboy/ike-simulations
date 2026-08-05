@@ -614,10 +614,6 @@ body.sombre { --accent-texte:#7FD4F5; --vert-fonce:#2A9D8F; --orange-fonce:#F7A4
   </div>
 </div>
 
-<div class="voile" id="v-feu">
-  <div class="carte-modale" id="feu-carte"></div>
-</div>
-
 <div class="voile" id="v-lexique">
   <div class="carte-modale">
     <button class="fermer-x" data-ferme="v-lexique" aria-label="Fermer">✕</button>
@@ -783,7 +779,8 @@ const MISSIONS = [
     etapes:[
       { t:'Monte la <b>mèche</b> au-dessus de 7', cible:'meche', fait:() => etat.meche >= 7 },
       { t:'Referme l’<b>arrivée d’air</b> sous 4', cible:'air', fait:() => etat.air > 0 && etat.air <= 4 },
-      { t:'Allume et laisse la marmite noircir', cible:'tester', fait:() => sim.suieTotale > 400 },
+      { t:'Allume et laisse la marmite noircir', cible:'tester',
+        fait:() => sim.suieTotale > 400 || !!etat.flammesVues.salie },
     ],
     test:r => !r.eteint && r.suie > 0 && sim.suieTotale > 400,
     qcm:[
@@ -823,11 +820,11 @@ const MISSIONS = [
     indice:"Règle d'abord une flamme jaune qui fume (mèche haute, air presque fermé), allume, puis touche la soucoupe sur la paillasse pour la prendre. Ensuite nettoie, règle une flamme bleue, et recommence.",
     etapes:[
       { t:'Fais une flamme <b>qui fume</b> et allume', cible:'meche',
-        fait:() => etat.resultat && !etat.resultat.complete && allume() },
+        fait:() => !!etat.flammesVues.fume },
       { t:'Prends la <b>soucoupe</b> et tiens-la au-dessus', cible:'plan',
         fait:() => etat.testsFaits.soucoupe === 'noircie' },
       { t:'Nettoie, puis règle une flamme <b>bleue</b>', cible:'nettoyer',
-        fait:() => etat.testsFaits.soucoupe === 'noircie' && etat.resultat && etat.resultat.couleur === 'bleue' },
+        fait:() => etat.testsFaits.soucoupe === 'noircie' && !!etat.flammesVues.bleue },
       { t:'Remets la soucoupe : elle reste <b>propre</b>', cible:'plan',
         fait:() => etat.testsFaits.soucoupePropre === true },
     ],
@@ -966,7 +963,7 @@ const MOYENS = [
 
 const etat = {
   meche:0, air:0, marmite:1, resultat:null,
-  testsFaits:{}, feuVu:false, feuEteint:false,
+  testsFaits:{}, flammesVues:{}, feuVu:false, feuEteint:false,
   temoin:null,                                        // le témoin tenu au-dessus de la flamme
   feu:{ phase:'repos', t:0, ampleur:0, geste:null, tGeste:0, foyers:1 },
   gestesVus:{},
@@ -978,7 +975,7 @@ const sim = { actif:false, fini:false, t:0, T:T0, suieTotale:0, minutesEcoulees:
 const CLE = 'ike-marmites-progression';
 function sauver() {
   try { localStorage.setItem(CLE, JSON.stringify({ mission:etat.mission, faits:etat.faites,
-    tests:etat.testsFaits, feuEteint:etat.feuEteint })); } catch (e) {}
+    tests:etat.testsFaits, flammes:etat.flammesVues, feuEteint:etat.feuEteint })); } catch (e) {}
 }
 function charger() {
   try {
@@ -986,6 +983,7 @@ function charger() {
     if (!d) return;
     if (Array.isArray(d.faits)) etat.faites = d.faits;
     if (d.tests) etat.testsFaits = d.tests;
+    if (d.flammes) etat.flammesVues = d.flammes;
     etat.feuEteint = !!d.feuEteint;
     etat.mission = Math.min(d.mission || 0, MISSIONS.length - 1);
   } catch (e) {}
@@ -1016,6 +1014,12 @@ function allumer() {
     afficherBilan(r, false);
     return;
   }
+  // On garde en mémoire les flammes déjà obtenues. Une étape qui dit « fais une
+  // flamme qui fume » décrit un acte accompli : elle ne doit pas se décocher
+  // quand l'élève règle ensuite la flamme bleue que l'étape suivante réclame.
+  if (r.couleur === 'bleue') etat.flammesVues.bleue = true;
+  if (!r.complete) etat.flammesVues.fume = true;
+  sauver();
   sim.actif = true; sim.fini = false; sim.t = 0; sim.T = T0; sim.minutesEcoulees = 0;
   sim.derniere = performance.now();
   cacherBilan();
@@ -1196,6 +1200,9 @@ function boucleSim(ts) {
   sim.minutesEcoulees = Math.round(sim.t / 6) / 10;
   if (sim.T < T_EB) sim.T = Math.min(T_EB, sim.T + r.puissance * dt / (EAU_L * C_EAU));
   sim.suieTotale += r.suie * dt / 60;
+  // « laisser noircir » est un acte accompli : on s'en souvient, sinon un coup
+  // d'éponge plus tard décocherait l'étape (nettoyer() remet la suie à zéro)
+  if (sim.suieTotale > 400 && !etat.flammesVues.salie) { etat.flammesVues.salie = true; sauver(); }
   avancerTemoin(r, dtReel);
   animer();
   majMission();
@@ -1263,9 +1270,10 @@ function boucleFeu(ts) {
     if (f.tGeste >= g.duree && !f.conclu) {
       f.conclu = true;
       const m = MOYENS.find(x => x.cle === f.geste);
-      if (g.effet === 'etouffe') { f.phase = 'eteint'; f.ampleur = 0; etat.feuEteint = true; sauver(); }
+      const eteintMaintenant = g.effet === 'etouffe';
+      if (eteintMaintenant) { f.phase = 'eteint'; f.ampleur = 0; etat.feuEteint = true; sauver(); }
       else f.phase = 'pire';
-      bilanGeste(m.bon ? '✅' : '⚠️', m.nom, m.suite);
+      bilanGeste(m.bon ? '✅' : '⚠️', m.nom, m.suite, eteintMaintenant);
       majMission();
     }
   }
@@ -1511,36 +1519,6 @@ function faireTest(cle) {
   majMission();
 }
 
-/* ---- L'incendie de la lanterne de Sissi ---- */
-function ouvrirFeu() {
-  etat.feuVu = true;
-  $('feu-carte').innerHTML = `
-    <h2 style="color:var(--destructive)">🔥 Au secours, au feu !</h2>
-    <p>Sissi étudiait le soir à la lanterne. Le réservoir était plein, et voilà que
-       la lanterne <b>s'embrase</b>. Le pétrole enflammé se répand sur la table.
-       Que fais-tu ?</p>
-    <div id="liste-moyens">${MOYENS.map(m =>
-      `<button class="action" data-moyen="${m.cle}">
-        <span class="coche">${m.ico}</span>
-        <span class="txt"><b>${m.nom}</b></span></button>`).join('')}</div>
-    <div id="res-feu"></div>`;
-  $('v-feu').classList.add('visible');
-}
-
-function choisirMoyen(cle) {
-  const m = MOYENS.find(x => x.cle === cle);
-  const dejaBon = etat.feuEteint;
-  if (m.bon) { etat.feuEteint = true; sauver(); }
-  $('res-feu').innerHTML = `
-    <div class="a-expl" style="margin-top:10px;background:${m.bon
-      ? 'rgba(42,157,143,.14)' : 'rgba(232,58,75,.12)'}">
-      <b>${m.bon ? '✅' : '❌'} ${m.nom}</b><br>${m.suite}</div>
-    ${etat.feuEteint ? `<button class="btn btn-large" style="margin-top:12px"
-      data-ferme="v-feu" id="btn-feu-ok">Le feu est maîtrisé →</button>` : ''}`;
-  majMission();
-  if (m.bon && !dejaBon) setTimeout(() => { fermer('v-feu'); eteindre(true); }, 2600);
-}
-
 /* ---- Bilan ---- */
 function jauge(nom, valeur, max, unite, seuilFaible, inverse) {
   const pct = Math.max(0, Math.min(100, valeur / max * 100));
@@ -1552,14 +1530,29 @@ function jauge(nom, valeur, max, unite, seuilFaible, inverse) {
 }
 
 // Le bilan d'un geste tenté sur l'incendie : ce qu'on vient de voir, et pourquoi.
-function bilanGeste(em, titre, phrase) {
+// Quand le geste éteint vraiment le feu, la mission est gagnée : ce bilan devient
+// celui de la réussite et ouvre le questionnaire, comme partout ailleurs. Sans
+// cela, la mission de l'incendie ne se terminait jamais et le mode libre restait
+// verrouillé, faute d'emprunter le chemin de réussite des autres missions.
+function bilanGeste(em, titre, phrase, eteintMaintenant) {
+  const m = missionCourante();
+  // seul le geste qui vient d'éteindre le feu conclut la mission : rejouer un
+  // mauvais geste ensuite ne doit pas réafficher « Mission réussie »
+  const gagne = !!(eteintMaintenant && m && m.test(etat.resultat || {}));
+  if (gagne && etat.faites.indexOf(etat.mission) === -1) { etat.faites.push(etat.mission); sauver(); }
   const z = $('bilan');
-  z.innerHTML = '<div class="verdict"><span class="em">' + em + '</span><h3>' + titre + '</h3>' +
+  z.innerHTML = '<div class="verdict"><span class="em">' + (gagne ? '🎉' : em) + '</span><h3>' +
+    (gagne ? 'Mission réussie !' : titre) + '</h3>' +
     '<button class="reduire" data-ferme-bilan aria-label="Réduire">✕</button></div>' +
     '<p class="phrase">' + phrase + '</p>' +
-    '<div class="actions"><button class="btn btn-contour" data-ferme-bilan>J’ai compris</button></div>';
+    (gagne ? '<p class="phrase">' + m.acquis + '</p>' : '') +
+    '<div class="actions">' + (gagne
+      ? '<button class="btn btn-large" id="btn-continuer">🎓 Mission réussie — continuer</button>'
+      : '<button class="btn btn-contour" data-ferme-bilan>J’ai compris</button>') + '</div>';
   z.classList.add('visible');
   $('atelier').classList.add('avec-bilan');
+  const c = $('btn-continuer');
+  if (c) c.addEventListener('click', () => { cacherBilan(); ouvrirQcm(); });
 }
 
 function afficherBilan(r, gagne) {
@@ -1856,11 +1849,6 @@ $('liste-tests').addEventListener('click', e => {
   const b = e.target.closest('[data-test]');
   if (b && !b.disabled) faireTest(b.dataset.test);
 });
-$('v-feu').addEventListener('click', e => {
-  const b = e.target.closest('[data-moyen]');
-  if (b) choisirMoyen(b.dataset.moyen);
-});
-
 $('btn-missions').addEventListener('click', () => { rendreMissions(); ouvrir('v-missions'); });
 $('btn-lexique').addEventListener('click', () => {
   $('liste-lexique').innerHTML = LEXIQUE.map(l =>
@@ -1879,7 +1867,7 @@ $('liste-missions').addEventListener('click', e => {
 $('btn-rezero').addEventListener('click', () => {
   if (!window.confirm('Effacer toute ta progression et repartir de la mission 1 ?')) return;
   etat.faites = []; etat.mission = 0; etat.libre = false;
-  etat.testsFaits = {}; etat.feuEteint = false; etat.feuVu = false;
+  etat.testsFaits = {}; etat.flammesVues = {}; etat.feuEteint = false; etat.feuVu = false;
   sauver(); nettoyer(true); ouvrirEtapes(); fermer('v-missions');
   toast('↺ Parcours remis à zéro');
 });

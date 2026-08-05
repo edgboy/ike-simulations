@@ -5,6 +5,58 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v4.21.0 — 2026-08-05
+
+🔧 **Deuxième vague de retours — le lot « ça casse ».** Six constats dont la cause a été localisée
+dans le code, plus l'audit transversal qu'ils ont déclenché.
+
+**Marmites, mission 8 : le parcours ne se terminait jamais.** *« Le mode libre ne se déclenche pas
+automatiquement à la fin de la mission 8, dont le message de succès n'apparaît pas. »* La cause
+était plus profonde : `allumer()` détournait la mission de l'incendie vers sa mise en scène et
+sortait par un `return`, si bien que le chemin de réussite — test, bilan, questionnaire, écran de
+passage — n'était **jamais emprunté**. La mission était gagnée dans l'état mais jamais enregistrée.
+Le geste qui étouffe le feu conclut désormais la mission comme partout ailleurs, avec le bouton
+« 🎓 Mission réussie — continuer ». Au passage, un **second chemin de réussite orphelin** (la modale
+`v-feu`, devenue inaccessible quand les gestes sont passés sur le plan de travail en v4.17.0) a été
+retiré : c'est exactement le genre de doublon qui avait produit le défaut.
+
+**Marmites, mission 4 : l'étape qui se décochait.** *« Dès qu'on nettoie, la première tâche se
+décroche et se considère comme non faite. »* L'étape « fais une flamme qui fume » testait l'état
+**courant** de la flamme au lieu de se souvenir de l'acte accompli : la flamme bleue que l'étape
+suivante réclame la rendait fausse. Les flammes obtenues sont maintenant mémorisées.
+
+**Audit transversal des étapes.** Le défaut ci-dessus appartient à une famille : une étape qui décrit
+un acte accompli ne doit pas relire l'état présent. Les **neuf simulations** ont été passées en revue.
+Un seul autre cas trouvé — « allume et laisse la marmite noircir », que le nettoyage effaçait —,
+corrigé de la même façon. Partout ailleurs, les étapes décrivent une **configuration exigée** et
+relire l'état est le comportement juste.
+
+**Pollution : le tuyau du moulin.** *« Lorsque le tuyau est monté plus haut, il faut qu'on puisse le
+voir. »* Le défaut allait plus loin : la mission 3 **racontait** que Faton avait relevé son tuyau,
+mais l'état disait le contraire et le panneau d'action restait verrouillé jusqu'à la mission 5. Le
+tuyau était donc bas au dessin **et dans le calcul des mesures**, pendant toute la mission qui parle
+de lui. Il est désormais relevé dès le départ — comme Faton l'affirme dans la scène —, dessiné haut
+avec le **repère pointillé de sa hauteur d'origine** et une flèche « relevé ». Et parce que c'est le
+sujet de la mission, il reste le **seul réglage manipulable** avant la mission 5 : on peut le baisser
+et remesurer à son pied (418 µg/m³ tuyau bas contre 203 tuyau haut), pour constater que le voisin
+immédiat respire mieux sans que le quartier reçoive un gramme de moins.
+
+**Pollution : l'astuce du tribunal.** *« L'astuce qui dit de cliquer sur Vérifier est cachée car la
+liste des étapes est rétractée. »* Une mission peut maintenant **épingler** son astuce : elle reste
+lisible même plan replié. La dernière mission le fait, puisque son action ne se joue pas sur le plan
+de travail. Les autres gardent le repli complet.
+
+**Catalogue : deux cartes, un seul fichier.** « Trouve la bonne pile » et « Fabrique ta lampe de
+poche » ouvraient **la même simulation**. La première rejoint la feuille de route et s'affiche
+« bientôt », en attendant d'exister vraiment.
+
+**Flamme de la bougie : le glissement sur mobile.** *« L'UX de déplacement des éléments testeurs est
+très peu fluide. »* Deux causes. Le plan portait `touch-action: manipulation`, qui laisse au
+navigateur le geste de défilement : le doigt était disputé entre le défilement et l'outil. Et la
+conversion écran → scène inversait la matrice du SVG **à chaque mouvement du doigt**, soit une
+lecture de géométrie par événement. Le plan prend maintenant le geste entièrement, la matrice est
+calculée une fois par prise, et le texte ne se sélectionne plus sous le doigt.
+
 ## v4.20.0 — 2026-08-05
 
 ⚡ **Les premiers pas du circuit — on voit enfin le courant circuler.**

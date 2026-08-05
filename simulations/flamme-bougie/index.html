@@ -457,7 +457,11 @@ main { flex:1; min-height:0; display:flex; flex-direction:column; }
 
 
 /* ===================== Propre à la flamme de la bougie ===================== */
-#plan { cursor:grab; }
+/* Le plan reçoit un glissement du doigt : il faut le lui laisser entièrement.
+   Avec « manipulation », le navigateur garde le geste de défilement et se
+   dispute le doigt avec l'outil — c'est ce qui rendait le déplacement saccadé
+   sur téléphone. « none » lui rend la main, et le texte ne se sélectionne plus. */
+#plan { cursor:grab; touch-action:none; -webkit-user-select:none; user-select:none; }
 #plan:active { cursor:grabbing; }
 
 /* Panneau de lecture : ce que l'outil ressent, à l'endroit où on regarde */
@@ -847,6 +851,7 @@ function mesurerPlan() {
   Wp = Math.max(260, Math.round(r.width));
   Hp = Math.max(180, Math.round(r.height));
   refs.plan.setAttribute('viewBox', '0 0 ' + Wp + ' ' + Hp);
+  matriceEcran = null;                 // le repère a changé : on la recalculera
 
   TABLE = Math.round(Hp * .88);
   const hb = Math.max(22, Math.min(84, Hp * .15));      // hauteur de la bougie
@@ -1248,10 +1253,19 @@ function majLecture() {
 }
 
 /* ========================= Prendre l’outil en main ========================= */
-function versPlan(ev) {
+// La conversion écran → plan demande d'inverser la matrice du SVG. La refaire à
+// chaque mouvement du doigt coûte une lecture de géométrie par événement, ce qui
+// hache le glissement sur un téléphone d'entrée de gamme. On la calcule une fois
+// à la prise, et on la relit si la scène a changé de taille entre-temps.
+let matriceEcran = null;
+function rafraichirMatrice() {
   const ctm = refs.plan.getScreenCTM();
-  if (!ctm) return null;
-  const p = new DOMPoint(ev.clientX, ev.clientY).matrixTransform(ctm.inverse());
+  matriceEcran = ctm ? ctm.inverse() : null;
+}
+function versPlan(ev) {
+  if (!matriceEcran) rafraichirMatrice();
+  if (!matriceEcran) return null;
+  const p = new DOMPoint(ev.clientX, ev.clientY).matrixTransform(matriceEcran);
   return versModele(p.x, p.y);
 }
 // Distance d'un point à un segment : sert à savoir si le doigt s'est posé
@@ -1281,7 +1295,7 @@ function poser(ev, saisie) {
   // À la saisie, on mémorise l'écart entre le doigt et la pointe : l'outil
   // suit la main sans sauter, et la pointe reste là où l'élève l'a mise.
   if (saisie) {
-    const p = versPlan(ev), sx = SX(p.x), sy = SY(p.y);
+    const sx = SX(m.x), sy = SY(m.y);        // même point que m : inutile de reconvertir
     etat.prise = surCorpsOutil(sx, sy)
       ? { dx:etat.ox - m.x, dy:(etat.outil === 'allumette' ? etat.allumetteY : etat.oy) - m.y }
       : { dx:0, dy:0 };                       // posé à côté : l'outil vient au doigt
@@ -1299,6 +1313,7 @@ function brancherPlan() {
   const p = refs.plan;
   p.addEventListener('pointerdown', ev => {
     if (sceneCloche()) return;
+    rafraichirMatrice();                       // la scène a pu bouger depuis la dernière prise
     etat.tient = true; p.setPointerCapture(ev.pointerId); poser(ev, true); ev.preventDefault();
   });
   p.addEventListener('pointermove', ev => { if (etat.tient) poser(ev); });
