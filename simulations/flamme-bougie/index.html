@@ -489,6 +489,14 @@ main { flex:1; min-height:0; display:flex; flex-direction:column; }
   padding:7px 10px 8px; display:flex; align-items:center; gap:9px;
 }
 #bac-outils .bo-titre { font-size:11px; opacity:.65; flex:none; }
+/* Le choix du plan de travail, en exploration libre */
+#plans {
+  flex:none; border-top:1px solid var(--border); background:var(--surface);
+  padding:7px 10px 8px; display:flex; align-items:center; gap:9px; flex-wrap:wrap;
+}
+#plans[hidden] { display:none; }
+.p-quoi { font-size:11px; opacity:.65; flex:none; }
+.outil.actif { border-color:var(--accent); background:var(--accent-doux); }
 .bo-liste { display:flex; gap:7px; overflow-x:auto; padding-bottom:2px; flex:1; }
 .outil {
   flex:none; display:flex; align-items:center; gap:6px; cursor:pointer;
@@ -581,6 +589,8 @@ main { flex:1; min-height:0; display:flex; flex-direction:column; }
     </div>
     <div id="bilan" role="status" aria-live="polite"></div>
   </div>
+
+  <div id="plans" hidden></div>
 
   <div id="bac-outils">
     <span class="bo-titre">Ce que tu tiens :</span>
@@ -820,10 +830,11 @@ const vierge = () => ({
   allumetteY:null, allumetteFaite:false, allumetteLue:false, marques:null,
   allumee:false, cloche:false, o2:O2_DEPART, eteinte:false, eauLue:false, fumee:0,
 });
-let etat = Object.assign({ mission:0, faits:[] }, vierge());
+let etat = Object.assign({ mission:0, faits:[], libre:false, planLibre:'flamme' }, vierge());
 
 function sauver() {
-  try { localStorage.setItem(CLE, JSON.stringify({ mission:etat.mission, faits:etat.faits })); }
+  try { localStorage.setItem(CLE, JSON.stringify({ mission:etat.mission, faits:etat.faits,
+    libre:etat.libre, planLibre:etat.planLibre })); }
   catch (e) {}
 }
 function charger() {
@@ -831,12 +842,44 @@ function charger() {
     const d = JSON.parse(localStorage.getItem(CLE) || '{}');
     if (typeof d.mission === 'number') etat.mission = Math.min(d.mission, MISSIONS.length - 1);
     if (Array.isArray(d.faits)) etat.faits = d.faits;
+    etat.libre = !!d.libre;
+    if (d.planLibre) etat.planLibre = d.planLibre;
   } catch (e) {}
 }
 // Remet la paillasse à zéro sans toucher à la progression
 function reprendre() { Object.assign(etat, vierge()); }
 
-const sceneCloche = () => etat.mission === 4;
+/* ---- Exploration libre ----------------------------------------------------
+   Le parcours terminé, l'élève doit pouvoir revenir sur les deux plans de
+   travail de la simulation : la bougie à l'air libre avec tous ses outils, et
+   la bougie sous cloche posée sur l'eau. Sans cela, il restait sur le plan de
+   la dernière mission jouée, sans moyen d'en changer. */
+const PLANS = [
+  { cle:'flamme', em:'🕯️', nom:'La bougie et ses outils',
+    quoi:'Les trois parties de la flamme, le thermomètre, la soucoupe, l’allumette et le fil de cuivre.' },
+  { cle:'cloche', em:'🫙', nom:'La bougie sous cloche, sur l’eau',
+    quoi:'Enfermer une quantité d’air connue et regarder l’eau monter d’un cinquième.' },
+];
+const enLibre = () => etat.libre === true;
+const sceneCloche = () => enLibre() ? etat.planLibre === 'cloche' : etat.mission === 4;
+
+// reprendre() ne touche ni à la progression ni au mode : la paillasse seule repart à neuf.
+function passerEnLibre(plan) {
+  etat.libre = true;
+  etat.planLibre = plan || etat.planLibre || 'flamme';
+  reprendre();
+  etat.outil = 'thermometre';
+  sauver();
+  mesurerPlan(); demarrerMission(); rendreListeMissions();
+}
+
+function choisirPlan(cle) {
+  if (cle === etat.planLibre && enLibre()) return;
+  passerEnLibre(cle);
+  toast(cle === 'cloche'
+    ? 'Pose la cloche sur la bougie et regarde l’eau monter.'
+    : 'La bougie est de nouveau à l’air libre : tous les outils sont là.');
+}
 
 /* ======================= Le plan de travail (SVG) =======================
    Rien n’est dessiné à taille fixe : la scène se recalcule à partir de la
@@ -861,7 +904,7 @@ function mesurerPlan() {
   // l’allumette traverse la flamme de part en part : il lui faut plus de large
   const uD = (etat.outil === 'allumette' && !sceneCloche()) ? 21 : 12;
   // en mission 1, les étiquettes de repérage occupent la droite du plan
-  const reserve = etat.mission === 0 ? 86 : 16;
+  const reserve = (!enLibre() && etat.mission === 0) ? 86 : 16;
   K = Math.max(1.4, Math.min(K, (Wp - reserve - 12) / (uD + 10)));
   E = K / 2.9;
   // la flamme se décale à droite : le panneau de lecture occupe le coin haut gauche
@@ -953,7 +996,7 @@ function dessinerFlamme(g) {
     fill:'none', stroke:'#5B4A3A', 'stroke-width':Math.max(2, Math.min(6, 1 * K)), 'stroke-linecap':'round' }));
 
   // le repère des trois parties, le temps que l’élève les nomme
-  if (etat.mission === 0) {
+  if (!enLibre() && etat.mission === 0) {
     const c = sombre ? '#ECEFF1' : '#3A3632';
     const trait = (x1, y1, x2, y2) => g.appendChild(el('line',
       { x1, y1, x2, y2, stroke:c, 'stroke-width':1, 'stroke-dasharray':'3 3', opacity:.55 }));
@@ -1331,7 +1374,7 @@ function rendreOutils() {
   liste.innerHTML = '';
   for (const cle in OUTILS) {
     const o = OUTILS[cle];
-    const dispo = etat.mission >= o.desMission;
+    const dispo = enLibre() || etat.mission >= o.desMission;   // libre : tout est ouvert
     const b = document.createElement('button');
     b.className = 'outil'; b.id = 'o-' + cle; b.type = 'button';
     b.disabled = !dispo;
@@ -1489,14 +1532,39 @@ function conclure() {
 
 /* ============================== Les missions ============================== */
 function rendreMission() {
+  if (enLibre()) {
+    const p = PLANS.find(x => x.cle === etat.planLibre) || PLANS[0];
+    $('m-num').textContent = '∞';
+    $('m-rang').textContent = 'Exploration libre';
+    $('m-titre').textContent = p.nom;
+    $('m-but').textContent = p.quoi;
+    $('etapes').innerHTML = '';
+    $('m-jauge').style.width = '100%';
+    rendrePlans();
+    return;
+  }
   const M = MISSIONS[etat.mission];
   $('m-num').textContent = etat.mission + 1;
   $('m-rang').textContent = 'Mission ' + (etat.mission + 1) + ' sur ' + MISSIONS.length;
   $('m-titre').textContent = M.titre;
   $('m-but').textContent = M.but;
   rendreEtapes();
+  rendrePlans();
+}
+
+// Le choix du plan de travail, offert dès que l'exploration libre est ouverte
+function rendrePlans() {
+  const z = $('plans');
+  z.hidden = !enLibre();
+  if (!enLibre()) return;
+  z.innerHTML = '<span class="p-quoi">Plan de travail :</span>' + PLANS.map(p =>
+    `<button class="outil${etat.planLibre === p.cle ? ' actif' : ''}" data-plan="${p.cle}">` +
+    `<span class="em">${p.em}</span>${p.nom}</button>`).join('');
+  z.querySelectorAll('[data-plan]').forEach(b => b.onclick = () => choisirPlan(b.dataset.plan));
 }
 function rendreEtapes() {
+  // en exploration libre il n'y a pas d'étapes : le panneau reste vide
+  if (enLibre()) { $('etapes').innerHTML = ''; $('m-jauge').style.width = '100%'; surbrillerCible(); return; }
   const M = MISSIONS[etat.mission], z = $('etapes');
   z.innerHTML = '';
   let courante = -1;
@@ -1518,6 +1586,7 @@ function rendreEtapes() {
 }
 // L’élément à montrer du doigt : celui de la première étape non franchie
 function cibleEffective() {
+  if (enLibre()) return null;              // rien à montrer du doigt : l'élève explore
   const M = MISSIONS[etat.mission];
   for (const e of M.etapes) if (!e.ok(etat)) return e.cible || null;
   return null;
@@ -1529,6 +1598,7 @@ function surbrillerCible() {
 }
 
 function verifierProgres() {
+  if (enLibre()) return;                   // aucune mission à gagner ici
   const M = MISSIONS[etat.mission];
   if (!M.gagne(etat)) { rendreEtapes(); return; }
   if (etat.faits.includes(etat.mission)) { rendreEtapes(); return; }
@@ -1601,19 +1671,21 @@ function ouvrirPassage() {
         '<p class="p-neuf">La paillasse est remise en ordre pour la nouvelle expérience.</p>'
       : '<div class="p-suite"><div class="etiq">Parcours terminé</div><b>Tu connais la flamme</b>' +
         '<span>Ses trois parties, la plus chaude, l’origine du noir de fumée et la composition de l’air.</span></div>' +
-        '<button class="btn btn-large" id="p-go">Revenir au plan de travail</button>');
+        '<button class="btn btn-large" id="p-go">Explorer librement →</button>' +
+        '<p class="p-neuf">Les deux plans de travail s’ouvrent : la bougie et ses outils, ' +
+        'et la bougie sous cloche sur l’eau.</p>');
   $('p-go').onclick = () => {
     fermer('v-passage');
     if (suivante) { etat.mission++; sauver(); reprendre(); demarrerMission(); }
-    else { cacherBilan(); rendreEtapes(); }
+    else passerEnLibre();
   };
   ouvrir('v-passage');
 }
 
 function demarrerMission() {
   cacherBilan();
-  // chaque mission commence avec l’outil qu’elle demande
-  etat.outil = MISSIONS[etat.mission].outil;
+  // chaque mission commence avec l’outil qu’elle demande ; en libre, l'élève choisit
+  if (!enLibre()) etat.outil = MISSIONS[etat.mission].outil;
   if (etat.outil === 'allumette' && etat.allumetteY == null) etat.allumetteY = H * .35;
   rendreMission(); rendreOutils(); rendreActions(); majLecture();
 }
@@ -1638,6 +1710,7 @@ function rendreLexique() {
     '<div class="lex-entree"><em>' + m + '</em>' + d + '</div>').join('');
 }
 function rendreListeMissions() {
+  const tout = etat.faits.length >= MISSIONS.length;
   $('liste-missions').innerHTML = MISSIONS.map((m, i) => {
     const fait = etat.faits.includes(i), ouverte = i <= etat.mission;
     return '<div class="d-carte' + (fait ? ' fait' : ouverte ? '' : ' verrou') + '">' +
@@ -1645,7 +1718,15 @@ function rendreListeMissions() {
       '<div><b>' + m.titre + '</b><span>' +
       (ouverte ? m.but : 'Termine la mission précédente pour l’ouvrir.') +
       '</span></div></div>';
-  }).join('');
+  }).join('') +
+    '<button class="d-carte' + (tout ? '' : ' verrou') + '" id="carte-libre"' +
+      (tout ? '' : ' disabled') + '><span class="num">' + (tout ? '∞' : '🔒') + '</span>' +
+      '<div><b>Exploration libre</b><span>' + (tout
+        ? 'Les deux plans de travail, tous les outils, sans consigne.'
+        : 'Termine les ' + MISSIONS.length + ' missions pour l’ouvrir.') +
+      '</span></div></button>';
+  const c = $('carte-libre');
+  if (c && tout) c.onclick = () => { fermer('v-missions'); passerEnLibre(); };
 }
 
 /* ================================ Le thème ================================ */

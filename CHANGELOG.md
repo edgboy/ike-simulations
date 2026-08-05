@@ -5,6 +5,41 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v4.22.0 — 2026-08-05
+
+∞ **Le mode libre donne enfin accès à tout le matériel.** C'était la demande la plus répétée de la
+deuxième vague : quatre simulations, quatre situations différentes.
+
+**Les premiers pas du circuit : la DEL et le moteur étaient inaccessibles.** *« Dans le monde libre
+on devrait avoir accès aux autres récepteurs aussi. On a uniquement accès aux éléments à
+intercaler. »* Le montage libre forçait la lampe, sans aucun moyen d'en changer. Un **bac de
+récepteurs** s'ouvre désormais au-dessus des objets à intercaler : lampe, DEL, moteur du tourniquet.
+Changer de récepteur remet les fils à zéro — les bornes ne portent pas les mêmes noms d'un appareil
+à l'autre.
+
+**Les marmites : les deux plans de travail.** Le réchaud à pétrole et la lanterne qui s'embrase sont
+maintenant deux plans que l'élève choisit. Le passage de l'un à l'autre remet la table en ordre :
+réchaud éteint et marmite propre, ou lanterne intacte à rallumer. Le bouton d'action suit —
+« 🔥 Allumer » ou « 🏮 Lancer la scène ».
+
+**La flamme de la bougie : un mode libre, qui n'existait pas.** La simulation n'avait aucune sortie
+après la dernière mission. Elle en a une, avec ses **deux plans** : la bougie et ses quatre outils,
+et la bougie sous cloche posée sur l'eau. Tous les outils sont ouverts, y compris ceux qu'une
+mission tardive débloquait, et les étiquettes de repérage de la mission 1 ne s'invitent plus.
+
+**La fabrique de glace : un mode libre, qui n'existait pas non plus.** *« Il n'y a même pas de mode
+libre ici maintenant. »* Le parcours terminé, on revenait au plan de travail avec les consignes de
+la dernière mission. L'exploration libre ouvre le sel jusqu'à la dose maximale, les **quatre
+isolants** — dont le polystyrène et le coton, réservés à la mission 3 — et le chiffon pour essuyer
+le givre, jusqu'ici réservé à la mission 5.
+
+**Partout : le mode libre se retrouve au retour.** Il n'était enregistré nulle part dans les premiers
+pas ni dans les marmites : un simple rechargement de page renvoyait l'élève au parcours. Le mode et
+le plan choisi sont désormais sauvegardés, comme la progression.
+
+Les cinq missions de chaque simulation ont été rejouées pour vérifier que rien du parcours n'a bougé :
+étapes, verrous d'outils et repères sont inchangés.
+
 ## v4.21.0 — 2026-08-05
 
 🔧 **Deuxième vague de retours — le lot « ça casse ».** Six constats dont la cause a été localisée

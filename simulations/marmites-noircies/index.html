@@ -520,9 +520,11 @@ body.sombre { --accent-texte:#7FD4F5; --vert-fonce:#2A9D8F; --orange-fonce:#F7A4
 .mot-feu { font-family:var(--font-display); font-size:14px; font-weight:800;
   text-anchor:middle; fill:#FFFFFF; }
 
-#gestes { flex:none; display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+#gestes, #plans { flex:none; display:flex; align-items:center; gap:8px; flex-wrap:wrap;
   padding:8px 12px 9px; border-top:1px solid var(--border); background:var(--surface); }
-#gestes[hidden] { display:none; }
+#gestes[hidden], #plans[hidden] { display:none; }
+/* le plan de travail choisi en mode libre se distingue des autres boutons */
+.geste.actif { border-color:var(--accent); background:var(--accent-doux); opacity:1; }
 .g-quoi { font-size:11.5px; opacity:.7; }
 .geste { display:flex; align-items:center; gap:5px; cursor:pointer; flex:0 1 auto;
   padding:6px 10px 6px 8px; border-radius:var(--radius-full); font-size:12px;
@@ -576,6 +578,7 @@ body.sombre { --accent-texte:#7FD4F5; --vert-fonce:#2A9D8F; --orange-fonce:#F7A4
     <div id="bilan" role="status" aria-live="polite"></div>
   </div>
 
+  <div id="plans" hidden></div>
   <div id="gestes" hidden></div>
 
   <div id="reglages">
@@ -968,14 +971,15 @@ const etat = {
   feu:{ phase:'repos', t:0, ampleur:0, geste:null, tGeste:0, foyers:1 },
   gestesVus:{},
   reac:{ soucoupe:0, buee:0, chaux:0, sulfate:0 },    // avancement de chaque réaction
-  mission:0, faites:[], libre:false, repliFait:false,
+  mission:0, faites:[], libre:false, planLibre:'rechaud', repliFait:false,
 };
 const sim = { actif:false, fini:false, t:0, T:T0, suieTotale:0, minutesEcoulees:0, derniere:0 };
 
 const CLE = 'ike-marmites-progression';
 function sauver() {
   try { localStorage.setItem(CLE, JSON.stringify({ mission:etat.mission, faits:etat.faites,
-    tests:etat.testsFaits, flammes:etat.flammesVues, feuEteint:etat.feuEteint })); } catch (e) {}
+    tests:etat.testsFaits, flammes:etat.flammesVues, feuEteint:etat.feuEteint,
+    libre:etat.libre, planLibre:etat.planLibre })); } catch (e) {}
 }
 function charger() {
   try {
@@ -984,6 +988,9 @@ function charger() {
     if (Array.isArray(d.faits)) etat.faites = d.faits;
     if (d.tests) etat.testsFaits = d.tests;
     if (d.flammes) etat.flammesVues = d.flammes;
+    // le mode libre et le plan choisi se retrouvent au retour
+    etat.libre = !!d.libre;
+    if (d.planLibre) etat.planLibre = d.planLibre;
     etat.feuEteint = !!d.feuEteint;
     etat.mission = Math.min(d.mission || 0, MISSIONS.length - 1);
   } catch (e) {}
@@ -1005,9 +1012,8 @@ function cibleEffective(e) { return e.cible || 'tester'; }
 function allumer() {
   const r = bruler(reglage());
   etat.resultat = r;
-  // La mission de l'incendie a sa propre mise en scène
-  const m = missionCourante();
-  if (m && m.feu) { lancerFeu(); return; }
+  // Le plan de la lanterne a sa propre mise en scène — en mission comme en libre
+  if (missionFeu()) { lancerFeu(); return; }
   if (r.eteint) {
     sim.actif = false;
     majBouton();
@@ -1093,7 +1099,13 @@ function dessinerTemoin(g, cle, cx, cy, tenu) {
 
 // La scène de la lanterne, jouée sur le plan de travail : la nuit, la table de
 // Sissi, son cahier, et la lanterne qui s'embrase.
-function missionFeu() { return MISSIONS[etat.mission] && MISSIONS[etat.mission].feu === true; }
+// Quel plan de travail est sous les yeux : le réchaud, ou la lanterne qui s'embrase.
+// En parcours c'est la mission qui décide ; en mode libre, c'est l'élève, sinon
+// il restait enfermé sur le plan de la dernière mission jouée.
+function missionFeu() {
+  if (etat.libre) return etat.planLibre === 'lanterne';
+  return !!(MISSIONS[etat.mission] && MISSIONS[etat.mission].feu === true);
+}
 
 function dessinerFeu() {
   const g = refs.feuG;
@@ -1710,7 +1722,8 @@ function nettoyer(silencieux) {
 
 function majBouton() {
   const b = $('btn-tester');
-  b.innerHTML = sim.actif ? '⏹ Éteindre' : '🔥 Allumer';
+  b.innerHTML = missionFeu() ? '🏮 Lancer la scène'
+    : (sim.actif ? '⏹ Éteindre' : '🔥 Allumer');
   const ec = etapeCourante();
   b.classList.toggle('appelle', !sim.actif && !!(ec && cibleEffective(ec.e) === 'tester'));
 }
@@ -1776,7 +1789,40 @@ function rendreMissions() {
 function majTout() { dessiner(); majMission(); majGestes(); }
 
 // Les quatre gestes possibles, proposés seulement pendant la scène de l'incendie
+// En mode libre, le choix du plan de travail se pose au-dessus des commandes.
+function majPlans() {
+  const z = $('plans');
+  z.hidden = !etat.libre;
+  if (!etat.libre) return;
+  const plans = [['rechaud', '🔥', 'Le réchaud à pétrole'], ['lanterne', '🏮', 'La lanterne qui s’embrase']];
+  z.innerHTML = '<span class="g-quoi">Plan de travail :</span>' + plans.map(p =>
+    `<button class="geste${etat.planLibre === p[0] ? ' actif' : ''}" data-plan="${p[0]}">` +
+    `<span class="em">${p[1]}</span>${p[2]}</button>`).join('');
+  z.querySelectorAll('[data-plan]').forEach(b => b.onclick = () => choisirPlan(b.dataset.plan));
+}
+
+function choisirPlan(cle) {
+  if (cle === etat.planLibre) return;
+  etat.planLibre = cle;
+  sauver();
+  // on repart d'une table propre : réchaud éteint, ou lanterne intacte à rallumer
+  eteindreTout();
+  nettoyer(true);
+  etat.feu = { phase:'repos', t:0, ampleur:0, geste:null, tGeste:0, foyers:1,
+    etale:0, derniere:0, conclu:false, ampleurDepart:1 };
+  majTout();
+  toast(cle === 'lanterne'
+    ? '🏮 La lanterne de Sissi est sur la table. Lance la scène pour la voir s’embraser.'
+    : '🔥 Le réchaud est de retour. Règle la mèche et l’air, puis allume.');
+}
+
+function eteindreTout() {
+  sim.actif = false; sim.fini = false;
+  majBouton();
+}
+
 function majGestes() {
+  majPlans();
   const z = $('gestes'), enFeu = missionFeu();
   z.hidden = !enFeu;
   $('reglages').hidden = enFeu;

@@ -822,10 +822,11 @@ const vierge = () => ({
   givre:0, givreEssuye:false, givreRevenu:false, chiffonSorti:false,
   lu1:false, lu2:false, lu3:false, lu5:false,
 });
-let etat = Object.assign({ mission:0, faits:[] }, vierge());
+let etat = Object.assign({ mission:0, faits:[], libre:false }, vierge());
 
 function sauver() {
-  try { localStorage.setItem(CLE, JSON.stringify({ mission:etat.mission, faits:etat.faits })); }
+  try { localStorage.setItem(CLE, JSON.stringify({ mission:etat.mission, faits:etat.faits,
+    libre:etat.libre })); }
   catch (e) {}
 }
 function charger() {
@@ -833,9 +834,23 @@ function charger() {
     const d = JSON.parse(localStorage.getItem(CLE) || '{}');
     if (typeof d.mission === 'number') etat.mission = Math.min(d.mission, MISSIONS.length - 1);
     if (Array.isArray(d.faits)) etat.faits = d.faits;
+    etat.libre = !!d.libre;
   } catch (e) {}
 }
 function reprendre() { Object.assign(etat, vierge()); }
+
+/* ---- Exploration libre ----------------------------------------------------
+   Le parcours terminé, la simulation n'offrait aucune sortie : on revenait au
+   plan de travail de la dernière mission, consignes comprises. L'exploration
+   libre ouvre tout le matériel — le sel jusqu'à la dose maximale, les quatre
+   isolants — sans étape à cocher. */
+const enLibre = () => etat.libre === true;
+function passerEnLibre() {
+  etat.libre = true;
+  reprendre();
+  sauver();
+  demarrerMission(); rendreListeMissions();
+}
 
 // Remet la paillasse en ordre sans toucher aux réglages ni à la progression
 function nouvelEssai() {
@@ -1147,7 +1162,7 @@ function avancer(dtReel) {
   // le givre se dépose sur la paroi froide, et se reforme après essuyage
   const cible = etat.tFlacon <= .2 ? 1 : 0;
   etat.givre += (cible - etat.givre) * Math.min(1, dt * .006);
-  if (etat.mission === 4 && etat.givre > .5 && !etat.givreEssuye && !etat.chiffonSorti) {
+  if ((enLibre() || etat.mission === 4) && etat.givre > .5 && !etat.givreEssuye && !etat.chiffonSorti) {
     etat.chiffonSorti = true;
     rendreActions(); appelerBouton('btn-essuyer');
   }
@@ -1213,7 +1228,7 @@ function rendreReglages() {
   liste.innerHTML = '';
   for (const cle in ISOLANTS) {
     const o = ISOLANTS[cle];
-    const dispo = etat.mission >= o.desMission;
+    const dispo = enLibre() || etat.mission >= o.desMission;   // libre : tout est ouvert
     const b = document.createElement('button');
     b.className = 'iso'; b.id = 'i-' + cle; b.type = 'button';
     b.disabled = !dispo || etat.enCours;
@@ -1260,7 +1275,7 @@ function rendreActions() {
       rendreActions(); rendreReglages(); rendreEtapes();
       toast('Paillasse remise en ordre.');
     });
-  if (etat.mission === 4 && etat.givre > .5 && !etat.givreEssuye)
+  if ((enLibre() || etat.mission === 4) && etat.givre > .5 && !etat.givreEssuye)
     bouton('btn-essuyer', '🧽 Essuyer', 'btn-fantome', () => {
       etat.givre = 0; etat.givreEssuye = true;
       toast('Paroi essuyée. Regarde si le givre revient.');
@@ -1375,6 +1390,16 @@ function montrerBilan(em, titre, objectif, phrase, suite) {
 
 /* ============================== Les missions ============================== */
 function rendreMission() {
+  if (enLibre()) {
+    $('m-num').textContent = '∞';
+    $('m-rang').textContent = 'Exploration libre';
+    $('m-titre').textContent = 'Fabrique ce que tu veux';
+    $('m-but').textContent = 'Tout le sel, tous les isolants, aucune consigne : essaie et compare.';
+    $('etapes').innerHTML = '';
+    $('m-jauge').style.width = '100%';
+    surbrillerCible();
+    return;
+  }
   const M = MISSIONS[etat.mission];
   $('m-num').textContent = etat.mission + 1;
   $('m-rang').textContent = 'Mission ' + (etat.mission + 1) + ' sur ' + MISSIONS.length;
@@ -1383,6 +1408,8 @@ function rendreMission() {
   rendreEtapes();
 }
 function rendreEtapes() {
+  // en exploration libre il n'y a pas d'étapes : le panneau reste vide
+  if (enLibre()) { $('etapes').innerHTML = ''; $('m-jauge').style.width = '100%'; surbrillerCible(); return; }
   const M = MISSIONS[etat.mission], z = $('etapes');
   z.innerHTML = '';
   let courante = -1;
@@ -1404,6 +1431,7 @@ function rendreEtapes() {
 }
 // L’élément à montrer du doigt : celui de la première étape non franchie
 function cibleEffective() {
+  if (enLibre()) return null;              // rien à montrer du doigt : l'élève explore
   const M = MISSIONS[etat.mission];
   for (const e of M.etapes) if (!e.ok(etat)) return e.cible || null;
   return null;
@@ -1415,6 +1443,7 @@ function surbrillerCible() {
 }
 
 function verifierProgres() {
+  if (enLibre()) return;                   // aucune mission à gagner ici
   const M = MISSIONS[etat.mission];
   if (!M.gagne(etat)) { rendreEtapes(); return; }
   if (etat.faits.includes(etat.mission)) { rendreEtapes(); return; }
@@ -1487,11 +1516,12 @@ function ouvrirPassage() {
         '<p class="p-neuf">La paillasse est remise en ordre pour la nouvelle expérience.</p>'
       : '<div class="p-suite"><div class="etiq">Parcours terminé</div><b>Tu sais fabriquer de la glace</b>' +
         '<span>Le mélange réfrigérant, le rôle de l’isolant, le palier de solidification et l’origine du givre.</span></div>' +
-        '<button class="btn btn-large" id="p-go">Revenir au plan de travail</button>');
+        '<button class="btn btn-large" id="p-go">Explorer librement →</button>' +
+        '<p class="p-neuf">Le sel et les quatre isolants s’ouvrent : essaie les mélanges que tu veux.</p>');
   $('p-go').onclick = () => {
     fermer('v-passage');
     if (suivante) { etat.mission++; sauver(); reprendre(); demarrerMission(); }
-    else { cacherBilan(); rendreEtapes(); }
+    else passerEnLibre();
   };
   ouvrir('v-passage');
 }
@@ -1529,7 +1559,20 @@ function rendreListeMissions() {
       '<div><b>' + m.titre + '</b><span>' +
       (ouverte ? m.but : 'Termine la mission précédente pour l’ouvrir.') +
       '</span></div></div>';
-  }).join('');
+  }).join('') + carteLibre();
+  const c = $('carte-libre');
+  if (c && !c.disabled) c.onclick = () => { fermer('v-missions'); passerEnLibre(); };
+}
+
+// La carte d'exploration libre, en bas de la liste des missions
+function carteLibre() {
+  const tout = etat.faits.length >= MISSIONS.length;
+  return '<button class="d-carte' + (tout ? '' : ' verrou') + '" id="carte-libre"' +
+    (tout ? '' : ' disabled') + '><span class="num">' + (tout ? '∞' : '🔒') + '</span>' +
+    '<div><b>Exploration libre</b><span>' + (tout
+      ? 'Tout le sel, les quatre isolants, aucune consigne.'
+      : 'Termine les ' + MISSIONS.length + ' missions pour l’ouvrir.') +
+    '</span></div></button>';
 }
 
 /* ================================ Le thème ================================ */

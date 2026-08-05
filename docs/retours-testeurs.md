@@ -109,7 +109,7 @@ fait passer le moulin nettement sous la moto.
 
 | # | Chantier | Où |
 |---|---|---|
-| B1 | **Le mode libre doit donner accès à tout le matériel de la simulation** | Premiers pas : la DEL et le moteur sont inaccessibles, seuls les objets à intercaler le sont · Marmites : les deux plans (réchaud + lanterne) · Flamme : les deux plans (« 3 parties de la flamme » + « bougie sur l'eau ») · Fabrique de glace : **aucun mode libre** |
+| B1 | ~~Le mode libre doit donner accès à tout le matériel~~ — **traité en v4.22.0** | Premiers pas : bac des trois récepteurs · Marmites : les deux plans au choix · Flamme : mode libre créé, deux plans · Glace : mode libre créé, tout le matériel ouvert. Le mode libre est aussi **sauvegardé** : il était perdu à chaque rechargement dans deux simulations |
 | B2 | **UI des modales à revoir** : questionnaires, bouton « Continuer » de la modale de réussite, missions, lexique | Flamme, fabrique de glace — et déjà noté à la vague précédente. Passe unique sur le gabarit commun |
 | B3 | **Guide de repérage de l'interface dès la première entrée** | « Non négociable » (pollution), « plus que jamais important » (fabrique de glace). À généraliser |
 | B4 | **Ramener l'écran d'accueil « Que veux-tu faire ? Apprendre / Expérimenter »** | Toutes. C'était la structure à deux volets de la vision v3.1.0 |
@@ -125,6 +125,7 @@ fait passer le moulin nettement sous la moto.
 | C4 | **Marmites** | Les **quatre gestes** de la lanterne : animations plus réalistes. Passe de design générale |
 | C5 | **Premiers pas** | Rien : « excellent côté design » |
 | C6 | **Pollution** | Rien : « les illustrations sont beaucoup mieux » |
+| C7 | **Flamme (trouvé en v4.22.0)** | Le plan de la bougie sous cloche est trop grand pour son cadre : la cuve d'eau passe derrière la table. Défaut de dessin déjà présent en parcours, pas signalé par les testeurs |
 
 ### D. Reste de la vague précédente, non traité
 
