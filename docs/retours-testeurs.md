@@ -111,8 +111,8 @@ fait passer le moulin nettement sous la moto.
 |---|---|---|
 | B1 | ~~Le mode libre doit donner accès à tout le matériel~~ — **traité en v4.22.0** | Premiers pas : bac des trois récepteurs · Marmites : les deux plans au choix · Flamme : mode libre créé, deux plans · Glace : mode libre créé, tout le matériel ouvert. Le mode libre est aussi **sauvegardé** : il était perdu à chaque rechargement dans deux simulations |
 | B2 | **UI des modales à revoir** : questionnaires, bouton « Continuer » de la modale de réussite, missions, lexique | Flamme, fabrique de glace — et déjà noté à la vague précédente. Passe unique sur le gabarit commun |
-| B3 | **Guide de repérage de l'interface dès la première entrée** | « Non négociable » (pollution), « plus que jamais important » (fabrique de glace). À généraliser |
-| B4 | **Ramener l'écran d'accueil « Que veux-tu faire ? Apprendre / Expérimenter »** | Toutes. C'était la structure à deux volets de la vision v3.1.0 |
+| B3 | ~~Guide de repérage de l'interface~~ — **traité en v4.23.0** | « Où est quoi sur l'écran ? » ajouté aux **six** guides qui en manquaient, avec quatre repères nommant les zones réelles de chaque simulation |
+| B4 | ~~Ramener l'écran d'accueil « Apprendre / Expérimenter »~~ — **traité en v4.23.0** | Posé dans les huit simulations. Expérimenter reste verrouillé jusqu'à la fin du parcours ; Apprendre indique où l'on en est et enchaîne sur le repérage |
 | B5 | **Quiz libre à niveaux, avec score de maîtrise** | Nouveau. À la fin des parcours, quand le mode libre est débloqué. Deux à trois niveaux selon la densité de la simulation ; sert aussi au professeur en mode Expérimentation. Conception laissée au jugement pédagogique |
 
 ### C. Dessin et animations, simulation par simulation

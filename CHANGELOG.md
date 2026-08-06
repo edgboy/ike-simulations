@@ -5,6 +5,37 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v4.23.0 — 2026-08-06
+
+🚪 **L'accueil « Que veux-tu faire ? » est de retour, et chaque simulation dit où est quoi.**
+
+**Deux portes d'entrée, dans les huit simulations.** *« Le système qu'on avait mis en place qui
+accueillait les gens au départ de toute simulation — Apprendre / Expérimenter — faudra penser à le
+ramener. »* Il est là, et il s'appuie sur le mode libre complété à la version précédente :
+
+- 🎓 **Apprendre** — le parcours guidé. Le bouton dit où l'on en est : « Commencer », « Reprendre ·
+  3/6 », ou « Terminé ✓ ».
+- 🧪 **Expérimenter** — le plan de travail libre. **Verrouillé tant que le parcours n'est pas
+  terminé**, avec la raison écrite dessous : « Termine les 6 missions d'Apprendre pour ouvrir
+  Expérimenter. »
+
+L'écran se présente à chaque ouverture de la simulation. C'est lui, désormais, qui enchaîne sur le
+guide de repérage — celui-ci ne s'ouvre plus tout seul au chargement.
+
+**« Où est quoi sur l'écran ? » dans les six guides qui ne l'avaient pas.** *« Plus que jamais, il
+est important qu'il y ait un guide qui explique chaque partie de la simulation dès la première
+entrée »* (fabrique de glace) · *« Un guide de navigation dans l'interface ici aussi, c'est non
+négociable »* (pollution). Seules la flamme et la fabrique de glace en avaient un. L'alambic, la
+lampe de poche, les marmites, la pollution, les premiers pas et le tam-tam ont maintenant le leur —
+**quatre repères écrits pour chacune**, nommant ses zones réelles : le plan de mission et son
+chevron, le plan de travail et ce qu'on y manipule, les commandes du bas, et les boutons de
+l'en-tête. Les consignes de jeu suivent, sous leur propre titre.
+
+Vérifié sur les huit : l'accueil s'ouvre, Expérimenter reste verrouillé tant que les missions ne
+sont pas finies puis mène bien au mode libre, et « Apprendre » enchaîne sur le repérage tant que la
+première mission n'est pas gagnée. Sur téléphone, la carte d'accueil tient dans l'écran (402 px) et
+le guide, plus long, défile jusqu'à son bouton.
+
 ## v4.22.0 — 2026-08-05
 
 ∞ **Le mode libre donne enfin accès à tout le matériel.** C'était la demande la plus répétée de la

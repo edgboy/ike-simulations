@@ -536,6 +536,28 @@ main { flex:1; min-height:0; display:flex; flex-direction:column; }
 
 .g-titre { font-family:var(--font-display); font-weight:800; font-size:14px;
   margin:14px 0 7px; color:var(--accent-texte); }
+
+/* ===================== L'accueil : « Que veux-tu faire ? » ===================== */
+#v-accueil .carte-modale { max-width:520px; }
+.ac-intro { font-size:13.5px; line-height:1.6; opacity:.8; margin-bottom:14px; }
+.ac-choix {
+  display:flex; align-items:center; gap:13px; width:100%; text-align:left;
+  padding:15px 16px; margin-bottom:11px;
+  background:var(--surface); border:2px solid var(--border); border-radius:var(--radius-lg);
+  font-family:var(--font-body); color:inherit; cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+.ac-choix:hover:not([disabled]) { border-color:var(--accent); background:var(--accent-doux); }
+.ac-choix[disabled] { opacity:.55; cursor:not-allowed; }
+.ac-choix .ac-em {
+  width:46px; height:46px; flex:none; border-radius:var(--radius-md);
+  display:grid; place-items:center; background:var(--surface-muted); font-size:25px;
+}
+.ac-choix .ac-txt { flex:1; min-width:0; }
+.ac-choix .ac-txt b { display:block; font-family:var(--font-display); font-size:17px; font-weight:800; }
+.ac-choix .ac-txt span { display:block; font-size:12.5px; opacity:.7; line-height:1.45; margin-top:1px; }
+.ac-choix .ac-etat { font-size:11.5px; font-weight:700; opacity:.75; flex:none; text-align:right; max-width:34%; }
+.ac-pied { font-size:12px; opacity:.6; line-height:1.5; margin-top:2px; }
 </style>
 </head>
 <body>
@@ -599,6 +621,24 @@ main { flex:1; min-height:0; display:flex; flex-direction:column; }
 </main>
 
 <div id="toast" role="status" aria-live="polite"></div>
+
+<div class="voile" id="v-accueil">
+  <div class="carte-modale">
+    <h2>Que veux-tu faire ?</h2>
+    <p class="ac-intro">Tu vas <b>fabriquer de la glace</b> avec un mélange réfrigérant.</p>
+    <button class="ac-choix" id="ac-apprendre">
+      <span class="ac-em">🎓</span>
+      <span class="ac-txt"><b>Apprendre</b><span>Le parcours guidé, mission après mission.</span></span>
+      <span class="ac-etat" id="ac-etat-app"></span>
+    </button>
+    <button class="ac-choix" id="ac-experimenter">
+      <span class="ac-em">🧪</span>
+      <span class="ac-txt"><b>Expérimenter</b><span>Le plan de travail libre, tout le matériel.</span></span>
+      <span class="ac-etat" id="ac-etat-exp"></span>
+    </button>
+    <p class="ac-pied" id="ac-pied"></p>
+  </div>
+</div>
 
 <div class="voile" id="v-lexique">
   <div class="carte-modale">
@@ -1643,11 +1683,45 @@ function init() {
   window.addEventListener('orientationchange', () => { replierSiPetitEcran(); mesurerPlan(); });
 
   demarrerMission();
-  try {
-  // Le guide reste proposé tant que l'élève n'a pas gagné sa première mission :
-  // il ne suffit pas de l'avoir vu une fois pour savoir se repérer.
-  if (!(etat.faits && etat.faits.length)) ouvrir('v-aide');
-} catch (e) { ouvrir('v-aide'); }
+  /* ============================================================================
+   L'accueil — « Que veux-tu faire ? »
+   Deux portes d'entrée : le parcours guidé, et le plan de travail libre. La
+   seconde reste fermée tant que le parcours n'est pas terminé. L'écran se
+   présente à chaque ouverture de la simulation, et indique où l'on en est.
+   ========================================================================== */
+function accueilFaites() { return (etat.faits || []).length; }
+function accueilOuvert() { return accueilFaites() >= MISSIONS.length; }
+
+function rendreAccueil() {
+  const n = accueilFaites(), total = MISSIONS.length;
+  $('ac-etat-app').textContent = n === 0 ? 'Commencer'
+    : n >= total ? 'Terminé ✓' : 'Reprendre · ' + n + '/' + total;
+  const ouvert = accueilOuvert();
+  $('ac-experimenter').disabled = !ouvert;
+  $('ac-etat-exp').textContent = ouvert ? 'Ouvert' : '🔒 Verrouillé';
+  $('ac-pied').innerHTML = ouvert
+    ? 'Tu as terminé le parcours : les deux portes sont ouvertes.'
+    : 'Termine les <b>' + total + ' missions</b> d’Apprendre pour ouvrir Expérimenter.';
+}
+
+function ouvrirAccueil() {
+  rendreAccueil();
+  ouvrir('v-accueil');
+}
+
+$('ac-apprendre').addEventListener('click', () => {
+  fermer('v-accueil');
+  etat.libre = false; sauver(); reprendre(); demarrerMission();
+  // le repérage de l'interface reste proposé tant que la première mission n'est pas gagnée
+  if (accueilFaites() === 0) ouvrir('v-aide');
+});
+$('ac-experimenter').addEventListener('click', () => {
+  if (!accueilOuvert()) return;
+  fermer('v-accueil');
+  passerEnLibre();
+});
+
+ouvrirAccueil();
 
   requestAnimationFrame(m => { t0 = m; requestAnimationFrame(boucle); });
 }
