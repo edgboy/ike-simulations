@@ -5,7 +5,24 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
-## v4.24.0 — 2026-08-06
+## v4.25.0 — 2026-08-06
+
+🔦 **La visite guidée remplace la liste écrite**, et 🧩 **les modales « bancales » sont réparées.**
+
+**On montre l'écran au lieu de le décrire.** *« Je ne pense pas que le format texte soit meilleur que
+le format encadrement et tutoriel pas à pas qu'on avait avant. »* La liste « Où est quoi sur
+l'écran ? » ajoutée à la version précédente est retirée : la **visite guidée** revient, dans les huit
+simulations. Un **halo encadre la zone dont on parle** et assombrit tout le reste ; une carte se pose
+à côté, avec son commentaire, son compteur « 3 / 6 », « Passer » et « Suivant ».
+
+Le composant reprend celui du circuit électrique, remis aux jetons Labo-Bénin, avec deux
+améliorations : la carte **cherche une place libre** autour de la zone — dessous, dessus, à droite, à
+gauche — et ne se replie dans un coin que si la zone occupe presque tout l'écran ; et les étapes dont
+la cible n'est pas affichée au moment du lancement sont **écartées**, plutôt que de montrer un halo
+vide. Quatre à six étapes par simulation, écrites pour ses zones réelles.
+
+La visite part toute seule après « Apprendre », tant que la première mission n'est pas gagnée. Le
+bouton ❓ garde les consignes de jeu et propose « 🔍 Revoir la visite guidée ».
 
 🧩 **Les modales « bancales » : le style et le code ne parlaient pas des mêmes noms.**
 

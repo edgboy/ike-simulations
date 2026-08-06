@@ -558,6 +558,42 @@ body.sombre { --accent-texte:#7FD4F5; --vert-fonce:#2A9D8F; --orange-fonce:#F7A4
 .g-titre { font-family:var(--font-display); font-weight:800; font-size:14px;
   margin:14px 0 7px; color:var(--accent-texte); }
 .g-titre:first-of-type { margin-top:8px; }
+
+/* ===================== La visite guidée de l'interface =====================
+   Un halo encadre la zone dont on parle et assombrit tout le reste ; la carte
+   se pose à côté. Une liste écrite ne montrait rien : ici, on regarde. */
+#visite { position:fixed; inset:0; z-index:48; display:none; }
+#visite.visible { display:block; }
+#visite-halo {
+  position:absolute; border-radius:var(--radius-md);
+  border:3px solid var(--primary);
+  box-shadow:0 0 0 9999px rgba(22,26,30,.62);
+  transition:left .3s var(--ease), top .3s var(--ease),
+             width .3s var(--ease), height .3s var(--ease);
+  pointer-events:none;
+}
+#visite-carte {
+  position:absolute; background:var(--surface); border-radius:var(--radius-lg);
+  padding:15px 16px 13px; width:min(320px, calc(100vw - 24px));
+  box-shadow:0 12px 44px rgba(0,0,0,.34);
+  transition:left .3s var(--ease), top .3s var(--ease);
+}
+.v-titre { font-family:var(--font-display); font-size:16px; font-weight:800; margin-bottom:5px; }
+.v-texte { font-size:13px; line-height:1.55; opacity:.85; }
+.v-texte b { opacity:1; }
+.v-bas { display:flex; align-items:center; gap:8px; margin-top:13px; }
+.v-prog { flex:1; font-size:11.5px; font-weight:700; opacity:.5; letter-spacing:.04em; }
+#visite-passer {
+  background:none; border:none; color:inherit; opacity:.6;
+  font-family:var(--font-body); font-size:12.5px; text-decoration:underline;
+  cursor:pointer; padding:6px;
+}
+#visite-passer:hover { opacity:1; }
+#visite-suivant {
+  border:none; background:var(--primary); color:var(--neutral);
+  font-family:var(--font-body); font-weight:700; font-size:13.5px;
+  padding:10px 18px; border-radius:var(--radius-md); cursor:pointer; min-height:40px;
+}
 </style>
 </head>
 <body>
@@ -632,6 +668,19 @@ body.sombre { --accent-texte:#7FD4F5; --vert-fonce:#2A9D8F; --orange-fonce:#F7A4
 
 <div id="toast" role="status" aria-live="polite"></div>
 
+<div id="visite">
+  <div id="visite-halo"></div>
+  <div id="visite-carte">
+    <div class="v-titre" id="visite-titre"></div>
+    <div class="v-texte" id="visite-texte"></div>
+    <div class="v-bas">
+      <span class="v-prog" id="visite-prog"></span>
+      <button id="visite-passer" type="button">Passer</button>
+      <button id="visite-suivant" type="button">Suivant</button>
+    </div>
+  </div>
+</div>
+
 <div class="voile" id="v-accueil">
   <div class="carte-modale">
     <h2>Que veux-tu faire ?</h2>
@@ -687,15 +736,6 @@ body.sombre { --accent-texte:#7FD4F5; --vert-fonce:#2A9D8F; --orange-fonce:#F7A4
     <p>Thérèse rend visite à la mère de Daouda et s'étonne : les marmites et les murs sont
        couverts de <b>noir de fumée</b>. « Pourtant nous avons le même réchaud et le même
        pétrole, et chez moi tout reste propre ! »</p>
-    <div class="g-titre">Où est quoi sur l’écran ?</div>
-    <div class="g-etape"><span class="num">🎯</span><span class="t">
-      <b>Le plan de mission</b> — à gauche sur grand écran, en haut sur téléphone : le but du moment et les étapes à cocher. Le chevron ▼ le replie.</span></div>
-    <div class="g-etape"><span class="num">🍲</span><span class="t">
-      <b>Le plan de travail</b>, au centre : le réchaud, sa flamme et la marmite. Sur la paillasse à droite attendent la soucoupe, l'eau de chaux et la poudre blanche.</span></div>
-    <div class="g-etape"><span class="num">🎚️</span><span class="t">
-      <b>En bas</b> : les trois curseurs — la <b>mèche</b>, l'<b>arrivée d'air</b> et la <b>hauteur de la marmite</b> — puis « Allumer » et « Nettoyer la marmite ».</span></div>
-    <div class="g-etape"><span class="num">🎓</span><span class="t">
-      <b>En haut à droite</b> : les tests d'identification, les missions, le lexique, ce guide, et le thème clair ou sombre.</span></div>
     <div class="g-titre">Comment mener l’expérience ?</div>
     <div class="g-etape"><span class="num">1</span><span class="t">
       <b>Règle le réchaud</b> avec les trois curseurs : la mèche, l'arrivée d'air,
@@ -709,6 +749,8 @@ body.sombre { --accent-texte:#7FD4F5; --vert-fonce:#2A9D8F; --orange-fonce:#F7A4
     <div class="g-etape"><span class="num">4</span><span class="t">
       Avec le bouton 🧪, approche des <b>témoins</b> de la flamme pour découvrir
       ce qu'elle fabrique.</span></div>
+    <button class="btn btn-contour btn-large" id="btn-revoir-visite"
+            style="margin-bottom:8px">🔍 Revoir la visite guidée</button>
     <button class="btn btn-large" data-ferme="v-aide">Allumer le réchaud !</button>
   </div>
 </div>
@@ -2054,13 +2096,106 @@ $('ac-apprendre').addEventListener('click', () => {
   fermer('v-accueil');
   etat.libre = false; sauver(); nettoyer(true); ouvrirEtapes();
   // le repérage de l'interface reste proposé tant que la première mission n'est pas gagnée
-  if (accueilFaites() === 0) ouvrir('v-aide');
+  if (accueilFaites() === 0) lancerVisite();
 });
 $('ac-experimenter').addEventListener('click', () => {
   if (!accueilOuvert()) return;
   fermer('v-accueil');
   etat.libre = true; sauver(); nettoyer(true); ouvrirEtapes();
 });
+
+/* ============================================================================
+   La visite guidée — on montre l'écran au lieu de le décrire
+   ========================================================================== */
+const VISITE = [
+  { cible:'#mission', titre:'🎯 Le plan de mission', texte:"Ton but du moment et les étapes à cocher. Le chevron <b>▼</b> le replie quand tu veux de la place pour travailler." },
+  { cible:'#plan', titre:'🍲 Le plan de travail', texte:"Le réchaud, sa flamme et la marmite. Sur la paillasse de droite attendent la <b>soucoupe</b>, l'<b>eau de chaux</b> et la <b>poudre blanche</b> : prends-les d'un doigt pour les tenir au-dessus du feu." },
+  { cible:'#reglages', titre:'🎚️ Les trois curseurs', texte:"La <b>mèche</b>, l'<b>arrivée d'air</b> et la <b>hauteur de la marmite</b>. Tout se joue sur leur équilibre." },
+  { cible:'#actions', titre:'🔥 Les commandes', texte:"« Allumer » démarre la cuisson, « Nettoyer la marmite » efface la suie pour un nouvel essai." },
+  { cible:'.tete-fin', titre:'🎓 Les boutons du haut', texte:"Les missions, le lexique des mots difficiles, ce guide, et le thème clair ou sombre." },
+];
+let visiteIdx = -1, visiteEtapes = [];
+
+function cibleVisible(sel) {
+  const e = document.querySelector(sel);
+  if (!e) return null;
+  const r = e.getBoundingClientRect();
+  return (r.width > 4 && r.height > 4) ? r : null;
+}
+
+function lancerVisite() {
+  for (const v of document.querySelectorAll('.voile.visible')) v.classList.remove('visible');
+  // on ne montre que ce qui est réellement à l'écran en ce moment
+  visiteEtapes = VISITE.filter(e => !e.cible || cibleVisible(e.cible));
+  if (!visiteEtapes.length) return;
+  visiteIdx = 0;
+  $('visite').classList.add('visible');
+  montrerVisite();
+}
+
+function montrerVisite() {
+  const et = visiteEtapes[visiteIdx];
+  const halo = $('visite-halo');
+  const r = et.cible ? cibleVisible(et.cible) : null;
+  if (r) {
+    halo.style.display = 'block';
+    halo.style.left = (r.left - 5) + 'px';
+    halo.style.top = (r.top - 5) + 'px';
+    halo.style.width = (r.width + 10) + 'px';
+    halo.style.height = (r.height + 10) + 'px';
+  } else halo.style.display = 'none';
+  $('visite-titre').textContent = et.titre;
+  $('visite-texte').innerHTML = et.texte;
+  $('visite-prog').textContent = (visiteIdx + 1) + ' / ' + visiteEtapes.length;
+  $('visite-suivant').textContent =
+    visiteIdx === visiteEtapes.length - 1 ? 'C’est parti !' : 'Suivant';
+  placerCarteVisite(r);
+}
+
+// La carte cherche une place libre autour de la zone montrée : dessous, dessus,
+// à droite, à gauche. Quand la zone occupe presque tout l'écran — le plan de
+// travail, par exemple — aucune place n'est libre : elle se pose alors dans un
+// coin, en couvrant le moins possible.
+function placerCarteVisite(r) {
+  const c = $('visite-carte');
+  c.style.visibility = 'hidden';
+  const cw = c.offsetWidth, ch = c.offsetHeight;
+  const W = window.innerWidth, H = window.innerHeight;
+  const poser = (x, y) => {
+    c.style.left = Math.round(Math.max(8, Math.min(W - cw - 8, x))) + 'px';
+    c.style.top = Math.round(Math.max(8, Math.min(H - ch - 8, y))) + 'px';
+    c.style.visibility = 'visible';
+  };
+  if (!r) { poser((W - cw) / 2, (H - ch) / 2); return; }
+  const m = 14, cx = r.left + r.width / 2 - cw / 2, cy = r.top + r.height / 2 - ch / 2;
+  const essais = [[cx, r.bottom + m], [cx, r.top - ch - m],
+                  [r.right + m, cy], [r.left - cw - m, cy]];
+  for (const [ex, ey] of essais) {
+    const x = Math.max(8, Math.min(W - cw - 8, ex));
+    const y = Math.max(8, Math.min(H - ch - 8, ey));
+    // retenue seulement si la carte ne recouvre pas ce qu'on montre
+    if (x + cw < r.left || x > r.right || y + ch < r.top || y > r.bottom) { poser(x, y); return; }
+  }
+  // dernier recours : le coin bas droit, loin du centre de la zone
+  poser(W - cw - 12, H - ch - 12);
+}
+
+function fermerVisite() {
+  visiteIdx = -1;
+  $('visite').classList.remove('visible');
+}
+
+$('visite-suivant').addEventListener('click', () => {
+  if (visiteIdx >= visiteEtapes.length - 1) { fermerVisite(); return; }
+  visiteIdx++; montrerVisite();
+});
+$('visite-passer').addEventListener('click', fermerVisite);
+window.addEventListener('resize', () => { if (visiteIdx >= 0) montrerVisite(); });
+document.addEventListener('keydown', e => {
+  if (visiteIdx >= 0 && e.key === 'Escape') fermerVisite();
+});
+const btnRevoir = $('btn-revoir-visite');
+if (btnRevoir) btnRevoir.addEventListener('click', () => { fermer('v-aide'); lancerVisite(); });
 
 ouvrirAccueil();
 
