@@ -344,17 +344,31 @@ main { flex:1; min-height:0; display:flex; flex-direction:column; }
 
 /* QCM */
 .q-question { font-size:15px; font-weight:600; line-height:1.4; margin-bottom:12px; }
-.q-choix {
+/* Le questionnaire. Ici, « q-choix » est le conteneur et « q-rep » chaque
+   proposition : le style s'appliquait au mauvais élément, si bien que les
+   réponses s'affichaient en boutons bruts du navigateur. */
+.q-choix { display:block; }
+.q-rep {
   display:block; width:100%; text-align:left; margin-bottom:8px;
   padding:12px 14px; min-height:46px;
   background:var(--surface); border:2px solid var(--border); border-radius:var(--radius-md);
-  font-family:var(--font-body); font-size:13.5px; color:var(--neutral); cursor:pointer;
+  font-family:var(--font-body); font-size:13.5px; line-height:1.45; color:var(--neutral);
+  cursor:pointer;
   transition:border-color .15s var(--ease), background .15s var(--ease);
 }
-.q-choix:hover:not([disabled]) { border-color:var(--border-strong); background:var(--surface-muted); }
-.q-choix.bon { border-color:var(--success); background:rgba(42,157,143,.12); font-weight:600; }
-.q-choix.mauvais { border-color:var(--destructive); background:rgba(232,58,75,.1); }
-.q-choix[disabled] { cursor:default; }
+.q-rep:hover:not([disabled]) { border-color:var(--border-strong); background:var(--surface-muted); }
+.q-rep.juste { border-color:var(--success); background:rgba(42,157,143,.12); font-weight:600; }
+.q-rep.faux { border-color:var(--destructive); background:rgba(232,58,75,.1); }
+.q-rep[disabled] { cursor:default; }
+.q-rep.juste::before { content:'✔️ '; }
+.q-rep.faux::before { content:'❌ '; }
+/* Le mot de la fin, après la réponse */
+.q-mot {
+  margin-top:4px; margin-bottom:12px; padding:11px 13px; border-radius:var(--radius-md);
+  font-size:12.5px; line-height:1.55; background:var(--accent-doux);
+}
+.q-mot.ok { background:rgba(42,157,143,.14); }
+.q-mot.non { background:var(--accent-doux); }
 .q-expl {
   margin-top:4px; padding:11px 13px; border-radius:var(--radius-md);
   background:var(--accent-doux); font-size:12.5px; line-height:1.55;
@@ -1589,17 +1603,28 @@ function toast(txt, alerte) {
 
 function rendreLexique() {
   $('liste-lexique').innerHTML = LEXIQUE.map(([m, d]) =>
-    '<div class="lex-entree"><em>' + m + '</em>' + d + '</div>').join('');
+    // le mot et sa définition sur deux lignes : « em » les collait l'un à l'autre
+    '<div class="lex-entree"><b>' + m + '</b><span>' + d + '</span></div>').join('');
 }
 function rendreListeMissions() {
   $('liste-missions').innerHTML = MISSIONS.map((m, i) => {
-    const fait = etat.faits.includes(i), ouverte = i <= etat.mission;
-    return '<div class="d-carte' + (fait ? ' fait' : ouverte ? '' : ' verrou') + '">' +
-      '<span class="num">' + (fait ? '✓' : i + 1) + '</span>' +
-      '<div><b>' + m.titre + '</b><span>' +
+    const fait = etat.faits.includes(i), ouverte = i <= etat.mission || fait;
+    return '<button class="d-carte' + (fait ? ' fait' : '') + '" data-mission="' + i + '"' +
+      (ouverte ? '' : ' disabled') + '>' +
+      '<span class="num">' + (fait ? '✓' : ouverte ? i + 1 : '🔒') + '</span>' +
+      '<div class="txt"><b>' + m.titre + '</b><span>' +
       (ouverte ? m.but : 'Termine la mission précédente pour l’ouvrir.') +
-      '</span></div></div>';
+      '</span></div></button>';
   }).join('') + carteLibre();
+  // une mission déjà ouverte se rejoue d'un clic, comme dans les autres simulations
+  $('liste-missions').querySelectorAll('[data-mission]').forEach(b => {
+    if (b.disabled) return;
+    b.onclick = () => {
+      fermer('v-missions');
+      etat.libre = false; etat.mission = +b.dataset.mission;
+      sauver(); reprendre(); demarrerMission(); rendreListeMissions();
+    };
+  });
   const c = $('carte-libre');
   if (c && !c.disabled) c.onclick = () => { fermer('v-missions'); passerEnLibre(); };
 }
@@ -1609,7 +1634,7 @@ function carteLibre() {
   const tout = etat.faits.length >= MISSIONS.length;
   return '<button class="d-carte' + (tout ? '' : ' verrou') + '" id="carte-libre"' +
     (tout ? '' : ' disabled') + '><span class="num">' + (tout ? '∞' : '🔒') + '</span>' +
-    '<div><b>Exploration libre</b><span>' + (tout
+    '<div class="txt"><b>Exploration libre</b><span>' + (tout
       ? 'Tout le sel, les quatre isolants, aucune consigne.'
       : 'Termine les ' + MISSIONS.length + ' missions pour l’ouvrir.') +
     '</span></div></button>';

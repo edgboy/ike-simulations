@@ -5,6 +5,36 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v4.24.0 — 2026-08-06
+
+🧩 **Les modales « bancales » : le style et le code ne parlaient pas des mêmes noms.**
+
+*« L'UI des modales des questionnaires, bouton continuer de la modale de succès, missions et autres
+est à revoir absolument »* (flamme) · *« Pareil pour les quizs, la modale de mission, le lexique »*
+(fabrique de glace). Diagnostic fait en capturant les modales une à une : ce n'était pas une
+question de goût, mais une **désynchronisation entre la feuille de style et le code** dans ces deux
+simulations — les six autres étaient conformes.
+
+**Le questionnaire n'avait aucun style.** La feuille habillait `.q-choix` en carte cliquable, mais
+dans ces deux fichiers `q-choix` désigne le **conteneur** et `q-rep` chaque proposition. Résultat :
+le cadre recevait le style d'un bouton, et les trois réponses s'affichaient en **boutons bruts du
+navigateur**, minuscules et collés. Le style est remis en face du code : propositions en cartes
+pleine largeur, bonne réponse en vert avec ✔️, mauvaise en rouge avec ❌, et le mot de la fin dans
+son bloc teinté — comme dans les six autres simulations.
+
+**Les titres étaient collés à leur description.** Dans la liste des missions, « Les trois parties de
+la flammeUne flamme n'est pas d'un seul bloc… » : le balisage produit ne portait pas la classe qui
+sépare les deux lignes. Même défaut au **lexique**, où le mot et sa définition se suivaient sans
+respirer : « Combustion complèteLe combustible brûle jusqu'au bout… ».
+
+**Les missions verrouillées ne se voyaient pas.** La classe `verrou` n'avait **aucune règle** dans
+aucun fichier : une mission fermée ressemblait trait pour trait à une mission ouverte. Les cartes
+deviennent de vrais boutons, comme ailleurs : cadenas et grisé quand c'est fermé — et **cliquables
+pour rejouer une mission** quand c'est ouvert, ce qui n'existait pas dans ces deux simulations.
+
+**Un détecteur de classes orphelines** a été passé sur les huit fichiers pour trouver mécaniquement
+ce genre d'écart plutôt qu'à l'œil : plus aucune classe employée par le code n'est sans style.
+
 ## v4.23.0 — 2026-08-06
 
 🚪 **L'accueil « Que veux-tu faire ? » est de retour, et chaque simulation dit où est quoi.**
