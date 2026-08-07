@@ -1155,13 +1155,30 @@ function dessiner() {
   if (etat.foyer) {
     plan.appendChild(el('rect', { x:G.chX - 16, y:G.feuY + 28, width:(G.chX2 - G.chX) + 32, height:9, rx:4,
       fill:'#8D6E63' }));
+    const xm = (G.chX + G.chX2) / 2;
     if (etat.foyer === 'bois') {
-      for (const [dx, a] of [[-16, -9], [10, 7]]) plan.appendChild(el('rect', {
-        x:(G.chX + G.chX2) / 2 + dx - 22, y:G.feuY + 18, width:46, height:8, rx:4, fill:'#795548',
-        transform:`rotate(${a} ${(G.chX + G.chX2) / 2} ${G.feuY + 22})` }));
+      // trois bûches croisées, avec leur bout de tronc
+      for (const [dx, dy, ang, l] of [[-18, 20, -11, 52], [12, 24, 9, 48], [-4, 15, -3, 44]]) {
+        const g = el('g', { transform:`rotate(${ang} ${xm + dx} ${G.feuY + dy})` });
+        g.appendChild(el('rect', { x:xm + dx - l / 2, y:G.feuY + dy - 5, width:l, height:10, rx:5,
+          fill:'#7B5535' }));
+        g.appendChild(el('ellipse', { cx:xm + dx + l / 2 - 2, cy:G.feuY + dy, rx:3, ry:5, fill:'#A5764E' }));
+        g.appendChild(el('path', { fill:'none', stroke:'#5E4029', 'stroke-width':1,
+          'stroke-opacity':.6, d:`M ${xm + dx - l / 2 + 5} ${G.feuY + dy - 1} l ${l - 12} 0` }));
+        plan.appendChild(g);
+      }
     } else {
-      plan.appendChild(el('rect', { x:G.chX + 12, y:G.feuY + 14, width:G.chX2 - G.chX - 24, height:16, rx:4,
-        fill:'#78909C' }));
+      // un brûleur : corps, couronne percée, et sa manette
+      plan.appendChild(el('rect', { x:G.chX + 16, y:G.feuY + 20, width:G.chX2 - G.chX - 32, height:12, rx:3,
+        fill:'#6E7C85' }));
+      plan.appendChild(el('rect', { x:G.chX + 6, y:G.feuY + 12, width:G.chX2 - G.chX - 12, height:10, rx:5,
+        fill:'#8B99A2', stroke:'#5D6970', 'stroke-width':1.2 }));
+      for (let k = 0; k < 7; k++) plan.appendChild(el('circle', {
+        cx:G.chX + 16 + k * ((G.chX2 - G.chX - 32) / 6), cy:G.feuY + 13, r:1.6, fill:'#4A555C' }));
+      plan.appendChild(el('circle', { cx:G.chX2 - 2, cy:G.feuY + 26, r:6,
+        fill:'#C4D94E', stroke:'#5D6970', 'stroke-width':1.5 }));
+      plan.appendChild(el('line', { x1:G.chX2 - 2, y1:G.feuY + 22, x2:G.chX2 - 2, y2:G.feuY + 26,
+        stroke:'#4A555C', 'stroke-width':1.6, 'stroke-linecap':'round' }));
     }
     // les flammes ne naissent qu'à l'allumage
     refs.flammes = el('g', { opacity:'0' });
@@ -1182,11 +1199,20 @@ function dessiner() {
 
   /* ---- Chaudière ---- */
   if (ch) {
+    // deux anses et un bord roulé : une marmite, pas un rectangle ouvert
+    for (const cote of [-1, 1]) {
+      const xa = cote < 0 ? G.chX : G.chX2;
+      plan.appendChild(el('path', { fill:'none', stroke:ch.couleur, 'stroke-width':4,
+        'stroke-linecap':'round',
+        d:`M ${xa} ${G.chY + 14} q ${cote * 16} 0 ${cote * 16} 12 q 0 12 ${-cote * 16} 12` }));
+    }
     plan.appendChild(el('path', {
       d:`M ${G.chX} ${G.chY} L ${G.chX} ${G.chY2 - 10} q 0 10 10 10 L ${G.chX2 - 10} ${G.chY2} ` +
         `q 10 0 10 -10 L ${G.chX2} ${G.chY}`,
       fill:ch.couleur, 'fill-opacity':.26, stroke:ch.couleur, 'stroke-width':3, 'stroke-linejoin':'round',
     }));
+    plan.appendChild(el('rect', { x:G.chX - 5, y:G.chY - 5, width:G.chX2 - G.chX + 10, height:7, rx:3.5,
+      fill:ch.couleur, 'fill-opacity':.75 }));
     plan.appendChild(el('text', { x:G.chX, y:G.chY - 54, class:'etiq-slot', 'text-anchor':'start' }, ch.nom));
 
     if (etat.contenu) {
@@ -1198,9 +1224,23 @@ function dessiner() {
         fill:'#EFEBE9', stroke:'#CFD8DC', 'stroke-width':1 });
       plan.appendChild(refs.sel);
       if (etat.contenu === 'plante') {
+        // de vraies feuilles, avec leur nervure : quatre ellipses vertes ne
+        // ressemblaient à rien de ce que l'élève met dans sa marmite
         refs.feuilles = el('g');
-        for (let k = 0; k < 4; k++) refs.feuilles.appendChild(el('ellipse', {
-          cx:G.chX + 26 + k * 32, cy:0, rx:11, ry:5, fill:'#66BB6A', 'fill-opacity':.85 }));
+        refs.feuillesPose = [];
+        const verts = ['#4CA254', '#66BB6A', '#3E8E45', '#7CC47F'];
+        for (let k = 0; k < 5; k++) {
+          const x = G.chX + 20 + k * 26, ang = -26 + k * 13, ech = .82 + (k % 3) * .12;
+          const f = el('g');
+          f.appendChild(el('path', { fill:verts[k % 4],
+            d:'M -13 0 C -7 -8 7 -9 14 0 C 7 9 -7 8 -13 0 z' }));
+          f.appendChild(el('path', { fill:'none', stroke:'#2E6B33', 'stroke-width':.9,
+            'stroke-opacity':.55,
+            d:'M -12 0 L 13 0 M -6 0 l 4 -3.5 M 0 0 l 4 -3.5 M 6 0 l 3.5 -3 ' +
+              'M -6 0 l 4 3.5 M 0 0 l 4 3.5 M 6 0 l 3.5 3' }));
+          refs.feuilles.appendChild(f);
+          refs.feuillesPose.push({ n:f, x, ang, ech });
+        }
         plan.appendChild(refs.feuilles);
       }
       refs.bulles = el('g', { opacity:'0' });
@@ -1216,13 +1256,18 @@ function dessiner() {
       plan.appendChild(refs.restant);
     }
 
-    // thermomètre
+    // thermomètre : tige de verre, graduations, et son réservoir en bas
     const tx = G.chX2 + 10;
-    plan.appendChild(el('rect', { x:tx, y:G.chY + 4, width:10, height:68, rx:5,
+    plan.appendChild(el('rect', { x:tx, y:G.chY, width:10, height:74, rx:5,
       fill:'var(--surface)', stroke:'var(--border-strong)', 'stroke-width':1.5 }));
+    for (let k = 0; k <= 4; k++) plan.appendChild(el('line', {
+      x1:tx + 10, y1:G.chY + 8 + k * 15, x2:tx + (k % 2 ? 15 : 17), y2:G.chY + 8 + k * 15,
+      stroke:'var(--border-strong)', 'stroke-width':1 }));
     refs.mercure = el('rect', { x:tx + 2.5, y:G.chY + 68, width:5, height:0, rx:2.5, fill:'#F7A430' });
     plan.appendChild(refs.mercure);
-    refs.tempTxt = el('text', { x:tx, y:G.chY + 86, class:'etat-eau', fill:'var(--neutral)', 'text-anchor':'start' }, '25 °C');
+    plan.appendChild(el('circle', { cx:tx + 5, cy:G.chY + 76, r:7,
+      fill:'#E83A4B', stroke:'var(--border-strong)', 'stroke-width':1.5 }));
+    refs.tempTxt = el('text', { x:tx + 5, y:G.chY + 98, class:'etat-eau', fill:'var(--neutral)' }, '25 °C');
     plan.appendChild(refs.tempTxt);
   }
   ajouterSlot('chaudiere', G.chX, G.chY, G.chX2 - G.chX, G.chY2 - G.chY, 'Chaudière', !!ch, vise);
@@ -1248,9 +1293,32 @@ function dessiner() {
       fill:'#B3E5FC', 'fill-opacity':.5, stroke:'#4FC3F7', 'stroke-width':3 }));
     plan.appendChild(el('text', { x:(G.refX + G.refX2) / 2, y:G.refY + 15, class:'etiq-slot' }, 'eau froide'));
   } else if (etat.refrigerant === 'linge') {
-    for (let k = 0; k < 4; k++) plan.appendChild(el('rect', {
-      x:G.refX + 10, y:G.refY + 26 + k * 30, width:32, height:15, rx:7, fill:'#B0BEC5', 'fill-opacity':.75 }));
-    plan.appendChild(el('text', { x:G.refX + 76, y:G.refY + 15, class:'etiq-slot' }, 'linge mouillé'));
+    // Le linge s'enroule autour du tuyau : on voit les tours passer devant,
+    // et l'eau perler en bas. Avant, quatre pastilles grises flottaient à côté.
+    const xt = G.refX + 26, y0 = G.refY + 10, y1 = G.sortieY - 14;
+    const g = el('g');
+    const tours = 5, pas = (y1 - y0) / tours;
+    for (let k = 0; k < tours; k++) {
+      const y = y0 + k * pas;
+      g.appendChild(el('path', {
+        fill:k % 2 ? '#A7BAC4' : '#BCCCD4', stroke:'#8199A6', 'stroke-width':1.1,
+        'stroke-linejoin':'round',
+        d:`M ${xt - 19} ${y + 5} q 19 -10 38 -3 l 0 ${pas.toFixed(1)} q -19 8 -38 3 z` }));
+      // le pli sombre où le tissu se replie derrière le tuyau
+      g.appendChild(el('path', { fill:'none', stroke:'#7A93A0', 'stroke-width':1,
+        'stroke-opacity':.6, d:`M ${xt - 14} ${y + 8} q 14 -6 28 -2` }));
+    }
+    // il est mouillé : deux gouttes perlent sous le linge
+    for (const dx of [-9, 7]) {
+      const goutte = el('path', { class:'goutte', fill:'#7FC8E8', 'fill-opacity':.85,
+        d:`M ${xt + dx} ${y1 + 6} q -4 5 0 8 q 4 -3 0 -8 z` });
+      goutte.style.animationDelay = (dx < 0 ? 0 : .9) + 's';
+      g.appendChild(goutte);
+    }
+    refs.lingeG = g;            // on le remettra devant le tuyau : il l'entoure
+    plan.appendChild(g);
+    plan.appendChild(el('text', { x:xt + 42, y:G.refY + 6, class:'etiq-slot', 'text-anchor':'start' },
+      'linge mouillé'));
   }
 
   /* ---- Tuyau : un seul trajet, de la chaudière au flacon ---- */
@@ -1269,6 +1337,8 @@ function dessiner() {
       class:'etat-eau', fill:'#546E7A', opacity:'0' }, 'VAPEUR (GAZ)');
     plan.appendChild(refs.etiqVapeur);
   }
+  // le linge entoure le tuyau : il doit donc passer devant lui
+  if (refs.lingeG) plan.appendChild(refs.lingeG);
   ajouterSlot('tube', G.chX2 + 16, G.tubeY - 18, 116, 36, 'Tuyau', !!etat.tube, vise);
   ajouterSlot('refrigerant', G.refX, G.refY, G.refX2 - G.refX, G.refY2 - G.refY,
     'Réfrigérant', !!etat.refrigerant, vise);
@@ -1287,15 +1357,53 @@ function dessiner() {
     cx:0, cy:0, r:5 + k, fill:'#CFD8DC', 'fill-opacity':.5 }));
   plan.appendChild(refs.fuite);
 
+  /* ---- Vapeur qui s'échappe au bout du tuyau ----
+     Sans réfrigérant, rien ne condense la vapeur : elle sort en gaz et se perd
+     dans la pièce. C'est ce qu'on ne voyait pas, et qui rendait le réfrigérant
+     incompréhensible. */
+  if (etat.tube) {
+    refs.fuiteSortie = el('g', { opacity:'0' });
+    refs.fuiteBouffees = [];
+    for (let k = 0; k < 6; k++) {
+      const c = el('circle', { cx:0, cy:0, r:4, fill:'#CFD8DC', 'fill-opacity':.5 });
+      refs.fuiteSortie.appendChild(c);
+      refs.fuiteBouffees.push(c);
+    }
+    refs.fuiteMot = el('text', { x:G.flX + 34, y:G.sortieY - 46, class:'chgt-etat',
+      'text-anchor':'start', opacity:'0' }, 'la vapeur se perd');
+    refs.fuiteSortie.appendChild(refs.fuiteMot);
+    plan.appendChild(refs.fuiteSortie);
+  }
+
   /* ---- Flacon ---- */
   if (etat.recipient) {
+    const verre = RECIPIENTS[etat.recipient].tient ? '#90A4AE' : '#B0BEC5';
+    // un col et une lèvre : le tuyau vient verser dedans, on voit où ça tombe
     plan.appendChild(el('path', {
-      d:`M ${G.flX} ${G.flY} L ${G.flX} ${G.flY2 - 10} q 0 10 10 10 L ${G.flX2 - 10} ${G.flY2} ` +
-        `q 10 0 10 -10 L ${G.flX2} ${G.flY}`,
-      fill:'none', stroke:RECIPIENTS[etat.recipient].tient ? '#90A4AE' : '#B0BEC5',
-      'stroke-width':3, 'stroke-linejoin':'round' }));
+      d:`M ${G.flX + 8} ${G.flY - 14} L ${G.flX + 8} ${G.flY - 4} L ${G.flX} ${G.flY + 8}` +
+        ` L ${G.flX} ${G.flY2 - 10} q 0 10 10 10 L ${G.flX2 - 10} ${G.flY2}` +
+        ` q 10 0 10 -10 L ${G.flX2} ${G.flY + 8} L ${G.flX2 - 8} ${G.flY - 4} L ${G.flX2 - 8} ${G.flY - 14}`,
+      fill:'none', stroke:verre, 'stroke-width':3, 'stroke-linejoin':'round' }));
+    plan.appendChild(el('path', {
+      d:`M ${G.flX + 4} ${G.flY - 14} L ${G.flX2 - 4} ${G.flY - 14}`,
+      stroke:verre, 'stroke-width':3.5, 'stroke-linecap':'round' }));
     refs.distillat = el('path', { fill:COUL_LIQUIDE, 'fill-opacity':.65 });
     plan.appendChild(refs.distillat);
+    // Les gouttes qui tombent du tuyau : sans elles, on ne voyait que le niveau
+    // monter tout seul, sans comprendre d'où venait le liquide.
+    refs.gouttes = el('g', { opacity:'0' });
+    refs.gouttesN = [];
+    for (let k = 0; k < 3; k++) {
+      const g = el('path', { fill:COUL_LIQUIDE, 'fill-opacity':.9,
+        d:'M 0 0 q -3.5 4.5 0 7 q 3.5 -2.5 0 -7 z' });
+      refs.gouttes.appendChild(g);
+      refs.gouttesN.push(g);
+    }
+    // l'ondulation, là où la goutte touche la surface
+    refs.impact = el('ellipse', { rx:5, ry:1.6, fill:'none',
+      stroke:COUL_LIQUIDE, 'stroke-width':1.4, opacity:'0' });
+    refs.gouttes.appendChild(refs.impact);
+    plan.appendChild(refs.gouttes);
     refs.etatFlacon = el('text', { x:(G.flX + G.flX2) / 2, y:0, class:'etat-eau', fill:'#0F5C7A', opacity:'0' },
       'LIQUIDE');
     plan.appendChild(refs.etatFlacon);
@@ -1400,8 +1508,13 @@ function animer() {
       `q 8 0 8 -8 L ${G.chX2 - 3} ${y} z`);
     refs.etatEau.setAttribute('y', y + 18);
     refs.etatEau.setAttribute('opacity', commence && sim.mEau > MASSE0 * .12 ? '1' : '0');
-    if (refs.feuilles) [...refs.feuilles.children].forEach((f, k) =>
-      f.setAttribute('cy', Math.min(G.chY2 - 12, y + 14 + (k % 2) * 12)));
+    // les feuilles flottent à la surface et se balancent doucement
+    if (refs.feuillesPose) refs.feuillesPose.forEach((f, k) => {
+      const fy = Math.min(G.chY2 - 14, y + 12 + (k % 2) * 11);
+      const bal = commence ? Math.sin(sim.t * 1.6 + k) * 5 : 0;
+      f.n.setAttribute('transform',
+        `translate(${f.x} ${fy}) rotate(${f.ang + bal}) scale(${f.ech})`);
+    });
     if (refs.restant) refs.restant.textContent = commence
       ? Math.round(sim.mEau * 1000) + ' mL' : '';
     // dépôt de sel : il apparaît quand l'eau s'en va, car le sel ne s'évapore pas
@@ -1451,17 +1564,60 @@ function animer() {
   if (refs.tuyau) refs.tuyau.setAttribute('stroke', couleurTube());
 
   // Flacon qui se remplit
+  let surfaceFlacon = G.flY2 - 3;
   if (refs.distillat) {
     const mL = sim.mDistillat * 1000;
     const hMax = G.flY2 - G.flY - 12;
     const h = Math.max(0, Math.min(hMax, mL / 420 * hMax));
     const y = G.flY2 - 3 - h;
+    surfaceFlacon = y;
     refs.distillat.setAttribute('d', h < 1 ? '' :
       `M ${G.flX + 3} ${y} L ${G.flX + 3} ${G.flY2 - 11} q 0 8 8 8 L ${G.flX2 - 11} ${G.flY2 - 3} ` +
       `q 8 0 8 -8 L ${G.flX2 - 3} ${y} z`);
     refs.etatFlacon.setAttribute('y', y + 17);
     refs.etatFlacon.setAttribute('opacity', h > 14 ? '1' : '0');
     refs.mlTxt.textContent = commence ? Math.round(mL) + ' mL' : '';
+  }
+
+  // Ce qui sort du tuyau : des gouttes si la vapeur s'est condensée, de la
+  // vapeur perdue sinon. On lit enfin d'où vient le liquide du flacon.
+  const debit = sim.mDistillat - (sim.dernierDistillat || 0);
+  sim.dernierDistillat = sim.mDistillat;
+  const coule = commence && debit > 1e-6;
+  const xs = G.flX + 22;                       // le bout du tuyau
+
+  if (refs.gouttes) {
+    refs.gouttes.setAttribute('opacity', coule ? '1' : '0');
+    if (coule) {
+      const chute = Math.max(12, surfaceFlacon - G.sortieY);
+      refs.gouttesN.forEach((g, k) => {
+        const ph = ((sim.t * 1.5) + k / refs.gouttesN.length) % 1;
+        g.setAttribute('transform', `translate(${xs} ${G.sortieY + 4 + ph * chute})`);
+        g.setAttribute('fill-opacity', String(.9 - ph * .25));
+      });
+      // l'ondulation, juste après l'impact
+      const phi = (sim.t * 1.5) % 1;
+      refs.impact.setAttribute('cx', xs);
+      refs.impact.setAttribute('cy', surfaceFlacon + 1);
+      refs.impact.setAttribute('rx', 3 + phi * 7);
+      refs.impact.setAttribute('opacity', String(Math.max(0, .7 - phi)));
+    }
+  }
+
+  if (refs.fuiteSortie) {
+    // sans réfrigérant, la vapeur ressort en gaz au lieu de couler
+    const perd = commence && !etat.refrigerant && sim.T >= 99;
+    refs.fuiteSortie.setAttribute('opacity', perd ? '1' : '0');
+    if (perd) {
+      refs.fuiteBouffees.forEach((c, k) => {
+        const ph = ((sim.t * .55) + k / refs.fuiteBouffees.length) % 1;
+        c.setAttribute('cx', xs + 6 + Math.sin(ph * 4 + k) * 7 + ph * 16);
+        c.setAttribute('cy', G.sortieY - 2 - ph * 46);
+        c.setAttribute('r', String(4 + ph * 11));
+        c.setAttribute('fill-opacity', String(.45 * (1 - ph)));
+      });
+      refs.fuiteMot.setAttribute('opacity', '1');
+    }
   }
 }
 

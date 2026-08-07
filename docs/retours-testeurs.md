@@ -120,7 +120,7 @@ fait passer le moulin nettement sous la moto.
 | # | Simulation | Demande |
 |---|---|---|
 | C1 | **Tam-tam** | Une calebasse est un **demi-cercle**, pas la forme actuelle. Éléments ressemblants, animation de frappe (« médiocre franchement »), couleurs et dégradés pour un léger relief |
-| C2 | **Alambic** | Régressions : le **linge mouillé** et l'**écoulement du liquide dans le flacon** (animation disparue). Plus la passe déjà notée (vapeur en sortie de tuyau, gouttes, feuilles) et une reprise générale du design |
+| C2 | ~~Alambic~~ — **traité en v4.27.0** | **Ce n'étaient pas des régressions** : l'historique montre que rien n'a jamais été retiré de ce dépôt depuis la v4.4.0 ; ces corrections n'y avaient jamais été intégrées. Repris : gouttes qui tombent du tuyau avec ondulation à l'impact, vapeur qui se perd sans réfrigérant (0 / 25 / 43 mL selon le refroidissement), linge enroulé autour du tuyau, vraies feuilles nervurées, plus la passe générale (anses de la chaudière, brûleur, bûches, thermomètre à réservoir, flacon à col) |
 | C3 | **Fabrique de glace** | Polystyrène, coton et ce qui entoure le bac : à rendre ressemblant. Plan de travail **encombré sur mobile** |
 | C4 | **Marmites** | Les **quatre gestes** de la lanterne : animations plus réalistes. Passe de design générale |
 | C5 | **Premiers pas** | Rien : « excellent côté design » |

@@ -5,6 +5,38 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v4.27.0 — 2026-08-07
+
+⚗️ **L'alambic : on voit enfin le liquide arriver dans le flacon.**
+
+**D'abord une mise au point.** *« Il y a des corrections que j'avais apportées qui n'ont pas été
+intégrées, notamment le linge mouillé et l'écoulement du liquide dans le flacon dont l'animation a
+disparu. »* Vérification faite dans l'historique : **rien n'a jamais été retiré de ce dépôt** — le
+linge et les gouttes y figurent en nombre identique depuis la v4.4.0. Ces corrections n'ont donc
+jamais été intégrées ici. Le dessin était mauvais depuis l'origine, et c'est lui qui est repris.
+
+**Les gouttes tombent enfin.** *« On ne voit que le niveau monter. »* Le flacon se remplissait tout
+seul, sans qu'on comprenne d'où venait le liquide. Des gouttes se détachent maintenant du bout du
+tuyau, tombent jusqu'à la surface, et y font une **ondulation** à l'impact. Elles n'apparaissent que
+si la vapeur se condense vraiment.
+
+**La vapeur se perd quand rien ne la refroidit.** Sans réfrigérant, des bouffées s'échappent au bout
+du tuyau avec la mention « la vapeur se perd ». C'est ce qui manquait pour comprendre à quoi sert un
+réfrigérant : mesuré à l'identique, on récupère **0 mL sans réfrigérant, 25 mL avec un linge mouillé,
+43 mL avec le serpentin dans l'eau froide**.
+
+**Le linge mouillé entoure vraiment le tuyau.** C'étaient quatre pastilles grises flottant à côté.
+C'est maintenant un tissu enroulé, dont on voit les tours passer devant le tuyau, les plis, et l'eau
+qui perle dessous.
+
+**Les feuilles ressemblent à des feuilles** — cinq feuilles avec leur nervure et leurs nervures
+secondaires, qui flottent à la surface et se balancent, au lieu de quatre ellipses vertes.
+
+**Passe générale** : la chaudière reçoit ses **deux anses** et son bord roulé, le réchaud devient un
+vrai **brûleur** (corps, couronne percée, manette) ou trois **bûches croisées**, le thermomètre a son
+**réservoir** et ses graduations, et le flacon un **col** et une lèvre — c'est par là que tombent les
+gouttes.
+
 ## v4.26.0 — 2026-08-07
 
 🏅 **Le quiz libre — modèle sur « Qui pollue vraiment ? ».**
