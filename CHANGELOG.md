@@ -5,6 +5,34 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v4.28.0 — 2026-08-07
+
+🌑 **L'arrière-plan s'efface derrière les modales et la visite guidée.**
+
+*« Même pour moi adulte, c'est difficile de concentrer mon attention sur ce qui est réellement
+important. En termes UX c'est catastrophique — surtout vu qu'on parle d'enfants. »*
+
+Le voile des modales était à **55 %** d'opacité et celui de la visite guidée à **62 %** : le plan de
+travail, le plan de mission et les curseurs restaient parfaitement lisibles derrière un
+questionnaire, et se disputaient l'attention avec lui.
+
+Mesuré sur « Allume le réchaud », en luminance de l'arrière-plan derrière un questionnaire ouvert :
+
+| | avant | après |
+|---|---|---|
+| Astuce (fond bleu clair) | 129 | **33** |
+| Fond de l'en-tête | 140 | **34** |
+| Barre des curseurs | 129 | **33** |
+
+Il ne reste plus que **13 à 14 %** de la clarté d'origine, contre 55 % auparavant. Le contraste entre
+la carte de la modale et ce qui l'entoure passe de 1,9 à **4,8 pour 1**.
+
+Le voile des modales passe à **93 %**, celui de la visite guidée à **91 %** — un peu moins, parce que
+le halo y montre volontairement la zone dont on parle, et qu'un minimum de contexte autour reste
+utile. Aucun flou n'a été ajouté : il coûte trop cher aux téléphones d'entrée de gamme visés.
+
+Appliqué aux **huit** simulations.
+
 ## v4.27.0 — 2026-08-07
 
 ⚗️ **L'alambic : on voit enfin le liquide arriver dans le flacon.**

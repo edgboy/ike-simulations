@@ -115,6 +115,12 @@ fait passer le moulin nettement sous la moto.
 | B4 | ~~Ramener l'écran d'accueil « Apprendre / Expérimenter »~~ — **traité en v4.23.0** | Posé dans les huit simulations. Expérimenter reste verrouillé jusqu'à la fin du parcours ; Apprendre indique où l'on en est et enchaîne sur le repérage |
 | B5 | **Quiz libre à niveaux** — **modèle livré en v4.26.0 sur la pollution**, à juger avant de dérouler | Trois niveaux de nature différente (se souvenir / comprendre ailleurs / ne plus se faire piéger, ce dernier bâti sur les idées fausses). 24 questions, 6 tirées par série, correction immédiate, meilleur résultat gardé. Score de maîtrise pondéré **1×/2×/3×** : le niveau 1 seul plafonne à 17 %. Renvoi aux missions ratées. Portes : accueil + liste des missions. **Reste : les 7 autres simulations** (3 niveaux pour marmites, flamme, premiers pas ; 2 pour alambic, lampe, tam-tam, glace) |
 
+### B bis. L'arrière-plan derrière les modales — **traité en v4.28.0**
+
+| Constat | Traitement |
+|---|---|
+| « Le tutoriel guidé avec sa modale, l'arrière-plan des quiz : il faudrait qu'il soit beaucoup moins visible. En termes UX c'est catastrophique, surtout vu qu'on parle d'enfants » | Le voile des modales passe de **55 % à 93 %**, celui de la visite guidée de **62 % à 91 %**. Mesuré derrière un questionnaire : la luminance de l'arrière-plan tombe de 129 à 33, soit **13 % de la clarté d'origine** au lieu de 55 %. Pas de flou : trop coûteux sur les téléphones visés |
+
 ### C. Dessin et animations, simulation par simulation
 
 | # | Simulation | Demande |
