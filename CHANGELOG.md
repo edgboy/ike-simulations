@@ -5,6 +5,41 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v4.26.0 — 2026-08-07
+
+🏅 **Le quiz libre — modèle sur « Qui pollue vraiment ? ».**
+
+Première simulation équipée, à juger sur pièce avant de dérouler les sept autres.
+
+**Trois niveaux qui ne demandent pas la même chose.** Empiler des questions plus dures ne ferait que
+trier les élèves ; ici les niveaux changent de nature de pensée :
+
+- 🥉 **Je me souviens** — les mots et les faits que le parcours a posés.
+- 🥈 **Je comprends** — les mêmes idées, dans des situations que la simulation n'a pas montrées :
+  un capteur à 2 m puis à 15 m d'un feu, une cuisine fermée, une soustraction sur les rejets du
+  quartier.
+- 🥇 **On ne me piège plus** — les erreurs que presque tout le monde fait. Ce niveau est bâti sur les
+  **idées fausses** que la simulation combat déjà : le tuyau relevé qui ferait disparaître la fumée,
+  la fumée blanche « propre », « c'est naturel donc sans danger », la couche d'ozone confondue avec
+  l'effet de serre.
+
+**24 questions** au total, huit par niveau ; six sont tirées au sort par série, propositions
+mélangées. Réponse → **correction immédiate avec l'explication** : c'est un exercice, pas un examen.
+On peut refaire une série autant qu'on veut, le **meilleur résultat est gardé**.
+
+**Le score de maîtrise pèse les niveaux 1 × / 2 × / 3 ×.** Réussir le premier niveau seul plafonne à
+**17 %** ; il faut affronter les pièges pour dépasser 80 %. C'est ce qui donne son sens à « plus le
+score est élevé dans les modes difficiles, plus la compréhension est actée ». Étoiles par niveau
+(⭐ à la moitié, ⭐⭐ à 80 %, ⭐⭐⭐ au sans-faute) et un mot sur la barre : *Découverte · En bonne voie ·
+Solide · Maîtrisée*.
+
+**Les questions ratées renvoient à leur mission** — « Mission 3 — Le tuyau de Faton ». Le quiz
+ramène au parcours au lieu de s'y substituer.
+
+**Deux portes d'entrée** : une troisième carte 🏅 **M'exercer** sur l'écran d'accueil, verrouillée
+comme Expérimenter jusqu'à la fin du parcours et affichant le score de maîtrise ; et une carte au bas
+de la liste des missions, pour que le professeur puisse la lancer en pleine séance.
+
 ## v4.25.0 — 2026-08-06
 
 🔦 **La visite guidée remplace la liste écrite**, et 🧩 **les modales « bancales » sont réparées.**
