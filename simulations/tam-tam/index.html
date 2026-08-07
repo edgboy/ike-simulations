@@ -1080,6 +1080,14 @@ const el = (nom, attrs, texte) => {
 };
 
 const G = { cx:246, yPeau:132, oscX:428, oscY:40, oscL:206, oscH:76 };
+
+// Éclaircit une couleur : sert aux dégradés qui donnent le relief
+function eclaircir(hex, k) {
+  const n = parseInt(hex.slice(1), 16);
+  const c = [n >> 16 & 255, n >> 8 & 255, n & 255]
+    .map(v => Math.round(v + (255 - v) * k));
+  return `rgb(${c.join(',')})`;
+}
 const refs = {};
 
 // Rayon dessiné de la peau, d'après le vrai diamètre de la caisse
@@ -1088,45 +1096,139 @@ const rayonPeau = () => etat.caisse ? 46 + (CAISSES[etat.caisse].d - .10) * 320 
 function dessiner() {
   plan.textContent = '';
   for (const k in refs) delete refs[k];
+  refs.defs = el('defs');                 // les dégradés qui donnent le relief
+  plan.appendChild(refs.defs);
   const ec = etapeCourante();
   const vise = ec ? cibleEffective(ec.e) : null;
   const c = CAISSES[etat.caisse], p = PEAUX[etat.peau];
   const R = rayonPeau();
 
-  /* ---- Caisse, vue de côté : un tronc de cône ---- */
+  /* ---- Caisse : chaque matériau a sa forme et sa matière ----
+     Une calebasse est un demi-cercle, pas un seau évasé ; une boîte de conserve
+     a ses nervures ; un bidon a sa poignée et son bouchon. */
   if (c) {
     const bas = G.yPeau + c.h, Rb = R * c.r2;
-    plan.appendChild(el('path', {
-      d:`M ${G.cx - R} ${G.yPeau} L ${G.cx - Rb} ${bas} q 0 12 ${Rb * .3} 12 L ${G.cx + Rb * .7} ${bas + 12} ` +
-        `q ${Rb * .3} 0 ${Rb * .3} -12 L ${G.cx + R} ${G.yPeau} z`,
-      fill:c.couleur, 'fill-opacity':.4, stroke:c.couleur, 'stroke-width':3, 'stroke-linejoin':'round',
-    }));
+    const g = el('g');
+    const ombre = (id, clair, fonce) => {
+      const lg = el('linearGradient', { id, x1:'0', y1:'0', x2:'1', y2:'0' });
+      lg.appendChild(el('stop', { offset:'0', 'stop-color':fonce }));
+      lg.appendChild(el('stop', { offset:'.34', 'stop-color':clair }));
+      lg.appendChild(el('stop', { offset:'.62', 'stop-color':clair }));
+      lg.appendChild(el('stop', { offset:'1', 'stop-color':fonce }));
+      refs.defs.appendChild(lg);
+      return `url(#${id})`;
+    };
+
+    if (etat.caisse === 'calebasse') {
+      // une demi-sphère : la gourde coupée en deux, ouverture vers le haut
+      const rem = ombre('gCal', '#D9B071', '#9C7238');
+      g.appendChild(el('path', { fill:rem, stroke:'#8A6430', 'stroke-width':2.5,
+        d:`M ${G.cx - R} ${G.yPeau} A ${R} ${c.h} 0 0 0 ${G.cx + R} ${G.yPeau} z` }));
+      // les taches et le grain de la calebasse séchée
+      for (const [dx, dy, rr] of [[-26, 44, 13], [18, 62, 9], [-6, 84, 7], [34, 34, 6]])
+        g.appendChild(el('ellipse', { cx:G.cx + dx, cy:G.yPeau + dy, rx:rr, ry:rr * .72,
+          fill:'#8A6430', 'fill-opacity':.16 }));
+      g.appendChild(el('path', { fill:'none', stroke:'#fff', 'stroke-opacity':.32, 'stroke-width':6,
+        'stroke-linecap':'round',
+        d:`M ${G.cx - R * .62} ${G.yPeau + 16} A ${R * .82} ${c.h * .8} 0 0 0 ${G.cx - R * .3} ${G.yPeau + c.h * .84}` }));
+
+    } else if (etat.caisse === 'bidon') {
+      // un bidon : corps droit, poignée sur le flanc, bouchon vissé
+      const rem = ombre('gBid', '#8FD3EC', '#3F93B4');
+      g.appendChild(el('path', { fill:rem, stroke:'#3F93B4', 'stroke-width':2.5, 'stroke-linejoin':'round',
+        d:`M ${G.cx - R} ${G.yPeau} L ${G.cx - Rb} ${bas - 10} q 0 10 10 10 L ${G.cx + Rb - 10} ${bas}` +
+          ` q 10 0 10 -10 L ${G.cx + R} ${G.yPeau} z` }));
+      for (let k = 1; k <= 3; k++) g.appendChild(el('path', {
+        fill:'none', stroke:'#3F93B4', 'stroke-opacity':.45, 'stroke-width':2,
+        d:`M ${G.cx - R - (Rb - R) * k / 4 + 4} ${G.yPeau + c.h * k / 4}` +
+          ` L ${G.cx + R + (Rb - R) * k / 4 - 4} ${G.yPeau + c.h * k / 4}` }));
+      g.appendChild(el('path', { fill:'none', stroke:'#3F93B4', 'stroke-width':7, 'stroke-linecap':'round',
+        d:`M ${G.cx + R - 6} ${G.yPeau + 20} q 26 14 0 30` }));
+      g.appendChild(el('rect', { x:G.cx - R * .5 - 11, y:G.yPeau - 9, width:22, height:11, rx:3,
+        fill:'#2E7FA0' }));
+
+    } else {
+      // boîte métallique : bourrelets haut et bas, étiquette de papier
+      const metal = etat.caisse === 'lait' ? ['#D6DEE3', '#8FA0AA'] : ['#C9A491', '#8D6E63'];
+      const rem = ombre('gBoite', metal[0], metal[1]);
+      g.appendChild(el('path', { fill:rem, stroke:metal[1], 'stroke-width':2.5, 'stroke-linejoin':'round',
+        d:`M ${G.cx - R} ${G.yPeau} L ${G.cx - Rb} ${bas - 8} q 0 8 8 8 L ${G.cx + Rb - 8} ${bas}` +
+          ` q 8 0 8 -8 L ${G.cx + R} ${G.yPeau} z` }));
+      g.appendChild(el('rect', { x:G.cx - R - 2, y:G.yPeau - 3, width:R * 2 + 4, height:8, rx:4,
+        fill:metal[1] }));
+      g.appendChild(el('rect', { x:G.cx - Rb + 2, y:bas - 12, width:Rb * 2 - 4, height:8, rx:4,
+        fill:metal[1], 'fill-opacity':.8 }));
+      if (etat.caisse === 'conserve') {
+        for (let k = 1; k <= 3; k++) g.appendChild(el('path', {
+          fill:'none', stroke:metal[1], 'stroke-opacity':.5, 'stroke-width':2.5,
+          d:`M ${G.cx - R - (Rb - R) * k / 4 + 3} ${G.yPeau + c.h * k / 4}` +
+            ` L ${G.cx + R + (Rb - R) * k / 4 - 3} ${G.yPeau + c.h * k / 4}` }));
+      } else {
+        const yE = G.yPeau + c.h * .34, hE = c.h * .38;
+        g.appendChild(el('rect', { x:G.cx - R - 4, y:yE, width:R * 2 + 8, height:hE,
+          fill:'#E9DFC6' }));
+        for (let k = 0; k < 4; k++) g.appendChild(el('rect', {
+          x:G.cx - R - 4, y:yE + 5 + k * (hE / 5), width:R * 2 + 8, height:3,
+          fill:'#C4D94E', 'fill-opacity':.7 }));
+      }
+    }
+    plan.appendChild(g);
     plan.appendChild(el('text', { x:G.cx, y:bas + 32, class:'etiq-slot' }, c.nom));
     if (etat.peau) plan.appendChild(el('text', { x:G.cx, y:bas + 48, class:'etiq-slot' },
       'peau : ' + PEAUX[etat.peau].nom));
     // l'air enfermé : la caisse de résonance
-    refs.airCaisse = el('text', { x:G.cx, y:G.yPeau + c.h * .5, class:'etat-eau',
-      fill:'#78909C', opacity:'0' }, 'l’air résonne');
+    // le corps est maintenant plein : la mention s'écrit en clair pour rester lisible
+    refs.airCaisse = el('text', { x:G.cx, y:G.yPeau + c.h * .62, class:'etat-eau',
+      fill:'#fff', style:'paint-order:stroke;stroke:rgba(60,40,20,.45);stroke-width:3px',
+      opacity:'0' }, 'l’air résonne');
     plan.appendChild(refs.airCaisse);
   }
   ajouterSlot('caisse', G.cx - 78, G.yPeau + 18, 156, 92, 'Caisse', !!c, vise);
 
   /* ---- Fixation : ficelles en V sur les côtés ---- */
   if (etat.fixation && c) {
-    const bas = G.yPeau + c.h * .8, Rb = R * c.r2;
+    const bas = G.yPeau + c.h * .8;
+    // largeur du corps à la hauteur du laçage : une calebasse se referme,
+    // une boîte s'évase. Sans cela, les cordes flottaient dans le vide.
+    const Rb = etat.caisse === 'calebasse'
+      ? R * Math.sqrt(Math.max(.04, 1 - .8 * .8))
+      : R + (R * c.r2 - R) * .8;
     if (etat.fixation === 'colle') {
-      plan.appendChild(el('rect', { x:G.cx - R, y:G.yPeau - 2, width:R * 2, height:7, rx:3,
-        fill:'#A1887F' }));
+      // un cordon de colle qui a coulé le long du bord
+      plan.appendChild(el('path', { fill:'#C8A165', 'fill-opacity':.9,
+        d:`M ${G.cx - R - 2} ${G.yPeau - 1} L ${G.cx + R + 2} ${G.yPeau - 1} L ${G.cx + R + 2} ${G.yPeau + 5}` +
+          ` q -${R} 4 -${R * 2} 0 z` }));
+      for (const dx of [-R * .55, R * .2, R * .7]) plan.appendChild(el('path', {
+        fill:'#C8A165', 'fill-opacity':.75,
+        d:`M ${G.cx + dx - 3} ${G.yPeau + 4} q 3 9 3 12 q 3 -3 3 -12 z` }));
     } else if (etat.fixation === 'cerclage') {
-      plan.appendChild(el('rect', { x:G.cx - R - 3, y:G.yPeau + 2, width:R * 2 + 6, height:9, rx:4,
-        fill:'none', stroke:'#78909C', 'stroke-width':4 }));
+      // un cercle métallique qui pince la peau, avec sa vis de serrage
+      plan.appendChild(el('rect', { x:G.cx - R - 4, y:G.yPeau + 1, width:R * 2 + 8, height:11, rx:5,
+        fill:'#B6C0C6', stroke:'#78909C', 'stroke-width':2 }));
+      plan.appendChild(el('rect', { x:G.cx - R - 4, y:G.yPeau + 3, width:R * 2 + 8, height:3,
+        fill:'#fff', 'fill-opacity':.45 }));
+      plan.appendChild(el('circle', { cx:G.cx + R + 1, cy:G.yPeau + 6.5, r:4.5,
+        fill:'#78909C', stroke:'#5B6B72', 'stroke-width':1.4 }));
     } else {
-      for (let k = 0; k < 5; k++) {
-        const x1 = G.cx - R + 6 + k * ((R * 2 - 12) / 4);
-        const x2 = G.cx - Rb + 8 + k * ((Rb * 2 - 16) / 4);
-        plan.appendChild(el('path', { d:`M ${x1} ${G.yPeau + 4} L ${x2} ${bas}`,
-          stroke:'#D7CCC8', 'stroke-width':2.5, fill:'none' }));
+      // le laçage en V du village : la corde fait des allers-retours
+      const yh = G.yPeau + 6, yb = bas;
+      plan.appendChild(el('path', { fill:'none', stroke:'#C4A882', 'stroke-width':3.5,
+        d:`M ${G.cx - R - 1} ${yh} L ${G.cx + R + 1} ${yh}` }));
+      plan.appendChild(el('path', { fill:'none', stroke:'#C4A882', 'stroke-width':3.5,
+        d:`M ${G.cx - Rb + 3} ${yb - 4} L ${G.cx + Rb - 3} ${yb - 4}` }));
+      const n = 7;
+      let d = '';
+      for (let k = 0; k < n; k++) {
+        const xh = G.cx - R + 4 + k * ((R * 2 - 8) / (n - 1));
+        const xb = G.cx - Rb + 8 + (k + .5) * ((Rb * 2 - 16) / n);
+        d += `M ${xh} ${yh} L ${xb} ${yb - 4} `;
+        if (k < n - 1) {
+          const xh2 = G.cx - R + 4 + (k + 1) * ((R * 2 - 8) / (n - 1));
+          d += `M ${xb} ${yb - 4} L ${xh2} ${yh} `;
+        }
       }
+      plan.appendChild(el('path', { d, fill:'none', stroke:'#E0CBA8', 'stroke-width':2.6,
+        'stroke-linecap':'round' }));
     }
   }
   ajouterSlot('fixation', G.cx - R - 46, G.yPeau + 12, 40, 76, 'Fixation', !!etat.fixation, vise);
@@ -1143,8 +1245,17 @@ function dessiner() {
       plan.appendChild(el('text', { x:G.cx, y:G.yPeau - 12, class:'chgt-etat',
         style:'fill:var(--destructive);font-weight:700' }, '✂️ peau déchirée'));
     } else {
-      refs.peau = el('path', { fill:p.couleur, 'fill-opacity':.85, stroke:'#8D6E63', 'stroke-width':2.5 });
+      // la membrane : une bande épaisse, avec sa matière et son reflet, pour
+      // qu'on voie ce qu'on frappe et ce qui vibre
+      const lg = el('linearGradient', { id:'gPeau', x1:'0', y1:'0', x2:'0', y2:'1' });
+      lg.appendChild(el('stop', { offset:'0', 'stop-color':eclaircir(p.couleur, .3) }));
+      lg.appendChild(el('stop', { offset:'1', 'stop-color':p.couleur }));
+      refs.defs.appendChild(lg);
+      refs.peau = el('path', { fill:'url(#gPeau)', stroke:'#7A5B3F', 'stroke-width':2.5,
+        'stroke-linejoin':'round' });
       plan.appendChild(refs.peau);
+      refs.peauReflet = el('path', { fill:'#fff', 'fill-opacity':.4 });
+      plan.appendChild(refs.peauReflet);
     }
     // grains de riz posés dessus : ils sautent quand la peau vibre
     refs.grains = el('g', { opacity:dechiree ? '0' : '1' });
@@ -1158,13 +1269,37 @@ function dessiner() {
   if (etat.baguette) {
     refs.baguette = el('g');
     if (etat.baguette === 'main') {
-      refs.baguette.appendChild(el('text', { x:0, y:0, style:'font-size:26px' }, '✋'));
+      // une main : paume, quatre doigts repliés, pouce sur le côté
+      const m = el('g');
+      m.appendChild(el('path', { fill:'#B07A४6'.replace('४','4'), stroke:'#8B5E33', 'stroke-width':1.6,
+        d:'M -13 -30 q -4 -16 3 -17 q 5 -1 6 14 l 2 0 q 0 -18 6 -18 q 6 0 5 18 l 2 0' +
+          ' q 1 -16 7 -15 q 6 1 4 16 l 2 1 q 4 -12 9 -9 q 5 3 0 15 l -2 12' +
+          ' q -2 12 -14 12 q -14 0 -18 -10 z' }));
+      m.appendChild(el('path', { fill:'#C58F58',
+        d:'M -13 -14 q 8 8 26 6 l -1 6 q -2 10 -13 10 q -12 0 -14 -10 z' }));
+      refs.baguette.appendChild(m);
     } else {
-      refs.baguette.appendChild(el('rect', { x:-4, y:-52, width:8, height:52, rx:4, fill:'#A1887F' }));
-      if (etat.baguette === 'gainee') refs.baguette.appendChild(el('circle', {
-        cx:0, cy:-2, r:9, fill:'#EF9A9A' }));
+      refs.baguette.appendChild(el('path', { fill:'#9C7248', stroke:'#7A5734', 'stroke-width':1.4,
+        d:'M -4.5 -56 q 4.5 -3 9 0 L 5 -6 q -5 3 -10 0 z' }));
+      refs.baguette.appendChild(el('path', { fill:'#fff', 'fill-opacity':.28,
+        d:'M -2.5 -54 l 2.5 0 L -0.5 -8 l -2.5 0 z' }));
+      if (etat.baguette === 'gainee') {
+        refs.baguette.appendChild(el('ellipse', { cx:0, cy:-6, rx:11, ry:10, fill:'#E08A8A',
+          stroke:'#B96C6C', 'stroke-width':1.4 }));
+        for (const a of [-.5, .2, .9]) refs.baguette.appendChild(el('path', {
+          fill:'none', stroke:'#B96C6C', 'stroke-opacity':.7, 'stroke-width':1.3,
+          d:`M ${-10 * Math.cos(a)} ${-6 - 9 * Math.sin(a)} q 10 4 ${20 * Math.cos(a)} 0` }));
+      }
     }
     plan.appendChild(refs.baguette);
+    // l'éclat au point d'impact, et la poussière soulevée
+    refs.impact = el('g', { opacity:'0' });
+    refs.impactAnneau = el('circle', { cx:0, cy:0, r:6, fill:'none',
+      stroke:'#F7A430', 'stroke-width':3 });
+    refs.impact.appendChild(refs.impactAnneau);
+    for (let k = 0; k < 5; k++) refs.impact.appendChild(el('line', {
+      stroke:'#F7A430', 'stroke-width':2.5, 'stroke-linecap':'round' }));
+    plan.appendChild(refs.impact);
   }
   ajouterSlot('baguette', G.cx + R + 12, G.yPeau - 44, 48, 66, 'Baguette', !!etat.baguette, vise);
 
@@ -1205,8 +1340,15 @@ function animer(amplitude) {
   const phase = frappe.freq ? Math.sin(2 * Math.PI * (frappe.freq / RALENTI) * frappe.t) : 0;
   const fleche = amplitude * 26 * phase;
 
-  if (refs.peau) refs.peau.setAttribute('d', cheminPeau(fleche) +
-    ` L ${G.cx + R} ${G.yPeau + 6} Q ${G.cx} ${G.yPeau + 6 - fleche * 2} ${G.cx - R} ${G.yPeau + 6} z`);
+  if (refs.peau) {
+    const e = 11;                                   // épaisseur vue de la membrane
+    refs.peau.setAttribute('d', cheminPeau(fleche) +
+      ` L ${G.cx + R} ${G.yPeau + e} Q ${G.cx} ${G.yPeau + e - fleche * 2} ${G.cx - R} ${G.yPeau + e} z`);
+    if (refs.peauReflet) refs.peauReflet.setAttribute('d',
+      `M ${G.cx - R * .62} ${G.yPeau + 2 - fleche * 1.3} Q ${G.cx - R * .2} ${G.yPeau - 2 - fleche * 1.8}` +
+      ` ${G.cx + R * .1} ${G.yPeau + 1 - fleche * 1.6} L ${G.cx + R * .1} ${G.yPeau + 4 - fleche * 1.6}` +
+      ` Q ${G.cx - R * .2} ${G.yPeau + 1 - fleche * 1.8} ${G.cx - R * .62} ${G.yPeau + 5 - fleche * 1.3} z`);
+  }
 
   // Les grains sautent quand la peau les projette vers le haut
   if (refs.grains) [...refs.grains.children].forEach((g, k) => {
@@ -1218,11 +1360,42 @@ function animer(amplitude) {
     g.setAttribute('opacity', etat.peau ? '1' : '0');
   });
 
-  // Baguette : elle retombe sur la peau au moment du coup
+  // La frappe : la baguette part en arrière, tombe sur la peau, rebondit.
+  // Avant, elle se contentait de descendre en ligne droite — c'est ce que les
+  // testeurs trouvaient médiocre. Le geste a maintenant un élan et un angle.
   if (refs.baguette) {
-    const recul = enVibration ? Math.max(0, 22 - frappe.t * 60) : 26;
+    const xf = G.cx + R * .42;
+    let h = 30, ang = -22;                       // au repos : levée, inclinée
+    if (enVibration) {
+      const t = frappe.t;
+      if (t < .10) { const u = t / .10; h = 30 + u * 16; ang = -22 - u * 20; }   // élan
+      else if (t < .18) { const u = (t - .10) / .08; h = 46 - u * 46; ang = -42 + u * 46; } // chute
+      else { const u = Math.min(1, (t - .18) / .5);                              // rebond
+             h = Math.sin(u * Math.PI) * 17; ang = 4 - u * 26; }
+    }
     refs.baguette.setAttribute('transform',
-      `translate(${G.cx + R * .45} ${G.yPeau - 6 - recul})`);
+      `translate(${xf} ${G.yPeau - 2 - h}) rotate(${ang})`);
+
+    // l'éclat au contact, très bref
+    if (refs.impact) {
+      const dt = frappe.t - .18;
+      const vu = enVibration && dt >= 0 && dt < .26;
+      refs.impact.setAttribute('opacity', vu ? String(1 - dt / .26) : '0');
+      if (vu) {
+        const u = dt / .26;
+        refs.impact.setAttribute('transform', `translate(${xf} ${G.yPeau - 2})`);
+        refs.impactAnneau.setAttribute('r', String(5 + u * 20));
+        [...refs.impact.children].forEach((n, k) => {
+          if (k === 0) return;
+          const a2 = -Math.PI / 2 + (k - 3) * .55;
+          const r0 = 8 + u * 12, r1 = r0 + 7;
+          n.setAttribute('x1', xf + Math.cos(a2) * r0 - xf);
+          n.setAttribute('y1', Math.sin(a2) * r0);
+          n.setAttribute('x2', Math.cos(a2) * r1);
+          n.setAttribute('y2', Math.sin(a2) * r1);
+        });
+      }
+    }
   }
 
   // Ondes sonores : des arcs qui s'éloignent

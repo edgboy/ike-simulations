@@ -5,6 +5,38 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v4.29.0 — 2026-08-07
+
+🥁 **Le tam-tam : une calebasse est un demi-cercle.**
+
+*« Une calebasse, c'est plus un demi-cercle que la forme qu'il a mise là par défaut. Que les
+éléments soient plus ressemblants à ce qu'ils sont censés représenter. Les animations où un élément
+frappe le tam-tam, c'est médiocre franchement. »*
+
+**Les quatre caisses ont chacune leur forme et leur matière.** Elles partageaient un seul tronc de
+cône évasé, teinté différemment. Désormais : la **calebasse** est une demi-sphère — la gourde coupée
+en deux —, avec ses taches de séchage ; la **boîte de conserve** a ses nervures et ses bourrelets ; la
+**boîte de lait** son étiquette de papier ; le **bidon** ses nervures, sa poignée et son bouchon.
+
+**La peau se voit enfin.** Elle se confondait avec la caisse : c'est maintenant une membrane épaisse,
+avec son dégradé et son reflet, qui se déforme sous le coup. On voit ce qu'on frappe.
+
+**Les fixations sont ce qu'elles disent.** La ficelle croisée fait un vrai **laçage en V** entre deux
+anneaux de corde, et sa largeur suit celle du corps — sur la calebasse, les cordes se resserraient
+dans le vide. Le cerclage est un cercle métallique avec sa vis de serrage, le collage un cordon qui a
+coulé.
+
+**La frappe a un geste.** La baguette descendait tout droit. Elle prend maintenant son **élan** en
+arrière, **tombe** sur la peau en pivotant, **rebondit**, et laisse un **éclat** au point d'impact. La
+main nue est dessinée — c'était un emoji ✋ —, la baguette gainée porte son tissu enroulé.
+
+**Du relief** : dégradés sur les corps, reflets, ombres portées. La mention « l'air résonne »
+s'écrit en clair sur le corps désormais opaque.
+
+Vérifié : les six missions rendent leurs étapes, et la physique est intacte — 296 Hz pour la boîte de
+lait, 198 pour la conserve, 119 pour la calebasse, 99 pour le bidon : plus la caisse est large, plus
+le son est grave.
+
 ## v4.28.0 — 2026-08-07
 
 🌑 **L'arrière-plan s'efface derrière les modales et la visite guidée.**
