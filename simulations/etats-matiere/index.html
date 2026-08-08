@@ -2,586 +2,706 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#F7F5F0">
-<title>États de la matière · IKE Simulations</title>
+<title>États de la matière — Labo-Bénin</title>
 <link rel="stylesheet" href="../../assets/polices.css">
 <style>
-/* ===== Design system Labo-Bénin — accent PCT ===== */
+/* ===== Jetons du design system Labo-Bénin (intégrés : fichier autonome) ===== */
 :root {
-  --primary:#C4D94E; --accent:#5BC5F2; --accent-doux:#D6F0FB; --accent-fonce:#2196C4;
-  --tertiary:#F7A430; --destructive:#E83A4B; --destructive-doux:#FDE2E5; --success:#2A9D8F;
-  --success-doux:#DCF2EA; --neutral:#3A3632; --gris-doux:#7A736C;
-  --background:#F7F5F0; --surface:#FFFFFF; --surface-muted:#F0EEE9;
+  --primary:#C4D94E; --accent:#5BC5F2; --accent-doux:#D6F0FB;
+  --tertiary:#F7A430; --destructive:#E83A4B; --success:#2A9D8F;
+  --neutral:#3A3632; --background:#F7F5F0; --surface:#FFFFFF; --surface-muted:#F0EEE9;
   --border:#D3CFC8; --border-strong:#B0ABA3; --ring:#5BC5F2;
   --font-display:'Baloo 2','Segoe UI',system-ui,sans-serif;
   --font-body:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;
-  --radius-sm:8px; --radius-md:12px; --radius-lg:16px; --radius-full:9999px;
+  --radius-sm:8px; --radius-md:12px; --radius-lg:16px; --radius-xl:24px; --radius-full:9999px;
   --shadow-soft:0 4px 16px rgba(58,54,50,.05);
   --shadow-raised:0 6px 20px rgba(58,54,50,.06);
   --ease:cubic-bezier(.4,0,.2,1);
 }
 body.sombre {
-  --neutral:#ECEFF1; --gris-doux:#A8B0B6;
-  --background:#14181C; --surface:#1C232A; --surface-muted:#232C34;
-  --border:#333E47; --border-strong:#4A5762;
-  --accent-doux:#17323F; --destructive-doux:#3A1F22; --success-doux:#16302B;
+  --neutral:#ECEFF1; --background:#14181C; --surface:#1C232A; --surface-muted:#232C34;
+  --border:#333E47; --border-strong:#4A5762; --accent-doux:#17323F;
   --shadow-soft:0 4px 16px rgba(0,0,0,.28); --shadow-raised:0 6px 20px rgba(0,0,0,.34);
 }
 
-  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-  html, body { height:100%; overflow:hidden; }
-  body {
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-    background:var(--background); color:var(--neutral);
-    display:flex; flex-direction:column;
-    user-select:none; -webkit-user-select:none; touch-action:manipulation;
-  }
-
-  /* ---------- Écran de démarrage IKE ---------- */
-  #splash {
-    position:fixed; inset:0; z-index:100;
-    background:linear-gradient(160deg,#0d47a1 0%,#1565c0 55%,#1e88e5 100%);
-    display:flex; flex-direction:column; align-items:center; justify-content:center;
-    transition:opacity .5s ease;
-  }
-  #splash.fini { opacity:0; pointer-events:none; }
-  #splash .logo {
-    font-size:56px; line-height:1;
-    animation:battement 1.1s ease-in-out infinite;
-    filter:drop-shadow(0 4px 14px rgba(255,202,40,.45));
-  }
-  @keyframes battement { 50% { transform:scale(1.18); } }
-  #splash .nom { margin-top:14px; color:#fff; font-size:30px; font-weight:800; letter-spacing:.5px; }
-  #splash .nom span { font-weight:300; opacity:.9; }
-  #splash .sub {
-    margin-top:4px; color:rgba(255,255,255,.75); font-size:13px;
-    letter-spacing:2px; text-transform:uppercase;
-  }
-  #splash .barre {
-    margin-top:22px; width:150px; height:4px; border-radius:2px;
-    background:rgba(255,255,255,.25); overflow:hidden;
-  }
-  #splash .rempl {
-    height:100%; background:#ffca28; border-radius:2px;
-    transform-origin:left; transform:scaleX(0); animation:charge 1.3s ease-out forwards;
-  }
-  @keyframes charge { to { transform:scaleX(1); } }
-  #splash .ver { position:absolute; bottom:14px; color:rgba(255,255,255,.5); font-size:11px; }
-
-  /* ---------- En-tête ---------- */
-  header {
-    display:flex; align-items:center; gap:8px;
-    padding:8px 12px; background:var(--surface); border-bottom:1px solid var(--border);
-    flex:none; z-index:5;
-  }
-  header h1 { font-size:16px; font-weight:700; color:var(--accent-fonce); white-space:nowrap; }
-  header .spacer { flex:1; }
-  .btn {
-    border:1px solid var(--border); background:var(--surface); color:var(--neutral);
-    border-radius:8px; padding:8px 10px; font-size:13px; font-weight:600;
-    cursor:pointer; white-space:nowrap; min-height:40px;
-  }
-  .btn:active { background:var(--accent-doux); }
-  @media (max-width:480px) { .btn .lbl { display:none; } header h1 { font-size:14px; } }
-
-  /* ---------- Barre de mission ---------- */
-  #mbar { flex:none; background:var(--surface); border-bottom:1px solid var(--border); padding:6px 10px; z-index:4; }
-  #mbar .l1 { display:flex; align-items:center; gap:8px; }
-  #mchip {
-    background:#1565c0; color:#fff; font-size:11px; font-weight:700;
-    border-radius:12px; padding:3px 9px; white-space:nowrap;
-  }
-  #mtitre {
-    font-size:13.5px; font-weight:700; color:var(--neutral); flex:1;
-    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
-  }
-  #mbar .mbtn {
-    border:1px solid var(--border); background:var(--surface); border-radius:8px;
-    font-size:14px; padding:4px 10px; cursor:pointer; min-height:34px;
-  }
-  #mbar .l2 { display:flex; align-items:center; gap:8px; margin-top:5px; }
-  #mbar.flash { animation:flashvert .9s ease; }
-  @keyframes flashvert { 0% { background:#c8e6c9; } 100% { background:var(--surface); } }
-  #mpoints { display:flex; gap:5px; align-items:center; flex:none; }
-  #mpoints .pt { width:9px; height:9px; border-radius:50%; background:#cfd8dc; }
-  #mpoints .pt.faite { background:#2e7d32; }
-  #mpoints .pt.courante { background:#1565c0; animation:ptpulse 1.6s infinite; }
-  @keyframes ptpulse { 50% { transform:scale(1.4); } }
-  #metape { flex:1; font-size:12.5px; color:var(--neutral); line-height:1.4; }
-  #metape.glisse { animation:glisse .4s ease; }
-  @keyframes glisse { from { opacity:0; transform:translateX(12px); } }
-  #mcompteur { font-size:11px; color:var(--gris-doux); font-weight:700; white-space:nowrap; }
-  #btn-indice {
-    background:var(--accent-doux) !important; border-color:#ffca28 !important;
-    color:#795548; font-weight:700; white-space:nowrap;
-  }
-  #btn-indice.pulse { animation:indicepulse 1.2s infinite; }
-  @keyframes indicepulse {
-    50% { transform:scale(1.08); box-shadow:0 0 0 7px rgba(255,202,40,.3); }
-  }
-  #btn-suiv2 {
-    background:#1565c0 !important; border-color:var(--accent) !important;
-    color:#fff !important; font-weight:700; white-space:nowrap;
-  }
-  #mindice {
-    display:none; margin-top:6px; background:var(--accent-doux); border:1px solid #ffe082;
-    color:#795548; font-size:12.5px; border-radius:8px; padding:7px 10px; line-height:1.45;
-  }
-  #mindice.visible { display:block; }
-  #mdiag {
-    display:none; margin-top:6px; background:#fff3e0; border:1px solid #ffcc80;
-    color:#bf360c; font-size:12.5px; border-radius:8px; padding:7px 10px; line-height:1.45;
-  }
-  #mdiag.visible { display:block; animation:glisse .4s ease; }
-
-  /* ---------- Scène ---------- */
-  #wrap { flex:1; position:relative; overflow:hidden; }
-  canvas#scene { position:absolute; inset:0; width:100%; height:100%; touch-action:none; display:block; }
-
-  /* Panneau infos/formule en direct */
-  #formule {
-    position:absolute; top:10px; left:10px; z-index:5;
-    background:rgba(255,255,255,.94); border:1px solid var(--border); border-radius:12px;
-    padding:10px 12px; max-width:min(270px, 58vw);
-    font-size:12px; line-height:1.6; color:var(--neutral);
-    box-shadow:0 3px 12px rgba(0,0,0,.12);
-  }
-  #formule .ftitre {
-    font-size:11px; font-weight:800; letter-spacing:.5px; color:var(--accent-fonce);
-    text-transform:uppercase; margin-bottom:4px;
-  }
-  #formule .fmath {
-    font-family:Consolas, "Courier New", monospace; font-size:11.5px;
-    background:var(--background); border-radius:6px; padding:2px 6px; margin:2px 0;
-    white-space:nowrap; overflow-x:auto; display:block;
-  }
-  #formule .fres { font-weight:800; color:var(--success); }
-  #formule .fpalier { font-weight:800; color:#e65100; }
-  #formule .fnote { font-size:11px; color:var(--gris-doux); font-style:italic; }
-  #formule .flex {
-    display:block; margin-top:6px; font-size:11px; font-weight:700;
-    color:var(--accent-fonce); text-decoration:underline; cursor:pointer;
-    background:none; border:none; padding:0;
-  }
-
-  .lex { margin-bottom:10px; }
-  .lex dt { font-size:13px; font-weight:800; color:var(--accent-fonce); margin-top:10px; }
-  .lex dd { font-size:12.5px; line-height:1.5; color:var(--neutral); margin:2px 0 0; }
-
-  #toast {
-    position:absolute; bottom:16px; left:50%;
-    transform:translateX(-50%) translateY(10px) scale(.9);
-    background:#2e7d32; color:#fff; font-size:14.5px; font-weight:800;
-    padding:11px 22px; border-radius:22px; opacity:0; pointer-events:none;
-    transition:opacity .25s, transform .3s cubic-bezier(.34,1.56,.64,1);
-    box-shadow:0 6px 20px rgba(46,125,50,.4); z-index:6; white-space:nowrap;
-  }
-  #toast.visible { opacity:1; transform:translateX(-50%) translateY(0) scale(1); }
-
-  /* ---------- Commandes (chauffer / refroidir / piston) ---------- */
-  nav#palette {
-    flex:none; display:flex; justify-content:center; align-items:center; gap:10px;
-    padding:8px 10px calc(8px + env(safe-area-inset-bottom));
-    background:var(--surface); border-top:1px solid var(--border); z-index:5; flex-wrap:wrap;
-  }
-  .cmd {
-    display:flex; align-items:center; gap:6px;
-    border:2px solid var(--border); border-radius:12px; background:var(--background);
-    padding:12px 18px; font-size:14px; font-weight:800; color:var(--neutral);
-    cursor:pointer; min-height:52px; touch-action:none;
-  }
-  #btn-chauffer.tenu { background:#fff3e0; border-color:#ff9800; color:#e65100; }
-  #btn-refroidir.tenu { background:#e1f5fe; border-color:#29b6f6; color:#0277bd; }
-  #piston-bloc { display:none; align-items:center; gap:8px; font-size:12px; font-weight:700; color:var(--neutral); }
-  #piston-bloc.visible { display:flex; }
-  #piston-bloc input { width:120px; accent-color:#1565c0; }
-
-  /* ---------- Voiles ---------- */
-  .voile {
-    position:fixed; inset:0; background:rgba(38,50,56,.55);
-    display:none; align-items:center; justify-content:center; z-index:20; padding:16px;
-  }
-  .voile.visible { display:flex; }
-  .voile .carte {
-    position:relative;
-    background:var(--surface); border-radius:16px; padding:22px; max-width:400px; width:100%;
-    max-height:86vh; overflow-y:auto; box-shadow:0 10px 40px rgba(0,0,0,.3);
-  }
-  .fermer-x {
-    position:absolute; top:8px; right:10px; border:none; background:none;
-    font-size:20px; line-height:1; color:var(--gris-doux); cursor:pointer; padding:6px 8px;
-  }
-  .voile .carte h2 { font-size:18px; color:var(--accent-fonce); margin-bottom:12px; }
-  .voile.visible .carte h2 { animation:pop .4s ease-out; }
-  @keyframes pop { 0% { transform:scale(.5); opacity:0; } 80% { transform:scale(1.08); } 100% { transform:scale(1); } }
-  .voile .go {
-    width:100%; border:none; background:#1565c0; color:#fff; font-size:15px; font-weight:700;
-    padding:12px; border-radius:10px; cursor:pointer;
-  }
-  .voile .btn2 {
-    width:100%; border:1px solid var(--border); background:var(--surface); color:var(--neutral);
-    font-size:13px; font-weight:600; padding:10px; border-radius:10px;
-    cursor:pointer; margin-top:8px;
-  }
-  .voile .lien {
-    display:block; width:100%; text-align:center; margin-top:10px;
-    background:none; border:none; color:var(--gris-doux); font-size:11.5px;
-    text-decoration:underline; cursor:pointer;
-  }
-  #mfin-titre { font-weight:700; font-size:15px; color:var(--neutral); margin-bottom:10px; }
-  .retenir-label { font-size:12px; font-weight:800; color:var(--success); margin-bottom:4px; }
-  #mfin-retenir {
-    background:var(--success-doux); border-radius:10px; padding:10px 12px;
-    font-size:13.5px; line-height:1.55; color:#1b5e20; margin:0 0 14px;
-  }
-  .mrow {
-    display:flex; align-items:center; gap:8px; width:100%;
-    border:none; background:var(--background); border-radius:8px; padding:10px;
-    margin-bottom:5px; font-size:13px; cursor:pointer; text-align:left; color:var(--neutral);
-  }
-  .mrow .n { font-weight:700; color:var(--gris-doux); min-width:22px; }
-  .mrow.faite .n { color:var(--success); }
-  .mrow.courante { outline:2px solid var(--accent); background:var(--accent-doux); }
-  .mrow .t { flex:1; }
-
-  /* ---------- Choix du mode : Apprendre / Expérimenter ---------- */
-  #mlexique { z-index:26; }             /* le lexique s'empile au-dessus des modales */
-  #tab-exp.verrouille { opacity:.55; }
-  #choix-mode .deux { display:flex; flex-direction:column; gap:12px; }
-  .gros-btn {
-    display:flex; align-items:center; gap:14px; width:100%;
-    border:2px solid var(--border); background:var(--background); border-radius:14px;
-    padding:15px 16px; cursor:pointer; text-align:left;
-  }
-  .gros-btn:active { background:var(--accent-doux); }
-  .gros-btn .gi { font-size:30px; flex:none; }
-  .gros-btn .gt { font-size:16px; font-weight:800; color:var(--neutral); }
-  .gros-btn .gs { font-size:12px; color:var(--gris-doux); line-height:1.45; display:block; margin-top:2px; }
-  .gros-btn.verrouille { opacity:.55; }
-  body.sombre .gros-btn { background:var(--surface-muted); border-color:var(--border); }
-  body.sombre .gros-btn .gt { color:var(--neutral); }
-
-  /* ---------- Visite guidée ---------- */
-  #visite { position:fixed; inset:0; z-index:30; display:none; }
-  #visite.sombre { background:rgba(38,50,56,.62); }
-  #visite-halo {
-    position:absolute; border-radius:12px; border:2px solid #ffca28;
-    box-shadow:0 0 0 9999px rgba(38,50,56,.62);
-    transition:all .3s ease; pointer-events:none;
-  }
-  #visite-carte {
-    position:absolute; background:var(--surface); border-radius:14px; padding:16px;
-    width:min(310px, calc(100vw - 24px)); box-shadow:0 10px 40px rgba(0,0,0,.35);
-  }
-  .vtitre { font-size:15px; font-weight:800; color:var(--accent-fonce); margin-bottom:6px; }
-  .vtexte { font-size:13px; line-height:1.55; color:var(--neutral); white-space:pre-line; }
-  .vbas { display:flex; align-items:center; gap:10px; margin-top:12px; }
-  .vprog { flex:1; font-size:11px; font-weight:700; color:var(--gris-doux); }
-  #visite-passer {
-    background:none; border:none; color:var(--gris-doux); font-size:12px;
-    text-decoration:underline; cursor:pointer; padding:6px;
-  }
-  #visite-suivant {
-    border:none; background:#1565c0; color:#fff; font-weight:700;
-    font-size:13px; padding:9px 18px; border-radius:9px; cursor:pointer;
-  }
-  .vmarque { margin-top:10px; text-align:center; font-size:10px; color:var(--gris-doux); }
-
-  /* ==================== THÈME SOMBRE ==================== */
-  body.sombre { background:var(--background); color:var(--neutral); }
-  body.sombre header,
-  body.sombre #mbar,
-  body.sombre nav#palette { background:var(--surface); border-color:var(--border); }
-  body.sombre header h1 { color:var(--accent); }
-  body.sombre .btn { background:var(--surface-muted); border-color:var(--border); color:var(--neutral); }
-  body.sombre .btn:active { background:var(--accent-doux); }
-  body.sombre #mtitre { color:var(--neutral); }
-  body.sombre #metape { color:var(--neutral); }
-  body.sombre #mbar .mbtn { background:var(--surface-muted); border-color:var(--border); color:var(--neutral); }
-  body.sombre #btn-indice { background:#3a3220 !important; border-color:#8d6e63 !important; color:#ffd54f; }
-  body.sombre #mindice { background:#2b2618; border-color:#5d4d1a; color:#ffe082; }
-  body.sombre #mdiag { background:#33261a; border-color:#7a5c3d; color:#ffcc80; }
-  body.sombre #mpoints .pt { background:#3a4a56; }
-  body.sombre #mpoints .pt.faite { background:#66bb6a; }
-  body.sombre #mpoints .pt.courante { background:#64b5f6; }
-  body.sombre #mbar.flash { animation-name:flashvert-sombre; }
-  @keyframes flashvert-sombre { 0% { background:var(--success-doux); } 100% { background:var(--surface); } }
-  body.sombre .cmd { background:var(--surface-muted); border-color:var(--border); color:var(--neutral); }
-  body.sombre #btn-chauffer.tenu { background:#3a2a18; border-color:#ff9800; color:#ffb74d; }
-  body.sombre #btn-refroidir.tenu { background:#12303f; border-color:#29b6f6; color:#81d4fa; }
-  body.sombre #piston-bloc { color:var(--neutral); }
-  body.sombre #formule { background:rgba(28,38,46,.95); border-color:var(--border); color:var(--neutral); }
-  body.sombre #formule .ftitre { color:var(--accent); }
-  body.sombre #formule .fmath { background:var(--background); }
-  body.sombre #formule .fres { color:#81c784; }
-  body.sombre #formule .fpalier { color:#ffb74d; }
-  body.sombre #formule .flex { color:var(--accent); }
-  body.sombre .lex dt { color:var(--accent); }
-  body.sombre .lex dd { color:var(--neutral); }
-  body.sombre .voile .carte, body.sombre #visite-carte { background:var(--surface); }
-  body.sombre .voile .carte h2, body.sombre .vtitre { color:var(--accent); }
-  body.sombre .vtexte { color:var(--neutral); }
-  body.sombre .voile .btn2 { background:var(--surface-muted); border-color:var(--border); color:var(--neutral); }
-  body.sombre #mfin-titre { color:var(--neutral); }
-  body.sombre .retenir-label { color:#81c784; }
-  body.sombre #mfin-retenir { background:var(--success-doux); color:var(--success); }
-  body.sombre .mrow { background:#26313a; color:var(--neutral); }
-  body.sombre .mrow.courante { background:var(--accent-doux); outline-color:var(--accent); }
-
-/* ===== Mise au standard Labo-Bénin ===== */
-body { font-family:var(--font-body); color:var(--neutral); background:var(--background); }
-h1, h2, h3, #mtitre, #mfin-titre, .m-carte .mtitre { font-family:var(--font-display); }
-header {
-  background:var(--surface) !important; color:var(--neutral) !important;
-  border-bottom:1px solid var(--border); box-shadow:none !important;
-  overflow-x:auto; scrollbar-width:none;
+*,*::before,*::after { box-sizing:border-box; }
+body {
+  margin:0; font-family:var(--font-body); font-size:16px; color:var(--neutral);
+  background:var(--background); overflow:hidden;
+  height:100dvh; display:flex; flex-direction:column;
+  user-select:none; -webkit-user-select:none;
+  -webkit-tap-highlight-color:transparent; -webkit-text-size-adjust:100%;
 }
-header::-webkit-scrollbar { display:none; }
-header h1 { font-size:16px; font-weight:800; color:var(--neutral); }
-header .btn, #mbar .mbtn {
-  background:var(--surface); border:1px solid var(--border); color:var(--neutral);
-  border-radius:var(--radius-md); min-height:40px;
-  font-family:var(--font-body); font-weight:600; box-shadow:none;
-}
-header .btn:hover, #mbar .mbtn:hover { background:var(--surface-muted); border-color:var(--border-strong); }
-header .btn.danger { color:var(--destructive); }
-#mbar { background:var(--surface); border-bottom:1px solid var(--border); }
-#mchip {
-  background:var(--accent-doux); color:var(--accent-fonce);
-  border-radius:var(--radius-full); font-weight:700; letter-spacing:.04em;
-}
-#mtitre { font-size:15px; font-weight:800; color:var(--neutral); }
-#mindice, #mdiag { border-radius:var(--radius-md); font-size:12.5px; line-height:1.5; }
-#mindice { background:var(--accent-doux); }
-.voile .carte, #visite-carte, #formule, #selbar {
-  border-radius:var(--radius-lg); box-shadow:var(--shadow-raised);
-  border:1px solid var(--border); background:var(--surface);
-}
-.m-carte { border-radius:var(--radius-md); border:1px solid var(--border); }
-.m-carte:hover { border-color:var(--border-strong); background:var(--surface-muted); }
-nav#palette { background:var(--surface); border-top:1px solid var(--border); }
-nav#palette button {
-  border-radius:var(--radius-md); border:2px solid var(--border);
-  background:var(--surface); font-family:var(--font-body);
-}
-nav#palette button.actif { border-color:var(--accent); background:var(--accent-doux); }
-#btn-continuer, #btn-suivante, #btn-suiv2, #visite-suivant, .go, #btn-commencer {
-  background:var(--primary) !important; color:var(--neutral) !important;
-  border:none !important; border-radius:var(--radius-lg) !important;
-  font-weight:600; min-height:44px;
-}
+h1,h2,h3,h4 { font-family:var(--font-display); margin:0; line-height:1.2; }
+p { margin:0; }
 :focus-visible { outline:2px solid var(--ring); outline-offset:2px; border-radius:var(--radius-sm); }
 
-/* Étapes cochables, comme dans les ateliers */
-#mbar .l2 { flex-wrap:wrap; align-items:center; }
-#metape { flex:1 1 100%; order:-1; margin-bottom:2px; }
-#mpoints, #mcompteur { display:none; }
-#mbar .l2 #btn-indice { margin-left:auto; }
-#mbar .etape {
-  display:flex; align-items:flex-start; gap:9px; padding:4px 0;
-  font-size:12.5px; line-height:1.4; color:var(--neutral);
+/* ============================ En-tête ============================ */
+header {
+  display:flex; align-items:center; gap:8px; flex:none;
+  padding:6px 10px; background:var(--surface); border-bottom:1px solid var(--border);
 }
-#mbar .etape .coche {
-  width:20px; height:20px; flex:none; margin-top:1px; border-radius:var(--radius-full);
+header h1 { font-size:15px; font-weight:800; line-height:1.15; }
+header .sous { font-size:10.5px; opacity:.6; }
+.icone-btn {
+  width:40px; height:40px; flex:none; display:grid; place-items:center;
+  border:none; background:none; border-radius:var(--radius-md);
+  font-size:18px; color:inherit; cursor:pointer; text-decoration:none;
+}
+.icone-btn:hover { background:var(--surface-muted); }
+.tete-fin { margin-left:auto; display:flex; gap:2px; align-items:center; }
+
+/* ===================== Bandeau de mission (EN HAUT) ===================== */
+#mission {
+  flex:none; background:var(--surface); border-bottom:1px solid var(--border);
+  padding:8px 12px 9px;
+}
+.m-haut { display:flex; align-items:center; gap:9px; }
+.m-pastille {
+  width:30px; height:30px; flex:none; border-radius:var(--radius-sm);
+  display:grid; place-items:center; background:var(--accent-doux);
+  font-family:var(--font-display); font-weight:800; font-size:13px;
+}
+.m-titres { flex:1; min-width:0; }
+.m-titres b { display:block; font-size:14px; font-weight:600; line-height:1.2; }
+.m-titres span { font-size:11.5px; opacity:.65; line-height:1.35; display:block; }
+.m-rang {
+  font-size:10.5px !important; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--accent); opacity:1 !important; margin-bottom:1px;
+}
+.m-plier {
+  width:34px; height:34px; flex:none; border:none; background:none; cursor:pointer;
+  border-radius:var(--radius-sm); font-size:14px; color:inherit;
+  transition:transform .2s var(--ease);
+}
+.m-plier:hover { background:var(--surface-muted); }
+#mission.ouvert .m-plier { transform:rotate(180deg); }
+/* Replié, on ne montre que l'étape en cours : l'enceinte reste visible.
+   Le diagnostic, lui, reste toujours affiché — c'est lui qui explique pourquoi
+   l'expérience ne donne pas ce qu'on attend. */
+#mission:not(.ouvert) .etape:not(.a-montrer) { display:none; }
+#mission:not(.ouvert) .m-indice { display:none; }
+/* Replié, une consigne longue tenait encore six lignes et laissait un tiers
+   d'écran à l'expérience. On la borne à trois lignes ; le chevron la déplie. */
+#mission:not(.ouvert) .etape.a-montrer .t,
+#mission:not(.ouvert) .m-diag {
+  display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;
+}
+.m-jauge { height:5px; border-radius:var(--radius-full); background:var(--surface-muted); margin-top:8px; overflow:hidden; }
+.m-jauge i { display:block; height:100%; background:var(--accent); transition:width .4s var(--ease); }
+
+/* ---- Liste des étapes : le guidage pas à pas ---- */
+#etapes { margin-top:9px; }
+.etape {
+  display:flex; align-items:flex-start; gap:9px; padding:5px 0;
+  font-size:13px; line-height:1.4;
+}
+.etape .coche {
+  width:21px; height:21px; flex:none; margin-top:1px; border-radius:var(--radius-full);
   display:grid; place-items:center; font-size:11px; font-weight:700;
   border:2px solid var(--border-strong); color:transparent; background:none;
 }
-#mbar .etape.faite .coche { background:var(--success); border-color:var(--success); color:#fff; }
-#mbar .etape.faite .t { opacity:.5; text-decoration:line-through; }
-#mbar .etape.courante .coche { border-color:var(--accent); animation:pulseCoche 1.5s infinite; }
-#mbar .etape.courante .t { font-weight:600; }
+.etape.faite .coche { background:var(--success); border-color:var(--success); color:#fff; }
+.etape.faite .t { opacity:.5; text-decoration:line-through; }
+.etape.courante .coche { border-color:var(--accent); animation:pulseCoche 1.5s infinite; }
+.etape.courante .t { font-weight:600; }
 @keyframes pulseCoche { 50% { box-shadow:0 0 0 5px var(--accent-doux); } }
-#mbar .etape .t { flex:1; }
+.etape .t { flex:1; }
+.m-indice, .m-diag {
+  margin-top:8px; padding:9px 11px; border-radius:var(--radius-md);
+  font-size:12.5px; line-height:1.5;
+}
+.m-indice { background:var(--accent-doux); }
+.m-indice b { font-weight:600; }
+.m-diag { background:rgba(247,164,48,.16); }
+.m-indice[hidden], .m-diag[hidden] { display:none; }
+/* Les commandes de la mission. `display` explicite l'emporte sur l'attribut
+   `hidden` : il faut le redire. */
+.m-actions { display:flex; gap:8px; margin-top:10px; }
+.m-actions .btn { flex:1; min-height:40px; padding:0 12px; font-size:13px; }
+.m-actions[hidden], .m-actions .btn[hidden] { display:none; }
 
-/* Écran de passage : l'acquis, puis la mission suivante */
+/* ============================ L'enceinte ============================ */
+main { flex:1; min-height:0; display:flex; flex-direction:column; }
+#atelier { flex:1; min-height:0; position:relative; overflow:hidden; }
+canvas#scene { position:absolute; inset:0; width:100%; height:100%; touch-action:none; display:block; }
+
+/* Panneau 📐 : la lecture en direct de l'expérience.
+   L'enceinte le rogne (`overflow:hidden`) : sur un petit écran, ou après une
+   rotation, il se retrouvait coupé en deux. Il défile donc chez lui. */
+#formule {
+  position:absolute; top:10px; left:10px; z-index:5;
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg);
+  padding:11px 13px; max-width:min(275px, 62vw);
+  max-height:calc(100% - 20px); overflow-y:auto;
+  font-size:12px; line-height:1.6; box-shadow:var(--shadow-raised);
+}
+#formule .ftitre {
+  font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--accent-texte); margin-bottom:4px;
+}
+#formule .fmath {
+  display:block; background:var(--surface-muted); border-radius:var(--radius-sm);
+  padding:5px 9px; margin:3px 0; font-size:12px; line-height:1.5;
+}
+#formule .fres { font-weight:600; color:var(--vert-fonce); }
+/* Le palier est LE concept du chapitre : il se voit au premier coup d'œil */
+#formule .fpalier {
+  font-weight:700; color:var(--orange-fonce);
+  background:rgba(247,164,48,.16); border:1px solid rgba(247,164,48,.4);
+}
+#formule .fnote { font-size:11.5px; line-height:1.45; opacity:.7; font-style:italic; }
+
+/* Le bouton qui déplie le panneau, posé sur l'enceinte. En bas à droite :
+   en haut, il recouvrait la tête du thermomètre. */
+#scene-cmd {
+  position:absolute; right:10px; bottom:10px; z-index:5;
+  display:flex; flex-direction:column; gap:6px;
+}
+#scene-cmd button {
+  width:40px; height:40px; border-radius:var(--radius-md);
+  border:1px solid var(--border); background:var(--surface); color:var(--neutral);
+  font-size:17px; cursor:pointer; box-shadow:var(--shadow-soft);
+}
+#scene-cmd button:hover { background:var(--surface-muted); }
+#scene-cmd button.actif { background:var(--accent-doux); border-color:var(--accent); }
+
+/* ====================== Chauffer, refroidir, comprimer ======================
+   Un rang unique qui défile, plutôt que des boutons qui se cassent en
+   plusieurs rangées : ces rangées coûtent très cher en hauteur d'enceinte. Le
+   rang vit dans une boîte intérieure centrée par des marges automatiques — un
+   `justify-content:center` mettrait la première commande hors de portée dès
+   qu'il faut défiler. */
+#actions {
+  flex:none; display:flex; align-items:center; flex-wrap:nowrap;
+  padding:8px 10px calc(8px + env(safe-area-inset-bottom));
+  background:var(--surface); border-top:1px solid var(--border);
+  overflow-x:auto; scrollbar-width:none;
+}
+#actions::-webkit-scrollbar { display:none; }
+#actions-int { display:flex; align-items:center; gap:8px; margin:0 auto; }
+#actions-int > * { flex:none; }
+
+.btn {
+  display:inline-flex; align-items:center; justify-content:center; gap:7px;
+  min-height:44px; padding:0 18px; border:none; border-radius:var(--radius-lg);
+  font-family:var(--font-body); font-size:14px; font-weight:600;
+  color:var(--neutral); background:var(--primary); cursor:pointer;
+  transition:filter .15s var(--ease);
+}
+.btn:hover { filter:brightness(.94); }
+.btn:active { filter:brightness(.88); }
+.btn[disabled] { opacity:.45; cursor:not-allowed; filter:none; }
+/* `display:inline-flex` l'emporterait sur l'attribut `hidden` : il faut le redire */
+.btn[hidden] { display:none; }
+.btn-contour { background:var(--surface); border:2px solid var(--neutral); }
+.btn-contour:hover { background:var(--surface-muted); filter:none; }
+.btn-fantome { background:transparent; }
+.btn-fantome:hover { background:var(--surface-muted); filter:none; }
+.btn-large { width:100%; }
+#actions .btn { min-height:46px; padding:0 16px; font-size:13.5px; white-space:nowrap; }
+
+/* Chauffer et refroidir se MAINTIENNENT : l'état « tenu » doit se voir */
+#btn-chauffer { background:var(--tertiary); }
+#btn-refroidir { background:var(--accent); }
+#btn-chauffer.tenu, #btn-refroidir.tenu {
+  filter:brightness(.9);
+  box-shadow:0 0 0 4px rgba(58,54,50,.16) inset;
+}
+#btn-chauffer.appelle, #btn-refroidir.appelle { animation:appelle 1.3s infinite; }
+@keyframes appelle { 50% { box-shadow:0 0 0 7px rgba(196,217,78,.35); } }
+
+/* Le piston */
+#piston-bloc {
+  display:none; align-items:center; gap:9px;
+  padding:0 13px; min-height:46px;
+  background:var(--surface-muted); border-radius:var(--radius-lg);
+  font-size:12.5px; font-weight:600;
+}
+#piston-bloc.visible { display:flex; }
+#piston-bloc input { width:108px; accent-color:var(--accent); }
+#piston-val { font-family:var(--font-display); font-weight:800; min-width:44px; }
+
+/* ============================ Voiles ============================ */
+.voile {
+  position:fixed; inset:0; z-index:40; display:none;
+  background:rgba(14,18,23,.93); padding:14px; overflow-y:auto;
+}
+.voile.visible { display:flex; align-items:center; justify-content:center; }
+.carte-modale {
+  position:relative; width:100%; max-width:470px; margin:auto;
+  background:var(--surface); border-radius:var(--radius-lg); padding:22px 20px;
+  box-shadow:var(--shadow-raised);
+}
+.carte-modale h2 { font-size:20px; margin-bottom:9px; padding-right:34px; }
+.carte-modale > p { font-size:13.5px; line-height:1.6; opacity:.8; margin-bottom:10px; }
+.fermer-x {
+  position:absolute; top:8px; right:10px; width:36px; height:36px;
+  border:none; background:none; font-size:20px; color:inherit; cursor:pointer;
+  border-radius:var(--radius-md);
+}
+.fermer-x:hover { background:var(--surface-muted); }
+/* Le lexique s'ouvre depuis la leçon et le panneau 📐 : il s'empile par-dessus */
+#v-lexique { z-index:42; }
+
+/* Cartes de mission */
+.d-carte {
+  display:flex; align-items:center; gap:11px; width:100%; text-align:left;
+  padding:11px 13px; margin-bottom:8px;
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md);
+  font-family:var(--font-body); color:inherit; cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+.d-carte:hover:not([disabled]) { border-color:var(--border-strong); background:var(--surface-muted); }
+.d-carte[disabled] { opacity:.5; cursor:not-allowed; }
+.d-carte .num {
+  width:30px; height:30px; flex:none; border-radius:var(--radius-sm);
+  display:grid; place-items:center; background:var(--accent-doux);
+  font-family:var(--font-display); font-weight:800; font-size:13px;
+}
+.d-carte.fait .num { background:var(--success); color:#fff; }
+.d-carte .txt { flex:1; min-width:0; }
+.d-carte .txt b { display:block; font-size:13.5px; font-weight:600; }
+.d-carte .txt span { font-size:11.5px; opacity:.65; line-height:1.4; }
+.d-barre { height:7px; border-radius:var(--radius-full); background:var(--surface-muted);
+  overflow:hidden; margin:2px 0 14px; }
+.d-barre i { display:block; height:100%; background:var(--accent); border-radius:inherit;
+  transition:width .5s var(--ease); }
+
+/* Guide d'accueil */
+.g-titre { font-family:var(--font-display); font-weight:800; font-size:14px;
+  margin:14px 0 7px; color:var(--accent-texte); }
+.g-titre:first-of-type { margin-top:8px; }
+.g-etape { display:flex; gap:11px; margin-bottom:13px; }
+.g-etape .num {
+  width:26px; height:26px; flex:none; border-radius:var(--radius-full);
+  display:grid; place-items:center; background:var(--accent-doux);
+  font-family:var(--font-display); font-weight:800; font-size:12.5px;
+}
+.g-etape .t { font-size:13.5px; line-height:1.5; opacity:.85; flex:1; }
+.g-etape .t b { opacity:1; }
+
+/* Lexique */
+.lex-entree { padding:11px 0; border-bottom:1px solid var(--border); }
+.lex-entree:last-child { border-bottom:none; }
+.lex-entree b { display:block; font-size:14px; font-weight:600; margin-bottom:2px; }
+.lex-entree span { font-size:12.5px; line-height:1.55; opacity:.78; }
+.lex-entree.vise { background:var(--accent-doux); border-radius:var(--radius-md);
+  padding:11px 12px; border-bottom:none; }
+
+/* La leçon d'avant-mission : le vocabulaire posé avant de manipuler */
+.notion-bloc { font-size:13.5px; line-height:1.6; margin-bottom:10px; opacity:.9; }
+.notion-bloc b { font-weight:600; opacity:1; }
+.lex-chips { display:flex; flex-wrap:wrap; gap:6px; margin:12px 0 14px; }
+.lex-chips button {
+  border:1px solid var(--border); background:var(--surface); color:var(--accent-texte);
+  border-radius:var(--radius-full); padding:6px 12px;
+  font-family:var(--font-body); font-size:11.5px; font-weight:600; cursor:pointer;
+}
+.lex-chips button:hover { background:var(--surface-muted); border-color:var(--border-strong); }
+
+/* Écran de passage d'une mission à la suivante */
+.p-fanion { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+.p-fanion .rond {
+  width:44px; height:44px; flex:none; border-radius:var(--radius-full);
+  display:grid; place-items:center; background:var(--success); font-size:22px;
+}
+.p-fanion b { display:block; font-size:17px; font-family:var(--font-display); font-weight:800; }
+.p-fanion span { font-size:12px; opacity:.65; }
 .p-acquis {
   padding:12px 14px; border-radius:var(--radius-md); background:var(--accent-doux);
-  font-size:13px; line-height:1.55; margin-bottom:14px; text-align:left;
+  font-size:13px; line-height:1.55; margin-bottom:14px;
 }
+.p-acquis b { font-weight:600; }
 .p-suite {
   border:2px dashed var(--border-strong); border-radius:var(--radius-md);
-  padding:12px 14px; margin-bottom:14px; text-align:left;
+  padding:12px 14px; margin-bottom:14px;
 }
 .p-suite .etiq {
   font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
-  color:var(--accent-fonce); margin-bottom:3px;
+  color:var(--accent); margin-bottom:3px;
 }
 .p-suite b { display:block; font-size:15px; font-family:var(--font-display); font-weight:800; }
 .p-suite span { font-size:12.5px; opacity:.7; line-height:1.45; }
+.p-neuf { font-size:12px; opacity:.6; text-align:center; margin-top:9px; line-height:1.45; }
 
-@media (max-width:520px) {
-  header { gap:4px; padding:6px 8px; }
-  header .btn { min-height:36px; padding:0 8px; }
-  header h1 { font-size:14px; }
+/* QCM */
+.q-question { font-size:15px; font-weight:600; line-height:1.4; margin-bottom:12px; }
+.q-choix {
+  display:block; width:100%; text-align:left; margin-bottom:8px;
+  padding:12px 14px; min-height:46px;
+  background:var(--surface); border:2px solid var(--border); border-radius:var(--radius-md);
+  font-family:var(--font-body); font-size:13.5px; color:var(--neutral); cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+.q-choix:hover:not([disabled]) { border-color:var(--border-strong); background:var(--surface-muted); }
+.q-choix.bon { border-color:var(--success); background:rgba(42,157,143,.12); font-weight:600; }
+.q-choix.mauvais { border-color:var(--destructive); background:rgba(232,58,75,.1); }
+.q-choix[disabled] { cursor:default; }
+.q-expl {
+  margin-top:4px; padding:11px 13px; border-radius:var(--radius-md);
+  background:var(--accent-doux); font-size:12.5px; line-height:1.55; display:none;
+}
+.q-expl.visible { display:block; }
+.q-avance { font-size:11.5px; opacity:.55; margin-bottom:10px; letter-spacing:.04em;
+  text-transform:uppercase; font-weight:600; }
+
+/* ============================ Toast ============================ */
+#toast {
+  position:fixed; left:50%; bottom:calc(78px + env(safe-area-inset-bottom));
+  transform:translateX(-50%);
+  max-width:calc(100vw - 28px); padding:10px 16px; z-index:45;
+  background:var(--neutral); color:var(--background);
+  border-radius:var(--radius-full); font-size:13px; font-weight:600;
+  opacity:0; pointer-events:none; transition:opacity .2s var(--ease); text-align:center;
+}
+#toast.visible { opacity:1; }
+#toast.alerte { background:var(--destructive); color:#fff; }
+
+/* ================= Adaptations d'écran ================= */
+
+/* Paysage sur téléphone : chaque pixel de hauteur compte */
+@media (orientation:landscape) and (max-height:520px) {
+  header { padding:3px 8px; }
+  header h1 { font-size:13px; }
+  header .sous { display:none; }
+  .icone-btn { width:34px; height:34px; font-size:16px; }
+  #mission { padding:5px 10px 6px; }
+  .m-pastille { width:24px; height:24px; font-size:11px; }
+  .m-titres b { font-size:12.5px; }
+  .m-titres span { display:none; }
+  #mission.ouvert .m-titres span { display:block; }
+  .m-jauge { margin-top:5px; }
+  #etapes { margin-top:6px; }
+  .etape { padding:3px 0; font-size:12px; line-height:1.35; }
+  .etape .coche { width:18px; height:18px; font-size:10px; }
+  .m-indice, .m-diag { margin-top:6px; padding:7px 9px; font-size:11.5px; }
+  .m-actions { margin-top:7px; }
+  .m-actions .btn { min-height:34px; font-size:12.5px; }
+  #actions { padding:5px 8px calc(5px + env(safe-area-inset-bottom)); }
+  #actions-int { gap:6px; }
+  #actions .btn { min-height:38px; padding:0 12px; font-size:12.5px; }
+  #piston-bloc { min-height:38px; padding:0 10px; font-size:11.5px; }
+  #piston-bloc input { width:84px; }
+  /* l'enceinte est écrasée : à droite, le bouton mordrait sur le thermomètre */
+  #scene-cmd { left:10px; right:auto; bottom:8px; }
+  #scene-cmd button { width:34px; height:34px; font-size:15px; }
 }
 
-/* Écran de démarrage et invite de rotation, au standard eux aussi */
-#splash, #paysage {
-  background:var(--background) !important; color:var(--neutral) !important;
+/* Écran large : la mission passe en colonne, l'enceinte prend le reste */
+@media (min-width:880px) {
+  body { flex-direction:row; }
+  #colonne {
+    width:330px; flex:none; display:flex; flex-direction:column;
+    background:var(--surface); border-right:1px solid var(--border);
+    overflow-y:auto;
+  }
+  /* la colonne est étroite : les icônes passent sous le titre au lieu de l'écraser */
+  header { border-bottom:1px solid var(--border); flex-wrap:wrap; }
+  header h1 { font-size:16px; }
+  .tete-fin { width:100%; justify-content:flex-end; }
+  #mission { border-bottom:none; padding:12px 16px; }
+  /* la place ne manque pas : toutes les étapes restent visibles */
+  #mission:not(.ouvert) .etape:not(.a-montrer) { display:flex; }
+  #mission:not(.ouvert) .m-indice { display:block; }
+  /* la place ne manque pas : rien n'est tronqué */
+  #mission:not(.ouvert) .etape.a-montrer .t { display:block; }
+  #mission:not(.ouvert) .m-diag { display:block; }
+  .m-plier { display:none; }
+  main { flex:1; min-width:0; }
 }
-#splash h1, #paysage h2, #splash .titre { color:var(--neutral) !important; }
-#splash p, #paysage p { color:var(--neutral) !important; opacity:.75; }
-#splash .barre, #splash .jauge { background:var(--surface-muted) !important; }
-#splash .barre > *, #splash .jauge > * { background:var(--primary) !important; }
+
 @media (prefers-reduced-motion:reduce) {
   *,*::before,*::after { animation-duration:.01ms !important; transition-duration:.01ms !important; }
 }
 
-/* « Ce que tu as appris » : le bloc est désormais porté par .p-acquis.
-   L'ancien encadré vert imbriqué faisait un double fond illisible. */
-#mfin-retenir, body.sombre #mfin-retenir {
-  background:none !important; color:inherit !important;
-  padding:0 !important; margin:0 !important; border-radius:0 !important;
-  font-size:inherit !important; line-height:inherit !important;
-}
-.retenir-label { display:none; }
-
-/* Panneau de formule : une police lisible et du texte qui revient à la ligne.
-   La monospace en nowrap coupait les phrases (« la cire de la boug… »). */
-#formule .fmath {
-  font-family:var(--font-body) !important; font-size:12px !important;
-  white-space:normal !important; overflow-x:visible !important;
-  line-height:1.5; padding:5px 9px !important; border-radius:var(--radius-sm) !important;
-}
-#formule .ftitre { font-size:10.5px; letter-spacing:.06em; }
-#formule .fnote { font-size:11.5px; line-height:1.45; }
-/* L'action motrice de la simulation prend le lime des boutons principaux */
-#btn-allumer, #btn-chauffer, #btn-lancer {
-  background:var(--primary) !important; border-color:transparent !important;
-  color:var(--neutral) !important;
-}
-
 /* ===== Accessibilité : contraste des textes colorés =====
-   L'accent (#5BC5F2) et sa variante #2196C4 sont des couleurs de fond.
-   Sur clair, elles tombent sous 3 de contraste : on passe à une teinte lisible. */
-:root { --accent-texte:#0F6E93; }
-body.sombre { --accent-texte:#7FD4F5; }
-#mchip, .p-suite .etiq, #formule .ftitre, .retenir-label, .lien,
-#mfin-titre, .m-pct { color:var(--accent-texte) !important; }
+   L'accent (#5BC5F2) est une couleur de fond. Sur blanc, il tombe à 2,0 de
+   contraste : illisible. On lui adjoint une variante foncée pour le texte. */
+:root { --accent-texte:#0F6E93; --vert-fonce:#1F7A6F; --orange-fonce:#A85F00; --rouge-fonce:#C62828; }
+body.sombre { --accent-texte:#7FD4F5; --vert-fonce:#2A9D8F; --orange-fonce:#F7A430; --rouge-fonce:#EF5350; }
+.m-rang, .p-suite .etiq, .q-avance, .g-titre, #formule .ftitre { color:var(--accent-texte) !important; }
+
+/* ===================== L'accueil : « Que veux-tu faire ? » ===================== */
+#v-accueil .carte-modale { max-width:520px; }
+.ac-intro { font-size:13.5px; line-height:1.6; opacity:.8; margin-bottom:14px; }
+.ac-choix {
+  display:flex; align-items:center; gap:13px; width:100%; text-align:left;
+  padding:15px 16px; margin-bottom:11px;
+  background:var(--surface); border:2px solid var(--border); border-radius:var(--radius-lg);
+  font-family:var(--font-body); color:inherit; cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+.ac-choix:hover:not([disabled]) { border-color:var(--accent); background:var(--accent-doux); }
+.ac-choix[disabled] { opacity:.55; cursor:not-allowed; }
+.ac-choix .ac-em {
+  width:46px; height:46px; flex:none; border-radius:var(--radius-md);
+  display:grid; place-items:center; background:var(--surface-muted); font-size:25px;
+}
+.ac-choix .ac-txt { flex:1; min-width:0; }
+.ac-choix .ac-txt b { display:block; font-family:var(--font-display); font-size:17px; font-weight:800; }
+.ac-choix .ac-txt span { display:block; font-size:12.5px; opacity:.7; line-height:1.45; margin-top:1px; }
+.ac-choix .ac-etat { font-size:11.5px; font-weight:700; opacity:.75; flex:none; text-align:right; max-width:34%; }
+.ac-pied { font-size:12px; opacity:.6; line-height:1.5; margin-top:2px; }
+
+/* ===================== La visite guidée de l'interface =====================
+   Un halo encadre la zone dont on parle et assombrit tout le reste ; la carte
+   se pose à côté. Une liste écrite ne montrait rien : ici, on regarde. */
+#visite { position:fixed; inset:0; z-index:48; display:none; }
+#visite.visible { display:block; }
+#visite-halo {
+  position:absolute; border-radius:var(--radius-md);
+  border:3px solid var(--primary);
+  box-shadow:0 0 0 9999px rgba(12,16,20,.91);
+  transition:left .3s var(--ease), top .3s var(--ease),
+             width .3s var(--ease), height .3s var(--ease);
+  pointer-events:none;
+}
+#visite-carte {
+  position:absolute; background:var(--surface); border-radius:var(--radius-lg);
+  padding:15px 16px 13px; width:min(320px, calc(100vw - 24px));
+  box-shadow:0 12px 44px rgba(0,0,0,.34);
+  transition:left .3s var(--ease), top .3s var(--ease);
+}
+.v-titre { font-family:var(--font-display); font-size:16px; font-weight:800; margin-bottom:5px; }
+.v-texte { font-size:13px; line-height:1.55; opacity:.85; }
+.v-texte b { opacity:1; }
+.v-bas { display:flex; align-items:center; gap:8px; margin-top:13px; }
+.v-prog { flex:1; font-size:11.5px; font-weight:700; opacity:.5; letter-spacing:.04em; }
+#visite-passer {
+  background:none; border:none; color:inherit; opacity:.6;
+  font-family:var(--font-body); font-size:12.5px; text-decoration:underline;
+  cursor:pointer; padding:6px;
+}
+#visite-passer:hover { opacity:1; }
+#visite-suivant {
+  border:none; background:var(--primary); color:var(--neutral);
+  font-family:var(--font-body); font-weight:700; font-size:13.5px;
+  padding:10px 18px; border-radius:var(--radius-md); cursor:pointer; min-height:40px;
+}
+
+/* ===================== Le quiz libre : m'exercer ===================== */
+#v-quiz .carte-modale { max-width:520px; }
+.qz-maitrise {
+  margin:4px 0 16px; padding:12px 14px; border-radius:var(--radius-md);
+  background:var(--surface-muted);
+}
+.qz-m-haut { display:flex; align-items:baseline; justify-content:space-between; font-size:12.5px; }
+.qz-m-haut b { font-family:var(--font-display); font-size:20px; font-weight:800; }
+.qz-m-barre { height:9px; border-radius:var(--radius-full); background:var(--surface);
+  overflow:hidden; margin-top:6px; }
+.qz-m-barre i { display:block; height:100%; border-radius:inherit;
+  background:var(--primary); transition:width .5s var(--ease); }
+.qz-m-mot { font-size:11.5px; font-weight:700; opacity:.6; margin-top:5px;
+  letter-spacing:.04em; text-transform:uppercase; }
+
+.qz-niveau {
+  display:flex; align-items:center; gap:12px; width:100%; text-align:left;
+  padding:13px 14px; margin-bottom:9px;
+  background:var(--surface); border:2px solid var(--border); border-radius:var(--radius-lg);
+  font-family:var(--font-body); color:inherit; cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+.qz-niveau:hover { border-color:var(--accent); background:var(--accent-doux); }
+.qz-niveau .qz-em {
+  width:42px; height:42px; flex:none; border-radius:var(--radius-md);
+  display:grid; place-items:center; background:var(--surface-muted); font-size:22px;
+}
+.qz-niveau .qz-txt { flex:1; min-width:0; }
+.qz-niveau .qz-txt b { display:block; font-family:var(--font-display); font-size:15.5px; font-weight:800; }
+.qz-niveau .qz-txt span { display:block; font-size:12px; opacity:.7; line-height:1.45; margin-top:1px; }
+.qz-niveau .qz-note { flex:none; text-align:right; font-size:14px; }
+.qz-niveau .qz-note span { display:block; font-size:10.5px; font-weight:600; opacity:.55; margin-top:2px; }
+.qz-pied { font-size:12px; opacity:.65; line-height:1.5; margin-top:4px; }
+
+.qz-jauge { height:4px; border-radius:var(--radius-full); background:var(--surface-muted);
+  overflow:hidden; margin:0 0 12px; }
+.qz-jauge i { display:block; height:100%; background:var(--accent); transition:width .3s var(--ease); }
+
+.qz-fin { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+.qz-fin-em { font-size:34px; line-height:1; flex:none; }
+.qz-fin b { display:block; font-family:var(--font-display); font-size:17px; font-weight:800; }
+.qz-fin span { font-size:12.5px; opacity:.65; }
+.qz-fin-et { margin-left:auto; font-size:17px; letter-spacing:1px; }
+.qz-mieux { font-size:12.5px; font-weight:600; color:var(--vert-fonce); margin:0 0 12px; }
+.qz-mieux.discret { color:inherit; opacity:.55; font-weight:400; }
+.qz-revoir { padding:11px 13px; border-radius:var(--radius-md); background:var(--accent-doux);
+  font-size:12.5px; line-height:1.6; margin-bottom:13px; }
+.qz-revoir span { display:block; }
+.qz-boutons { display:flex; gap:8px; }
+.qz-boutons .btn { flex:1; }
 </style>
 </head>
 <body>
 
-<div id="splash">
-  <div class="logo">⚡</div>
-  <div class="nom">IKE <span>Simulations</span></div>
-  <div class="sub">Sciences au collège</div>
-  <div class="barre"><div class="rempl"></div></div>
-  <div class="ver">v3.1.0</div>
+<div id="colonne">
+  <header>
+    <a class="icone-btn" href="../../index.html#/pct/6e" title="Retour au catalogue" aria-label="Retour">←</a>
+    <div>
+      <h1>États de la matière</h1>
+      <div class="sous">PCT · 6ᵉ SA4 · 5ᵉ SA3</div>
+    </div>
+    <div class="tete-fin">
+      <button class="icone-btn" id="btn-missions" title="Les missions" aria-label="Missions">🎯</button>
+      <button class="icone-btn" id="btn-lexique" title="Lexique" aria-label="Lexique">📖</button>
+      <button class="icone-btn" id="btn-aide" title="Comment jouer" aria-label="Aide">❓</button>
+      <button class="icone-btn" id="btn-theme" title="Thème" aria-label="Thème">🌙</button>
+    </div>
+  </header>
+
+  <section id="mission">
+    <div class="m-haut">
+      <span class="m-pastille" id="m-num">1</span>
+      <div class="m-titres">
+        <span class="m-rang" id="m-rang">Mission 1 sur 13</span>
+        <b id="m-titre">—</b>
+        <span id="m-but"></span>
+      </div>
+      <button class="m-plier" id="m-plier" aria-label="Afficher toutes les étapes"
+              aria-expanded="false">▼</button>
+    </div>
+    <div class="m-jauge"><i id="m-jauge" style="width:0"></i></div>
+    <div id="etapes"></div>
+    <div class="m-indice" id="m-indice" hidden></div>
+    <div class="m-diag" id="m-diag" hidden></div>
+    <div class="m-actions" id="m-actions">
+      <button class="btn btn-contour" id="btn-indice">💡 Indice</button>
+      <button class="btn" id="btn-suivante-barre" hidden>Mission suivante ▶</button>
+    </div>
+  </section>
 </div>
 
-<header>
-  <h1>🧊 États de la matière</h1>
-  <div class="spacer"></div>
-  <button class="btn" id="tab-exp">🧪<span class="lbl"> Expérimenter</span></button>
-  <button class="btn" id="btn-formule">📐<span class="lbl"> Infos</span></button>
-  <button class="btn" id="btn-theme">🌙<span class="lbl"> Sombre</span></button>
-  <button class="btn" id="btn-aide">❓<span class="lbl"> Aide</span></button>
-</header>
-
-<div id="mbar">
-  <div class="l1">
-    <span id="mchip"></span>
-    <span id="mtitre"></span>
-    <button class="mbtn" id="btn-missions" title="Toutes les missions">📋</button>
-  </div>
-  <div class="l2">
-    <span id="mpoints"></span>
-    <span id="metape"></span>
-    <span id="mcompteur"></span>
-    <button class="mbtn" id="btn-indice" title="Indice">💡 Indice</button>
-    <button class="mbtn" id="btn-suiv2" style="display:none">Suivante ▶</button>
-  </div>
-  <div id="mindice"></div>
-  <div id="mdiag"></div>
-</div>
-
-<div id="wrap">
-  <canvas id="scene"></canvas>
-  <div id="formule"></div>
-  <div id="toast"></div>
-</div>
-
-<nav id="palette">
-  <button class="cmd" id="btn-refroidir">❄️ Refroidir</button>
-  <button class="cmd" id="btn-chauffer">🔥 Chauffer</button>
-  <div id="piston-bloc">
-    <span>Piston</span>
-    <input type="range" id="piston" min="40" max="100" value="100" step="1">
-    <span id="piston-val">100 %</span>
-  </div>
-</nav>
-
-<div id="mlecon" class="voile">
-  <div class="carte">
-    <h2>📖 Avant de commencer…</h2>
-    <div id="mlecon-titre" style="font-weight:700; font-size:15px; margin-bottom:10px;"></div>
-    <p id="mlecon-texte" style="font-size:14px; line-height:1.65; margin-bottom:14px;"></p>
-    <button class="go" id="btn-go-lecon">C'est parti !</button>
-  </div>
-</div>
-
-<div id="mlexique" class="voile">
-  <div class="carte">
-    <h2>📖 Lexique de la matière</h2>
-    <dl class="lex" id="lex-items"></dl>
-    <button class="go" id="btn-fermer-lexique">Fermer</button>
-  </div>
-</div>
-
-<div id="mfin" class="voile">
-  <div class="carte">
-    <button class="fermer-x" id="btn-fermer-fin" title="Fermer et observer">✕</button>
-    <h2>🎉 Mission réussie !</h2>
-    <div id="mfin-titre"></div>
-    <div class="retenir-label">💡 À retenir</div>
-    <div class="p-acquis">📘 <b>Ce que tu as appris :</b> <span id="mfin-retenir"></span></div>
-    <div class="p-suite" id="mfin-suite"></div>
-    <button class="go" id="btn-suivante">Mission suivante ▶</button>
-    <button class="btn2" id="btn-liste2">📋 Toutes les missions</button>
-  </div>
-</div>
-
-<div id="mliste" class="voile">
-  <div class="carte">
-    <h2>📋 Parcours d'apprentissage</h2>
-    <div id="mliste-items"></div>
-    <button class="btn2" id="btn-libre">🧪 Mode libre — expérimente librement</button>
-    <button class="go" id="btn-fermer-liste">Fermer</button>
-    <button class="lien" id="btn-reset-prog">↺ Réinitialiser tout le parcours</button>
-  </div>
-</div>
-
-<div id="choix-mode" class="voile">
-  <div class="carte">
-    <h2>⚡ Que veux-tu faire ?</h2>
-    <div class="deux">
-      <button class="gros-btn" id="choix-apprendre">
-        <span class="gi">🎓</span>
-        <span><span class="gt">Apprendre</span><span class="gs">Le parcours guidé, mission par mission — recommandé pour commencer.</span></span>
-      </button>
-      <button class="gros-btn" id="choix-experimenter">
-        <span class="gi">🧪</span>
-        <span><span class="gt">Expérimenter</span><span class="gs" id="gs-exp"></span></span>
-      </button>
+<main>
+  <div id="atelier">
+    <canvas id="scene"></canvas>
+    <div id="formule"></div>
+    <div id="scene-cmd">
+      <button id="btn-formule" title="La lecture en direct" aria-label="Lecture en direct">📐</button>
     </div>
   </div>
-</div>
+  <div id="actions">
+    <div id="actions-int">
+      <button class="btn" id="btn-refroidir">❄️ Refroidir</button>
+      <button class="btn" id="btn-chauffer">🔥 Chauffer</button>
+      <label id="piston-bloc">
+        <span>Piston</span>
+        <input type="range" id="piston" min="40" max="100" value="100" step="1"
+               aria-label="Position du piston en pourcentage du volume">
+        <span id="piston-val">100 %</span>
+      </label>
+    </div>
+  </div>
+</main>
+
+<div id="toast" role="status" aria-live="polite"></div>
 
 <div id="visite">
   <div id="visite-halo"></div>
   <div id="visite-carte">
-    <div class="vtitre"></div>
-    <div class="vtexte"></div>
-    <div class="vbas">
-      <span class="vprog"></span>
-      <button id="visite-passer">Passer</button>
-      <button id="visite-suivant">Suivant</button>
+    <div class="v-titre" id="visite-titre"></div>
+    <div class="v-texte" id="visite-texte"></div>
+    <div class="v-bas">
+      <span class="v-prog" id="visite-prog"></span>
+      <button id="visite-passer" type="button">Passer</button>
+      <button id="visite-suivant" type="button">Suivant</button>
     </div>
-    <div class="vmarque">IKE Simulations · collège (PCT)</div>
   </div>
 </div>
+
+<div class="voile" id="v-quiz">
+  <div class="carte-modale" id="quiz-carte"></div>
+</div>
+
+<div class="voile" id="v-accueil">
+  <div class="carte-modale">
+    <h2>🧊 Que veux-tu faire ?</h2>
+    <p class="ac-intro">Tu vas <b>chauffer et refroidir de l'eau</b> jusqu'à voir ses molécules
+       changer d'état — et découvrir ce que fait la température pendant ce temps-là.</p>
+    <button class="ac-choix" id="ac-apprendre">
+      <span class="ac-em">🎓</span>
+      <span class="ac-txt"><b>Apprendre</b><span>Le parcours guidé, mission après mission.</span></span>
+      <span class="ac-etat" id="ac-etat-app"></span>
+    </button>
+    <button class="ac-choix" id="ac-experimenter">
+      <span class="ac-em">🧪</span>
+      <span class="ac-txt"><b>Expérimenter</b><span>L'enceinte libre, avec le piston.</span></span>
+      <span class="ac-etat" id="ac-etat-exp"></span>
+    </button>
+    <button class="ac-choix" id="ac-exercer">
+      <span class="ac-em">🏅</span>
+      <span class="ac-txt"><b>M’exercer</b><span>Trois séries de questions, et un score de maîtrise.</span></span>
+      <span class="ac-etat" id="ac-etat-ex"></span>
+    </button>
+    <p class="ac-pied" id="ac-pied"></p>
+  </div>
+</div>
+
+<div class="voile" id="v-lecon">
+  <div class="carte-modale">
+    <button class="fermer-x" id="btn-fermer-lecon" aria-label="Fermer">✕</button>
+    <h2 id="lecon-titre"></h2>
+    <p id="lecon-sous"></p>
+    <div id="lecon-contenu"></div>
+    <div class="lex-chips" id="lecon-lexique"></div>
+    <button class="btn btn-large" id="btn-commencer">🚀 Commencer la mission</button>
+  </div>
+</div>
+
+<div class="voile" id="v-missions">
+  <div class="carte-modale">
+    <button class="fermer-x" data-ferme="v-missions" aria-label="Fermer">✕</button>
+    <h2>🎯 Les missions</h2>
+    <p>Elles se suivent : termine l'une pour ouvrir la suivante.</p>
+    <div class="d-barre"><i id="d-barre"></i></div>
+    <div id="liste-missions"></div>
+    <button class="btn btn-fantome btn-large" id="btn-rezero"
+            style="margin-top:6px;color:var(--rouge-fonce)">↺ Recommencer tout le parcours</button>
+  </div>
+</div>
+
+<div class="voile" id="v-lexique">
+  <div class="carte-modale">
+    <button class="fermer-x" data-ferme="v-lexique" aria-label="Fermer">✕</button>
+    <h2>📖 Les mots de la matière</h2>
+    <p>Le vocabulaire du programme, expliqué avec ce que tu vois dans l'enceinte.</p>
+    <div id="liste-lexique"></div>
+  </div>
+</div>
+
+<div class="voile" id="v-aide">
+  <div class="carte-modale">
+    <button class="fermer-x" data-ferme="v-aide" aria-label="Fermer">✕</button>
+    <h2>🧊 Bienvenue dans l'enceinte !</h2>
+    <p>Ces billes bleues sont des <b>molécules d'eau</b>, énormément grossies. Tu vas les faire
+       passer d'un état à l'autre, comme dans le programme de 6ᵉ.</p>
+    <div class="g-titre">Comment mener l'expérience ?</div>
+    <div class="g-etape"><span class="num">1</span><span class="t">
+      <b>Suis les étapes de la mission</b>, en haut de l'écran. L'étape en cours est écrite
+      en gras.</span></div>
+    <div class="g-etape"><span class="num">2</span><span class="t">
+      <b>Maintiens le doigt appuyé</b> sur 🔥 Chauffer ou ❄️ Refroidir : tant que tu appuies,
+      l'énergie monte ou descend. Les molécules réagissent aussitôt.</span></div>
+    <div class="g-etape"><span class="num">3</span><span class="t">
+      <b>Surveille le thermomètre</b>, à droite de l'enceinte. Pendant un changement d'état,
+      il se bloque : c'est le <b>palier</b>, la notion la plus importante du chapitre.</span></div>
+    <div class="g-etape"><span class="num">4</span><span class="t">
+      Le bouton <b>📐</b>, sur l'enceinte, donne la lecture en direct : température, part fondue
+      ou vaporisée, et la pression dès que le piston est là.</span></div>
+    <div class="g-etape"><span class="num">5</span><span class="t">
+      Le <b>piston</b> apparaît en fin de parcours : il comprime le gaz. Attention à la pression…
+      </span></div>
+    <div class="g-etape"><span class="num">6</span><span class="t">
+      Un mot que tu ne connais pas ? Ouvre le <b>📖 lexique</b> en haut.</span></div>
+    <button class="btn btn-contour btn-large" id="btn-revoir-visite"
+            style="margin-bottom:8px">🔍 Revoir la visite guidée</button>
+    <button class="btn btn-large" data-ferme="v-aide">Commencer !</button>
+  </div>
+</div>
+
+<div class="voile" id="v-qcm"><div class="carte-modale" id="qcm-carte"></div></div>
+<div class="voile" id="v-passage"><div class="carte-modale" id="passage-carte"></div></div>
 
 <script>
 'use strict';
@@ -660,8 +780,10 @@ const ctx = canvas.getContext('2d');
 let largeur = 0, hauteur = 0;
 let boxX = 0, boxY = 0, boxW = 0, boxH = 0, pas = 18;  // enceinte + pas du réseau
 
+const $ = id => document.getElementById(id);
+
 function redimensionner() {
-  const wrap = document.getElementById('wrap');
+  const wrap = $('atelier');
   largeur = wrap.clientWidth; hauteur = wrap.clientHeight;
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
   canvas.width = Math.round(largeur * dpr);
@@ -671,9 +793,17 @@ function redimensionner() {
   const margeD = Math.min(90, largeur * 0.2);
   boxW = Math.min(largeur - margeD - 30, 520);
   boxX = Math.max(14, (largeur - margeD - boxW) / 2);
-  boxY = Math.max(56, hauteur * 0.09);
-  boxH = hauteur - boxY - 46;
-  pas = Math.min(22, (boxW - 24) / COLS);
+  // Les marges autour de l'enceinte étaient fixes (56 px en haut, 46 en bas) :
+  // écrites pour un grand écran, elles ne laissaient que 9 px de hauteur utile
+  // en paysage sur téléphone. Elles suivent maintenant la place disponible,
+  // avec un plancher qui garde de quoi écrire le nom de l'état et poser la
+  // plaque chauffante.
+  const margeHaut = Math.max(20, Math.min(56, hauteur * 0.12));
+  const margeBas = Math.max(18, Math.min(46, hauteur * 0.11));
+  boxY = margeHaut;
+  boxH = Math.max(60, hauteur - margeHaut - margeBas);
+  // le réseau de molécules doit tenir dans l'enceinte, en largeur ET en hauteur
+  pas = Math.min(22, (boxW - 24) / COLS, (boxH - 30) / (N / COLS));
 }
 
 const latX = c => boxX + (boxW - COLS * pas) / 2 + pas / 2 + c * pas;
@@ -784,16 +914,19 @@ function boucle(t) {
    4. RENDU
    ===================================================================== */
 
+// L'habillage de la scène (paroi, textes, corps du thermomètre) reprend les
+// jetons du design system ; les molécules et le mercure gardent leurs couleurs
+// propres — ce sont celles de la matière, pas celles du thème.
 const PALETTES = {
   clair: {
-    paroi: '#546e7a', fond: 'rgba(236,239,241,.5)', texte: '#37474f', doux: '#90a4ae',
+    paroi: '#B0ABA3', fond: 'rgba(240,238,233,.5)', texte: '#3A3632', doux: '#7A736C',
     solide: '#90caf9', liquide: '#42a5f5', gaz: '#b3e5fc', gazBord: '#4fc3f7',
-    thermo: '#eceff1', mercure: '#e53935', piston: '#78909c',
+    thermo: '#F0EEE9', mercure: '#E83A4B', piston: '#B0ABA3',
   },
   sombre: {
-    paroi: '#78909c', fond: 'rgba(34,48,58,.5)', texte: '#cfd8dc', doux: '#78909c',
+    paroi: '#4A5762', fond: 'rgba(35,44,52,.5)', texte: '#ECEFF1', doux: '#A8B0B6',
     solide: '#64b5f6', liquide: '#2196f3', gaz: '#4fc3f7', gazBord: '#81d4fa',
-    thermo: '#22303a', mercure: '#ef5350', piston: '#90a4ae',
+    thermo: '#232C34', mercure: '#EF5350', piston: '#6B767F',
   },
 };
 const T_ = () => PALETTES[etat.theme];
@@ -858,16 +991,18 @@ function dessiner() {
       ctx.fillText('❄', boxX + 40 + i * (boxW - 80) / 4, plaqueY - 4 - Math.abs(Math.sin(tAnim * 3 + i)) * 8);
   }
 
-  // Étiquette d'état au-dessus de l'enceinte — le NOM du changement dépend
-  // du sens : on ne parle d'ébullition qu'en chauffant ! (retour testeurs)
+  // Étiquette d'état — le NOM du changement dépend du sens : on ne parle
+  // d'ébullition qu'en chauffant ! (retour testeurs)
+  // Elle se pose DANS l'enceinte, en haut : au-dessus, elle se cognait à
+  // l'étiquette du piston dès que celui-ci était remonté à fond.
   const nomEtat = th.seg === 'fusion'
       ? (etat.dernierSens === 'refroidit' ? 'SOLIDIFICATION EN COURS' : 'FUSION EN COURS')
     : th.seg === 'ebullition'
       ? (etat.dernierSens === 'refroidit' ? 'LIQUÉFACTION EN COURS' : 'ÉBULLITION EN COURS')
     : th.seg === 'solide' ? 'SOLIDE' : th.seg === 'liquide' ? 'LIQUIDE' : 'GAZ';
-  ctx.fillStyle = (th.seg === 'fusion' || th.seg === 'ebullition') ? '#e65100' : t.texte;
-  ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
-  ctx.fillText(nomEtat, boxX + boxW / 2, boxY - 6);
+  ctx.fillStyle = (th.seg === 'fusion' || th.seg === 'ebullition') ? '#E65100' : t.texte;
+  ctx.font = 'bold 13px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  ctx.fillText(nomEtat, boxX + boxW / 2, boxY + 6);
 
   // Pression (quand le piston est débloqué et qu'il y a du gaz)
   if (pistonDebloque() && th.vap > 0.02) {
@@ -918,8 +1053,13 @@ function fmt(v, dec = 0) { return v.toFixed(dec).replace('.', ',').replace('-', 
    ===================================================================== */
 
 function tenirBouton(id, prop) {
-  const el = document.getElementById(id);
-  const debut = e => { e.preventDefault(); etat[prop] = true; el.classList.add('tenu'); };
+  const el = $(id);
+  const debut = e => {
+    e.preventDefault(); etat[prop] = true; el.classList.add('tenu');
+    // l'élève a compris le geste : les deux boutons cessent d'appeler
+    $('btn-chauffer').classList.remove('appelle');
+    $('btn-refroidir').classList.remove('appelle');
+  };
   const fin = () => { etat[prop] = false; el.classList.remove('tenu'); };
   el.addEventListener('pointerdown', debut);
   for (const ev of ['pointerup', 'pointerleave', 'pointercancel']) el.addEventListener(ev, fin);
@@ -927,10 +1067,10 @@ function tenirBouton(id, prop) {
 tenirBouton('btn-chauffer', 'chauffe');
 tenirBouton('btn-refroidir', 'refroidit');
 
-const piston = document.getElementById('piston');
+const piston = $('piston');
 piston.addEventListener('input', () => {
   etat.volFrac = parseInt(piston.value, 10) / 100;
-  document.getElementById('piston-val').textContent = piston.value + ' %';
+  $('piston-val').textContent = piston.value + ' %';
 });
 
 function pistonDebloque() {
@@ -938,8 +1078,13 @@ function pistonDebloque() {
   return m ? (m.outils || []).includes('piston') : true;
 }
 function majCommandes() {
-  document.getElementById('piston-bloc').classList.toggle('visible', pistonDebloque());
-  if (!pistonDebloque()) { etat.volFrac = 1; piston.value = 100; document.getElementById('piston-val').textContent = '100 %'; }
+  $('piston-bloc').classList.toggle('visible', pistonDebloque());
+  if (!pistonDebloque()) { etat.volFrac = 1; piston.value = 100; $('piston-val').textContent = '100 %'; }
+  // le geste que la mission attend appelle l'élève tant qu'il n'a rien touché
+  const m = missionCourante();
+  const rien = !etat.chauffe && !etat.refroidit && !!m;
+  $('btn-chauffer').classList.toggle('appelle', rien && (m.sens || 'chauffe') === 'chauffe');
+  $('btn-refroidir').classList.toggle('appelle', rien && m.sens === 'refroidit');
 }
 
 /* =====================================================================
@@ -958,7 +1103,7 @@ const MISSIONS = [
     indice: "Garde le doigt appuyé sur le bouton 🔥 Chauffer, en bas de l'écran.",
   },
   {
-    titre: 'Le solide',
+    titre: 'Le solide', sens: 'refroidit',
     etapes: [
       { texte: "Maintiens ❄️ Refroidir jusqu'à −10 °C : regarde les molécules se ranger !",
         test: () => th.T <= -8 },
@@ -980,6 +1125,7 @@ const MISSIONS = [
   },
   {
     titre: 'Le palier de température',
+    panneau: true,   // l'etape se lit dans le panneau des mesures
     etapes: [
       { texte: "Continue de chauffer PENDANT la fusion et regarde bien le thermomètre : il reste bloqué à 0 °C !",
         test: () => suivi.palierChauffeMs > 2500 && th.fondu >= 0.7 },
@@ -1019,7 +1165,7 @@ const MISSIONS = [
     indice: "Maintiens 🔥 jusqu'au bout du palier de 100 °C, puis encore un peu.",
   },
   {
-    titre: 'Marche arrière : la liquéfaction',
+    titre: 'Marche arrière : la liquéfaction', sens: 'refroidit',
     etapes: [
       { texte: "Refroidis la vapeur : les molécules se rassemblent à nouveau en liquide. C'est la liquéfaction.",
         test: () => suivi.aEteGaz && th.vap <= 0.15 },
@@ -1028,7 +1174,7 @@ const MISSIONS = [
     indice: "Maintiens ❄️ Refroidir : les molécules rapides ralentissent et retombent.",
   },
   {
-    titre: 'La solidification',
+    titre: 'La solidification', sens: 'refroidit',
     etapes: [
       { texte: "Continue de refroidir jusqu'à ce que TOUT redevienne solide, sous 0 °C.",
         test: () => th.fondu <= 0.02 && th.T <= -5 },
@@ -1038,6 +1184,7 @@ const MISSIONS = [
   },
   {
     titre: 'Comprime le gaz',
+    panneau: true,   // l'etape se lit dans le panneau des mesures
     outils: ['piston'],
     etapes: [
       { texte: "Nouvel outil : le piston ! Vaporise toute l'eau, puis descends le piston à 60 % ou moins. Regarde la pression P monter !",
@@ -1052,6 +1199,7 @@ const MISSIONS = [
   },
   {
     titre: 'Pression et température',
+    panneau: true,   // l'etape se lit dans le panneau des mesures
     outils: ['piston'],
     etapes: [
       { texte: "Garde le piston à 80 % ou moins et chauffe le gaz enfermé jusqu'à 120 °C : la pression grimpe encore !",
@@ -1067,6 +1215,7 @@ const MISSIONS = [
   },
   {
     titre: 'Et le couvercle saute !',
+    panneau: true,   // l'etape se lit dans le panneau des mesures
     outils: ['piston'],
     etapes: [
       { texte: "Expérience interdite en cuisine : enferme bien le gaz (piston à 60 % ou moins) et chauffe SANS T'ARRÊTER… jusqu'à ce que la pression fasse sauter le piston !",
@@ -1080,7 +1229,7 @@ const MISSIONS = [
     ],
   },
   {
-    titre: 'Défi : le cycle complet',
+    titre: 'Défi : le cycle complet', sens: 'refroidit',
     outils: ['piston'],
     etapes: [
       { texte: "Défi final : réalise le cycle complet ! Pars de la glace (−5 °C), vaporise tout, puis reviens à la glace. Traverse les 4 paliers !",
@@ -1091,53 +1240,298 @@ const MISSIONS = [
   },
 ];
 
-// Mini-leçons : le contexte AVANT de manipuler
-const LECONS = [
-  "Regarde bien l'enceinte : ces petites billes bleues représentent les molécules d'eau. Elles sont réelles mais des milliards de fois trop petites pour être vues. Ici, on a zoomé pour toi !",
-  "La matière existe sous trois états : solide, liquide et gaz. Tout dépend de la façon dont les molécules se tiennent. Commençons par le plus ordonné : le solide.",
-  "Quand on chauffe un solide, ses molécules vibrent de plus en plus fort… jusqu'à se libérer. Ce passage a un nom : la fusion. Et il se produit à une température bien précise.",
-  "Voici LE concept le plus important du chapitre (et des évaluations !) : pendant qu'un corps pur change d'état, sa température reste constante. On appelle ça un palier. Tu vas le voir de tes yeux.",
-  "Entre 0 °C et 100 °C, l'eau est liquide. Ses molécules restent en contact, mais elles glissent librement les unes sur les autres — c'est pour ça que l'eau coule !",
-  "Que se passe-t-il à 100 °C ? Les molécules gagnent tellement d'énergie qu'elles s'arrachent du liquide. C'est l'ébullition — et un deuxième palier t'attend.",
-  "Un gaz, c'est de la matière dont les molécules sont devenues libres : rapides, espacées, invisibles. La vapeur d'eau est invisible — la « fumée » au-dessus d'une marmite, c'est déjà de la liquéfaction !",
-  "Tous les changements d'état marchent dans les deux sens. En refroidissant un gaz, ses molécules ralentissent et se rassemblent : c'est la liquéfaction, celle qui fabrique les nuages et la rosée.",
-  "Dernier retour : du liquide au solide. En refroidissant, les molécules ralentissent tellement qu'elles se rangent et se figent. Et devine quoi : ça se passe encore à 0 °C, avec un palier.",
-  "Nouvelle propriété étonnante des gaz : on peut les comprimer, c'est-à-dire réduire leur volume ! Impossible avec un liquide ou un solide. Le piston va te le prouver — surveille la pression P.",
-  "La pression, ce sont les chocs des molécules sur les parois. Deux façons de l'augmenter : réduire le volume… ou chauffer ! Attention, c'est exactement le danger des bouteilles de gaz au soleil.",
-  "Que se passe-t-il si la pression monte, monte, monte… et que rien ne cède ? Spoiler : quelque chose finit TOUJOURS par céder. À la maison, c'est le couvercle de la marmite. Ici, tu vas le faire exprès — en toute sécurité !",
-  "À toi de jouer : le grand cycle complet, comme l'eau dans la nature. Glace, eau, vapeur, et retour. Tu vas traverser les quatre paliers — un vrai tour de maître !",
+// Fiche notion + QCM « Je m'évalue » de chaque mission (même index que MISSIONS).
+// La leçon pose le vocabulaire AVANT de manipuler ; le QCM ferme la mission.
+const META = [
+  { badge:'🔬', sousTitre:'Notion : les molécules et l’agitation thermique',
+    intro:[`Regarde bien l'enceinte : ces petites billes bleues représentent les <b>molécules</b> d'eau. Elles sont réelles, mais des milliards de fois trop petites pour être vues. Ici, on a zoomé pour toi.`,
+      `Chauffe, et observe ce qui leur arrive.`],
+    lexique:['Molécule', 'Agitation thermique'],
+    qcm:[
+      { q:`Que mesure la <b>température</b> d’un corps ?`,
+        choix:['L’agitation de ses molécules', 'Le nombre de ses molécules',
+               'La taille de ses molécules'], bonne:0,
+        expl:`Plus les molécules s'agitent, plus la température est élevée. C'est l'<b>agitation thermique</b>.` },
+      { q:`De quoi toute la matière est-elle faite ?`,
+        choix:['De molécules, invisibles à l’œil nu', 'De liquide uniquement',
+               'De chaleur'], bonne:0,
+        expl:`Solide, liquide ou gaz : c'est toujours la même matière, faite des mêmes molécules. Seule leur <b>façon de se tenir</b> change.` },
+    ] },
+  { badge:'🧊', sousTitre:'Notion : l’état solide',
+    intro:[`La matière existe sous trois états : <b>solide</b>, <b>liquide</b> et <b>gaz</b>. Tout dépend de la façon dont les molécules se tiennent.`,
+      `Commençons par le plus ordonné. Refroidis, et regarde les molécules se ranger.`],
+    lexique:['État solide'],
+    qcm:[
+      { q:`Dans un <b>solide</b>, comment sont les molécules ?`,
+        choix:['Rangées, serrées et liées : elles vibrent sur place',
+               'Libres et très espacées', 'Serrées mais désordonnées'], bonne:0,
+        expl:`C'est pour cela qu'un solide a une <b>forme propre</b> : un glaçon ne s'étale pas dans son verre.` },
+      { q:`Pourquoi un solide garde-t-il sa forme ?`,
+        choix:['Ses molécules sont liées entre elles et ne se déplacent pas',
+               'Il est plus lourd qu’un liquide', 'Il est plus froid'], bonne:0,
+        expl:`Les liaisons tiennent les molécules en place. Elles vibrent, mais restent chacune à son poste.` },
+    ] },
+  { badge:'💧', sousTitre:'Notion : la fusion',
+    intro:[`Quand on chauffe un solide, ses molécules vibrent de plus en plus fort… jusqu'à se libérer.`,
+      `Ce passage a un nom — la <b>fusion</b> — et il se produit à une température bien précise.`],
+    lexique:['Fusion', 'Corps pur'],
+    qcm:[
+      { q:`La <b>fusion</b>, c’est le passage…`,
+        choix:['du solide au liquide', 'du liquide au gaz', 'du gaz au liquide'], bonne:0,
+        expl:`Pour l'eau pure, elle se produit toujours à <b>0 °C</b>. Chaque corps pur a sa propre température de fusion : le fer fond à 1 538 °C.` },
+      { q:`À quelle température l’eau pure fond-elle ?`,
+        choix:['0 °C', '100 °C', '−20 °C'], bonne:0,
+        expl:`Toujours la même, pour de l'eau pure. C'est une <b>signature</b> du corps pur.` },
+    ] },
+  { badge:'📏', sousTitre:'Notion : le palier de température',
+    intro:[`Voici <b>le</b> concept le plus important du chapitre — et des évaluations : pendant qu'un corps pur change d'état, sa température <b>reste constante</b>.`,
+      `On appelle ça un <b>palier</b>. Tu vas le voir de tes yeux : chauffe pendant la fusion et fixe le thermomètre.`],
+    lexique:['Palier de température', 'Corps pur'],
+    qcm:[
+      { q:`Pendant la fusion de la glace, que fait la température ?`,
+        choix:['Elle reste bloquée à 0 °C', 'Elle monte régulièrement',
+               'Elle descend'], bonne:0,
+        expl:`C'est le <b>palier</b>. L'énergie apportée ne sert pas à chauffer : elle sert à casser les liaisons entre molécules.` },
+      { q:`À quoi sert l’énergie apportée pendant un palier ?`,
+        choix:['À casser les liaisons entre molécules', 'À élever la température',
+               'À rien : elle est perdue'], bonne:0,
+        expl:`Toute l'énergie passe dans la <b>transformation</b>. C'est pour ça que le thermomètre n'avance plus.` },
+    ] },
+  { badge:'🌊', sousTitre:'Notion : l’état liquide',
+    intro:[`Entre 0 °C et 100 °C, l'eau est <b>liquide</b>.`,
+      `Ses molécules restent en contact, mais elles glissent librement les unes sur les autres — c'est pour ça que l'eau coule.`],
+    lexique:['État liquide'],
+    qcm:[
+      { q:`Dans un <b>liquide</b>, comment sont les molécules ?`,
+        choix:['Serrées mais désordonnées : elles glissent les unes sur les autres',
+               'Rangées et immobiles', 'Libres et très espacées'], bonne:0,
+        expl:`Serrées comme dans un solide, mais <b>libres de glisser</b> : le liquide coule et prend la forme du récipient.` },
+      { q:`Que devient la surface libre d’un liquide au repos ?`,
+        choix:['Elle reste horizontale', 'Elle épouse la forme du fond',
+               'Elle se bombe vers le haut'], bonne:0,
+        expl:`Un liquide n'a <b>pas de forme propre</b> mais garde un volume propre — et sa surface libre est toujours horizontale.` },
+    ] },
+  { badge:'♨️', sousTitre:'Notion : l’ébullition',
+    intro:[`Que se passe-t-il à 100 °C ? Les molécules gagnent tellement d'énergie qu'elles s'arrachent du liquide.`,
+      `C'est l'<b>ébullition</b> — et un deuxième palier t'attend.`],
+    lexique:['Vaporisation (ébullition)', 'Palier de température'],
+    qcm:[
+      { q:`À quelle température l’eau pure bout-elle ?`,
+        choix:['100 °C', '0 °C', '50 °C'], bonne:0,
+        expl:`Et pendant toute l'ébullition, le thermomètre reste bloqué à 100 °C : c'est le <b>deuxième palier</b>.` },
+      { q:`La <b>vaporisation</b>, c’est le passage…`,
+        choix:['du liquide au gaz', 'du solide au liquide', 'du gaz au liquide'], bonne:0,
+        expl:`Les molécules se libèrent complètement les unes des autres et partent occuper tout l'espace.` },
+    ] },
+  { badge:'💨', sousTitre:'Notion : l’état gazeux',
+    intro:[`Un <b>gaz</b>, c'est de la matière dont les molécules sont devenues libres : rapides, espacées, invisibles.`,
+      `La vapeur d'eau est <b>invisible</b> — la « fumée » blanche au-dessus d'une marmite, c'est déjà de la liquéfaction !`],
+    lexique:['État gazeux'],
+    qcm:[
+      { q:`Dans un <b>gaz</b>, comment sont les molécules ?`,
+        choix:['Libres, très espacées et rapides : elles occupent tout le volume offert',
+               'Serrées et désordonnées', 'Rangées et immobiles'], bonne:0,
+        expl:`Un gaz n'a <b>ni forme propre ni volume propre</b> : il est expansible et occupe tout ce qu'on lui offre.` },
+      { q:`La vapeur d’eau est-elle visible ?`,
+        choix:['Non : elle est parfaitement invisible',
+               'Oui : c’est le nuage blanc au-dessus d’une marmite',
+               'Oui, mais seulement au-delà de 100 °C'], bonne:0,
+        expl:`Le nuage blanc, ce sont de fines gouttelettes <b>liquides</b> : de la vapeur qui s'est déjà refroidie. La vapeur elle-même ne se voit pas.` },
+    ] },
+  { badge:'🌧️', sousTitre:'Notion : la liquéfaction',
+    intro:[`Tous les changements d'état marchent <b>dans les deux sens</b>.`,
+      `En refroidissant un gaz, ses molécules ralentissent et se rassemblent : c'est la <b>liquéfaction</b>, celle qui fabrique les nuages et la rosée.`],
+    lexique:['Liquéfaction'],
+    qcm:[
+      { q:`La <b>liquéfaction</b>, c’est le passage…`,
+        choix:['du gaz au liquide', 'du liquide au gaz', 'du liquide au solide'], bonne:0,
+        expl:`C'est l'inverse de la vaporisation. Elle forme les nuages, la rosée du matin et la buée sur un verre froid.` },
+      { q:`D’où vient la <b>buée</b> sur un verre froid sorti du frigo ?`,
+        choix:['De la vapeur d’eau de l’air, qui se liquéfie au contact du froid',
+               'De l’eau qui traverse le verre', 'De la glace qui fond dedans'], bonne:0,
+        expl:`L'air contient toujours de la vapeur d'eau invisible. Au contact d'une paroi froide, elle redevient <b>liquide</b>.` },
+    ] },
+  { badge:'❄️', sousTitre:'Notion : la solidification',
+    intro:[`Dernier retour : du liquide au <b>solide</b>. En refroidissant, les molécules ralentissent tellement qu'elles se rangent et se figent.`,
+      `Et devine quoi : ça se passe encore à 0 °C, avec un palier.`],
+    lexique:['Solidification', 'Palier de température'],
+    qcm:[
+      { q:`À quelle température l’eau pure se solidifie-t-elle ?`,
+        choix:['0 °C, la même qu’à la fusion', '−10 °C', '100 °C'], bonne:0,
+        expl:`Fusion et solidification se font à la <b>même température</b>, dans les deux sens — chacune avec son palier.` },
+      { q:`Quels sont les changements d’état inverses l’un de l’autre ?`,
+        choix:['Fusion ⇄ solidification, et vaporisation ⇄ liquéfaction',
+               'Fusion ⇄ vaporisation', 'Solidification ⇄ liquéfaction'], bonne:0,
+        expl:`Quatre changements d'état, deux couples. C'est le schéma à savoir refaire de tête.` },
+    ] },
+  { badge:'🎈', sousTitre:'Notion : les gaz sont compressibles',
+    intro:[`Nouvelle propriété, étonnante : on peut <b>comprimer</b> un gaz, c'est-à-dire réduire son volume.`,
+      `Impossible avec un liquide ou un solide. Le piston va te le prouver — surveille la pression P.`],
+    lexique:['Compressible', 'Pression'],
+    qcm:[
+      { q:`Qu’est-ce qui est <b>compressible</b> ?`,
+        choix:['Les gaz seulement', 'Les liquides seulement', 'Les trois états'], bonne:0,
+        expl:`Dans un gaz, les molécules sont très espacées : il y a de la place à récupérer. Dans un liquide ou un solide, elles se touchent déjà.` },
+      { q:`Que devient la pression d’un gaz quand on réduit son volume ?`,
+        choix:['Elle augmente', 'Elle diminue', 'Elle ne change pas'], bonne:0,
+        expl:`Les molécules frappent les parois <b>plus souvent</b> dans un espace plus petit : la pression monte.` },
+    ] },
+  { badge:'🌡️', sousTitre:'Notion : pression et température',
+    intro:[`La <b>pression</b>, ce sont les chocs des molécules sur les parois.`,
+      `Deux façons de l'augmenter : réduire le volume… <b>ou chauffer</b>. C'est exactement le danger d'une bouteille de gaz laissée au soleil.`],
+    lexique:['Pression'],
+    qcm:[
+      { q:`Que se passe-t-il si on chauffe un gaz <b>enfermé</b> ?`,
+        choix:['Sa pression augmente', 'Sa pression diminue',
+               'Rien : le volume est fixe'], bonne:0,
+        expl:`Les molécules vont plus vite et frappent les parois <b>plus fort</b>. À volume fixe, la pression grimpe.` },
+      { q:`Pourquoi ne faut-il pas laisser une bombe aérosol au soleil ?`,
+        choix:['La chaleur augmente la pression du gaz enfermé : elle peut éclater',
+               'La peinture s’abîme', 'Le gaz s’échappe tout seul'], bonne:0,
+        expl:`C'est la même physique que la cocotte-minute : un gaz enfermé qu'on chauffe pousse de plus en plus fort sur son récipient.` },
+    ] },
+  { badge:'💥', sousTitre:'Notion : quand la pression l’emporte',
+    intro:[`Que se passe-t-il si la pression monte, monte, monte… et que rien ne cède ?`,
+      `Quelque chose finit <b>toujours</b> par céder. À la maison, c'est le couvercle de la marmite. Ici, tu vas le faire exprès — en toute sécurité.`],
+    lexique:['Pression'],
+    qcm:[
+      { q:`Pourquoi le couvercle d’une marmite saute-t-il ?`,
+        choix:['La vapeur enfermée pousse de plus en plus fort sur lui',
+               'Le métal se dilate', 'L’eau devient plus lourde'], bonne:0,
+        expl:`La vapeur produite ne peut pas sortir : sa pression grimpe jusqu'à soulever ce qui ferme le récipient.` },
+      { q:`À quoi sert la <b>soupape</b> d’une cocotte-minute ?`,
+        choix:['À laisser sortir la vapeur avant que la pression ne devienne dangereuse',
+               'À faire cuire plus vite', 'À mesurer la température'], bonne:0,
+        expl:`C'est une sécurité : elle évacue le trop-plein de vapeur. Un récipient fermé qu'on chauffe est un vrai danger.` },
+    ] },
+  { badge:'🏆', sousTitre:'Notion : le cycle de l’eau',
+    intro:[`À toi de jouer : le grand <b>cycle complet</b>, comme l'eau dans la nature.`,
+      `Glace, eau, vapeur, et retour. Tu vas traverser les quatre paliers — un vrai tour de maître.`],
+    lexique:['Palier de température', 'Corps pur'],
+    qcm:[
+      { q:`Combien de <b>paliers</b> traverse-t-on en allant de la glace à la vapeur, puis retour ?`,
+        choix:['Quatre : fusion, ébullition, liquéfaction, solidification',
+               'Deux : fusion et ébullition', 'Un seul, à 100 °C'], bonne:0,
+        expl:`Deux à l'aller, deux au retour — et chacun à la même température que son inverse.` },
+      { q:`Dans la nature, qu’est-ce qui correspond au cycle que tu viens de faire ?`,
+        choix:['Le cycle de l’eau : évaporation, nuages, pluie, glace',
+               'La photosynthèse', 'Les marées'], bonne:0,
+        expl:`Exactement la même physique, à l'échelle de la planète : l'eau des océans s'évapore, se liquéfie en nuages, retombe en pluie.` },
+    ] },
 ];
 
-/* ---- Moteur de progression (socle IKE, identique aux autres sims) ---- */
-const progression = { m: 0, etape: 0, faites: [] };
+/* ---- Moteur de progression (socle IKE, identique aux autres sims) ----
+   `libre` est un drapeau, pas une valeur de `m` : l'enceinte libre n'efface
+   plus la mission en cours, on y va et on en revient sans perdre sa place. */
+const progression = { m: 0, etape: 0, faites: [], libre: false, maitrise: {} };
 
 function chargerProgression() {
   try {
     const d = JSON.parse(localStorage.getItem('ike-matiere-progression-v2'));
     if (d) {
-      if (d.m === 'libre' || (Number.isInteger(d.m) && d.m >= 0 && d.m < MISSIONS.length))
-        progression.m = d.m;
+      if (Number.isInteger(d.m) && d.m >= 0 && d.m < MISSIONS.length) progression.m = d.m;
       if (Array.isArray(d.faites)) progression.faites = d.faites.filter(Number.isInteger);
+      // les versions d'avant le socle stockaient m:'libre'
+      progression.libre = d.libre === true || d.m === 'libre';
+      if (d.maitrise && typeof d.maitrise === 'object') progression.maitrise = d.maitrise;
     }
   } catch (e) {}
 }
 function sauverProgression() {
   try {
-    localStorage.setItem('ike-matiere-progression-v2',
-      JSON.stringify({ m: progression.m, faites: progression.faites }));
+    localStorage.setItem('ike-matiere-progression-v2', JSON.stringify({
+      m: progression.m, faites: progression.faites,
+      libre: progression.libre, maitrise: progression.maitrise,
+    }));
   } catch (e) {}
 }
-function missionCourante() { return progression.m === 'libre' ? null : MISSIONS[progression.m]; }
+function missionCourante() { return progression.libre ? null : MISSIONS[progression.m]; }
 
-function ouvrirLecon() {
-  const m = missionCourante();
-  if (!m || !LECONS[progression.m]) return;
-  document.getElementById('mlecon-titre').textContent =
-    `Mission ${progression.m + 1} — ${m.titre}`;
-  document.getElementById('mlecon-texte').textContent = LECONS[progression.m];
-  document.getElementById('mlecon').classList.add('visible');
+/* ---- La leçon d'avant-mission : le vocabulaire posé avant de manipuler ---- */
+const missionDeverrouillee = i => i === 0 || progression.faites.includes(i - 1);
+let missionEnAttente = null;
+
+function ouvrirLecon(i) {
+  if (!missionDeverrouillee(i)) { toast('🔒 Termine d’abord la mission précédente !'); return; }
+  missionEnAttente = i;
+  const meta = META[i] || {};
+  $('lecon-titre').textContent = `${meta.badge || '🎯'} Mission ${i + 1} · ${MISSIONS[i].titre}`;
+  $('lecon-sous').textContent = meta.sousTitre || '';
+  $('lecon-contenu').innerHTML =
+    (meta.intro || []).map(p => `<div class="notion-bloc">${p}</div>`).join('');
+  $('lecon-lexique').innerHTML = (meta.lexique || [])
+    .map(t => `<button data-lex="${t}">📖 ${t}</button>`).join('');
+  fermerVoiles();
+  ouvrir('v-lecon');
 }
-document.getElementById('btn-go-lecon').addEventListener('click', fermerVoiles);
+$('v-lecon').addEventListener('click', e => {
+  const l = e.target.closest('[data-lex]');
+  if (l) ouvrirLexique(l.dataset.lex);
+});
+$('btn-commencer').addEventListener('click', () => {
+  if (missionEnAttente !== null) lancerMission(missionEnAttente);
+});
+$('btn-fermer-lecon').addEventListener('click', () => { fermer('v-lecon'); ouvrirListe(); });
+
+/* ---- QCM « Je m'évalue » : il clôt chaque mission réussie ---- */
+let qcm = { liste: [], n: 0, justes: 0 };
+
+// Mélange les propositions : sans cela, la bonne réponse resterait toujours en
+// tête de liste et l'élève finirait par cliquer sans lire.
+function melangerQuestion(q) {
+  const ordre = q.choix.map((_, i) => i);
+  for (let i = ordre.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = ordre[i]; ordre[i] = ordre[j]; ordre[j] = t;
+  }
+  return Object.assign({}, q, {
+    choix: ordre.map(k => q.choix[k]), bonne: ordre.indexOf(q.bonne),
+  });
+}
+
+function demarrerQCM(m) {
+  const liste = ((META[progression.m] || {}).qcm || []).map(melangerQuestion);
+  if (!liste.length) { ouvrirPassage(m); return; }
+  qcm = { liste, n: 0, justes: 0 };
+  fermerVoiles();
+  rendreQcm();
+  ouvrir('v-qcm');
+}
+
+function rendreQcm() {
+  const q = qcm.liste[qcm.n];
+  $('qcm-carte').innerHTML = `
+    <div class="q-avance">✅ Mission réussie · question ${qcm.n + 1} sur ${qcm.liste.length}</div>
+    <div class="q-question">${q.q}</div>
+    <div id="q-choix">${q.choix.map((c, i) =>
+      `<button class="q-choix" data-rep="${i}">${c}</button>`).join('')}</div>
+    <div class="q-expl" id="q-expl"></div><div id="q-suite"></div>`;
+}
+
+function repondreQcm(i) {
+  const q = qcm.liste[qcm.n];
+  if (i === q.bonne) qcm.justes++;
+  // ✔️ / ❌ en plus des couleurs : repères universels pour les élèves
+  $('q-choix').querySelectorAll('.q-choix').forEach((b, k) => {
+    b.disabled = true;
+    if (k === q.bonne) { b.classList.add('bon'); b.textContent = '✔️ ' + b.textContent; }
+    else if (k === i) { b.classList.add('mauvais'); b.textContent = '❌ ' + b.textContent; }
+  });
+  const e = $('q-expl');
+  e.innerHTML = '💬 ' + q.expl;
+  e.classList.add('visible');
+  const dernier = qcm.n === qcm.liste.length - 1;
+  $('q-suite').innerHTML = `<button class="btn btn-large" style="margin-top:12px" id="q-continuer">${
+    dernier ? 'Terminer 🏁' : 'Question suivante →'}</button>`;
+  $('q-continuer').addEventListener('click', () => {
+    if (dernier) { fermer('v-qcm'); ouvrirPassage(MISSIONS[progression.m]); }
+    else { qcm.n++; rendreQcm(); }
+  });
+}
+$('v-qcm').addEventListener('click', e => {
+  const b = e.target.closest('[data-rep]');
+  if (b && !b.disabled) repondreQcm(+b.dataset.rep);
+});
 
 function evaluerMission() {
   const m = missionCourante();
@@ -1157,179 +1551,266 @@ function evaluerMission() {
       sauverProgression();
     }
     toast('🎉 Mission réussie ! Regarde tes molécules…');
+    // deux secondes pour admirer le résultat avant que le QCM ne s'ouvre
     const mACeMoment = progression.m;
     setTimeout(() => {
-      if (progression.m === mACeMoment && !document.querySelector('.voile.visible'))
-        ouvrirFin(m);
+      if (progression.m === mACeMoment && !progression.libre &&
+          !document.querySelector('.voile.visible')) demarrerQCM(m);
     }, 2100);
   } else {
     toast(`✅ Étape ${progression.etape} réussie !`);
-    const bar = document.getElementById('mbar');
-    bar.classList.remove('flash'); void bar.offsetWidth; bar.classList.add('flash');
+    replierSiPetitEcran();
   }
-  majMissionBar();
+  majMission();
 }
 
 function majDiagnostic(m) {
-  const d = document.getElementById('mdiag');
+  const d = $('m-diag');
   const hit = (m.diags || []).find(x => x.si());
   if (!hit) { masquerDiagnostic(); return; }
   const msg = '🤔 ' + hit.msg;
-  if (d.textContent !== msg || !d.classList.contains('visible')) {
+  if (d.textContent !== msg || d.hidden) {
     d.textContent = msg;
-    d.classList.add('visible');
+    d.hidden = false;
     redimensionner();
   }
 }
 function masquerDiagnostic() {
-  const d = document.getElementById('mdiag');
-  if (d.classList.contains('visible')) { d.classList.remove('visible'); redimensionner(); }
+  const d = $('m-diag');
+  if (!d.hidden) { d.hidden = true; redimensionner(); }
 }
 
+// L'indice se demande — sauf quand le coup de pouce le pousse après 45 s.
+// Le plan replié masque l'astuce : on le rouvre, sinon le bouton ne fait rien.
+function montrerIndice(forcer) {
+  const el = $('m-indice');
+  el.hidden = forcer === true ? false : !el.hidden;
+  if (!el.hidden) {
+    $('mission').classList.add('ouvert');
+    $('m-plier').setAttribute('aria-expanded', 'true');
+  }
+  redimensionner();
+}
+$('btn-indice').addEventListener('click', () => montrerIndice());
+
+// Router : une mission numérotée passe TOUJOURS par sa leçon ;
+// l'enceinte libre est protégée par le verrou de progression.
 function allerMission(m) {
-  progression.m = m;
+  if (m === 'libre') {
+    if (!accueilOuvert()) { toast(MSG_VERROU); return; }
+    lancerMission('libre');
+    return;
+  }
+  ouvrirLecon(m);
+}
+
+function lancerMission(m) {
+  if (m === 'libre') progression.libre = true;
+  else { progression.libre = false; progression.m = m; }
   progression.etape = 0;
   sauverProgression();
   resetEtapeTimer();
   resetSuivi();
   masquerDiagnostic();
   fermerVoiles();
-  document.getElementById('mindice').classList.remove('visible');
+  $('m-indice').hidden = true;
+  // on entre dans une mission : le plan s'ouvre en entier, on le repliera après
+  progression.repliFait = false;
+  $('mission').classList.add('ouvert');
+  $('m-plier').setAttribute('aria-expanded', 'true');
+  // Une mission qui se lit dans le panneau 📐 l'ouvre d'elle-même — mais
+  // seulement là où il y a la place. Sur un téléphone, il recouvrirait
+  // l'enceinte que l'élève doit justement regarder : on lui dit où toucher.
+  const mc = missionCourante();
+  if (mc && mc.panneau && !formuleVisible) {
+    if (window.innerWidth >= 880 || window.innerHeight >= 900) {
+      formuleVisible = true;
+      $('btn-formule').classList.add('actif');
+      majFormule();
+    } else {
+      setTimeout(() => toast('📐 Le détail du calcul de P t’attend dans le panneau.'), 900);
+    }
+  }
   majCommandes();
-  majMissionBar();
-  if (m !== 'libre') ouvrirLecon();
+  majMission();
+  ajusterRepli();
 }
 
-function majMissionBar() {
-  const m = missionCourante();
-  const l2 = document.querySelector('#mbar .l2');
-  if (!m) {
-    document.getElementById('mchip').textContent = '🧪';
-    document.getElementById('mtitre').textContent = 'Mode libre — expérimente !';
-    l2.style.display = 'none';
-  } else {
-    document.getElementById('mchip').textContent = `Mission ${progression.m + 1}/${MISSIONS.length}`;
-    document.getElementById('mtitre').textContent = m.titre;
-    l2.style.display = '';
-    const fini = progression.etape >= m.etapes.length;
-    const pts = document.getElementById('mpoints');
-    pts.innerHTML = '';
-    if (m.etapes.length > 1) {
-      m.etapes.forEach((e2, i) => {
-        const p = document.createElement('span');
-        p.className = 'pt' + (i < progression.etape ? ' faite' : i === progression.etape ? ' courante' : '');
-        pts.appendChild(p);
-      });
-    }
-    const metape = document.getElementById('metape');
-    // Toutes les étapes sont visibles : faites, en cours, à venir
-    metape.innerHTML = fini
-      ? '<div class="etape faite"><span class="coche">✓</span>' +
-        '<span class="t">🎉 Mission terminée ! Passe à la suivante.</span></div>'
-      : m.etapes.map((e2, i2) => {
-          const faite = i2 < progression.etape;
-          const courante = i2 === progression.etape;
-          return '<div class="etape' + (faite ? ' faite' : '') + (courante ? ' courante' : '') +
-            '"><span class="coche">✓</span><span class="t">' + e2.texte + '</span></div>';
-        }).join('');
-    metape.classList.remove('glisse'); void metape.offsetWidth; metape.classList.add('glisse');
-    document.getElementById('mcompteur').textContent =
-      m.etapes.length > 1 && !fini ? `étape ${progression.etape + 1}/${m.etapes.length}` : '';
-    document.getElementById('mindice').textContent = '💡 ' + m.indice;
-    document.getElementById('btn-indice').style.display = fini ? 'none' : '';
-    document.getElementById('btn-suiv2').style.display = fini ? '' : 'none';
-  }
+// La première étape franchie, le plan se replie sur un petit écran : l'élève a
+// lu ses consignes, il lui faut maintenant voir l'enceinte.
+function replierSiPetitEcran() {
+  if (progression.repliFait || window.innerWidth >= 880) return;
+  progression.repliFait = true;
+  $('mission').classList.remove('ouvert');
+  $('m-plier').setAttribute('aria-expanded', 'false');
   redimensionner();
 }
 
+// Le critère n'est pas la taille du plan mais la place qu'il laisse : si
+// l'enceinte tombe sous 45 % de l'écran, on ne voit plus l'expérience.
+function ajusterRepli() {
+  if (window.innerWidth >= 880) return;
+  if ($('atelier').getBoundingClientRect().height < window.innerHeight * 0.45)
+    replierSiPetitEcran();
+}
+
+// ---- Le plan de mission ----
+function majMission() {
+  const m = missionCourante();
+  if (!m) {
+    $('m-num').textContent = '∞';
+    $('m-rang').textContent = 'Enceinte libre';
+    $('m-titre').textContent = 'Expérimente comme tu veux';
+    $('m-but').textContent = 'Chauffer, refroidir, comprimer : aucune consigne.';
+    $('etapes').innerHTML = '';
+    $('m-jauge').style.width = '100%';
+    $('m-indice').hidden = true; $('m-diag').hidden = true;
+    $('m-actions').hidden = true;
+    redimensionner();
+    return;
+  }
+  const meta = META[progression.m] || {};
+  const fini = progression.etape >= m.etapes.length;
+  const faite = progression.faites.includes(progression.m);
+  $('m-num').textContent = faite ? '✓' : (progression.m + 1);
+  $('m-rang').textContent = `Mission ${progression.m + 1} sur ${MISSIONS.length}`;
+  $('m-titre').textContent = m.titre;
+  $('m-but').textContent = meta.sousTitre || '';
+  $('m-jauge').style.width = Math.round(progression.etape / m.etapes.length * 100) + '%';
+  // Toutes les étapes sont visibles : faites, en cours, à venir
+  const iMontrer = fini ? m.etapes.length - 1 : progression.etape;
+  $('etapes').innerHTML = fini
+    ? '<div class="etape faite a-montrer"><span class="coche">✓</span>' +
+      '<span class="t">🎉 Mission terminée ! Passe à la suivante.</span></div>'
+    : m.etapes.map((e2, i) => {
+        const ok = i < progression.etape;
+        const courante = i === progression.etape;
+        return `<div class="etape${ok ? ' faite' : ''}${courante ? ' courante' : ''}${
+          i === iMontrer ? ' a-montrer' : ''}">
+          <span class="coche">✓</span><span class="t">${e2.texte}</span></div>`;
+      }).join('');
+  $('m-indice').innerHTML = '💡 <b>Astuce :</b> ' + m.indice;
+  $('m-actions').hidden = false;
+  $('btn-indice').hidden = fini;
+  $('btn-suivante-barre').hidden = !fini;
+  redimensionner();
+}
+
+// Le chevron replie le plan : sur un téléphone, l'enceinte reprend la place.
+$('m-plier').addEventListener('click', () => {
+  const ouvert = $('mission').classList.toggle('ouvert');
+  $('m-plier').setAttribute('aria-expanded', ouvert ? 'true' : 'false');
+  redimensionner();
+});
 function fermerVoiles() {
   for (const v of document.querySelectorAll('.voile')) v.classList.remove('visible');
 }
+const ouvrir = id => $(id).classList.add('visible');
+const fermer = id => $(id).classList.remove('visible');
 
-function ouvrirFin(m) {
-  const derniere = progression.m === MISSIONS.length - 1;
-  document.getElementById('mfin-titre').textContent = `Mission ${progression.m + 1} — ${m.titre}`;
-  document.getElementById('mfin-retenir').textContent = m.retenir;
-  // On annonce ce qui vient : sinon le changement de mission passe inaperçu
-  const suiv = MISSIONS[progression.m + 1];
-  const zoneSuite = document.getElementById('mfin-suite');
-  if (zoneSuite) zoneSuite.innerHTML = suiv
-    ? '<div class="etiq">Mission ' + (progression.m + 2) + ' sur ' + MISSIONS.length + '</div>' +
-      '<b>' + suiv.titre + '</b><span>' + suiv.etapes[0].texte + '</span>'
-    : '<div class="etiq">Bravo</div><b>Tu as terminé les ' + MISSIONS.length + ' missions !</b>' +
-      '<span>Le mode libre s’ouvre : explore comme tu veux.</span>';
-  document.getElementById('btn-suivante').textContent =
-    derniere ? '🧪 Continuer en Mode libre' : 'Commencer la mission ' + (progression.m + 2) + ' →';
-  document.getElementById('mfin').classList.add('visible');
+// L'écran de passage : ce qu'on vient d'apprendre, puis ce qui attend.
+function ouvrirPassage(m) {
+  const i = progression.m;
+  const suiv = MISSIONS[i + 1];
+  const nbQ = ((META[i] || {}).qcm || []).length;
+  $('passage-carte').innerHTML = `
+    <div class="p-fanion"><span class="rond">✅</span>
+      <span><b>Mission ${i + 1} réussie !</b><span>${m.titre}${
+        nbQ ? ` · QCM : ${qcm.justes}/${nbQ}` : ''}</span></span></div>
+    <div class="p-acquis">📘 <b>Ce que tu as appris :</b> ${m.retenir}${
+      nbQ && qcm.justes < nbQ
+        ? ' <i>(Relis les explications du QCM et rejoue la mission quand tu veux !)</i>' : ''}</div>
+    ${suiv
+      ? `<div class="p-suite"><div class="etiq">Mission ${i + 2} sur ${MISSIONS.length}</div>
+           <b>${suiv.titre}</b><span>${(META[i + 1] || {}).sousTitre || suiv.etapes[0].texte}</span></div>
+         <button class="btn btn-large" id="btn-passer">Commencer la mission ${i + 2} →</button>`
+      : `<div class="p-suite"><div class="etiq">Bravo</div>
+           <b>Tu as terminé les ${MISSIONS.length} missions !</b>
+           <span>L'enceinte libre et le quiz s'ouvrent : expérimente, puis mesure ta maîtrise.</span></div>
+         <button class="btn btn-large" id="btn-passer">🧪 Continuer dans l'enceinte libre →</button>`}
+    <button class="btn btn-fantome btn-large" style="margin-top:8px" id="btn-passage-liste">🎯 Toutes les missions</button>`;
+  ouvrir('v-passage');
+  $('btn-passer').addEventListener('click', () => {
+    fermer('v-passage');
+    allerMission(suiv ? i + 1 : 'libre');
+  });
+  $('btn-passage-liste').addEventListener('click', () => { fermer('v-passage'); ouvrirListe(); });
 }
 
-document.getElementById('btn-suivante').addEventListener('click', () => {
+$('btn-suivante-barre').addEventListener('click', () => {
   const derniere = progression.m === MISSIONS.length - 1;
   allerMission(derniere ? 'libre' : progression.m + 1);
 });
-document.getElementById('btn-suiv2').addEventListener('click', () => {
-  const derniere = progression.m === MISSIONS.length - 1;
-  allerMission(derniere ? 'libre' : progression.m + 1);
-});
-document.getElementById('btn-liste2').addEventListener('click', () => { fermerVoiles(); ouvrirListe(); });
-document.getElementById('btn-fermer-fin').addEventListener('click', fermerVoiles);
 
 function ouvrirListe() {
-  const cont = document.getElementById('mliste-items');
-  cont.innerHTML = '';
-  MISSIONS.forEach((m, i) => {
-    const row = document.createElement('button');
-    row.className = 'mrow'
-      + (progression.faites.includes(i) ? ' faite' : '')
-      + (progression.m === i ? ' courante' : '');
-    const n = document.createElement('span');
-    n.className = 'n';
-    n.textContent = progression.faites.includes(i) ? '✓' : (i + 1) + '.';
-    const t = document.createElement('span');
-    t.className = 't';
-    t.textContent = m.titre;
-    row.append(n, t);
-    row.addEventListener('click', () => allerMission(i));
-    cont.appendChild(row);
-  });
-  document.getElementById('mliste').classList.add('visible');
+  const total = MISSIONS.length, n = progression.faites.length;
+  $('d-barre').style.width = Math.round(n / total * 100) + '%';
+  const cartes = MISSIONS.map((m, i) => {
+    const faite = progression.faites.includes(i);
+    const ouverte = missionDeverrouillee(i);
+    const meta = META[i] || {};
+    return `<button class="d-carte${faite ? ' fait' : ''}" data-mission="${i}"${
+      ouverte ? '' : ' disabled'}>
+      <span class="num">${faite ? '✓' : ouverte ? (i + 1) : '🔒'}</span>
+      <span class="txt"><b>${m.titre}</b><span>${meta.sousTitre || ''}</span></span>
+    </button>`;
+  }).join('');
+  const libre = accueilOuvert()
+    ? `<button class="d-carte" data-mission="libre">
+         <span class="num">∞</span>
+         <span class="txt"><b>L'enceinte libre</b><span>Chauffer, refroidir, comprimer : aucune consigne.</span></span>
+       </button>`
+    : '';
+  $('liste-missions').innerHTML = cartes + libre;
+  ouvrir('v-missions');
 }
 
-document.getElementById('btn-missions').addEventListener('click', ouvrirListe);
-document.getElementById('btn-libre').addEventListener('click', () => {
-  if (!experimenterDebloque()) { toast(MSG_VERROU); return; }
-  allerMission('libre');
-  majTabExp();
+$('btn-missions').addEventListener('click', ouvrirListe);
+$('v-missions').addEventListener('click', e => {
+  const b = e.target.closest('[data-mission]');
+  if (!b || b.disabled) return;
+  fermer('v-missions');
+  allerMission(b.dataset.mission === 'libre' ? 'libre' : +b.dataset.mission);
 });
-document.getElementById('btn-fermer-liste').addEventListener('click', fermerVoiles);
 
-const btnResetProg = document.getElementById('btn-reset-prog');
+const btnResetProg = $('btn-rezero');
 let confirmReset = null;
 btnResetProg.addEventListener('click', () => {
   if (confirmReset) {
     clearTimeout(confirmReset); confirmReset = null;
-    btnResetProg.textContent = '↺ Réinitialiser tout le parcours';
+    btnResetProg.textContent = '↺ Recommencer tout le parcours';
     progression.faites = [];
+    progression.libre = false;
     etat.E = 70; etat.volFrac = 1;
-    allerMission(0);
-    try { localStorage.removeItem('ike-matiere-visite'); } catch (e) {}
+    piston.value = 100; $('piston-val').textContent = '100 %';
+    fermer('v-missions');
+    lancerMission(0);
+    // Nouvel élève sur l'appareil : on relance aussi le repérage de l'interface
     lancerVisite();
   } else {
     btnResetProg.textContent = 'Sûr ? Touche encore une fois';
     confirmReset = setTimeout(() => {
       confirmReset = null;
-      btnResetProg.textContent = '↺ Réinitialiser tout le parcours';
+      btnResetProg.textContent = '↺ Recommencer tout le parcours';
     }, 2500);
   }
 });
 
+document.addEventListener('click', e => {
+  const f = e.target.closest('[data-ferme]');
+  if (f) fermer(f.dataset.ferme);
+});
+// Le QCM, l'écran de passage et l'accueil portent le fil du parcours :
+// ils ne se ferment pas par mégarde.
+const ancres = ['v-qcm', 'v-passage', 'v-accueil'];
 for (const v of document.querySelectorAll('.voile'))
-  v.addEventListener('click', e => { if (e.target === v) v.classList.remove('visible'); });
-
-document.getElementById('btn-indice').addEventListener('click', () => {
-  document.getElementById('btn-indice').classList.remove('pulse');
-  document.getElementById('mindice').classList.toggle('visible');
-  redimensionner();
+  v.addEventListener('click', e => {
+    if (e.target === v && ancres.indexOf(v.id) === -1) fermer(v.id);
+  });
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape' || visiteIdx >= 0) return;
+  for (const v of document.querySelectorAll('.voile.visible'))
+    if (ancres.indexOf(v.id) === -1) fermer(v.id);
 });
 
 let toastTimer = null;
@@ -1346,7 +1827,6 @@ let coupDePouceFait = false;
 function resetEtapeTimer() {
   etapeDebut = Date.now();
   coupDePouceFait = false;
-  document.getElementById('btn-indice').classList.remove('pulse');
 }
 setInterval(() => {
   const m = missionCourante();
@@ -1354,8 +1834,8 @@ setInterval(() => {
   if (document.querySelector('.voile.visible')) return;
   if (!coupDePouceFait && Date.now() - etapeDebut > 45000) {
     coupDePouceFait = true;
-    document.getElementById('btn-indice').classList.add('pulse');
-    toast('💡 Besoin d\'aide ? Touche le bouton Indice !');
+    montrerIndice(true);
+    toast('💡 Un coup de pouce pour cette étape.');
   }
 }, 5000);
 
@@ -1363,11 +1843,17 @@ setInterval(() => {
    7. INFOS EN DIRECT & LEXIQUE
    ===================================================================== */
 
-let formuleVisible = true;
-try { formuleVisible = localStorage.getItem('ike-matiere-formule') !== 'non'; } catch (e) {}
+// Sur un téléphone, le panneau recouvrait une bonne part de l'enceinte : on y
+// entre replié, et le bouton 📐 l'ouvre à la demande. Dès qu'un écran a de la
+// place — en largeur comme en hauteur — il s'affiche d'emblée.
+let formuleVisible = window.innerWidth >= 880 || window.innerHeight >= 900;
+try {
+  const memo = localStorage.getItem('ike-matiere-formule');
+  if (memo === 'oui' || memo === 'non') formuleVisible = memo === 'oui';
+} catch (e) {}
 
 function majFormule() {
-  const f = document.getElementById('formule');
+  const f = $('formule');
   if (!formuleVisible) { f.style.display = 'none'; return; }
   f.style.display = '';
   const l = [];
@@ -1406,18 +1892,17 @@ function majFormule() {
     res(`P ≈ ${fmt(P)} ${P >= 220 ? '⚠ danger !' : ''}`);
     note('P = chocs des molécules sur les parois. V ↓ ou T ↑ ⇒ P ↑');
   }
-  l.push('<button class="flex" id="btn-lexique">📖 Lexique des termes</button>');
   const html = l.join('');
   if (f.dataset.prec !== html) {   // éviter de reconstruire le DOM à chaque image
     f.dataset.prec = html;
     f.innerHTML = html;
-    document.getElementById('btn-lexique').addEventListener('click', ouvrirLexique);
   }
 }
 
-document.getElementById('btn-formule').addEventListener('click', () => {
+$('btn-formule').addEventListener('click', () => {
   formuleVisible = !formuleVisible;
   try { localStorage.setItem('ike-matiere-formule', formuleVisible ? 'oui' : 'non'); } catch (e) {}
+  $('btn-formule').classList.toggle('actif', formuleVisible);
   majFormule();
 });
 
@@ -1437,180 +1922,462 @@ const LEXIQUE = [
   ['Pression', 'Force des chocs des molécules d\'un gaz sur les parois. Elle augmente quand on réduit le volume ou quand on chauffe.'],
 ];
 
-function ouvrirLexique() {
-  const dl = document.getElementById('lex-items');
-  if (!dl.childElementCount) {
-    for (const [terme, def] of LEXIQUE) {
-      const dt = document.createElement('dt'); dt.textContent = terme;
-      const dd = document.createElement('dd'); dd.textContent = def;
-      dl.append(dt, dd);
-    }
+function ouvrirLexique(termeCible) {
+  const zone = $('liste-lexique');
+  zone.innerHTML = LEXIQUE.map(([terme, def]) =>
+    `<div class="lex-entree${terme === termeCible ? ' vise' : ''}"><b>${terme}</b>` +
+    `<span>${def}</span></div>`).join('');
+  ouvrir('v-lexique');
+  if (termeCible) {
+    const el = zone.querySelector('.vise');
+    if (el) el.scrollIntoView({ block: 'center' });
   }
-  document.getElementById('mlexique').classList.add('visible');
 }
-// Modales indépendantes : fermer le lexique ne ferme QUE le lexique
-document.getElementById('btn-fermer-lexique').addEventListener('click', () =>
-  document.getElementById('mlexique').classList.remove('visible'));
+$('btn-lexique').addEventListener('click', () => ouvrirLexique(null));
 
 /* =====================================================================
    8. VISITE GUIDÉE
    ===================================================================== */
 
-const VISITE = [
-  { cible: '#mbar', titre: '🎯 Ta mission',
-    texte: "Ta mission s'affiche ici : lis l'étape en cours et réalise-la. Les points colorés montrent ta progression." },
-  { cible: '#scene', titre: '🔬 L\'enceinte à molécules',
-    texte: "Chaque bille bleue est une molécule d'eau (très grossie !). Le thermomètre à droite indique la température en direct. Observe bien comment les molécules se comportent." },
-  { cible: '#palette', titre: '🔥❄️ Chauffer et refroidir',
-    texte: "MAINTIENS le doigt appuyé sur 🔥 Chauffer ou ❄️ Refroidir pour agir sur la matière. Un piston se débloquera plus tard pour comprimer le gaz !" },
-  { cible: '#formule', titre: '📐 Les infos en direct',
-    texte: "Ce panneau suit ton expérience : température, état, pourcentage fondu ou vaporisé, pression… Et il t'alerte pendant les fameux PALIERS. Le lien « Lexique » explique tous les termes." },
-  { cible: '#btn-indice', titre: '💡 Bloqué ? Un indice !',
-    texte: "Ce bouton te donne un coup de pouce pour l'étape en cours. N'hésite jamais à l'utiliser !" },
-  { cible: '#btn-theme', titre: '🌙 Confort visuel',
-    texte: "Bascule entre thème clair et sombre. Ton choix est mémorisé sur l'appareil." },
-];
-let visiteIdx = -1;
-const visiteEl = document.getElementById('visite');
-
-/* ---------- Apprendre / Expérimenter (verrou de progression) ---------- */
-
-const MSG_VERROU = '🔒 Termine d’abord toutes les missions d’apprentissage avant d’accéder au mode Expérimenter.';
-const experimenterDebloque = () => progression.faites.length >= MISSIONS.length;
+/* ============================================================================
+   L'accueil — « Que veux-tu faire ? »
+   Trois portes d'entrée : le parcours guidé, l'enceinte libre, et le quiz.
+   Les deux dernières restent fermées tant que le parcours n'est pas terminé.
+   ========================================================================== */
+const MSG_VERROU = '🔒 Termine d’abord les 13 missions d’Apprendre.';
+const accueilFaites = () => progression.faites.length;
+const accueilOuvert = () => accueilFaites() >= MISSIONS.length;
 const prochaineMission = () => {
   for (let i = 0; i < MISSIONS.length; i++) if (!progression.faites.includes(i)) return i;
   return 0;
 };
 
-function majTabExp() {
-  const b = document.getElementById('tab-exp');
-  const libre = progression.m === 'libre';
-  const ok = experimenterDebloque();
-  const html = libre
-    ? '🎓<span class="lbl"> Apprendre</span>'
-    : (ok ? '🧪' : '🔒') + '<span class="lbl"> Expérimenter</span>';
-  if (b.dataset.prec !== html) { b.dataset.prec = html; b.innerHTML = html; }
-  b.classList.toggle('verrouille', !libre && !ok);
-}
-setInterval(majTabExp, 1500);
-
-document.getElementById('tab-exp').addEventListener('click', () => {
-  if (progression.m === 'libre') allerMission(prochaineMission());
-  else if (!experimenterDebloque()) toast(MSG_VERROU);
-  else allerMission('libre');
-  majTabExp();
-});
-
-function entrerApprendre() {
-  document.getElementById('choix-mode').classList.remove('visible');
-  if (progression.m === 'libre') { allerMission(prochaineMission()); majTabExp(); return; }
-  majTabExp();
-  try {
-    if (!localStorage.getItem('ike-matiere-visite')) { lancerVisite(); return; }
-  } catch (e) { lancerVisite(); return; }
-  if (typeof ouvrirLecon === 'function' && missionCourante() && progression.etape === 0) ouvrirLecon();
+function rendreAccueil() {
+  const n = accueilFaites(), total = MISSIONS.length;
+  $('ac-etat-app').textContent = n === 0 ? 'Commencer'
+    : n >= total ? 'Terminé ✓' : 'Reprendre · ' + n + '/' + total;
+  const ouvert = accueilOuvert();
+  $('ac-experimenter').disabled = !ouvert;
+  $('ac-etat-exp').textContent = ouvert ? 'Ouvert' : '🔒 Verrouillé';
+  $('ac-exercer').disabled = !ouvert;
+  $('ac-etat-ex').textContent = ouvert ? (scoreMaitrise() + ' %') : '🔒 Verrouillé';
+  $('ac-pied').innerHTML = ouvert
+    ? 'Tu as terminé le parcours : les trois portes sont ouvertes.'
+    : 'Termine les <b>' + total + ' missions</b> d’Apprendre pour ouvrir les deux autres.';
 }
 
-function ouvrirChoixMode() {
+function ouvrirAccueil() {
   // un ancien « mode libre » sauvegardé sans déblocage n'est plus valable
-  if (progression.m === 'libre' && !experimenterDebloque()) allerMission(prochaineMission());
-  const ok = experimenterDebloque();
-  document.getElementById('gs-exp').textContent = ok
-    ? 'Le bac à sable : tous les outils, aucune consigne.'
-    : `Se débloque à la fin du parcours (${progression.faites.length}/${MISSIONS.length} missions réussies).`;
-  document.getElementById('choix-experimenter').classList.toggle('verrouille', !ok);
-  document.getElementById('choix-mode').classList.add('visible');
+  if (progression.libre && !accueilOuvert()) { progression.libre = false; sauverProgression(); }
+  rendreAccueil();
+  ouvrir('v-accueil');
 }
-document.getElementById('choix-apprendre').addEventListener('click', entrerApprendre);
-document.getElementById('choix-experimenter').addEventListener('click', () => {
-  if (!experimenterDebloque()) { toast(MSG_VERROU); return; }
-  document.getElementById('choix-mode').classList.remove('visible');
-  allerMission('libre');
-  majTabExp();
+
+$('ac-apprendre').addEventListener('click', () => {
+  fermer('v-accueil');
+  if (progression.libre) { progression.libre = false; sauverProgression(); }
+  // le repérage de l'interface reste proposé tant qu'aucune mission n'est gagnée
+  if (accueilFaites() === 0) { lancerVisite(); return; }
+  allerMission(missionCourante() ? progression.m : prochaineMission());
 });
+$('ac-experimenter').addEventListener('click', () => {
+  if (!accueilOuvert()) return;
+  fermer('v-accueil');
+  allerMission('libre');
+});
+$('ac-exercer').addEventListener('click', () => {
+  if (!accueilOuvert()) return;
+  fermer('v-accueil');
+  ouvrirQuiz();
+});
+
+/* ============================================================================
+   La visite guidée — on montre l'écran au lieu de le décrire
+   ========================================================================== */
+const VISITE = [
+  { cible:'#mission', titre:'🎯 Le plan de mission',
+    texte:"Ton but du moment et les étapes à cocher. Le chevron <b>▼</b> le replie quand tu veux voir toute l'enceinte." },
+  { cible:'#scene', titre:'🔬 L’enceinte à molécules',
+    texte:"Chaque bille bleue est une <b>molécule d'eau</b>, énormément grossie. Le thermomètre, à droite, donne la température en direct. Observe comment les molécules se tiennent." },
+  { cible:'#actions', titre:'🔥❄️ Chauffer et refroidir',
+    texte:"<b>Maintiens</b> le doigt appuyé pour agir sur la matière — tant que tu appuies, l'énergie monte ou descend. Un <b>piston</b> se débloquera plus tard pour comprimer le gaz." },
+  { cible:'#scene-cmd', titre:'📐 La lecture en direct',
+    texte:"Ce bouton ouvre le panneau qui suit ton expérience : température, état, part fondue ou vaporisée, pression. C'est lui qui annonce les fameux <b>paliers</b>." },
+  { cible:'.tete-fin', titre:'🎓 Les boutons du haut',
+    texte:"Les missions, le lexique des mots difficiles, ce guide, et le thème clair ou sombre." },
+];
+let visiteIdx = -1, visiteEtapes = [];
+const visiteEl = $('visite');
+
+function cibleVisible(sel) {
+  const e = document.querySelector(sel);
+  if (!e) return null;
+  const r = e.getBoundingClientRect();
+  return (r.width > 4 && r.height > 4) ? r : null;
+}
 
 function lancerVisite() {
   fermerVoiles();
+  // on ne montre que ce qui est réellement à l'écran en ce moment
+  visiteEtapes = VISITE.filter(e => !e.cible || cibleVisible(e.cible));
+  if (!visiteEtapes.length) { fermerVisite(); return; }
   visiteIdx = 0;
-  visiteEl.style.display = 'block';
-  montrerEtapeVisite();
+  visiteEl.classList.add('visible');
+  montrerVisite();
 }
+
+function montrerVisite() {
+  const et = visiteEtapes[visiteIdx];
+  const halo = $('visite-halo');
+  const r = et.cible ? cibleVisible(et.cible) : null;
+  if (r) {
+    halo.style.display = 'block';
+    halo.style.left = (r.left - 5) + 'px';
+    halo.style.top = (r.top - 5) + 'px';
+    halo.style.width = (r.width + 10) + 'px';
+    halo.style.height = (r.height + 10) + 'px';
+  } else halo.style.display = 'none';
+  $('visite-titre').textContent = et.titre;
+  $('visite-texte').innerHTML = et.texte;
+  $('visite-prog').textContent = (visiteIdx + 1) + ' / ' + visiteEtapes.length;
+  $('visite-suivant').textContent =
+    visiteIdx === visiteEtapes.length - 1 ? 'C’est parti !' : 'Suivant';
+  placerCarteVisite(r);
+}
+
+// La carte cherche une place libre autour de la zone montrée : dessous, dessus,
+// à droite, à gauche. Quand la zone occupe presque tout l'écran — l'enceinte,
+// par exemple — aucune place n'est libre : elle se pose alors dans un coin.
+function placerCarteVisite(r) {
+  const c = $('visite-carte');
+  c.style.visibility = 'hidden';
+  const cw = c.offsetWidth, ch = c.offsetHeight;
+  const W = window.innerWidth, H = window.innerHeight;
+  const poser = (x, y) => {
+    c.style.left = Math.round(Math.max(8, Math.min(W - cw - 8, x))) + 'px';
+    c.style.top = Math.round(Math.max(8, Math.min(H - ch - 8, y))) + 'px';
+    c.style.visibility = 'visible';
+  };
+  if (!r) { poser((W - cw) / 2, (H - ch) / 2); return; }
+  const m = 14, cx = r.left + r.width / 2 - cw / 2, cy = r.top + r.height / 2 - ch / 2;
+  const essais = [[cx, r.bottom + m], [cx, r.top - ch - m],
+                  [r.right + m, cy], [r.left - cw - m, cy]];
+  for (const [ex, ey] of essais) {
+    const x = Math.max(8, Math.min(W - cw - 8, ex));
+    const y = Math.max(8, Math.min(H - ch - 8, ey));
+    // retenue seulement si la carte ne recouvre pas ce qu'on montre
+    if (x + cw < r.left || x > r.right || y + ch < r.top || y > r.bottom) { poser(x, y); return; }
+  }
+  poser(W - cw - 12, H - ch - 12);
+}
+
 function fermerVisite() {
   visiteIdx = -1;
-  visiteEl.style.display = 'none';
-  try { localStorage.setItem('ike-matiere-visite', '1'); } catch (e) {}
-  if (missionCourante() && progression.etape === 0) ouvrirLecon();
+  visiteEl.classList.remove('visible');
+  // Enchaîner sur la leçon si la mission n'a pas encore commencé
+  if (missionCourante() && progression.etape === 0) ouvrirLecon(progression.m);
 }
-function montrerEtapeVisite() {
-  const et = VISITE[visiteIdx];
-  const halo = document.getElementById('visite-halo');
-  const carte = document.getElementById('visite-carte');
-  let rc = null;
-  if (et.cible) {
-    const el = document.querySelector(et.cible);
-    const r = el && el.getBoundingClientRect();
-    if (r && r.width > 0) rc = r;
-  }
-  if (rc) {
-    visiteEl.classList.remove('sombre');
-    halo.style.display = 'block';
-    halo.style.left = (rc.left - 6) + 'px';
-    halo.style.top = (rc.top - 6) + 'px';
-    halo.style.width = (rc.width + 12) + 'px';
-    halo.style.height = (rc.height + 12) + 'px';
-  } else {
-    visiteEl.classList.add('sombre');
-    halo.style.display = 'none';
-  }
-  carte.querySelector('.vtitre').textContent = et.titre;
-  carte.querySelector('.vtexte').textContent = et.texte;
-  carte.querySelector('.vprog').textContent = `${visiteIdx + 1}/${VISITE.length}`;
-  document.getElementById('visite-suivant').textContent =
-    visiteIdx === VISITE.length - 1 ? "C'est parti !" : 'Suivant';
-  requestAnimationFrame(() => {
-    const cw = carte.offsetWidth, ch = carte.offsetHeight;
-    let x, y;
-    if (rc) {
-      y = rc.bottom + 14;
-      if (y + ch > window.innerHeight - 10) y = rc.top - ch - 14;
-      if (y < 10) y = Math.max(10, (window.innerHeight - ch) / 2);
-      x = Math.max(10, Math.min(window.innerWidth - cw - 10, rc.left + rc.width / 2 - cw / 2));
-    } else {
-      x = (window.innerWidth - cw) / 2;
-      y = (window.innerHeight - ch) / 2;
-    }
-    carte.style.left = x + 'px';
-    carte.style.top = y + 'px';
-  });
-}
-document.getElementById('visite-suivant').addEventListener('click', () => {
-  visiteIdx++;
-  if (visiteIdx >= VISITE.length) fermerVisite(); else montrerEtapeVisite();
+
+$('visite-suivant').addEventListener('click', () => {
+  if (visiteIdx >= visiteEtapes.length - 1) { fermerVisite(); return; }
+  visiteIdx++; montrerVisite();
 });
-document.getElementById('visite-passer').addEventListener('click', fermerVisite);
-visiteEl.addEventListener('click', e => {
-  if (e.target === visiteEl || e.target.id === 'visite-halo')
-    document.getElementById('visite-suivant').click();
+$('visite-passer').addEventListener('click', fermerVisite);
+window.addEventListener('resize', () => { if (visiteIdx >= 0) montrerVisite(); });
+document.addEventListener('keydown', e => {
+  if (visiteIdx >= 0 && e.key === 'Escape') fermerVisite();
 });
-window.addEventListener('resize', () => { if (visiteIdx >= 0) montrerEtapeVisite(); });
-document.getElementById('btn-aide').addEventListener('click', lancerVisite);
+
+$('btn-aide').addEventListener('click', () => ouvrir('v-aide'));
+$('btn-revoir-visite').addEventListener('click', () => { fermer('v-aide'); lancerVisite(); });
 
 /* =====================================================================
-   9. THÈME & DÉMARRAGE
+   9. LE QUIZ LIBRE — « M'exercer »
+   ---------------------------------------------------------------------
+   Trois niveaux, du vocabulaire aux idées fausses. Il s'ouvre une fois le
+   parcours terminé et se refait autant de fois qu'on veut : c'est le
+   meilleur résultat de chaque niveau qui compte.
+   ===================================================================== */
+
+const NIVEAUX_QUIZ = [
+  { cle:'souviens', em:'🥉', nom:'Je me souviens', poids:1,
+    quoi:'Les mots et les faits que tu as rencontrés dans l’enceinte.' },
+  { cle:'comprends', em:'🥈', nom:'Je comprends', poids:2,
+    quoi:'Les mêmes idées, mais dans des situations que tu n’as pas encore vues.' },
+  { cle:'pieges', em:'🥇', nom:'On ne me piège plus', poids:3,
+    quoi:'Les erreurs que presque tout le monde fait. C’est là que tout se joue.' },
+];
+const PAR_SERIE = 6;
+
+const BANQUE = {
+  souviens: [
+    { q:'Que mesure la <b>température</b> d’un corps ?',
+      choix:['L’agitation de ses molécules', 'Le nombre de ses molécules',
+             'La taille de ses molécules'], bonne:0, mission:0,
+      expl:"Plus les molécules s'agitent, plus la température est élevée. C'est l'<b>agitation thermique</b>." },
+    { q:'Dans quel état les molécules sont-elles <b>rangées et liées</b>, vibrant sur place ?',
+      choix:['L’état solide', 'L’état liquide', 'L’état gazeux'], bonne:0, mission:1,
+      expl:"C'est pour cela qu'un solide a une <b>forme propre</b> : un glaçon ne s'étale pas." },
+    { q:'À quelle température l’eau pure <b>fond</b>-elle ?',
+      choix:['0 °C', '100 °C', '−10 °C'], bonne:0, mission:2,
+      expl:"Toujours la même, pour de l'eau pure — et la solidification se fait à cette même température." },
+    { q:'À quelle température l’eau pure <b>bout</b>-elle ?',
+      choix:['100 °C', '0 °C', '50 °C'], bonne:0, mission:5,
+      expl:"Et pendant toute l'ébullition, le thermomètre reste bloqué à 100 °C : c'est un <b>palier</b>." },
+    { q:'Comment appelle-t-on le passage <b>gaz → liquide</b> ?',
+      choix:['La liquéfaction', 'La vaporisation', 'La solidification'], bonne:0, mission:7,
+      expl:"C'est elle qui forme les nuages, la rosée du matin et la buée sur un verre froid." },
+    { q:'Qu’est-ce qu’un <b>palier de température</b> ?',
+      choix:['Un moment où la température reste constante pendant un changement d’état',
+             'Le moment où la température monte le plus vite',
+             'La température la plus haute atteinte'], bonne:0, mission:3,
+      expl:"L'énergie apportée sert à transformer la matière, pas à la chauffer. C'est la signature d'un <b>corps pur</b>." },
+    { q:'Qu’est-ce qui est <b>compressible</b> ?',
+      choix:['Les gaz seulement', 'Les liquides seulement', 'Les trois états'], bonne:0, mission:9,
+      expl:"Dans un gaz, les molécules sont très espacées : il y a de la place à récupérer. Ailleurs, elles se touchent déjà." },
+  ],
+
+  comprends: [
+    { q:'On chauffe un mélange de glace et d’eau. Le thermomètre indique 0 °C et ne bouge plus. Que se passe-t-il ?',
+      choix:['La glace fond : on est sur le palier de fusion',
+             'Le thermomètre est cassé', 'L’eau commence à bouillir'], bonne:0, mission:3,
+      expl:"Tant qu'il reste de la glace, toute l'énergie sert à la faire fondre. La température ne repart qu'une fois la fusion terminée." },
+    { q:'Un liquide est versé d’un verre étroit dans une assiette large. Que devient son <b>volume</b> ?',
+      choix:['Il ne change pas : seule la forme change',
+             'Il augmente, car l’assiette est plus large',
+             'Il diminue'], bonne:0, mission:4,
+      expl:"Un liquide n'a <b>pas de forme propre</b>, mais il a un <b>volume propre</b>. Il prend la forme du récipient sans changer de quantité." },
+    { q:'On enferme un gaz dans une seringue bouchée et on pousse le piston. Que devient la pression ?',
+      choix:['Elle augmente : les molécules frappent les parois plus souvent',
+             'Elle diminue', 'Elle ne change pas'], bonne:0, mission:9,
+      expl:"Moins de volume pour le même nombre de molécules : les chocs sur les parois se multiplient." },
+    { q:'Le matin, de la rosée couvre les feuilles. Quel changement d’état s’est produit ?',
+      choix:['Une liquéfaction : la vapeur d’eau de l’air s’est refroidie',
+             'Une fusion : la glace a fondu',
+             'Une vaporisation'], bonne:0, mission:7,
+      expl:"La nuit refroidit l'air et les surfaces ; la vapeur d'eau qu'il contient redevient <b>liquide</b> au contact du froid." },
+    { q:'On chauffe du fer pur. Il fond à 1 538 °C. Que dit ce nombre ?',
+      choix:['C’est sa température de fusion, propre au fer',
+             'C’est la température la plus chaude possible',
+             'C’est une erreur : tout fond à 0 °C'], bonne:0, mission:2,
+      expl:"Chaque corps pur a <b>sa</b> température de fusion. Celle de l'eau est 0 °C, celle du fer est bien plus haute." },
+    { q:'Une bouteille en plastique fermée est laissée au soleil. Que se passe-t-il à l’intérieur ?',
+      choix:['L’air chauffe et sa pression augmente : la bouteille se tend',
+             'L’air se refroidit', 'Rien : le plastique protège'], bonne:0, mission:10,
+      expl:"Un gaz enfermé qu'on chauffe pousse de plus en plus fort sur son récipient. C'est le danger des aérosols au soleil." },
+    { q:'On refroidit de la vapeur d’eau jusqu’à −10 °C. Quels changements d’état traverse-t-elle ?',
+      choix:['Liquéfaction, puis solidification',
+             'Solidification seulement', 'Fusion, puis vaporisation'], bonne:0, mission:8,
+      expl:"Gaz → liquide → solide, avec un palier à 100 °C puis un autre à 0 °C. C'est le chemin inverse du chauffage." },
+  ],
+
+  pieges: [
+    { q:'Un élève affirme que, pendant la fusion de la glace, la température <b>continue de monter</b> puisqu’on continue de chauffer. Cette affirmation est-elle exacte ?',
+      choix:['Non : elle reste bloquée à 0 °C ; l’énergie sert à casser les liaisons',
+             'Oui : chauffer fait toujours monter la température',
+             'Oui, mais très lentement'], bonne:0, mission:3,
+      expl:"C'est <b>le</b> piège du chapitre. Sur un palier, l'énergie transforme la matière au lieu de l'échauffer : le thermomètre attend." },
+    { q:'Un élève affirme que la <b>vapeur d’eau</b> est le nuage blanc que l’on voit au-dessus d’une marmite. Cette affirmation est-elle exacte ?',
+      choix:['Non : la vapeur est invisible ; ce nuage est déjà de l’eau liquide',
+             'Oui : c’est bien la vapeur qu’on voit sortir',
+             'Oui, quand l’eau bout à gros bouillons'], bonne:0, mission:6,
+      expl:"Le nuage blanc, ce sont de fines <b>gouttelettes liquides</b> : de la vapeur qui s'est refroidie au contact de l'air. La vapeur elle-même ne se voit pas." },
+    { q:'Un élève affirme que la glace et l’eau liquide sont <b>deux matières différentes</b>. Cette affirmation est-elle exacte ?',
+      choix:['Non : ce sont les mêmes molécules, seule leur organisation change',
+             'Oui : la glace est un solide, l’eau un liquide',
+             'Oui : la glace est plus lourde'], bonne:0, mission:1,
+      expl:"Changer d'état ne change pas la matière : les molécules restent les mêmes. C'est leur <b>façon de se tenir</b> qui change." },
+    { q:'Un élève affirme qu’on peut comprimer un <b>liquide</b> comme on comprime un gaz, en poussant assez fort. Cette affirmation est-elle exacte ?',
+      choix:['Non : ses molécules se touchent déjà, il n’y a pas de place à récupérer',
+             'Oui : tout se comprime si on pousse assez fort',
+             'Oui, mais seulement à froid'], bonne:0, mission:9,
+      expl:"Seuls les <b>gaz</b> sont compressibles. C'est pour cela que les freins d'une voiture utilisent un liquide et non de l'air." },
+    { q:'Un élève affirme que la buée sur un verre froid vient de l’eau qui <b>traverse le verre</b>. Cette affirmation est-elle exacte ?',
+      choix:['Non : c’est la vapeur d’eau de l’air qui se liquéfie sur la paroi froide',
+             'Oui : le verre laisse suinter un peu d’eau',
+             'Oui : c’est pour cela qu’il faut essuyer le verre'], bonne:0, mission:7,
+      expl:"Le verre est étanche. L'eau vient de l'<b>air</b>, qui contient toujours de la vapeur d'eau invisible." },
+    { q:'Un élève affirme qu’une casserole d’eau qui bout depuis dix minutes est <b>plus chaude</b> qu’au début de l’ébullition. Cette affirmation est-elle exacte ?',
+      choix:['Non : elle reste à 100 °C tant qu’il reste de l’eau à vaporiser',
+             'Oui : plus on chauffe longtemps, plus c’est chaud',
+             'Oui, elle peut monter jusqu’à 150 °C'], bonne:0, mission:5,
+      expl:"C'est le palier d'ébullition. Chauffer plus fort fait bouillir <b>plus vite</b>, pas plus chaud — l'eau part en vapeur, voilà tout." },
+    { q:'Un élève affirme que la solidification de l’eau se fait <b>à une température plus basse</b> que sa fusion. Cette affirmation est-elle exacte ?',
+      choix:['Non : les deux se font à 0 °C, dans un sens comme dans l’autre',
+             'Oui : il faut refroidir davantage pour geler',
+             'Oui : la solidification se fait à −5 °C'], bonne:0, mission:8,
+      expl:"Même température, deux sens opposés — et un palier dans chaque sens. Fusion et solidification sont l'exact miroir l'une de l'autre." },
+  ],
+};
+
+/* ---- L'état de maîtrise : le meilleur résultat obtenu à chaque niveau ---- */
+function maitriseDe(cle) { return (progression.maitrise && progression.maitrise[cle]) || 0; }
+
+// Les niveaux difficiles pèsent plus lourd : réussir le premier seul plafonne
+// à 17 %, il faut affronter les pièges pour dépasser 80 %.
+function scoreMaitrise() {
+  let p = 0, total = 0;
+  for (const n of NIVEAUX_QUIZ) { p += maitriseDe(n.cle) * n.poids; total += n.poids; }
+  return total ? Math.round(p / total * 100) : 0;
+}
+function motMaitrise(p) {
+  return p >= 85 ? 'Maîtrisée' : p >= 60 ? 'Solide' : p >= 30 ? 'En bonne voie' : 'Découverte';
+}
+function etoiles(r) {
+  return r >= 1 ? '⭐⭐⭐' : r >= .8 ? '⭐⭐' : r >= .5 ? '⭐' : '';
+}
+
+// Le quiz mélange ses propres propositions : les simulations n'ont pas toutes
+// la même structure de question, et emprunter la leur cassait ici.
+function melangerQuiz(q) {
+  const ordre = q.choix.map((_, i) => i);
+  for (let i = ordre.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = ordre[i]; ordre[i] = ordre[j]; ordre[j] = t;
+  }
+  return Object.assign({}, q, { choix:ordre.map(k => q.choix[k]), bonne:ordre.indexOf(q.bonne) });
+}
+
+let quiz = null;
+
+function ouvrirQuiz() {
+  if (!accueilOuvert()) { toast('Termine les ' + MISSIONS.length + ' missions pour t’exercer.'); return; }
+  quiz = null;
+  rendreAccueilQuiz();
+  ouvrir('v-quiz');
+}
+
+function rendreAccueilQuiz() {
+  const p = scoreMaitrise();
+  $('quiz-carte').innerHTML = `
+    <button class="fermer-x" data-ferme="v-quiz" aria-label="Fermer">✕</button>
+    <h2>🏅 M’exercer</h2>
+    <p>Trois séries de ${PAR_SERIE} questions. Tu peux les refaire autant de fois que tu veux :
+       c’est ton <b>meilleur</b> résultat qui compte.</p>
+    <div class="qz-maitrise">
+      <div class="qz-m-haut"><span>Ma maîtrise de la notion</span><b>${p} %</b></div>
+      <div class="qz-m-barre"><i style="width:${p}%"></i></div>
+      <div class="qz-m-mot">${motMaitrise(p)}</div>
+    </div>
+    ${NIVEAUX_QUIZ.map(n => {
+      const r = maitriseDe(n.cle), et = etoiles(r);
+      return `<button class="qz-niveau" data-niveau="${n.cle}">
+        <span class="qz-em">${n.em}</span>
+        <span class="qz-txt"><b>${n.nom}</b><span>${n.quoi}</span></span>
+        <span class="qz-note">${et || '—'}<span>${r ? Math.round(r * 100) + ' %' : 'jamais fait'}</span></span>
+      </button>`;
+    }).join('')}
+    <p class="qz-pied">Les questions difficiles comptent <b>trois fois plus</b> que les faciles :
+       c’est en les affrontant qu’on prouve qu’on a compris.</p>`;
+}
+
+function lancerSerie(cle) {
+  const banque = BANQUE[cle].slice();
+  for (let i = banque.length - 1; i > 0; i--) {           // tirage sans remise
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = banque[i]; banque[i] = banque[j]; banque[j] = t;
+  }
+  quiz = { niveau:cle, liste:banque.slice(0, PAR_SERIE).map(melangerQuiz),
+           n:0, justes:0, ratees:[] };
+  rendreQuestionQuiz();
+}
+
+function rendreQuestionQuiz() {
+  const q = quiz.liste[quiz.n];
+  const niv = NIVEAUX_QUIZ.find(n => n.cle === quiz.niveau);
+  $('quiz-carte').innerHTML = `
+    <button class="fermer-x" data-ferme="v-quiz" aria-label="Fermer">✕</button>
+    <div class="q-avance">${niv.em} ${niv.nom} · question ${quiz.n + 1} sur ${quiz.liste.length}</div>
+    <div class="qz-jauge"><i style="width:${quiz.n / quiz.liste.length * 100}%"></i></div>
+    <div class="q-question">${q.q}</div>
+    <div id="qz-choix">${q.choix.map((c, i) =>
+      `<button class="q-choix" data-qz="${i}">${c}</button>`).join('')}</div>
+    <div class="q-expl" id="qz-expl"></div><div id="qz-suite"></div>`;
+}
+
+function repondreQuiz(i) {
+  const q = quiz.liste[quiz.n];
+  const juste = i === q.bonne;
+  if (juste) quiz.justes++; else quiz.ratees.push(q);
+  $('qz-choix').querySelectorAll('.q-choix').forEach((b, k) => {
+    b.disabled = true;
+    if (k === q.bonne) { b.classList.add('bon'); b.textContent = '✔️ ' + b.textContent; }
+    else if (k === i) { b.classList.add('mauvais'); b.textContent = '❌ ' + b.textContent; }
+  });
+  const e = $('qz-expl');
+  e.innerHTML = q.expl;
+  e.classList.add('visible');
+  const dernier = quiz.n === quiz.liste.length - 1;
+  $('qz-suite').innerHTML = `<button class="btn btn-large" style="margin-top:12px" id="qz-continuer">${
+    dernier ? 'Voir mon résultat →' : 'Question suivante →'}</button>`;
+  $('qz-continuer').addEventListener('click', () => {
+    if (dernier) finirSerie(); else { quiz.n++; rendreQuestionQuiz(); }
+  });
+}
+
+function finirSerie() {
+  const r = quiz.justes / quiz.liste.length;
+  const niv = NIVEAUX_QUIZ.find(n => n.cle === quiz.niveau);
+  const avant = maitriseDe(quiz.niveau);
+  progression.maitrise = progression.maitrise || {};
+  progression.maitrise[quiz.niveau] = Math.max(avant, r);
+  sauverProgression();
+  // Les questions ratées renvoient à leur mission : le quiz ramène au parcours.
+  const revoir = [];
+  for (const q of quiz.ratees) if (revoir.indexOf(q.mission) === -1) revoir.push(q.mission);
+  revoir.sort((a, b) => a - b);
+  const p = scoreMaitrise();
+  $('quiz-carte').innerHTML = `
+    <button class="fermer-x" data-ferme="v-quiz" aria-label="Fermer">✕</button>
+    <div class="qz-fin">
+      <div class="qz-fin-em">${r >= 1 ? '🎉' : r >= .5 ? '👏' : '💪'}</div>
+      <div><b>${quiz.justes} bonnes réponses sur ${quiz.liste.length}</b>
+        <span>${niv.em} ${niv.nom}</span></div>
+      <div class="qz-fin-et">${etoiles(r) || '—'}</div>
+    </div>
+    ${r > avant
+      ? `<p class="qz-mieux">✨ C’est ton meilleur résultat à ce niveau.</p>`
+      : `<p class="qz-mieux discret">Ton meilleur reste ${Math.round(avant * 100)} %.</p>`}
+    <div class="qz-maitrise">
+      <div class="qz-m-haut"><span>Ma maîtrise de la notion</span><b>${p} %</b></div>
+      <div class="qz-m-barre"><i style="width:${p}%"></i></div>
+      <div class="qz-m-mot">${motMaitrise(p)}</div>
+    </div>
+    ${revoir.length ? `<div class="qz-revoir"><b>📘 À revoir :</b>${revoir.map(i =>
+        `<span>Mission ${i + 1} — ${MISSIONS[i].titre}</span>`).join('')}</div>` : ''}
+    <div class="qz-boutons">
+      <button class="btn btn-contour" id="qz-refaire">↻ Refaire cette série</button>
+      <button class="btn" id="qz-retour">Les niveaux →</button>
+    </div>`;
+  $('qz-refaire').addEventListener('click', () => lancerSerie(quiz.niveau));
+  $('qz-retour').addEventListener('click', rendreAccueilQuiz);
+}
+
+$('v-quiz').addEventListener('click', e => {
+  const n = e.target.closest('[data-niveau]');
+  if (n) { lancerSerie(n.dataset.niveau); return; }
+  const b = e.target.closest('[data-qz]');
+  if (b && !b.disabled) repondreQuiz(+b.dataset.qz);
+});
+
+/* =====================================================================
+   10. THÈME & DÉMARRAGE
    ===================================================================== */
 
 function appliquerTheme() {
-  document.body.classList.toggle('sombre', etat.theme === 'sombre');
-  document.getElementById('btn-theme').innerHTML =
-    etat.theme === 'sombre' ? '☀️<span class="lbl"> Clair</span>' : '🌙<span class="lbl"> Sombre</span>';
+  const sombre = etat.theme === 'sombre';
+  document.body.classList.toggle('sombre', sombre);
+  $('btn-theme').textContent = sombre ? '☀️' : '🌙';
+  document.querySelector('meta[name=theme-color]')
+    .setAttribute('content', sombre ? '#14181C' : '#F7F5F0');
 }
-document.getElementById('btn-theme').addEventListener('click', () => {
+$('btn-theme').addEventListener('click', () => {
   etat.theme = etat.theme === 'sombre' ? 'clair' : 'sombre';
   try { localStorage.setItem('ike-theme', etat.theme); } catch (e) {}
   appliquerTheme();
 });
 try {
-  const memo = localStorage.getItem('ike-theme') || localStorage.getItem('ike-circuit-theme');
+  const memo = localStorage.getItem('ike-theme');
   if (memo === 'sombre' || memo === 'clair') etat.theme = memo;
   else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
     etat.theme = 'sombre';
@@ -1618,18 +2385,17 @@ try {
 
 chargerProgression();
 window.addEventListener('resize', redimensionner);
+$('mission').classList.add('ouvert');
+$('m-plier').setAttribute('aria-expanded', 'true');
+$('btn-formule').classList.toggle('actif', formuleVisible);
 redimensionner();
 appliquerTheme();
+resetSuivi();
 majCommandes();
-majMissionBar();
+majMission();
+ajusterRepli();
 requestAnimationFrame(boucle);
-
-setTimeout(() => {
-  const s = document.getElementById('splash');
-  s.classList.add('fini');
-  setTimeout(() => s.remove(), 600);
-  ouvrirChoixMode();   // écran d'entrée : Apprendre / Expérimenter
-}, 1400);
+ouvrirAccueil();      // écran d'entrée : Apprendre / Expérimenter / M'exercer
 </script>
 </body>
 </html>

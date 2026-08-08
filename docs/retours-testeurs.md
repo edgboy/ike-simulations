@@ -267,3 +267,27 @@ Deuxième migration. Les six points du circuit s'appliquent tels quels ; ce qui 
 Vérification : même protocole. Parcours, QCM, passage, quiz complet, paillasse libre, diagnostic
 replié, indice, lexique, aide, thème sombre. Cinq largeurs sans débordement, part de l'écran
 laissée à la scène mesurée à chaque taille. Aucune erreur JS. 112 Ko, 2 272 lignes.
+
+### États de la matière (v4.37.0)
+
+Troisième migration, la plus grosse : treize missions, 26 questions de QCM écrites. La recette des
+deux précédentes s'applique sans surprise — le temps est passé dans les questions, pas dans le
+code. Ce qui s'ajoute :
+
+- **Mesurer l'écran fait trouver ce que l'œil laisse passer.** Le protocole à cinq tailles a sorti
+  trois défauts qu'aucune relecture n'aurait vus : l'enceinte réduite à **9 px** de hauteur en
+  paysage, le nom de l'état qui se cogne à l'étiquette du piston, et une consigne de six lignes qui
+  survit au repli du plan. Aucun n'avait été signalé par les testeurs.
+- **Les marges fixes d'un rendu sont un piège récurrent.** Après la réserve de place des jauges des
+  combustions, ce sont ici les 56 px au-dessus de l'enceinte : des valeurs écrites pour un grand
+  écran, qui ne laissent rien quand la hauteur fond. La règle à appliquer partout : *toute marge de
+  rendu se calcule en proportion, avec un plancher — jamais en dur.*
+- **Replier ne suffit pas si le contenu est long.** Le repli ne montre qu'une étape, mais une étape
+  peut faire six lignes. Elle est bornée à trois, dépliable au chevron.
+- **Un panneau flottant ne s'ouvre pas tout seul sur téléphone, même quand la mission s'y lit.** Il
+  recouvrirait justement ce qu'il faut regarder. Ici, la pression est déjà lisible sur la scène :
+  le panneau n'apporte que le détail du calcul, et un message le signale.
+
+Vérification : même protocole, plus le contrôle de la géométrie de l'enceinte à chaque taille
+(hauteur de la boîte, pas du réseau, tenue du réseau dans la boîte). Aucune erreur JS.
+120 Ko, 2 401 lignes.

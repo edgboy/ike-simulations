@@ -5,6 +5,43 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v4.37.0 — 2026-08-08
+
+🧊 **Les états de la matière rejoignent le socle — la plus grosse des anciennes.**
+
+Treize missions, du grain de matière au cycle de l'eau. Le modèle thermique ne bouge pas : la
+courbe énergie → température en cinq segments, ses deux paliers à 0 et 100 °C, et la pression du
+gaz enfermé sont ceux d'avant.
+
+- **Les cinq points communs de la migration** : jetons du design system, en-tête à icônes, plan de
+  mission à pastille et chevron, modales `.carte-modale`, mode libre en drapeau. Le splash
+  disparaît, remplacé par l'accueil et ses trois portes.
+- **Le QCM de fin de mission arrive**, comme pour les combustions : **26 questions**, deux par
+  mission. Les treize leçons deviennent de vraies fiches notion, avec sous-titre et mots de
+  lexique cliquables.
+- **Le quiz libre**, trois niveaux, **21 questions**. Le niveau 3 attaque la température crue
+  monter pendant la fusion, la vapeur crue être le nuage blanc au-dessus d'une marmite, la glace
+  crue être une autre matière que l'eau, le liquide cru compressible, la buée crue traverser le
+  verre, l'eau qui bout crue devenir plus chaude avec le temps, et la solidification crue se faire
+  plus bas que la fusion.
+- **Les deux gestes se distinguent au premier regard** : ❄️ Refroidir prend le bleu, 🔥 Chauffer
+  l'orange, et celui que la mission attend appelle l'élève tant qu'il n'a rien touché.
+
+**Trois défauts de rendu corrigés**, tous trouvés en mesurant l'écran :
+
+- **L'enceinte tombait à 9 pixels de hauteur en paysage sur téléphone.** Ses marges étaient fixes —
+  56 px en haut, 46 en bas — écrites pour un grand écran. Elles suivent maintenant la place
+  disponible, avec un plancher pour le nom de l'état et la plaque chauffante : l'enceinte remonte
+  à **73 px**, et le réseau de molécules est borné pour y tenir. Rien ne change sur grand écran.
+- **Le nom de l'état se cognait à l'étiquette du piston** dès que celui-ci était remonté à fond.
+  Il se pose désormais *dans* l'enceinte, en haut.
+- **Une consigne longue occupait six lignes même une fois le plan replié**, ne laissant qu'un tiers
+  d'écran à l'expérience. Repliée, elle est bornée à trois lignes ; le chevron la déplie en entier.
+
+Le panneau 📐 ne s'ouvre plus tout seul sur téléphone, même quand la mission s'y lit : il
+recouvrirait l'enceinte que l'élève doit justement regarder. La pression reste affichée sur la
+scène, et un message indique où trouver le détail du calcul.
+
 ## v4.36.0 — 2026-08-08
 
 🔥 **Les combustions vives rejoignent le socle — et gagnent leur QCM.**

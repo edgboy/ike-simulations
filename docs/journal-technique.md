@@ -271,13 +271,22 @@ de premier cas — ses décisions sont notées dans sa propre section. Ce qui s'
 | Un panneau flottant s'ouvre **replié sur téléphone** | Le triangle du feu recouvrait la moitié de la scène. Un drapeau `panneau` sur la mission dont l'étape s'y lit le rouvre automatiquement. Et il défile chez lui, sinon la scène le rogne. |
 | La **réserve de place** d'un rendu doit compter *tous* les objets qu'elle protège | La marge droite réservait la largeur d'une jauge alors que deux sont dessinées : sur 320 px, la seconde sortait de l'écran. La géométrie est passée en constante partagée entre le dessin et la réserve. |
 
+S'y ajoute, avec les **états de la matière** (v4.37.0) :
+
+| Décision | Pourquoi |
+|---|---|
+| **Toute marge de rendu se calcule en proportion, avec un plancher — jamais en dur** | Les 56 px réservés au-dessus de l'enceinte, écrits pour un grand écran, ne laissaient que **9 px** de hauteur utile en paysage sur téléphone. Même famille de bug que la réserve des jauges : une constante juste sur un écran, fausse sur un autre. |
+| Une **étape longue est bornée quand le plan est replié** | Replier ne montre qu'une étape — mais une étape peut faire six lignes et manger le tiers de l'écran. Trois lignes, dépliables au chevron. |
+| Un **panneau flottant ne s'ouvre pas tout seul sur téléphone**, même quand la mission s'y lit | Il recouvre justement ce qu'il faut regarder. Vérifier d'abord si l'information est déjà lisible sur la scène — ici, la pression y était. |
+| Les étiquettes de scène se posent **dans** la zone dessinée, pas au-dessus | Le nom de l'état, posé dans la marge, se cognait à l'étiquette du piston dès que celui-ci remontait à fond. Dedans, il n'y a plus de collision possible. |
+
 **Protocole de vérification** établi sur ces deux migrations, à reprendre tel quel : Chrome piloté
 par CDP, parcours joué de bout en bout (accueil → visite → leçon → mission → QCM → passage →
 liste → quiz → mode libre), puis contrôle du débordement horizontal et de la part d'écran laissée
 à la scène sur cinq tailles — 320, 390, 740 (paysage), 820 et 1280 px.
 
-**Restent à traiter** : états de la matière, optique, transformations, plus les deux ateliers de
-molécules retirés du catalogue.
+**Restent à traiter** : optique, transformations, plus les deux ateliers de molécules retirés du
+catalogue.
 
 ---
 
