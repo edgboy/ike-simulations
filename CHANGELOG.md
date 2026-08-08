@@ -5,6 +5,29 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v4.30.0 — 2026-08-08
+
+🧊 **La fabrique de glace : chaque isolant a sa matière, et le plan respire sur téléphone.**
+
+**Les trois isolants se ressemblaient à une teinte près** — le même rectangle arrondi, gris clair,
+blanc cassé ou beige. Chacun a maintenant sa matière : le **polystyrène** est une caisse à parois
+épaisses au grain de billes soudées, le **coton** une ouate au contour bosselé parsemée de flocons,
+les **chiffons** des bandes de tissu enroulées, de trois teintes, avec leurs plis.
+
+**Le plan de travail était encombré sur téléphone.** La fiche des températures, posée en haut à
+gauche, couvrait la moitié gauche de la scène : le récipient se retrouvait écrasé dans un coin. Trois
+changements :
+
+- la fiche devient un **bandeau d'une ligne** au-dessus de la scène — « LE MÉLANGE 0,3 °C ·
+  L'EAU DU FLACON 14,3 °C » — et rend toute sa place au montage ;
+- la courbe passe **sous** la scène au lieu de lui prendre la moitié droite : sur un écran étroit, le
+  montage prend toute la largeur même quand le plan est large et bas ;
+- les quatre isolants tiennent sur **une seule ligne** qui défile au doigt, et les réglages se
+  resserrent — la hauteur gagnée revient au plan de travail.
+
+Le montage se recentre : la place qui était réservée à la fiche ne l'est plus quand celle-ci n'est
+plus posée dessus.
+
 ## v4.29.0 — 2026-08-07
 
 🥁 **Le tam-tam : une calebasse est un demi-cercle.**

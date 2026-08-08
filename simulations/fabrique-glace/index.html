@@ -532,12 +532,33 @@ main { flex:1; min-height:0; display:flex; flex-direction:column; }
 .etiq-svg { font-family:var(--font-body); font-size:11px; font-weight:600; }
 .chiffre-svg { font-family:var(--font-display); font-size:12.5px; font-weight:800; }
 
+/* Sur téléphone, la fiche des températures couvrait la moitié gauche du plan
+   de travail : le récipient se retrouvait écrasé dans un coin. Elle devient un
+   bandeau d'une ligne au-dessus de la scène, chronomètre compris, et rend
+   toute sa place au montage. */
 @media (max-width:560px) {
-  #lecture { width:150px; padding:7px 9px; }
-  #lecture .l-temp { font-size:19px; }
-  #lecture .l-quoi { display:none; }
-  #reglages { gap:10px; padding:7px 10px 8px; }
+  #atelier { display:flex; flex-direction:column; }
+  #lecture {
+    position:static; width:auto; max-width:none; order:-1; flex:none;
+    display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;
+    border:none; border-bottom:1px solid var(--border); border-radius:0;
+    box-shadow:none; padding:6px 10px 7px;
+  }
+  #lecture .l-titre { margin:0; font-size:9.5px; }
+  #lecture .l-temp { font-size:17px; margin-right:4px; }
+  #lecture .l-sep { display:none; }
+  #lecture .l-quoi { flex:1 1 100%; font-size:10.5px; margin:1px 0 0; }
+  #chrono { top:auto; bottom:6px; right:6px; padding:3px 9px; font-size:11.5px; }
+  #chrono b { font-size:13px; }
+  #reglages { gap:6px; padding:6px 10px 7px; }
   .rg-bloc { flex:1 1 100%; }
+  .rg-titre { font-size:10.5px; margin-bottom:3px; }
+  .rg-titre b { font-size:12.5px; }
+  /* les isolants tiennent sur une seule ligne, qui défile au doigt */
+  .rg-choix { flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; padding-bottom:2px; }
+  .rg-choix::-webkit-scrollbar { display:none; }
+  .iso { padding:4px 9px 4px 7px; font-size:11.5px; }
+  #reglages input[type=range] { height:22px; }
 }
 @media (max-height:430px) and (orientation:landscape) {
   #lecture .l-quoi { display:none; }
@@ -963,7 +984,9 @@ function mesurerPlan() {
   Hp = Math.max(180, Math.round(r.height));
   refs.plan.setAttribute('viewBox', '0 0 ' + Wp + ' ' + Hp);
 
-  if (Wp / Hp >= 1.15) {                       // large : le montage à gauche, la courbe à droite
+  // Sur un écran étroit, le montage prend toute la largeur même si le plan est
+  // large et bas : coincé dans une moitié, le récipient devenait minuscule.
+  if (Wp >= 560 && Wp / Hp >= 1.15) {         // large : le montage à gauche, la courbe à droite
     const wg = Math.min(Wp * .46, 380);
     const hg = Math.min(Hp * .74, 330);
     zoneScene  = { x:0, y:0, w:Wp - wg, h:Hp };
@@ -1025,7 +1048,9 @@ function dessinerScene(g) {
   const ep = Math.max(7, wSeau * .075);          // épaisseur de l’isolant
   // Le panneau de lecture occupe le coin haut gauche. Quand la place manque,
   // le montage se décale pour ne pas passer dessous — sans sortir du plan.
-  const gene = (Hp < 360 || Z.w < 430) ? 196 : 0;
+  // Place à réserver pour la fiche de températures posée sur le plan. Sous
+  // 560 px elle n'y est plus — c'est un bandeau au-dessus : le montage se recentre.
+  const gene = (Wp < 560) ? 0 : ((Hp < 360 || Z.w < 430) ? 196 : 0);
   const cx = Math.min(Z.x + Z.w - wSeau / 2 - ep - 6,
                       Math.max(Z.x + Z.w * .5, gene + wSeau / 2 + ep + 6));
 
@@ -1037,12 +1062,52 @@ function dessinerScene(g) {
   const iso = ISOLANTS[etat.isolant];
   let etiqIsolant = '';
   if (etat.isolant !== 'aucun') {
-    const teinte = etat.isolant === 'polystyrene' ? (sombre ? '#5A6069' : '#E8E6E1')
-      : etat.isolant === 'coton' ? (sombre ? '#6B6F74' : '#F3F1EC')
-      : (sombre ? '#5E5348' : '#D9C6A8');
-    g.appendChild(el('rect', { x:cx - wSeau / 2 - ep, y:haut - ep, width:wSeau + ep * 2,
-      height:hSeau + ep * 2, rx:ep, fill:teinte,
-      stroke:sombre ? '#41474D' : '#C6C2BA', 'stroke-width':1.5 }));
+    // Chaque isolant a sa matière : les trois se ressemblaient à une teinte près.
+    const x0 = cx - wSeau / 2 - ep, y0 = haut - ep, w0 = wSeau + ep * 2, h0 = hSeau + ep * 2;
+    if (etat.isolant === 'polystyrene') {
+      // une caisse en polystyrène : parois épaisses, grain de billes soudées
+      g.appendChild(el('rect', { x:x0, y:y0, width:w0, height:h0, rx:4,
+        fill:sombre ? '#5A6069' : '#EFEDE7',
+        stroke:sombre ? '#767C84' : '#CFCCC4', 'stroke-width':2 }));
+      const pas = Math.max(5, ep * .52);
+      for (let yy = y0 + pas * .7; yy < y0 + h0 - 2; yy += pas)
+        for (let xx = x0 + pas * .7; xx < x0 + w0 - 2; xx += pas) {
+          const dedans = xx > x0 + ep && xx < x0 + w0 - ep && yy > y0 + ep;
+          if (dedans) continue;                       // le creux reçoit le récipient
+          g.appendChild(el('circle', { cx:xx + (yy % 2 ? pas * .25 : 0), cy:yy,
+            r:pas * .3, fill:'none',
+            stroke:sombre ? '#767C84' : '#D7D4CC', 'stroke-width':.9 }));
+        }
+    } else if (etat.isolant === 'coton') {
+      // de l'ouate : un contour bosselé, tout en rondeurs, et des flocons
+      let d = `M ${x0 + 6} ${y0 + h0}`;
+      const bosses = 7, pasX = w0 / bosses;
+      d += ` L ${x0 + 4} ${y0 + 10}`;
+      for (let k = 0; k <= bosses; k++)
+        d += ` q ${pasX * .25} ${k % 2 ? -13 : -9} ${pasX * .5} ${0} q ${pasX * .25} ${k % 2 ? 11 : 8} ${pasX * .5} 0`;
+      d += ` L ${x0 + w0 - 4} ${y0 + h0} z`;
+      g.appendChild(el('path', { d, fill:sombre ? '#6B6F74' : '#F7F5F0',
+        stroke:sombre ? '#878C92' : '#DEDAD2', 'stroke-width':1.6 }));
+      for (let k = 0; k < 9; k++) {
+        const xx = x0 + 8 + (k * 37) % (w0 - 16), yy = y0 + 16 + (k * 53) % (h0 - 24);
+        g.appendChild(el('circle', { cx:xx, cy:yy, r:5 + (k % 3) * 2,
+          fill:sombre ? '#7C8188' : '#FFFFFF', 'fill-opacity':.75 }));
+      }
+    } else {
+      // des chiffons noués : des bandes de tissu enroulées, de couleurs différentes
+      const tissus = sombre ? ['#5E5348', '#6B5F51', '#574C42'] : ['#D9C6A8', '#C9B08C', '#E3D5BC'];
+      const bandes = 5, hb = h0 / bandes;
+      for (let k = 0; k < bandes; k++) {
+        const yy = y0 + k * hb;
+        g.appendChild(el('path', { fill:tissus[k % 3],
+          stroke:sombre ? '#463C33' : '#B8A183', 'stroke-width':1.2, 'stroke-linejoin':'round',
+          d:`M ${x0 - 2} ${yy + 3} q ${w0 * .28} ${-7} ${w0 * .52} ${-1}` +
+            ` q ${w0 * .3} ${6} ${w0 * .52} ${-2} l 0 ${hb + 2}` +
+            ` q ${-w0 * .26} ${7} ${-w0 * .52} ${1} q ${-w0 * .3} ${-6} ${-w0 * .52} ${2} z` }));
+        g.appendChild(el('path', { fill:'none', stroke:'#000', 'stroke-opacity':.12, 'stroke-width':1.4,
+          d:`M ${x0 + 6} ${yy + hb * .55} q ${w0 * .26} ${-5} ${w0 * .5} ${1}` }));
+      }
+    }
     etiqIsolant = iso.nom + ' — tient ' + iso.tient;
   } else {
     etiqIsolant = 'Rien autour : le froid s’échappe';

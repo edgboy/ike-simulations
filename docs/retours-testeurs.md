@@ -127,7 +127,7 @@ fait passer le moulin nettement sous la moto.
 |---|---|---|
 | C1 | ~~Tam-tam~~ — **traité en v4.29.0** | Calebasse en demi-sphère, conserve nervurée, boîte de lait à étiquette, bidon à poignée et bouchon. Membrane épaisse et visible. Laçage en V dont la largeur suit le corps. Frappe avec élan, pivot, rebond et éclat d'impact ; main nue dessinée au lieu d'un emoji. Dégradés et reflets |
 | C2 | ~~Alambic~~ — **traité en v4.27.0** | **Ce n'étaient pas des régressions** : l'historique montre que rien n'a jamais été retiré de ce dépôt depuis la v4.4.0 ; ces corrections n'y avaient jamais été intégrées. Repris : gouttes qui tombent du tuyau avec ondulation à l'impact, vapeur qui se perd sans réfrigérant (0 / 25 / 43 mL selon le refroidissement), linge enroulé autour du tuyau, vraies feuilles nervurées, plus la passe générale (anses de la chaudière, brûleur, bûches, thermomètre à réservoir, flacon à col) |
-| C3 | **Fabrique de glace** | Polystyrène, coton et ce qui entoure le bac : à rendre ressemblant. Plan de travail **encombré sur mobile** |
+| C3 | ~~Fabrique de glace~~ — **traité en v4.30.0** | Polystyrène à grain de billes, coton en ouate bosselée, chiffons en bandes de tissu pliées. Sur téléphone : la fiche des températures devient un bandeau d'une ligne, la courbe passe sous la scène, les isolants tiennent sur une ligne qui défile, et le montage se recentre |
 | C4 | **Marmites** | Les **quatre gestes** de la lanterne : animations plus réalistes. Passe de design générale |
 | C5 | **Premiers pas** | Rien : « excellent côté design » |
 | C6 | **Pollution** | Rien : « les illustrations sont beaucoup mieux » |
