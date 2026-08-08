@@ -280,13 +280,32 @@ S'y ajoute, avec les **états de la matière** (v4.37.0) :
 | Un **panneau flottant ne s'ouvre pas tout seul sur téléphone**, même quand la mission s'y lit | Il recouvre justement ce qu'il faut regarder. Vérifier d'abord si l'information est déjà lisible sur la scène — ici, la pression y était. |
 | Les étiquettes de scène se posent **dans** la zone dessinée, pas au-dessus | Le nom de l'état, posé dans la marge, se cognait à l'étiquette du piston dès que celui-ci remontait à fond. Dedans, il n'y a plus de collision possible. |
 
-**Protocole de vérification** établi sur ces deux migrations, à reprendre tel quel : Chrome piloté
-par CDP, parcours joué de bout en bout (accueil → visite → leçon → mission → QCM → passage →
-liste → quiz → mode libre), puis contrôle du débordement horizontal et de la part d'écran laissée
-à la scène sur cinq tailles — 320, 390, 740 (paysage), 820 et 1280 px.
+Le **banc d'optique** (v4.38.0) confirme la règle des marges : son échelle en pixels par centimètre
+ne se déduisait que de la largeur du banc, si bien que les flèches sortaient par le haut et les
+étiquettes par le bas en paysage. Elle est bornée dans les deux sens, à partir de ce qui doit tenir
+au-dessus et au-dessous de l'axe optique, déclaré en centimètres — et le banc se centre quand c'est
+la hauteur qui commande. **Chercher ce défaut en premier sur chaque nouvelle migration.**
 
-**Restent à traiter** : optique, transformations, plus les deux ateliers de molécules retirés du
-catalogue.
+Trois écueils d'outillage relevés en assemblant ce fichier, qui valent pour toute génération de
+code par morceaux :
+
+- **L'ordre des sections diffère d'un fichier à l'autre.** Ici, le panneau de calcul et le lexique
+  venaient *après* la visite guidée, contrairement aux trois précédents : les remplacer d'un bloc
+  les a supprimés. Lire ce qui suit le repère avant de couper.
+- **Une fonction utilitaire du gabarit doit être déclarée dans le fichier cible.** `$` était utilisé
+  partout et déclaré nulle part. Le contrôle croisé portait sur les `id` du DOM, pas sur les
+  symboles : il est désormais complété par une vérification « déclaré, et avant le premier usage ».
+- **Concaténer du CSS demande de savoir où se ferme `<style>`.** Le gabarit s'arrêtait à `</style>`
+  inclus ; les ajouts se sont retrouvés hors du bloc, rendus comme du texte. Symptôme trompeur :
+  tout le JavaScript passait, seul l'écran était faux.
+
+**Protocole de vérification** établi sur ces migrations, à reprendre tel quel : Chrome piloté par
+CDP, parcours joué de bout en bout (accueil → visite → leçon → mission → QCM → passage → liste →
+quiz → mode libre), puis contrôle du débordement horizontal, de la part d'écran laissée à la scène
+et de la tenue du dessin dans ses bornes, sur cinq tailles — 320, 390, 740 (paysage), 820 et
+1280 px. Le banc d'optique se teste en paysage seulement : 640×360, 740×380, 1024×768, 1280×800.
+
+**Restent à traiter** : transformations, plus les deux ateliers de molécules retirés du catalogue.
 
 ---
 

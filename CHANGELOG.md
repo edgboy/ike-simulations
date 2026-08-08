@@ -5,6 +5,37 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v4.38.0 — 2026-08-08
+
+🔭 **Le banc d'optique rejoint le socle.**
+
+Quatrième migration : douze missions, de la source de lumière à la loupe. Le tracé de rayons ne
+bouge pas — ombres par triangles semblables, chambre noire, formule de conjugaison et
+grandissement sont ceux d'avant.
+
+- **Les cinq points communs** : jetons du design system, en-tête à icônes, plan de mission à
+  pastille et chevron, modales `.carte-modale`, mode libre en drapeau. Le splash disparaît,
+  remplacé par l'accueil et ses trois portes. « Tout enlever » descend au bout du matériel.
+- **Le QCM de fin de mission arrive** : **24 questions**, deux par mission. Les douze leçons
+  deviennent de vraies fiches notion, avec sous-titre et mots de lexique cliquables.
+- **Le quiz libre**, trois niveaux, **21 questions**. Le niveau 3 attaque l'objet cru visible dans
+  le noir complet, l'ombre crue de la taille de l'objet, le trou de la chambre noire cru
+  « retourner » la lumière, l'image floue crue venir d'une mauvaise lentille, l'image de la loupe
+  crue captable sur un écran, la demi-lentille crue donner une demi-image, et l'objet lointain cru
+  donner une grande image.
+
+**L'échelle du banc ne se déduisait que de sa largeur.** C'est le défaut annoncé après les états
+de la matière, et il était bien là : en paysage sur téléphone, les flèches de l'objet et de l'image
+sortaient par le haut, et les étiquettes des éléments par le bas. L'échelle est maintenant bornée
+**dans les deux sens** — ce qui doit tenir au-dessus et au-dessous de l'axe est déclaré en
+centimètres de banc — et quand c'est la hauteur qui commande, le banc se centre au lieu de rester
+collé à gauche.
+
+Deux autres défauts corrigés : les notes du panneau 📐 se collaient bout à bout sur une seule ligne
+(« Ø = 4 cmD = 76 cmd = 33 cm »), et la barre de réglage, centrée en bas, recouvrait l'étiquette
+« ombre : … cm » que la mission demande justement de lire — elle se range désormais à gauche quand
+le banc est écrasé.
+
 ## v4.37.0 — 2026-08-08
 
 🧊 **Les états de la matière rejoignent le socle — la plus grosse des anciennes.**

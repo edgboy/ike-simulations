@@ -291,3 +291,35 @@ code. Ce qui s'ajoute :
 Vérification : même protocole, plus le contrôle de la géométrie de l'enceinte à chaque taille
 (hauteur de la boîte, pas du réseau, tenue du réseau dans la boîte). Aucune erreur JS.
 120 Ko, 2 401 lignes.
+
+### Banc d'optique (v4.38.0)
+
+Quatrième migration. **La règle sur les marges de rendu a payé dès la première vérification** :
+l'échelle du banc (pixels par centimètre) ne se déduisait que de sa largeur, si bien qu'en paysage
+sur téléphone les flèches sortaient par le haut et les étiquettes par le bas. Elle est bornée dans
+les deux sens, à partir de ce qui doit tenir au-dessus et au-dessous de l'axe, déclaré en
+centimètres. Quand la hauteur commande, le banc se centre au lieu de rester collé à gauche.
+
+Trois écueils de méthode, à éviter sur les migrations suivantes :
+
+- **Ne pas couper un fichier « à partir de tel repère » sans regarder ce qu'il y a après.** Ici,
+  le panneau de calcul et le lexique venaient *après* la visite guidée — contrairement aux trois
+  simulations précédentes. Les remplacer d'un bloc les a supprimés. Récupérés depuis git et
+  réintégrés, mais la leçon vaut : **vérifier l'ordre des sections dans chaque fichier**, elles ne
+  sont pas rangées pareil.
+- **Une fonction utilitaire ajoutée dans le gabarit doit être déclarée dans le fichier cible.**
+  `$` était utilisé partout dans la queue reprise du gabarit, mais jamais déclaré ici. Le contrôle
+  d'identifiants ne l'a pas vu — il vérifiait les `id` du DOM, pas les symboles. Contrôle ajouté :
+  déclaration présente *et* placée avant le premier usage, sur les quatre simulations.
+- **Assembler du CSS par concaténation demande de savoir où se ferme `<style>`.** Le gabarit
+  s'arrêtait à `</style>` inclus : les ajouts se sont retrouvés *hors* du bloc, rendus comme du
+  texte dans la page — l'atelier tombait à zéro pixel. Symptôme trompeur : tout le JS passait, seul
+  l'écran était faux. À surveiller sur toute génération de fichier par morceaux.
+
+Deux défauts d'affichage aussi : les notes du panneau se collaient bout à bout (`.fnote` sans
+`display:block`), et la barre de réglage recouvrait l'étiquette « ombre : … cm » que la mission
+demande de lire — elle se range à gauche quand le banc est écrasé.
+
+Vérification : même protocole, en formats **paysage uniquement** (le banc de 100 cm l'exige, un
+écran le rappelle en portrait) — 640×360, 740×380, 1024×768, 1280×800. Tenue de la scène contrôlée
+au-dessus *et* au-dessous de l'axe à chaque taille. Aucune erreur JS. 136 Ko, 2 778 lignes.

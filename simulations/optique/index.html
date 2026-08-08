@@ -2,495 +2,567 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#F7F5F0">
-<title>Banc d'optique · IKE Simulations</title>
+<title>Banc d’optique — Labo-Bénin</title>
 <link rel="stylesheet" href="../../assets/polices.css">
 <style>
-/* ===== Design system Labo-Bénin — accent PCT ===== */
+/* ===== Jetons du design system Labo-Bénin (intégrés : fichier autonome) ===== */
 :root {
-  --primary:#C4D94E; --accent:#5BC5F2; --accent-doux:#D6F0FB; --accent-fonce:#2196C4;
-  --tertiary:#F7A430; --destructive:#E83A4B; --destructive-doux:#FDE2E5; --success:#2A9D8F;
-  --success-doux:#DCF2EA; --neutral:#3A3632; --gris-doux:#7A736C;
-  --background:#F7F5F0; --surface:#FFFFFF; --surface-muted:#F0EEE9;
+  --primary:#C4D94E; --accent:#5BC5F2; --accent-doux:#D6F0FB;
+  --tertiary:#F7A430; --destructive:#E83A4B; --success:#2A9D8F;
+  --neutral:#3A3632; --background:#F7F5F0; --surface:#FFFFFF; --surface-muted:#F0EEE9;
   --border:#D3CFC8; --border-strong:#B0ABA3; --ring:#5BC5F2;
   --font-display:'Baloo 2','Segoe UI',system-ui,sans-serif;
   --font-body:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;
-  --radius-sm:8px; --radius-md:12px; --radius-lg:16px; --radius-full:9999px;
+  --radius-sm:8px; --radius-md:12px; --radius-lg:16px; --radius-xl:24px; --radius-full:9999px;
   --shadow-soft:0 4px 16px rgba(58,54,50,.05);
   --shadow-raised:0 6px 20px rgba(58,54,50,.06);
   --ease:cubic-bezier(.4,0,.2,1);
 }
 body.sombre {
-  --neutral:#ECEFF1; --gris-doux:#A8B0B6;
-  --background:#14181C; --surface:#1C232A; --surface-muted:#232C34;
-  --border:#333E47; --border-strong:#4A5762;
-  --accent-doux:#17323F; --destructive-doux:#3A1F22; --success-doux:#16302B;
+  --neutral:#ECEFF1; --background:#14181C; --surface:#1C232A; --surface-muted:#232C34;
+  --border:#333E47; --border-strong:#4A5762; --accent-doux:#17323F;
   --shadow-soft:0 4px 16px rgba(0,0,0,.28); --shadow-raised:0 6px 20px rgba(0,0,0,.34);
 }
 
-  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-  html, body { height:100%; overflow:hidden; }
-  body {
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-    background:var(--background); color:var(--neutral);
-    display:flex; flex-direction:column;
-    user-select:none; -webkit-user-select:none; touch-action:manipulation;
-  }
-
-  /* ---------- Écran de démarrage IKE ---------- */
-  #splash {
-    position:fixed; inset:0; z-index:100;
-    background:linear-gradient(160deg,#0d47a1 0%,#1565c0 55%,#1e88e5 100%);
-    display:flex; flex-direction:column; align-items:center; justify-content:center;
-    transition:opacity .5s ease;
-  }
-  #splash.fini { opacity:0; pointer-events:none; }
-  #splash .logo {
-    font-size:56px; line-height:1;
-    animation:battement 1.1s ease-in-out infinite;
-    filter:drop-shadow(0 4px 14px rgba(255,202,40,.45));
-  }
-  @keyframes battement { 50% { transform:scale(1.18); } }
-  #splash .nom { margin-top:14px; color:#fff; font-size:30px; font-weight:800; letter-spacing:.5px; }
-  #splash .nom span { font-weight:300; opacity:.9; }
-  #splash .sub {
-    margin-top:4px; color:rgba(255,255,255,.75); font-size:13px;
-    letter-spacing:2px; text-transform:uppercase;
-  }
-  #splash .barre {
-    margin-top:22px; width:150px; height:4px; border-radius:2px;
-    background:rgba(255,255,255,.25); overflow:hidden;
-  }
-  #splash .rempl {
-    height:100%; background:#ffca28; border-radius:2px;
-    transform-origin:left; transform:scaleX(0); animation:charge 1.3s ease-out forwards;
-  }
-  @keyframes charge { to { transform:scaleX(1); } }
-  #splash .ver { position:absolute; bottom:14px; color:rgba(255,255,255,.5); font-size:11px; }
-
-  /* ---------- En-tête ---------- */
-  header {
-    display:flex; align-items:center; gap:8px;
-    padding:8px 12px; background:var(--surface); border-bottom:1px solid var(--border);
-    flex:none; z-index:5;
-  }
-  header h1 { font-size:16px; font-weight:700; color:var(--accent-fonce); white-space:nowrap; }
-  header .spacer { flex:1; }
-  .btn {
-    border:1px solid var(--border); background:var(--surface); color:var(--neutral);
-    border-radius:8px; padding:8px 10px; font-size:13px; font-weight:600;
-    cursor:pointer; white-space:nowrap; min-height:40px;
-  }
-  .btn:active { background:var(--accent-doux); }
-  .btn.danger:active { background:var(--destructive-doux); }
-  @media (max-width:480px) { .btn .lbl { display:none; } header h1 { font-size:14px; } }
-
-  /* ---------- Barre de mission ---------- */
-  #mbar { flex:none; background:var(--surface); border-bottom:1px solid var(--border); padding:6px 10px; z-index:4; }
-  #mbar .l1 { display:flex; align-items:center; gap:8px; }
-  #mchip {
-    background:#1565c0; color:#fff; font-size:11px; font-weight:700;
-    border-radius:12px; padding:3px 9px; white-space:nowrap;
-  }
-  #mtitre {
-    font-size:13.5px; font-weight:700; color:var(--neutral); flex:1;
-    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
-  }
-  #mbar .mbtn {
-    border:1px solid var(--border); background:var(--surface); border-radius:8px;
-    font-size:14px; padding:4px 10px; cursor:pointer; min-height:34px;
-  }
-  #mbar .l2 { display:flex; align-items:center; gap:8px; margin-top:5px; }
-  #mbar.flash { animation:flashvert .9s ease; }
-  @keyframes flashvert { 0% { background:#c8e6c9; } 100% { background:var(--surface); } }
-  #mpoints { display:flex; gap:5px; align-items:center; flex:none; }
-  #mpoints .pt { width:9px; height:9px; border-radius:50%; background:#cfd8dc; }
-  #mpoints .pt.faite { background:#2e7d32; }
-  #mpoints .pt.courante { background:#1565c0; animation:ptpulse 1.6s infinite; }
-  @keyframes ptpulse { 50% { transform:scale(1.4); } }
-  #metape { flex:1; font-size:12.5px; color:var(--neutral); line-height:1.4; }
-  #metape.glisse { animation:glisse .4s ease; }
-  @keyframes glisse { from { opacity:0; transform:translateX(12px); } }
-  #mcompteur { font-size:11px; color:var(--gris-doux); font-weight:700; white-space:nowrap; }
-  #btn-indice {
-    background:var(--accent-doux) !important; border-color:#ffca28 !important;
-    color:#795548; font-weight:700; white-space:nowrap;
-  }
-  #btn-indice.pulse { animation:indicepulse 1.2s infinite; }
-  @keyframes indicepulse {
-    50% { transform:scale(1.08); box-shadow:0 0 0 7px rgba(255,202,40,.3); }
-  }
-  #btn-suiv2 {
-    background:#1565c0 !important; border-color:var(--accent) !important;
-    color:#fff !important; font-weight:700; white-space:nowrap;
-  }
-  #mindice {
-    display:none; margin-top:6px; background:var(--accent-doux); border:1px solid #ffe082;
-    color:#795548; font-size:12.5px; border-radius:8px; padding:7px 10px; line-height:1.45;
-  }
-  #mindice.visible { display:block; }
-  #mdiag {
-    display:none; margin-top:6px; background:#fff3e0; border:1px solid #ffcc80;
-    color:#bf360c; font-size:12.5px; border-radius:8px; padding:7px 10px; line-height:1.45;
-  }
-  #mdiag.visible { display:block; animation:glisse .4s ease; }
-
-  /* ---------- Scène ---------- */
-  #wrap { flex:1; position:relative; overflow:hidden; }
-  canvas#scene { position:absolute; inset:0; width:100%; height:100%; touch-action:none; display:block; }
-
-  /* Panneau formule en direct */
-  #formule {
-    position:absolute; top:10px; right:10px; z-index:5;
-    background:rgba(255,255,255,.94); border:1px solid var(--border); border-radius:12px;
-    padding:10px 12px; max-width:min(280px, 56vw);
-    font-size:12px; line-height:1.65; color:var(--neutral);
-    box-shadow:0 3px 12px rgba(0,0,0,.12);
-  }
-  #formule .ftitre {
-    font-size:11px; font-weight:800; letter-spacing:.5px; color:var(--accent-fonce);
-    text-transform:uppercase; margin-bottom:4px;
-  }
-  #formule .fmath {
-    font-family:Consolas, "Courier New", monospace; font-size:11.5px;
-    background:var(--background); border-radius:6px; padding:2px 6px; margin:2px 0;
-    white-space:nowrap; overflow-x:auto; display:block;
-  }
-  #formule .fres { font-weight:800; color:var(--success); }
-  #formule .fnote { font-size:11px; color:var(--gris-doux); font-style:italic; }
-  #formule .flex {
-    display:block; margin-top:6px; font-size:11px; font-weight:700;
-    color:var(--accent-fonce); text-decoration:underline; cursor:pointer;
-    background:none; border:none; padding:0;
-  }
-
-  /* Lexique */
-  .lex { margin-bottom:10px; }
-  .lex dt { font-size:13px; font-weight:800; color:var(--accent-fonce); margin-top:10px; }
-  .lex dd { font-size:12.5px; line-height:1.5; color:var(--neutral); margin:2px 0 0; }
-
-  #toast {
-    position:absolute; bottom:16px; left:50%;
-    transform:translateX(-50%) translateY(10px) scale(.9);
-    background:#2e7d32; color:#fff; font-size:14.5px; font-weight:800;
-    padding:11px 22px; border-radius:22px; opacity:0; pointer-events:none;
-    transition:opacity .25s, transform .3s cubic-bezier(.34,1.56,.64,1);
-    box-shadow:0 6px 20px rgba(46,125,50,.4); z-index:6; white-space:nowrap;
-  }
-  #toast.visible { opacity:1; transform:translateX(-50%) translateY(0) scale(1); }
-
-  /* Barre de réglage de l'élément sélectionné */
-  #regbar {
-    position:absolute; left:50%; bottom:12px; transform:translateX(-50%);
-    display:none; align-items:center; gap:10px; z-index:7;
-    background:var(--surface); border:1px solid var(--border); border-radius:12px;
-    padding:8px 12px; box-shadow:0 4px 14px rgba(0,0,0,.18); max-width:calc(100% - 16px);
-  }
-  #regbar.visible { display:flex; }
-  #regbar .nom { font-size:13px; font-weight:700; color:var(--accent-fonce); white-space:nowrap; }
-  #regbar .valeur { font-size:12px; font-weight:700; color:var(--neutral); min-width:56px; text-align:right; }
-  #regbar input[type=range] { width:130px; accent-color:#1565c0; }
-  #regbar button {
-    border:none; border-radius:7px; padding:8px 10px; font-size:13px; font-weight:600;
-    cursor:pointer; background:var(--destructive-doux); color:var(--destructive); white-space:nowrap;
-  }
-
-  /* ---------- Palette ---------- */
-  nav#palette {
-    flex:none; display:flex; justify-content:center; gap:6px;
-    padding:6px 8px calc(6px + env(safe-area-inset-bottom));
-    background:var(--surface); border-top:1px solid var(--border); overflow-x:auto; z-index:5;
-  }
-  nav#palette button {
-    display:flex; flex-direction:column; align-items:center; gap:2px;
-    border:2px solid transparent; border-radius:10px; background:var(--background);
-    padding:6px 8px 4px; min-width:58px; min-height:56px; cursor:pointer;
-  }
-  nav#palette button.actif { border-color:var(--accent); background:var(--accent-doux); }
-  nav#palette button span { font-size:10px; font-weight:600; color:var(--neutral); white-space:nowrap; }
-  nav#palette button canvas { pointer-events:none; }
-
-  /* ---------- Voiles ---------- */
-  .voile {
-    position:fixed; inset:0; background:rgba(38,50,56,.55);
-    display:none; align-items:center; justify-content:center; z-index:20; padding:16px;
-  }
-  .voile.visible { display:flex; }
-  .voile .carte {
-    position:relative;
-    background:var(--surface); border-radius:16px; padding:22px; max-width:400px; width:100%;
-    max-height:86vh; overflow-y:auto; box-shadow:0 10px 40px rgba(0,0,0,.3);
-  }
-  .fermer-x {
-    position:absolute; top:8px; right:10px; border:none; background:none;
-    font-size:20px; line-height:1; color:var(--gris-doux); cursor:pointer; padding:6px 8px;
-  }
-  .voile .carte h2 { font-size:18px; color:var(--accent-fonce); margin-bottom:12px; }
-  .voile.visible .carte h2 { animation:pop .4s ease-out; }
-  @keyframes pop { 0% { transform:scale(.5); opacity:0; } 80% { transform:scale(1.08); } 100% { transform:scale(1); } }
-  .voile .go {
-    width:100%; border:none; background:#1565c0; color:#fff; font-size:15px; font-weight:700;
-    padding:12px; border-radius:10px; cursor:pointer;
-  }
-  .voile .btn2 {
-    width:100%; border:1px solid var(--border); background:var(--surface); color:var(--neutral);
-    font-size:13px; font-weight:600; padding:10px; border-radius:10px;
-    cursor:pointer; margin-top:8px;
-  }
-  .voile .lien {
-    display:block; width:100%; text-align:center; margin-top:10px;
-    background:none; border:none; color:var(--gris-doux); font-size:11.5px;
-    text-decoration:underline; cursor:pointer;
-  }
-  #mfin-titre { font-weight:700; font-size:15px; color:var(--neutral); margin-bottom:10px; }
-  .retenir-label { font-size:12px; font-weight:800; color:var(--success); margin-bottom:4px; }
-  #mfin-retenir {
-    background:var(--success-doux); border-radius:10px; padding:10px 12px;
-    font-size:13.5px; line-height:1.55; color:#1b5e20; margin:0 0 14px;
-  }
-  .mrow {
-    display:flex; align-items:center; gap:8px; width:100%;
-    border:none; background:var(--background); border-radius:8px; padding:10px;
-    margin-bottom:5px; font-size:13px; cursor:pointer; text-align:left; color:var(--neutral);
-  }
-  .mrow .n { font-weight:700; color:var(--gris-doux); min-width:22px; }
-  .mrow.faite .n { color:var(--success); }
-  .mrow.courante { outline:2px solid var(--accent); background:var(--accent-doux); }
-  .mrow .t { flex:1; }
-
-  /* ---------- Choix du mode : Apprendre / Expérimenter ---------- */
-  #mlexique { z-index:26; }             /* le lexique s'empile au-dessus des modales */
-  #tab-exp.verrouille { opacity:.55; }
-  #choix-mode .deux { display:flex; flex-direction:column; gap:12px; }
-  .gros-btn {
-    display:flex; align-items:center; gap:14px; width:100%;
-    border:2px solid var(--border); background:var(--background); border-radius:14px;
-    padding:15px 16px; cursor:pointer; text-align:left;
-  }
-  .gros-btn:active { background:var(--accent-doux); }
-  .gros-btn .gi { font-size:30px; flex:none; }
-  .gros-btn .gt { font-size:16px; font-weight:800; color:var(--neutral); }
-  .gros-btn .gs { font-size:12px; color:var(--gris-doux); line-height:1.45; display:block; margin-top:2px; }
-  .gros-btn.verrouille { opacity:.55; }
-  body.sombre .gros-btn { background:var(--surface-muted); border-color:var(--border); }
-  body.sombre .gros-btn .gt { color:var(--neutral); }
-
-  /* ---------- Visite guidée ---------- */
-  #visite { position:fixed; inset:0; z-index:30; display:none; }
-  #visite.sombre { background:rgba(38,50,56,.62); }
-  #visite-halo {
-    position:absolute; border-radius:12px; border:2px solid #ffca28;
-    box-shadow:0 0 0 9999px rgba(38,50,56,.62);
-    transition:all .3s ease; pointer-events:none;
-  }
-  #visite-carte {
-    position:absolute; background:var(--surface); border-radius:14px; padding:16px;
-    width:min(310px, calc(100vw - 24px)); box-shadow:0 10px 40px rgba(0,0,0,.35);
-  }
-  .vtitre { font-size:15px; font-weight:800; color:var(--accent-fonce); margin-bottom:6px; }
-  .vtexte { font-size:13px; line-height:1.55; color:var(--neutral); white-space:pre-line; }
-  .vbas { display:flex; align-items:center; gap:10px; margin-top:12px; }
-  .vprog { flex:1; font-size:11px; font-weight:700; color:var(--gris-doux); }
-  #visite-passer {
-    background:none; border:none; color:var(--gris-doux); font-size:12px;
-    text-decoration:underline; cursor:pointer; padding:6px;
-  }
-  #visite-suivant {
-    border:none; background:#1565c0; color:#fff; font-weight:700;
-    font-size:13px; padding:9px 18px; border-radius:9px; cursor:pointer;
-  }
-  .vmarque { margin-top:10px; text-align:center; font-size:10px; color:var(--gris-doux); }
-
-  /* ---------- Mode paysage obligatoire sur téléphone ---------- */
-  #paysage {
-    display:none; position:fixed; inset:0; z-index:200;
-    background:linear-gradient(160deg,#0d47a1 0%,#1565c0 55%,#1e88e5 100%);
-    color:#fff; flex-direction:column; align-items:center; justify-content:center;
-    gap:16px; text-align:center; padding:24px;
-  }
-  #paysage .tel { font-size:56px; animation:tourner 1.6s ease-in-out infinite; }
-  @keyframes tourner { 0%, 20% { transform:rotate(0); } 60%, 100% { transform:rotate(90deg); } }
-  #paysage h2 { font-size:20px; font-weight:800; }
-  #paysage p { font-size:14px; color:rgba(255,255,255,.85); line-height:1.5; max-width:300px; }
-  @media (orientation: portrait) and (max-width: 820px) {
-    #paysage { display:flex; }
-  }
-
-  /* ==================== THÈME SOMBRE ==================== */
-  body.sombre { background:var(--background); color:var(--neutral); }
-  body.sombre header,
-  body.sombre #mbar,
-  body.sombre nav#palette { background:var(--surface); border-color:var(--border); }
-  body.sombre header h1 { color:var(--accent); }
-  body.sombre .btn { background:var(--surface-muted); border-color:var(--border); color:var(--neutral); }
-  body.sombre .btn:active { background:var(--accent-doux); }
-  body.sombre .btn.danger:active { background:var(--destructive-doux); }
-  body.sombre #mtitre { color:var(--neutral); }
-  body.sombre #metape { color:var(--neutral); }
-  body.sombre #mbar .mbtn { background:var(--surface-muted); border-color:var(--border); color:var(--neutral); }
-  body.sombre #btn-indice { background:#3a3220 !important; border-color:#8d6e63 !important; color:#ffd54f; }
-  body.sombre #mindice { background:#2b2618; border-color:#5d4d1a; color:#ffe082; }
-  body.sombre #mdiag { background:#33261a; border-color:#7a5c3d; color:#ffcc80; }
-  body.sombre #mpoints .pt { background:#3a4a56; }
-  body.sombre #mpoints .pt.faite { background:#66bb6a; }
-  body.sombre #mpoints .pt.courante { background:#64b5f6; }
-  body.sombre #mbar.flash { animation-name:flashvert-sombre; }
-  @keyframes flashvert-sombre { 0% { background:var(--success-doux); } 100% { background:var(--surface); } }
-  body.sombre nav#palette button { background:var(--surface-muted); }
-  body.sombre nav#palette button span { color:var(--neutral); }
-  body.sombre nav#palette button.actif { background:var(--accent-doux); border-color:var(--accent); }
-  body.sombre #regbar { background:var(--surface); border-color:var(--border); }
-  body.sombre #regbar .valeur { color:var(--neutral); }
-  body.sombre #regbar .nom { color:var(--accent); }
-  body.sombre #regbar button { background:var(--destructive-doux); color:var(--destructive); }
-  body.sombre #formule { background:rgba(28,38,46,.95); border-color:var(--border); color:var(--neutral); }
-  body.sombre #formule .ftitre { color:var(--accent); }
-  body.sombre #formule .fmath { background:var(--background); }
-  body.sombre #formule .fres { color:#81c784; }
-  body.sombre #formule .flex { color:var(--accent); }
-  body.sombre .lex dt { color:var(--accent); }
-  body.sombre .lex dd { color:var(--neutral); }
-  body.sombre .voile .carte, body.sombre #visite-carte { background:var(--surface); }
-  body.sombre .voile .carte h2, body.sombre .vtitre { color:var(--accent); }
-  body.sombre .vtexte { color:var(--neutral); }
-  body.sombre .voile .btn2 { background:var(--surface-muted); border-color:var(--border); color:var(--neutral); }
-  body.sombre #mfin-titre { color:var(--neutral); }
-  body.sombre .retenir-label { color:#81c784; }
-  body.sombre #mfin-retenir { background:var(--success-doux); color:var(--success); }
-  body.sombre .mrow { background:#26313a; color:var(--neutral); }
-  body.sombre .mrow.courante { background:var(--accent-doux); outline-color:var(--accent); }
-
-/* ===== Mise au standard Labo-Bénin ===== */
-body { font-family:var(--font-body); color:var(--neutral); background:var(--background); }
-h1, h2, h3, #mtitre, #mfin-titre, .m-carte .mtitre { font-family:var(--font-display); }
-header {
-  background:var(--surface) !important; color:var(--neutral) !important;
-  border-bottom:1px solid var(--border); box-shadow:none !important;
-  overflow-x:auto; scrollbar-width:none;
+*,*::before,*::after { box-sizing:border-box; }
+body {
+  margin:0; font-family:var(--font-body); font-size:16px; color:var(--neutral);
+  background:var(--background); overflow:hidden;
+  height:100dvh; display:flex; flex-direction:column;
+  user-select:none; -webkit-user-select:none;
+  -webkit-tap-highlight-color:transparent; -webkit-text-size-adjust:100%;
 }
-header::-webkit-scrollbar { display:none; }
-header h1 { font-size:16px; font-weight:800; color:var(--neutral); }
-header .btn, #mbar .mbtn {
-  background:var(--surface); border:1px solid var(--border); color:var(--neutral);
-  border-radius:var(--radius-md); min-height:40px;
-  font-family:var(--font-body); font-weight:600; box-shadow:none;
-}
-header .btn:hover, #mbar .mbtn:hover { background:var(--surface-muted); border-color:var(--border-strong); }
-header .btn.danger { color:var(--destructive); }
-#mbar { background:var(--surface); border-bottom:1px solid var(--border); }
-#mchip {
-  background:var(--accent-doux); color:var(--accent-fonce);
-  border-radius:var(--radius-full); font-weight:700; letter-spacing:.04em;
-}
-#mtitre { font-size:15px; font-weight:800; color:var(--neutral); }
-#mindice, #mdiag { border-radius:var(--radius-md); font-size:12.5px; line-height:1.5; }
-#mindice { background:var(--accent-doux); }
-.voile .carte, #visite-carte, #formule, #selbar {
-  border-radius:var(--radius-lg); box-shadow:var(--shadow-raised);
-  border:1px solid var(--border); background:var(--surface);
-}
-.m-carte { border-radius:var(--radius-md); border:1px solid var(--border); }
-.m-carte:hover { border-color:var(--border-strong); background:var(--surface-muted); }
-nav#palette { background:var(--surface); border-top:1px solid var(--border); }
-nav#palette button {
-  border-radius:var(--radius-md); border:2px solid var(--border);
-  background:var(--surface); font-family:var(--font-body);
-}
-nav#palette button.actif { border-color:var(--accent); background:var(--accent-doux); }
-#btn-continuer, #btn-suivante, #btn-suiv2, #visite-suivant, .go, #btn-commencer {
-  background:var(--primary) !important; color:var(--neutral) !important;
-  border:none !important; border-radius:var(--radius-lg) !important;
-  font-weight:600; min-height:44px;
-}
+h1,h2,h3,h4 { font-family:var(--font-display); margin:0; line-height:1.2; }
+p { margin:0; }
 :focus-visible { outline:2px solid var(--ring); outline-offset:2px; border-radius:var(--radius-sm); }
 
-/* Étapes cochables, comme dans les ateliers */
-#mbar .l2 { flex-wrap:wrap; align-items:center; }
-#metape { flex:1 1 100%; order:-1; margin-bottom:2px; }
-#mpoints, #mcompteur { display:none; }
-#mbar .l2 #btn-indice { margin-left:auto; }
-#mbar .etape {
-  display:flex; align-items:flex-start; gap:9px; padding:4px 0;
-  font-size:12.5px; line-height:1.4; color:var(--neutral);
+/* ============================ En-tête ============================ */
+header {
+  display:flex; align-items:center; gap:8px; flex:none;
+  padding:6px 10px; background:var(--surface); border-bottom:1px solid var(--border);
 }
-#mbar .etape .coche {
-  width:20px; height:20px; flex:none; margin-top:1px; border-radius:var(--radius-full);
+header h1 { font-size:15px; font-weight:800; line-height:1.15; }
+header .sous { font-size:10.5px; opacity:.6; }
+.icone-btn {
+  width:40px; height:40px; flex:none; display:grid; place-items:center;
+  border:none; background:none; border-radius:var(--radius-md);
+  font-size:18px; color:inherit; cursor:pointer; text-decoration:none;
+}
+.icone-btn:hover { background:var(--surface-muted); }
+.tete-fin { margin-left:auto; display:flex; gap:2px; align-items:center; }
+
+/* ===================== Bandeau de mission (EN HAUT) ===================== */
+#mission {
+  flex:none; background:var(--surface); border-bottom:1px solid var(--border);
+  padding:8px 12px 9px;
+}
+.m-haut { display:flex; align-items:center; gap:9px; }
+.m-pastille {
+  width:30px; height:30px; flex:none; border-radius:var(--radius-sm);
+  display:grid; place-items:center; background:var(--accent-doux);
+  font-family:var(--font-display); font-weight:800; font-size:13px;
+}
+.m-titres { flex:1; min-width:0; }
+.m-titres b { display:block; font-size:14px; font-weight:600; line-height:1.2; }
+.m-titres span { font-size:11.5px; opacity:.65; line-height:1.35; display:block; }
+.m-rang {
+  font-size:10.5px !important; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--accent); opacity:1 !important; margin-bottom:1px;
+}
+.m-plier {
+  width:34px; height:34px; flex:none; border:none; background:none; cursor:pointer;
+  border-radius:var(--radius-sm); font-size:14px; color:inherit;
+  transition:transform .2s var(--ease);
+}
+.m-plier:hover { background:var(--surface-muted); }
+#mission.ouvert .m-plier { transform:rotate(180deg); }
+/* Replié, on ne montre que l'étape en cours : le banc reste visible.
+   Le diagnostic, lui, reste toujours affiché — c'est lui qui explique pourquoi
+   l'expérience ne donne pas ce qu'on attend. */
+#mission:not(.ouvert) .etape:not(.a-montrer) { display:none; }
+#mission:not(.ouvert) .m-indice { display:none; }
+.m-jauge { height:5px; border-radius:var(--radius-full); background:var(--surface-muted); margin-top:8px; overflow:hidden; }
+.m-jauge i { display:block; height:100%; background:var(--accent); transition:width .4s var(--ease); }
+
+/* ---- Liste des étapes : le guidage pas à pas ---- */
+#etapes { margin-top:9px; }
+.etape {
+  display:flex; align-items:flex-start; gap:9px; padding:5px 0;
+  font-size:13px; line-height:1.4;
+}
+.etape .coche {
+  width:21px; height:21px; flex:none; margin-top:1px; border-radius:var(--radius-full);
   display:grid; place-items:center; font-size:11px; font-weight:700;
   border:2px solid var(--border-strong); color:transparent; background:none;
 }
-#mbar .etape.faite .coche { background:var(--success); border-color:var(--success); color:#fff; }
-#mbar .etape.faite .t { opacity:.5; text-decoration:line-through; }
-#mbar .etape.courante .coche { border-color:var(--accent); animation:pulseCoche 1.5s infinite; }
-#mbar .etape.courante .t { font-weight:600; }
+.etape.faite .coche { background:var(--success); border-color:var(--success); color:#fff; }
+.etape.faite .t { opacity:.5; text-decoration:line-through; }
+.etape.courante .coche { border-color:var(--accent); animation:pulseCoche 1.5s infinite; }
+.etape.courante .t { font-weight:600; }
 @keyframes pulseCoche { 50% { box-shadow:0 0 0 5px var(--accent-doux); } }
-#mbar .etape .t { flex:1; }
+.etape .t { flex:1; }
+.m-indice, .m-diag {
+  margin-top:8px; padding:9px 11px; border-radius:var(--radius-md);
+  font-size:12.5px; line-height:1.5;
+}
+.m-indice { background:var(--accent-doux); }
+.m-indice b { font-weight:600; }
+.m-diag { background:rgba(247,164,48,.16); }
+.m-indice[hidden], .m-diag[hidden] { display:none; }
+/* Les commandes de la mission. `display` explicite l'emporte sur l'attribut
+   `hidden` : il faut le redire. */
+.m-actions { display:flex; gap:8px; margin-top:10px; }
+.m-actions .btn { flex:1; min-height:40px; padding:0 12px; font-size:13px; }
+.m-actions[hidden], .m-actions .btn[hidden] { display:none; }
 
-/* Écran de passage : l'acquis, puis la mission suivante */
+/* ============================ Le banc ============================ */
+main { flex:1; min-height:0; display:flex; flex-direction:column; }
+#atelier { flex:1; min-height:0; position:relative; overflow:hidden; }
+canvas#scene { position:absolute; inset:0; width:100%; height:100%; touch-action:none; display:block; }
+
+/* Panneau 📐 : la lecture en direct de l'expérience.
+   Le banc le rogne (`overflow:hidden`) : sur un petit écran, ou après une
+   rotation, il se retrouvait coupé en deux. Il défile donc chez lui. */
+#formule {
+  position:absolute; top:10px; left:10px; z-index:5;
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg);
+  padding:11px 13px; max-width:min(275px, 62vw);
+  max-height:calc(100% - 20px); overflow-y:auto;
+  font-size:12px; line-height:1.6; box-shadow:var(--shadow-raised);
+}
+#formule .ftitre {
+  font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--accent-texte); margin-bottom:4px;
+}
+#formule .fmath {
+  display:block; background:var(--surface-muted); border-radius:var(--radius-sm);
+  padding:5px 9px; margin:3px 0; font-size:12px; line-height:1.5;
+}
+#formule .fres { font-weight:600; color:var(--vert-fonce); }
+/* Les notes se suivent : sans `block`, « Ø = … » et « D = … » se collaient
+   bout à bout sur la même ligne. */
+#formule .fnote { display:block; font-size:11.5px; line-height:1.45; opacity:.7; font-style:italic; }
+
+/* Le bouton qui déplie le panneau, posé sur le banc. En bas à droite :
+   en haut, il recouvrait la tête du thermomètre. */
+#scene-cmd {
+  position:absolute; right:10px; bottom:10px; z-index:5;
+  display:flex; flex-direction:column; gap:6px;
+}
+#scene-cmd button {
+  width:40px; height:40px; border-radius:var(--radius-md);
+  border:1px solid var(--border); background:var(--surface); color:var(--neutral);
+  font-size:17px; cursor:pointer; box-shadow:var(--shadow-soft);
+}
+#scene-cmd button:hover { background:var(--surface-muted); }
+#scene-cmd button.actif { background:var(--accent-doux); border-color:var(--accent); }
+
+/* ====================== Le materiel du banc ======================
+   Un rang unique qui défile, plutôt que des boutons qui se cassent en
+   plusieurs rangées : ces rangées coûtent très cher en hauteur d'enceinte. Le
+   rang vit dans une boîte intérieure centrée par des marges automatiques — un
+   `justify-content:center` mettrait la première commande hors de portée dès
+   qu'il faut défiler. */
+#actions {
+  flex:none; display:flex; align-items:center; flex-wrap:nowrap;
+  padding:8px 10px calc(8px + env(safe-area-inset-bottom));
+  background:var(--surface); border-top:1px solid var(--border);
+  overflow-x:auto; scrollbar-width:none;
+}
+#actions::-webkit-scrollbar { display:none; }
+#actions-int { display:flex; align-items:center; gap:8px; margin:0 auto; }
+#actions-int > * { flex:none; }
+
+.btn {
+  display:inline-flex; align-items:center; justify-content:center; gap:7px;
+  min-height:44px; padding:0 18px; border:none; border-radius:var(--radius-lg);
+  font-family:var(--font-body); font-size:14px; font-weight:600;
+  color:var(--neutral); background:var(--primary); cursor:pointer;
+  transition:filter .15s var(--ease);
+}
+.btn:hover { filter:brightness(.94); }
+.btn:active { filter:brightness(.88); }
+.btn[disabled] { opacity:.45; cursor:not-allowed; filter:none; }
+/* `display:inline-flex` l'emporterait sur l'attribut `hidden` : il faut le redire */
+.btn[hidden] { display:none; }
+.btn-contour { background:var(--surface); border:2px solid var(--neutral); }
+.btn-contour:hover { background:var(--surface-muted); filter:none; }
+.btn-fantome { background:transparent; }
+.btn-fantome:hover { background:var(--surface-muted); filter:none; }
+.btn-large { width:100%; }
+#actions .btn { min-height:46px; padding:0 16px; font-size:13.5px; white-space:nowrap; }
+
+/* Le rang des elements du banc, defilable : meme boite interieure centree
+   que l'etabli du circuit — un justify-content:center mettrait le premier
+   element hors de portee des qu'il faut defiler. */
+#btn-effacer { border-style:dashed; color:var(--rouge-fonce); min-width:58px; }
+#btn-effacer .pal-ico { font-size:19px; line-height:1.2; }
+
+/* La barre de reglage d'un element selectionne, posee sur le banc */
+#regbar {
+  position:absolute; left:50%; transform:translateX(-50%);
+  bottom:10px; z-index:6; display:none; align-items:center; gap:10px;
+  padding:8px 12px; border-radius:var(--radius-lg);
+  background:var(--surface); border:1px solid var(--border);
+  box-shadow:var(--shadow-raised); max-width:calc(100% - 20px);
+}
+#regbar.visible { display:flex; }
+#regbar .nom { font-size:12.5px; font-weight:700; white-space:nowrap; }
+#regbar .valeur { font-family:var(--font-display); font-size:13px; font-weight:800;
+  min-width:56px; text-align:right; }
+#regbar input[type=range] { width:min(130px, 26vw); accent-color:var(--accent); }
+#regbar button {
+  border:none; border-radius:var(--radius-md); padding:7px 11px; min-height:38px;
+  font-family:var(--font-body); font-size:12.5px; font-weight:600; cursor:pointer;
+  background:rgba(232,58,75,.14); color:var(--rouge-fonce); white-space:nowrap;
+}
+
+/* ============================ Voiles ============================ */
+.voile {
+  position:fixed; inset:0; z-index:40; display:none;
+  background:rgba(14,18,23,.93); padding:14px; overflow-y:auto;
+}
+.voile.visible { display:flex; align-items:center; justify-content:center; }
+.carte-modale {
+  position:relative; width:100%; max-width:470px; margin:auto;
+  background:var(--surface); border-radius:var(--radius-lg); padding:22px 20px;
+  box-shadow:var(--shadow-raised);
+}
+.carte-modale h2 { font-size:20px; margin-bottom:9px; padding-right:34px; }
+.carte-modale > p { font-size:13.5px; line-height:1.6; opacity:.8; margin-bottom:10px; }
+.fermer-x {
+  position:absolute; top:8px; right:10px; width:36px; height:36px;
+  border:none; background:none; font-size:20px; color:inherit; cursor:pointer;
+  border-radius:var(--radius-md);
+}
+.fermer-x:hover { background:var(--surface-muted); }
+/* Le lexique s'ouvre depuis la leçon et le panneau 📐 : il s'empile par-dessus */
+#v-lexique { z-index:42; }
+
+/* Cartes de mission */
+.d-carte {
+  display:flex; align-items:center; gap:11px; width:100%; text-align:left;
+  padding:11px 13px; margin-bottom:8px;
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md);
+  font-family:var(--font-body); color:inherit; cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+.d-carte:hover:not([disabled]) { border-color:var(--border-strong); background:var(--surface-muted); }
+.d-carte[disabled] { opacity:.5; cursor:not-allowed; }
+.d-carte .num {
+  width:30px; height:30px; flex:none; border-radius:var(--radius-sm);
+  display:grid; place-items:center; background:var(--accent-doux);
+  font-family:var(--font-display); font-weight:800; font-size:13px;
+}
+.d-carte.fait .num { background:var(--success); color:#fff; }
+.d-carte .txt { flex:1; min-width:0; }
+.d-carte .txt b { display:block; font-size:13.5px; font-weight:600; }
+.d-carte .txt span { font-size:11.5px; opacity:.65; line-height:1.4; }
+.d-barre { height:7px; border-radius:var(--radius-full); background:var(--surface-muted);
+  overflow:hidden; margin:2px 0 14px; }
+.d-barre i { display:block; height:100%; background:var(--accent); border-radius:inherit;
+  transition:width .5s var(--ease); }
+
+/* Guide d'accueil */
+.g-titre { font-family:var(--font-display); font-weight:800; font-size:14px;
+  margin:14px 0 7px; color:var(--accent-texte); }
+.g-titre:first-of-type { margin-top:8px; }
+.g-etape { display:flex; gap:11px; margin-bottom:13px; }
+.g-etape .num {
+  width:26px; height:26px; flex:none; border-radius:var(--radius-full);
+  display:grid; place-items:center; background:var(--accent-doux);
+  font-family:var(--font-display); font-weight:800; font-size:12.5px;
+}
+.g-etape .t { font-size:13.5px; line-height:1.5; opacity:.85; flex:1; }
+.g-etape .t b { opacity:1; }
+
+/* Lexique */
+.lex-entree { padding:11px 0; border-bottom:1px solid var(--border); }
+.lex-entree:last-child { border-bottom:none; }
+.lex-entree b { display:block; font-size:14px; font-weight:600; margin-bottom:2px; }
+.lex-entree span { font-size:12.5px; line-height:1.55; opacity:.78; }
+.lex-entree.vise { background:var(--accent-doux); border-radius:var(--radius-md);
+  padding:11px 12px; border-bottom:none; }
+
+/* La leçon d'avant-mission : le vocabulaire posé avant de manipuler */
+.notion-bloc { font-size:13.5px; line-height:1.6; margin-bottom:10px; opacity:.9; }
+.notion-bloc b { font-weight:600; opacity:1; }
+.lex-chips { display:flex; flex-wrap:wrap; gap:6px; margin:12px 0 14px; }
+.lex-chips button {
+  border:1px solid var(--border); background:var(--surface); color:var(--accent-texte);
+  border-radius:var(--radius-full); padding:6px 12px;
+  font-family:var(--font-body); font-size:11.5px; font-weight:600; cursor:pointer;
+}
+.lex-chips button:hover { background:var(--surface-muted); border-color:var(--border-strong); }
+
+/* Écran de passage d'une mission à la suivante */
+.p-fanion { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+.p-fanion .rond {
+  width:44px; height:44px; flex:none; border-radius:var(--radius-full);
+  display:grid; place-items:center; background:var(--success); font-size:22px;
+}
+.p-fanion b { display:block; font-size:17px; font-family:var(--font-display); font-weight:800; }
+.p-fanion span { font-size:12px; opacity:.65; }
 .p-acquis {
   padding:12px 14px; border-radius:var(--radius-md); background:var(--accent-doux);
-  font-size:13px; line-height:1.55; margin-bottom:14px; text-align:left;
+  font-size:13px; line-height:1.55; margin-bottom:14px;
 }
+.p-acquis b { font-weight:600; }
 .p-suite {
   border:2px dashed var(--border-strong); border-radius:var(--radius-md);
-  padding:12px 14px; margin-bottom:14px; text-align:left;
+  padding:12px 14px; margin-bottom:14px;
 }
 .p-suite .etiq {
   font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
-  color:var(--accent-fonce); margin-bottom:3px;
+  color:var(--accent); margin-bottom:3px;
 }
 .p-suite b { display:block; font-size:15px; font-family:var(--font-display); font-weight:800; }
 .p-suite span { font-size:12.5px; opacity:.7; line-height:1.45; }
+.p-neuf { font-size:12px; opacity:.6; text-align:center; margin-top:9px; line-height:1.45; }
 
-@media (max-width:520px) {
-  header { gap:4px; padding:6px 8px; }
-  header .btn { min-height:36px; padding:0 8px; }
-  header h1 { font-size:14px; }
+/* QCM */
+.q-question { font-size:15px; font-weight:600; line-height:1.4; margin-bottom:12px; }
+.q-choix {
+  display:block; width:100%; text-align:left; margin-bottom:8px;
+  padding:12px 14px; min-height:46px;
+  background:var(--surface); border:2px solid var(--border); border-radius:var(--radius-md);
+  font-family:var(--font-body); font-size:13.5px; color:var(--neutral); cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+.q-choix:hover:not([disabled]) { border-color:var(--border-strong); background:var(--surface-muted); }
+.q-choix.bon { border-color:var(--success); background:rgba(42,157,143,.12); font-weight:600; }
+.q-choix.mauvais { border-color:var(--destructive); background:rgba(232,58,75,.1); }
+.q-choix[disabled] { cursor:default; }
+.q-expl {
+  margin-top:4px; padding:11px 13px; border-radius:var(--radius-md);
+  background:var(--accent-doux); font-size:12.5px; line-height:1.55; display:none;
+}
+.q-expl.visible { display:block; }
+.q-avance { font-size:11.5px; opacity:.55; margin-bottom:10px; letter-spacing:.04em;
+  text-transform:uppercase; font-weight:600; }
+
+/* ============================ Toast ============================ */
+#toast {
+  position:fixed; left:50%; bottom:calc(78px + env(safe-area-inset-bottom));
+  transform:translateX(-50%);
+  max-width:calc(100vw - 28px); padding:10px 16px; z-index:45;
+  background:var(--neutral); color:var(--background);
+  border-radius:var(--radius-full); font-size:13px; font-weight:600;
+  opacity:0; pointer-events:none; transition:opacity .2s var(--ease); text-align:center;
+}
+#toast.visible { opacity:1; }
+#toast.alerte { background:var(--destructive); color:#fff; }
+
+/* ================= Adaptations d'écran ================= */
+
+/* Paysage sur téléphone : chaque pixel de hauteur compte */
+@media (orientation:landscape) and (max-height:520px) {
+  header { padding:3px 8px; }
+  header h1 { font-size:13px; }
+  header .sous { display:none; }
+  .icone-btn { width:34px; height:34px; font-size:16px; }
+  #mission { padding:5px 10px 6px; }
+  .m-pastille { width:24px; height:24px; font-size:11px; }
+  .m-titres b { font-size:12.5px; }
+  .m-titres span { display:none; }
+  #mission.ouvert .m-titres span { display:block; }
+  .m-jauge { margin-top:5px; }
+  #etapes { margin-top:6px; }
+  .etape { padding:3px 0; font-size:12px; line-height:1.35; }
+  .etape .coche { width:18px; height:18px; font-size:10px; }
+  .m-indice, .m-diag { margin-top:6px; padding:7px 9px; font-size:11.5px; }
+  .m-actions { margin-top:7px; }
+  .m-actions .btn { min-height:34px; font-size:12.5px; }
+  #actions { padding:5px 8px calc(5px + env(safe-area-inset-bottom)); }
+  #actions-int { gap:6px; }
+  #actions .btn { min-height:38px; padding:0 12px; font-size:12.5px; }
+  /* Le banc est écrasé : centrée, la barre de réglage couvrait l'étiquette
+     « ombre : … cm » que la mission demande justement de lire. Elle se range à
+     gauche, du côté de la lampe. */
+  #regbar {
+    bottom:6px; left:8px; transform:none;
+    padding:6px 10px; gap:8px; max-width:calc(100% - 16px);
+  }
+  #regbar button { min-height:32px; font-size:11.5px; padding:6px 9px; }
+  #regbar input[type=range] { width:min(110px, 22vw); }
+  /* le banc est écrasée : à droite, le bouton mordrait sur le thermomètre */
+  #scene-cmd { left:10px; right:auto; bottom:8px; }
+  #scene-cmd button { width:34px; height:34px; font-size:15px; }
 }
 
-/* Écran de démarrage et invite de rotation, au standard eux aussi */
-#splash, #paysage {
-  background:var(--background) !important; color:var(--neutral) !important;
+/* Écran large : la mission passe en colonne, le banc prend le reste */
+@media (min-width:880px) {
+  body { flex-direction:row; }
+  #colonne {
+    width:330px; flex:none; display:flex; flex-direction:column;
+    background:var(--surface); border-right:1px solid var(--border);
+    overflow-y:auto;
+  }
+  /* la colonne est étroite : les icônes passent sous le titre au lieu de l'écraser */
+  header { border-bottom:1px solid var(--border); flex-wrap:wrap; }
+  header h1 { font-size:16px; }
+  .tete-fin { width:100%; justify-content:flex-end; }
+  #mission { border-bottom:none; padding:12px 16px; }
+  /* la place ne manque pas : toutes les étapes restent visibles */
+  #mission:not(.ouvert) .etape:not(.a-montrer) { display:flex; }
+  #mission:not(.ouvert) .m-indice { display:block; }
+  .m-plier { display:none; }
+  main { flex:1; min-width:0; }
 }
-#splash h1, #paysage h2, #splash .titre { color:var(--neutral) !important; }
-#splash p, #paysage p { color:var(--neutral) !important; opacity:.75; }
-#splash .barre, #splash .jauge { background:var(--surface-muted) !important; }
-#splash .barre > *, #splash .jauge > * { background:var(--primary) !important; }
+
 @media (prefers-reduced-motion:reduce) {
   *,*::before,*::after { animation-duration:.01ms !important; transition-duration:.01ms !important; }
 }
 
-/* « Ce que tu as appris » : le bloc est désormais porté par .p-acquis.
-   L'ancien encadré vert imbriqué faisait un double fond illisible. */
-#mfin-retenir, body.sombre #mfin-retenir {
-  background:none !important; color:inherit !important;
-  padding:0 !important; margin:0 !important; border-radius:0 !important;
-  font-size:inherit !important; line-height:inherit !important;
-}
-.retenir-label { display:none; }
-
-/* Panneau de formule : une police lisible et du texte qui revient à la ligne.
-   La monospace en nowrap coupait les phrases (« la cire de la boug… »). */
-#formule .fmath {
-  font-family:var(--font-body) !important; font-size:12px !important;
-  white-space:normal !important; overflow-x:visible !important;
-  line-height:1.5; padding:5px 9px !important; border-radius:var(--radius-sm) !important;
-}
-#formule .ftitre { font-size:10.5px; letter-spacing:.06em; }
-#formule .fnote { font-size:11.5px; line-height:1.45; }
-/* L'action motrice de la simulation prend le lime des boutons principaux */
-#btn-allumer, #btn-chauffer, #btn-lancer {
-  background:var(--primary) !important; border-color:transparent !important;
-  color:var(--neutral) !important;
-}
-
 /* ===== Accessibilité : contraste des textes colorés =====
-   L'accent (#5BC5F2) et sa variante #2196C4 sont des couleurs de fond.
-   Sur clair, elles tombent sous 3 de contraste : on passe à une teinte lisible. */
-:root { --accent-texte:#0F6E93; }
-body.sombre { --accent-texte:#7FD4F5; }
-#mchip, .p-suite .etiq, #formule .ftitre, .retenir-label, .lien,
-#mfin-titre, .m-pct { color:var(--accent-texte) !important; }
+   L'accent (#5BC5F2) est une couleur de fond. Sur blanc, il tombe à 2,0 de
+   contraste : illisible. On lui adjoint une variante foncée pour le texte. */
+:root { --accent-texte:#0F6E93; --vert-fonce:#1F7A6F; --orange-fonce:#A85F00; --rouge-fonce:#C62828; }
+body.sombre { --accent-texte:#7FD4F5; --vert-fonce:#2A9D8F; --orange-fonce:#F7A430; --rouge-fonce:#EF5350; }
+.m-rang, .p-suite .etiq, .q-avance, .g-titre, #formule .ftitre { color:var(--accent-texte) !important; }
+
+/* ===================== L'accueil : « Que veux-tu faire ? » ===================== */
+#v-accueil .carte-modale { max-width:520px; }
+.ac-intro { font-size:13.5px; line-height:1.6; opacity:.8; margin-bottom:14px; }
+.ac-choix {
+  display:flex; align-items:center; gap:13px; width:100%; text-align:left;
+  padding:15px 16px; margin-bottom:11px;
+  background:var(--surface); border:2px solid var(--border); border-radius:var(--radius-lg);
+  font-family:var(--font-body); color:inherit; cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+.ac-choix:hover:not([disabled]) { border-color:var(--accent); background:var(--accent-doux); }
+.ac-choix[disabled] { opacity:.55; cursor:not-allowed; }
+.ac-choix .ac-em {
+  width:46px; height:46px; flex:none; border-radius:var(--radius-md);
+  display:grid; place-items:center; background:var(--surface-muted); font-size:25px;
+}
+.ac-choix .ac-txt { flex:1; min-width:0; }
+.ac-choix .ac-txt b { display:block; font-family:var(--font-display); font-size:17px; font-weight:800; }
+.ac-choix .ac-txt span { display:block; font-size:12.5px; opacity:.7; line-height:1.45; margin-top:1px; }
+.ac-choix .ac-etat { font-size:11.5px; font-weight:700; opacity:.75; flex:none; text-align:right; max-width:34%; }
+.ac-pied { font-size:12px; opacity:.6; line-height:1.5; margin-top:2px; }
+
+/* ===================== La visite guidée de l'interface =====================
+   Un halo encadre la zone dont on parle et assombrit tout le reste ; la carte
+   se pose à côté. Une liste écrite ne montrait rien : ici, on regarde. */
+#visite { position:fixed; inset:0; z-index:48; display:none; }
+#visite.visible { display:block; }
+#visite-halo {
+  position:absolute; border-radius:var(--radius-md);
+  border:3px solid var(--primary);
+  box-shadow:0 0 0 9999px rgba(12,16,20,.91);
+  transition:left .3s var(--ease), top .3s var(--ease),
+             width .3s var(--ease), height .3s var(--ease);
+  pointer-events:none;
+}
+#visite-carte {
+  position:absolute; background:var(--surface); border-radius:var(--radius-lg);
+  padding:15px 16px 13px; width:min(320px, calc(100vw - 24px));
+  box-shadow:0 12px 44px rgba(0,0,0,.34);
+  transition:left .3s var(--ease), top .3s var(--ease);
+}
+.v-titre { font-family:var(--font-display); font-size:16px; font-weight:800; margin-bottom:5px; }
+.v-texte { font-size:13px; line-height:1.55; opacity:.85; }
+.v-texte b { opacity:1; }
+.v-bas { display:flex; align-items:center; gap:8px; margin-top:13px; }
+.v-prog { flex:1; font-size:11.5px; font-weight:700; opacity:.5; letter-spacing:.04em; }
+#visite-passer {
+  background:none; border:none; color:inherit; opacity:.6;
+  font-family:var(--font-body); font-size:12.5px; text-decoration:underline;
+  cursor:pointer; padding:6px;
+}
+#visite-passer:hover { opacity:1; }
+#visite-suivant {
+  border:none; background:var(--primary); color:var(--neutral);
+  font-family:var(--font-body); font-weight:700; font-size:13.5px;
+  padding:10px 18px; border-radius:var(--radius-md); cursor:pointer; min-height:40px;
+}
+
+/* ===================== Le quiz libre : m'exercer ===================== */
+#v-quiz .carte-modale { max-width:520px; }
+.qz-maitrise {
+  margin:4px 0 16px; padding:12px 14px; border-radius:var(--radius-md);
+  background:var(--surface-muted);
+}
+.qz-m-haut { display:flex; align-items:baseline; justify-content:space-between; font-size:12.5px; }
+.qz-m-haut b { font-family:var(--font-display); font-size:20px; font-weight:800; }
+.qz-m-barre { height:9px; border-radius:var(--radius-full); background:var(--surface);
+  overflow:hidden; margin-top:6px; }
+.qz-m-barre i { display:block; height:100%; border-radius:inherit;
+  background:var(--primary); transition:width .5s var(--ease); }
+.qz-m-mot { font-size:11.5px; font-weight:700; opacity:.6; margin-top:5px;
+  letter-spacing:.04em; text-transform:uppercase; }
+
+.qz-niveau {
+  display:flex; align-items:center; gap:12px; width:100%; text-align:left;
+  padding:13px 14px; margin-bottom:9px;
+  background:var(--surface); border:2px solid var(--border); border-radius:var(--radius-lg);
+  font-family:var(--font-body); color:inherit; cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+.qz-niveau:hover { border-color:var(--accent); background:var(--accent-doux); }
+.qz-niveau .qz-em {
+  width:42px; height:42px; flex:none; border-radius:var(--radius-md);
+  display:grid; place-items:center; background:var(--surface-muted); font-size:22px;
+}
+.qz-niveau .qz-txt { flex:1; min-width:0; }
+.qz-niveau .qz-txt b { display:block; font-family:var(--font-display); font-size:15.5px; font-weight:800; }
+.qz-niveau .qz-txt span { display:block; font-size:12px; opacity:.7; line-height:1.45; margin-top:1px; }
+.qz-niveau .qz-note { flex:none; text-align:right; font-size:14px; }
+.qz-niveau .qz-note span { display:block; font-size:10.5px; font-weight:600; opacity:.55; margin-top:2px; }
+.qz-pied { font-size:12px; opacity:.65; line-height:1.5; margin-top:4px; }
+
+.qz-jauge { height:4px; border-radius:var(--radius-full); background:var(--surface-muted);
+  overflow:hidden; margin:0 0 12px; }
+.qz-jauge i { display:block; height:100%; background:var(--accent); transition:width .3s var(--ease); }
+
+.qz-fin { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+.qz-fin-em { font-size:34px; line-height:1; flex:none; }
+.qz-fin b { display:block; font-family:var(--font-display); font-size:17px; font-weight:800; }
+.qz-fin span { font-size:12.5px; opacity:.65; }
+.qz-fin-et { margin-left:auto; font-size:17px; letter-spacing:1px; }
+.qz-mieux { font-size:12.5px; font-weight:600; color:var(--vert-fonce); margin:0 0 12px; }
+.qz-mieux.discret { color:inherit; opacity:.55; font-weight:400; }
+.qz-revoir { padding:11px 13px; border-radius:var(--radius-md); background:var(--accent-doux);
+  font-size:12.5px; line-height:1.6; margin-bottom:13px; }
+.qz-revoir span { display:block; }
+.qz-boutons { display:flex; gap:8px; }
+.qz-boutons .btn { flex:1; }
+
+/* ====================== La palette d'éléments du banc ======================
+   Des cartes icône + nom, comme l'établi du circuit électrique. */
+#actions-int button {
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
+  border:2px solid var(--border); border-radius:var(--radius-md);
+  background:var(--surface); padding:6px 9px 5px; min-width:66px; min-height:56px;
+  font-family:var(--font-body); color:var(--neutral); cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+#actions-int button:hover { border-color:var(--border-strong); background:var(--surface-muted); }
+#actions-int button.actif { border-color:var(--accent); background:var(--accent-doux); }
+#actions-int button span { font-size:10.5px; font-weight:600; white-space:nowrap; }
+#actions-int button canvas { pointer-events:none; }
+#actions-int button[hidden] { display:none; }
+
+/* ============ Mode paysage obligatoire sur téléphone ============
+   Le banc mesure 100 cm : en portrait, il n'y a pas de quoi lire les
+   distances ni suivre les rayons. */
+#paysage {
+  display:none; position:fixed; inset:0; z-index:200;
+  background:var(--background); color:var(--neutral);
+  flex-direction:column; align-items:center; justify-content:center;
+  gap:16px; text-align:center; padding:24px;
+}
+#paysage .tel { font-size:56px; animation:tourner 1.6s ease-in-out infinite; }
+@keyframes tourner { 0%, 20% { transform:rotate(0); } 60%, 100% { transform:rotate(90deg); } }
+#paysage h2 { font-size:20px; font-weight:800; }
+#paysage p { font-size:14px; line-height:1.5; max-width:320px; opacity:.75; }
+@media (orientation:portrait) and (max-width:820px) {
+  #paysage { display:flex; }
+}
 </style>
 </head>
 <body>
@@ -498,130 +570,177 @@ body.sombre { --accent-texte:#7FD4F5; }
 <div id="paysage">
   <div class="tel">📱</div>
   <h2>Tourne ton téléphone !</h2>
-  <p>Le banc d'optique mesure 100 cm : il se manipule en mode <b>paysage</b> pour bien voir les rayons et les distances.</p>
+  <p>Le banc d'optique mesure 100 cm : il se manipule en mode <b>paysage</b>, pour bien voir
+     les rayons et lire les distances.</p>
 </div>
 
-<div id="splash">
-  <div class="logo">⚡</div>
-  <div class="nom">IKE <span>Simulations</span></div>
-  <div class="sub">Sciences au collège</div>
-  <div class="barre"><div class="rempl"></div></div>
-  <div class="ver">v3.1.0</div>
+<div id="colonne">
+  <header>
+    <a class="icone-btn" href="../../index.html#/pct/5e" title="Retour au catalogue" aria-label="Retour">←</a>
+    <div>
+      <h1>Banc d'optique</h1>
+      <div class="sous">PCT · 5ᵉ SA4 · 4ᵉ · 3ᵉ</div>
+    </div>
+    <div class="tete-fin">
+      <button class="icone-btn" id="btn-missions" title="Les missions" aria-label="Missions">🎯</button>
+      <button class="icone-btn" id="btn-lexique" title="Lexique" aria-label="Lexique">📖</button>
+      <button class="icone-btn" id="btn-aide" title="Comment jouer" aria-label="Aide">❓</button>
+      <button class="icone-btn" id="btn-theme" title="Thème" aria-label="Thème">🌙</button>
+    </div>
+  </header>
+
+  <section id="mission">
+    <div class="m-haut">
+      <span class="m-pastille" id="m-num">1</span>
+      <div class="m-titres">
+        <span class="m-rang" id="m-rang">Mission 1 sur 12</span>
+        <b id="m-titre">—</b>
+        <span id="m-but"></span>
+      </div>
+      <button class="m-plier" id="m-plier" aria-label="Afficher toutes les étapes"
+              aria-expanded="false">▼</button>
+    </div>
+    <div class="m-jauge"><i id="m-jauge" style="width:0"></i></div>
+    <div id="etapes"></div>
+    <div class="m-indice" id="m-indice" hidden></div>
+    <div class="m-diag" id="m-diag" hidden></div>
+    <div class="m-actions" id="m-actions">
+      <button class="btn btn-contour" id="btn-indice">💡 Indice</button>
+      <button class="btn" id="btn-suivante-barre" hidden>Mission suivante ▶</button>
+    </div>
+  </section>
 </div>
 
-<header>
-  <h1>🔍 Banc d'optique</h1>
-  <div class="spacer"></div>
-  <button class="btn" id="tab-exp">🧪<span class="lbl"> Expérimenter</span></button>
-  <button class="btn" id="btn-formule">📐<span class="lbl"> Formule</span></button>
-  <button class="btn" id="btn-theme">🌙<span class="lbl"> Sombre</span></button>
-  <button class="btn" id="btn-aide">❓<span class="lbl"> Aide</span></button>
-  <button class="btn danger" id="btn-effacer">🗑<span class="lbl"> Effacer</span></button>
-</header>
-
-<div id="mbar">
-  <div class="l1">
-    <span id="mchip"></span>
-    <span id="mtitre"></span>
-    <button class="mbtn" id="btn-missions" title="Toutes les missions">📋</button>
-  </div>
-  <div class="l2">
-    <span id="mpoints"></span>
-    <span id="metape"></span>
-    <span id="mcompteur"></span>
-    <button class="mbtn" id="btn-indice" title="Indice">💡 Indice</button>
-    <button class="mbtn" id="btn-suiv2" style="display:none">Suivante ▶</button>
-  </div>
-  <div id="mindice"></div>
-  <div id="mdiag"></div>
-</div>
-
-<div id="wrap">
-  <canvas id="scene"></canvas>
-  <div id="formule"></div>
-  <div id="toast"></div>
-  <div id="regbar">
-    <span class="nom" id="reg-nom"></span>
-    <input type="range" id="reg-curseur">
-    <span class="valeur" id="reg-valeur"></span>
-    <button id="btn-retirer">🗑 Retirer</button>
-  </div>
-</div>
-
-<nav id="palette"></nav>
-
-<div id="mfin" class="voile">
-  <div class="carte">
-    <button class="fermer-x" id="btn-fermer-fin" title="Fermer et admirer le banc">✕</button>
-    <h2>🎉 Mission réussie !</h2>
-    <div id="mfin-titre"></div>
-    <div class="retenir-label">💡 À retenir</div>
-    <div class="p-acquis">📘 <b>Ce que tu as appris :</b> <span id="mfin-retenir"></span></div>
-    <div class="p-suite" id="mfin-suite"></div>
-    <button class="go" id="btn-suivante">Mission suivante ▶</button>
-    <button class="btn2" id="btn-liste2">📋 Toutes les missions</button>
-  </div>
-</div>
-
-<div id="mliste" class="voile">
-  <div class="carte">
-    <h2>📋 Parcours d'apprentissage</h2>
-    <div id="mliste-items"></div>
-    <button class="btn2" id="btn-libre">🧪 Mode libre — expérimente librement</button>
-    <button class="go" id="btn-fermer-liste">Fermer</button>
-    <button class="lien" id="btn-reset-prog">↺ Réinitialiser tout le parcours</button>
-  </div>
-</div>
-
-<div id="mlecon" class="voile">
-  <div class="carte">
-    <h2>📖 Avant de commencer…</h2>
-    <div id="mlecon-titre" style="font-weight:700; font-size:15px; margin-bottom:10px;"></div>
-    <p id="mlecon-texte" style="font-size:14px; line-height:1.65; margin-bottom:14px;"></p>
-    <button class="go" id="btn-go-lecon">C'est parti !</button>
-  </div>
-</div>
-
-<div id="mlexique" class="voile">
-  <div class="carte">
-    <h2>📖 Lexique de l'optique</h2>
-    <dl class="lex" id="lex-items"></dl>
-    <button class="go" id="btn-fermer-lexique">Fermer</button>
-  </div>
-</div>
-
-<div id="choix-mode" class="voile">
-  <div class="carte">
-    <h2>⚡ Que veux-tu faire ?</h2>
-    <div class="deux">
-      <button class="gros-btn" id="choix-apprendre">
-        <span class="gi">🎓</span>
-        <span><span class="gt">Apprendre</span><span class="gs">Le parcours guidé, mission par mission — recommandé pour commencer.</span></span>
-      </button>
-      <button class="gros-btn" id="choix-experimenter">
-        <span class="gi">🧪</span>
-        <span><span class="gt">Expérimenter</span><span class="gs" id="gs-exp"></span></span>
-      </button>
+<main>
+  <div id="atelier">
+    <canvas id="scene"></canvas>
+    <div id="formule"></div>
+    <div id="scene-cmd">
+      <button id="btn-formule" title="Le calcul en direct" aria-label="Calcul en direct">📐</button>
+    </div>
+    <div id="regbar">
+      <span class="nom" id="reg-nom"></span>
+      <input type="range" id="reg-curseur" aria-label="Réglage de l'élément sélectionné">
+      <span class="valeur" id="reg-valeur"></span>
+      <button id="btn-retirer">🗑 Retirer</button>
     </div>
   </div>
-</div>
+  <div id="actions"><div id="actions-int"></div></div>
+</main>
+
+<div id="toast" role="status" aria-live="polite"></div>
 
 <div id="visite">
   <div id="visite-halo"></div>
   <div id="visite-carte">
-    <div class="vtitre"></div>
-    <div class="vtexte"></div>
-    <div class="vbas">
-      <span class="vprog"></span>
-      <button id="visite-passer">Passer</button>
-      <button id="visite-suivant">Suivant</button>
+    <div class="v-titre" id="visite-titre"></div>
+    <div class="v-texte" id="visite-texte"></div>
+    <div class="v-bas">
+      <span class="v-prog" id="visite-prog"></span>
+      <button id="visite-passer" type="button">Passer</button>
+      <button id="visite-suivant" type="button">Suivant</button>
     </div>
-    <div class="vmarque">IKE Simulations · collège (PCT)</div>
   </div>
 </div>
 
+<div class="voile" id="v-quiz">
+  <div class="carte-modale" id="quiz-carte"></div>
+</div>
+
+<div class="voile" id="v-accueil">
+  <div class="carte-modale">
+    <h2>🔭 Que veux-tu faire ?</h2>
+    <p class="ac-intro">Tu vas <b>monter un banc d'optique</b> : une lampe, un objet, une lentille,
+       un écran — et voir comment se forme une image.</p>
+    <button class="ac-choix" id="ac-apprendre">
+      <span class="ac-em">🎓</span>
+      <span class="ac-txt"><b>Apprendre</b><span>Le parcours guidé, mission après mission.</span></span>
+      <span class="ac-etat" id="ac-etat-app"></span>
+    </button>
+    <button class="ac-choix" id="ac-experimenter">
+      <span class="ac-em">🧪</span>
+      <span class="ac-txt"><b>Expérimenter</b><span>Le banc libre, tout le matériel.</span></span>
+      <span class="ac-etat" id="ac-etat-exp"></span>
+    </button>
+    <button class="ac-choix" id="ac-exercer">
+      <span class="ac-em">🏅</span>
+      <span class="ac-txt"><b>M’exercer</b><span>Trois séries de questions, et un score de maîtrise.</span></span>
+      <span class="ac-etat" id="ac-etat-ex"></span>
+    </button>
+    <p class="ac-pied" id="ac-pied"></p>
+  </div>
+</div>
+
+<div class="voile" id="v-lecon">
+  <div class="carte-modale">
+    <button class="fermer-x" id="btn-fermer-lecon" aria-label="Fermer">✕</button>
+    <h2 id="lecon-titre"></h2>
+    <p id="lecon-sous"></p>
+    <div id="lecon-contenu"></div>
+    <div class="lex-chips" id="lecon-lexique"></div>
+    <button class="btn btn-large" id="btn-commencer">🚀 Commencer la mission</button>
+  </div>
+</div>
+
+<div class="voile" id="v-missions">
+  <div class="carte-modale">
+    <button class="fermer-x" data-ferme="v-missions" aria-label="Fermer">✕</button>
+    <h2>🎯 Les missions</h2>
+    <p>Elles se suivent : termine l'une pour ouvrir la suivante.</p>
+    <div class="d-barre"><i id="d-barre"></i></div>
+    <div id="liste-missions"></div>
+    <button class="btn btn-fantome btn-large" id="btn-rezero"
+            style="margin-top:6px;color:var(--rouge-fonce)">↺ Recommencer tout le parcours</button>
+  </div>
+</div>
+
+<div class="voile" id="v-lexique">
+  <div class="carte-modale">
+    <button class="fermer-x" data-ferme="v-lexique" aria-label="Fermer">✕</button>
+    <h2>📖 Les mots de l'optique</h2>
+    <p>Le vocabulaire du programme, expliqué avec ce que tu montes sur le banc.</p>
+    <div id="liste-lexique"></div>
+  </div>
+</div>
+
+<div class="voile" id="v-aide">
+  <div class="carte-modale">
+    <button class="fermer-x" data-ferme="v-aide" aria-label="Fermer">✕</button>
+    <h2>🔭 Bienvenue sur le banc !</h2>
+    <p>Un banc d'optique de 100 cm, gradué, sur lequel tu poses ton matériel et tu mesures
+       les distances — comme au laboratoire.</p>
+    <div class="g-titre">Comment monter une expérience ?</div>
+    <div class="g-etape"><span class="num">1</span><span class="t">
+      <b>Suis les étapes de la mission</b>, en haut de l'écran. L'étape en cours est écrite
+      en gras.</span></div>
+    <div class="g-etape"><span class="num">2</span><span class="t">
+      <b>Touche un élément</b> dans la barre du bas pour le poser sur le banc : lampe, objet,
+      balle, sténopé, lentille, écran. Ils <b>se débloquent</b> au fil des missions.</span></div>
+    <div class="g-etape"><span class="num">3</span><span class="t">
+      <b>Fais glisser un élément</b> le long du banc pour le déplacer. Les <b>cotes</b> entre
+      voisins s'affichent toutes seules : plus besoin de calculer de tête.</span></div>
+    <div class="g-etape"><span class="num">4</span><span class="t">
+      <b>Touche un élément posé</b> pour le sélectionner : une barre apparaît pour régler sa
+      hauteur, son diamètre ou sa focale — et pour le retirer.</span></div>
+    <div class="g-etape"><span class="num">5</span><span class="t">
+      Le bouton <b>📐</b>, sur le banc, montre <b>le calcul en direct</b> avec tes propres
+      mesures : taille d'ombre, formule de conjugaison, grandissement.</span></div>
+    <div class="g-etape"><span class="num">6</span><span class="t">
+      Un mot que tu ne connais pas ? Ouvre le <b>📖 lexique</b> en haut.</span></div>
+    <button class="btn btn-contour btn-large" id="btn-revoir-visite"
+            style="margin-bottom:8px">🔍 Revoir la visite guidée</button>
+    <button class="btn btn-large" data-ferme="v-aide">Commencer !</button>
+  </div>
+</div>
+
+<div class="voile" id="v-qcm"><div class="carte-modale" id="qcm-carte"></div></div>
+<div class="voile" id="v-passage"><div class="carte-modale" id="passage-carte"></div></div>
+
 <script>
 'use strict';
+
+const $ = id => document.getElementById(id);
+
 /* =====================================================================
    1. CONSTANTES & ÉTAT — banc d'optique gradué de 0 à 100 cm
    ===================================================================== */
@@ -668,17 +787,19 @@ const etat = {
   drag: null,        // { type, decalage }
 };
 
-// Couleurs du canvas selon le thème
+// L'habillage de la scène (banc, graduations, textes, axe) reprend les jetons
+// du design system ; la lumière et les rayons gardent leurs couleurs propres —
+// ce sont celles du phénomène, pas celles du thème.
 const PALETTES = {
   clair: {
-    banc: '#78909c', gradu: '#90a4ae', texte: '#37474f', doux: '#90a4ae',
-    rayon: '#f9a825', ombre: 'rgba(38,50,56,.28)', ecran: '#ffffff',
-    ecranBord: '#546e7a', support: '#78909c', axe: '#b0bec5',
+    banc: '#B0ABA3', gradu: '#7A736C', texte: '#3A3632', doux: '#7A736C',
+    rayon: '#F7A430', ombre: 'rgba(58,54,50,.28)', ecran: '#FFFFFF',
+    ecranBord: '#B0ABA3', support: '#B0ABA3', axe: '#D3CFC8',
   },
   sombre: {
-    banc: '#78909c', gradu: '#546e7a', texte: '#cfd8dc', doux: '#78909c',
-    rayon: '#ffca28', ombre: 'rgba(0,0,0,.45)', ecran: '#eceff1',
-    ecranBord: '#b0bec5', support: '#546e7a', axe: '#3d4c59',
+    banc: '#6B767F', gradu: '#A8B0B6', texte: '#ECEFF1', doux: '#A8B0B6',
+    rayon: '#F7A430', ombre: 'rgba(0,0,0,.45)', ecran: '#ECEFF1',
+    ecranBord: '#6B767F', support: '#4A5762', axe: '#333E47',
   },
 };
 const T = () => PALETTES[etat.theme];
@@ -698,16 +819,29 @@ let largeur = 0, hauteur = 0;   // taille CSS du canvas
 let ech = 5;                    // pixels par cm
 let origX = 30, axeY = 0;       // origine du banc, hauteur de l'axe optique
 
+// Ce qui doit tenir de part et d'autre de l'axe optique, en centimètres de banc :
+// au-dessus les flèches de l'objet et de l'image (souvent plus grande) avec leurs
+// étiquettes ; au-dessous le banc gradué et les étiquettes des éléments (−10,8 cm).
+const CM_AU_DESSUS = 13;
+const CM_AU_DESSOUS = 11.5;
+
 function redimensionner() {
-  const wrap = document.getElementById('wrap');
+  const wrap = document.getElementById('atelier');
   largeur = wrap.clientWidth; hauteur = wrap.clientHeight;
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
   canvas.width = Math.round(largeur * dpr);
   canvas.height = Math.round(hauteur * dpr);
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  ech = (largeur - 56) / BANC_MAX;
-  origX = 28;
   axeY = hauteur * 0.58;
+  // L'échelle ne se déduisait que de la largeur du banc. En paysage sur
+  // téléphone, les flèches sortaient par le haut et les étiquettes par le bas :
+  // la hauteur disponible commande elle aussi, dans les deux sens.
+  ech = Math.min((largeur - 56) / BANC_MAX,
+                 Math.max(1.2, (axeY - 12) / CM_AU_DESSUS),
+                 Math.max(1.2, (hauteur - axeY - 14) / CM_AU_DESSOUS));
+  // quand c'est la hauteur qui commande, le banc ne remplit plus la largeur :
+  // on le centre plutôt que de le laisser collé à gauche
+  origX = Math.max(28, (largeur - BANC_MAX * ech) / 2);
   demanderRendu();
 }
 
@@ -967,7 +1101,9 @@ function etiquette(xCm, yCm, txt, coul) {
   const x = Math.max(40, Math.min(largeur - 40, px(xCm)));
   const y = py(yCm);
   const w = ctx.measureText(txt).width;
-  ctx.fillStyle = etat.theme === 'sombre' ? 'rgba(16,24,31,.8)' : 'rgba(244,247,251,.85)';
+  // le fond de l'étiquette reprend celui de la page : posé sur les rayons, il
+  // doit les masquer juste assez pour rester lisible
+  ctx.fillStyle = etat.theme === 'sombre' ? 'rgba(20,24,28,.82)' : 'rgba(247,245,240,.86)';
   ctx.fillRect(x - w / 2 - 4, y - 8, w + 8, 16);
   ctx.fillStyle = coul || T().texte;
   ctx.fillText(txt, x, y);
@@ -1165,7 +1301,7 @@ document.getElementById('btn-retirer').addEventListener('click', () => {
    6. PALETTE — un exemplaire par élément, familles exclusives
    ===================================================================== */
 
-const palette = document.getElementById('palette');
+const palette = document.getElementById('actions-int');
 for (const outil of OUTILS) {
   const btn = document.createElement('button');
   const ic = document.createElement('canvas');
@@ -1178,6 +1314,32 @@ for (const outil of OUTILS) {
   btn.addEventListener('click', () => poserElement(outil.id));
   palette.appendChild(btn);
 }
+
+// « Tout enlever » vit au bout de la barre, à portée de pouce — pas dans
+// l'en-tête, où il aurait fait un cinquième bouton sur un écran de téléphone.
+const btnEffacer = document.createElement('button');
+btnEffacer.id = 'btn-effacer';
+btnEffacer.title = 'Tout enlever';
+btnEffacer.innerHTML = '<span class="pal-ico">🗑</span><span>Tout enlever</span>';
+palette.appendChild(btnEffacer);
+
+let confirmEffacer = null;
+const libelleEffacer = '<span class="pal-ico">🗑</span><span>Tout enlever</span>';
+btnEffacer.addEventListener('click', () => {
+  if (confirmEffacer) {                 // deuxième appui : on efface
+    clearTimeout(confirmEffacer); confirmEffacer = null;
+    btnEffacer.innerHTML = libelleEffacer;
+    for (const t of Object.keys(etat.elems)) etat.elems[t] = null;
+    deselectionner(); majPalette();
+    recalculer(); demanderRendu(); evaluerMission();
+  } else {                              // premier appui : demander confirmation
+    btnEffacer.innerHTML = '<span class="pal-ico">⚠️</span><span>Sûr ?</span>';
+    confirmEffacer = setTimeout(() => {
+      confirmEffacer = null;
+      btnEffacer.innerHTML = libelleEffacer;
+    }, 2500);
+  }
+});
 
 function poserElement(type) {
   if (etat.elems[type]) { selectionner(type); majPalette(); return; }
@@ -1198,7 +1360,8 @@ function majPalette() {
   const autorises = outilsAutorises();
   for (const btn of palette.children) {
     const id = btn.dataset.outil;
-    btn.style.display = autorises.includes(id) ? '' : 'none';
+    if (!id) continue;                     // le bouton « Tout enlever »
+    btn.hidden = !autorises.includes(id);
     btn.classList.toggle('actif', !!etat.elems[id]);
     const c2d = btn.firstChild.getContext('2d');
     c2d.setTransform(2, 0, 0, 2, 0, 0);
@@ -1287,6 +1450,7 @@ const MISSIONS = [
   },
   {
     titre: "Joue avec l'ombre",
+    panneau: true,   // l'etape se lit dans le panneau du calcul
     outils: ['lampe', 'balle', 'ecran'],
     etapes: [
       { texte: "Rapproche la balle de la lampe : l'ombre doit devenir au moins 3 fois plus grande que la balle.",
@@ -1320,6 +1484,7 @@ const MISSIONS = [
   },
   {
     titre: 'Grande ou petite ?',
+    panneau: true,   // l'etape se lit dans le panneau du calcul
     outils: ['objet', 'stenope', 'ecran'],
     etapes: [
       { texte: "Éloigne l'objet du trou : l'image doit devenir au moins 2 fois plus PETITE que l'objet.",
@@ -1426,56 +1591,295 @@ const MISSIONS = [
 
 // Mini-leçon d'introduction de chaque mission : elle pose le vocabulaire et
 // le contexte AVANT de manipuler — pour l'élève qui n'a pas encore fait le cours.
-const LECONS = [
-  "La lumière est partout, mais pour l'étudier il faut une source : un objet qui produit de la lumière, comme une lampe, le Soleil ou une bougie. Sur ton banc d'optique, ce sera la lampe.",
-  "On ne voit pas la lumière voyager : on la représente par des rayons, des droites fléchées qui partent de la source. Tu vas vérifier la grande règle de l'optique : la lumière se propage en ligne droite.",
-  "Un objet opaque, comme une balle, bloque la lumière. Derrière lui se cache une zone que la lumière ne peut pas atteindre : l'ombre. Tu vas en fabriquer une.",
-  "La taille d'une ombre n'est pas fixe ! Elle dépend des distances entre la lampe, l'obstacle et l'écran. Le panneau 📐 te montre le calcul pendant que tu manipules.",
-  "Nouvelle expérience : la chambre noire. Une simple plaque percée d'un tout petit trou (le sténopé) suffit à former une image sur un écran. Prépare-toi à une surprise…",
-  "L'image de la chambre noire change de taille selon les distances : c'est une histoire de proportions. Observe le panneau 📐 pendant que tu déplaces les éléments.",
-  "Voici la lentille convergente : un verre bombé qui fait converger les rayons. Repère ses deux foyers F et F′ sur l'axe : toute la suite se joue autour d'eux.",
-  "Une image réelle se forme à un endroit précis : là où les rayons se croisent. Pour la voir nette, l'écran doit être exactement à cet endroit. C'est ce qu'on appelle la mise au point !",
-  "La position de l'objet change tout. Quand il est entre F et 2F (entre une et deux focales), l'image devient plus grande que l'objet : c'est le secret du projecteur de cinéma.",
-  "Quand l'objet est loin de la lentille (au-delà de 2F), l'image est petite et se forme près du foyer. C'est exactement ainsi que fonctionnent l'appareil photo… et ton œil !",
-  "Et si l'objet est plus près que le foyer F ? Les rayons ne se croisent plus du tout… Prépare-toi à découvrir un nouveau type d'image : l'image virtuelle.",
-  "Défi final ! Utilise tout ce que tu as appris : positions, focale, mise au point. Le panneau 📐 et le lexique sont tes alliés. Bonne chance !",
+// Fiche notion + QCM « Je m'évalue » de chaque mission (même index que MISSIONS).
+// La leçon pose le vocabulaire AVANT de manipuler ; le QCM ferme la mission.
+const META = [
+  { badge:'💡', sousTitre:'Notion : les sources de lumière',
+    intro:[`La lumière est partout, mais pour l'étudier il faut une <b>source</b> : un objet qui produit de la lumière — une lampe, le Soleil, une bougie.`,
+      `Sur ton banc, ce sera la lampe. Pose-la et regarde ce qu'elle éclaire.`],
+    lexique:['Source de lumière', 'Rayon lumineux'],
+    qcm:[
+      { q:`Qu’est-ce qu’une <b>source de lumière</b> ?`,
+        choix:['Un objet qui produit sa propre lumière', 'Un objet qui renvoie la lumière reçue',
+               'Un objet transparent'], bonne:0,
+        expl:`Le Soleil, une lampe, une bougie <b>produisent</b> de la lumière. La Lune, elle, ne fait que renvoyer celle du Soleil : ce n'est pas une source.` },
+      { q:`Peut-on voir un objet dans le noir complet ?`,
+        choix:['Non : sans lumière qui en parte, l’œil ne reçoit rien',
+               'Oui, si on regarde bien', 'Oui, si l’objet est de couleur claire'], bonne:0,
+        expl:`Voir un objet, c'est recevoir de la lumière <b>venue de lui</b>. Sans source, rien ne part de l'objet : on ne voit rien.` },
+    ] },
+  { badge:'📏', sousTitre:'Notion : la propagation rectiligne',
+    intro:[`On ne voit pas la lumière voyager : on la représente par des <b>rayons</b>, des droites fléchées qui partent de la source.`,
+      `Tu vas vérifier la grande règle de l'optique : dans un milieu transparent et homogène, la lumière se propage <b>en ligne droite</b>.`],
+    lexique:['Rayon lumineux', 'Propagation rectiligne'],
+    qcm:[
+      { q:`Dans l’air, comment la lumière se propage-t-elle ?`,
+        choix:['En ligne droite', 'En zigzag', 'En cercle autour de la source'], bonne:0,
+        expl:`C'est la <b>propagation rectiligne</b>. C'est elle qui explique les ombres, la chambre noire et les éclipses.` },
+      { q:`À quoi sert un <b>rayon lumineux</b> sur un schéma ?`,
+        choix:['À représenter le chemin suivi par la lumière',
+               'À montrer la couleur de la lumière', 'À mesurer sa vitesse'], bonne:0,
+        expl:`C'est un outil de dessin : une droite fléchée qui dit <b>par où passe</b> la lumière et dans quel sens.` },
+    ] },
+  { badge:'🌑', sousTitre:'Notion : l’ombre',
+    intro:[`Un objet <b>opaque</b>, comme une balle, bloque la lumière.`,
+      `Derrière lui se cache une zone que la lumière ne peut pas atteindre : l'<b>ombre</b>. Tu vas en fabriquer une.`],
+    lexique:['Objet opaque', 'Ombre'],
+    qcm:[
+      { q:`Pourquoi une ombre se forme-t-elle derrière un objet opaque ?`,
+        choix:['La lumière va tout droit : elle ne peut pas contourner l’objet',
+               'L’objet absorbe la lumière et la renvoie derrière lui',
+               'L’objet fabrique du noir'], bonne:0,
+        expl:`L'ombre est une conséquence directe de la <b>propagation rectiligne</b> : la lumière ne sait pas tourner autour de l'obstacle.` },
+      { q:`Qu’appelle-t-on un objet <b>opaque</b> ?`,
+        choix:['Un objet qui ne laisse pas passer la lumière',
+               'Un objet qui laisse tout passer', 'Un objet qui brille'], bonne:0,
+        expl:`Opaque s'oppose à <b>transparent</b> : une vitre laisse passer la lumière, une balle non.` },
+    ] },
+  { badge:'📐', sousTitre:'Notion : la taille de l’ombre',
+    intro:[`La taille d'une ombre n'est pas fixe ! Elle dépend des <b>distances</b> entre la lampe, l'obstacle et l'écran.`,
+      `Le panneau 📐 te montre le calcul pendant que tu déplaces les éléments.`],
+    lexique:['Ombre'],
+    qcm:[
+      { q:`On rapproche la lampe de la balle, sans bouger l’écran. Que devient l’ombre ?`,
+        choix:['Elle grandit', 'Elle rétrécit', 'Elle ne change pas'], bonne:0,
+        expl:`Plus la source est près de l'obstacle, plus les rayons qui le frôlent s'écartent vite : l'ombre projetée s'agrandit.` },
+      { q:`De quoi dépend la taille d’une ombre ?`,
+        choix:['Des distances entre la source, l’objet et l’écran',
+               'Uniquement de la taille de l’objet', 'De la couleur de l’objet'], bonne:0,
+        expl:`C'est une affaire de <b>proportions</b> — de triangles semblables. Les distances comptent autant que la taille de l'objet.` },
+    ] },
+  { badge:'📦', sousTitre:'Notion : la chambre noire',
+    intro:[`Nouvelle expérience : la <b>chambre noire</b>. Une simple plaque percée d'un tout petit trou — le <b>sténopé</b> — suffit à former une image sur un écran.`,
+      `Prépare-toi à une surprise sur le sens de cette image…`],
+    lexique:['Sténopé', 'Image renversée'],
+    qcm:[
+      { q:`Comment est l’image formée par une chambre noire ?`,
+        choix:['Renversée : elle est à l’envers', 'Droite, comme l’objet',
+               'Il n’y a pas d’image'], bonne:0,
+        expl:`Les rayons se croisent dans le trou : celui qui part du haut arrive en bas. L'image est <b>renversée</b>.` },
+      { q:`Pourquoi l’image de la chambre noire est-elle renversée ?`,
+        choix:['Les rayons se croisent en passant par le petit trou',
+               'Le trou retourne la lumière', 'L’écran est à l’envers'], bonne:0,
+        expl:`Encore la propagation rectiligne : chaque rayon file tout droit à travers le trou, et l'ensemble se croise en ce point.` },
+    ] },
+  { badge:'🔍', sousTitre:'Notion : proportions dans la chambre noire',
+    intro:[`L'image de la chambre noire change de taille selon les distances : c'est une histoire de <b>proportions</b>.`,
+      `Observe le panneau 📐 pendant que tu déplaces l'écran et l'objet.`],
+    lexique:['Sténopé'],
+    qcm:[
+      { q:`On éloigne l’écran du sténopé, sans rien bouger d’autre. Que devient l’image ?`,
+        choix:['Elle grandit', 'Elle rétrécit', 'Elle ne change pas'], bonne:0,
+        expl:`image = objet × (distance trou-écran) ÷ (distance objet-trou). Augmenter le numérateur agrandit l'image.` },
+      { q:`Comment obtenir une image <b>plus petite</b> que l’objet dans une chambre noire ?`,
+        choix:['Placer l’écran plus près du trou que l’objet ne l’est',
+               'Agrandir le trou', 'Éloigner l’écran le plus possible'], bonne:0,
+        expl:`Tout est dans le rapport des deux distances. Écran plus près du trou que l'objet ⇒ image réduite.` },
+    ] },
+  { badge:'🔵', sousTitre:'Notion : la lentille convergente',
+    intro:[`Voici la <b>lentille convergente</b> : un verre bombé qui fait converger les rayons.`,
+      `Repère ses deux <b>foyers</b>, F et F′, sur l'axe optique : toute la suite se joue autour d'eux.`],
+    lexique:['Lentille convergente', 'Foyer', 'Distance focale'],
+    qcm:[
+      { q:`Que fait une <b>lentille convergente</b> à des rayons parallèles à l’axe ?`,
+        choix:['Elle les fait tous passer par le foyer F′',
+               'Elle les écarte', 'Elle ne les dévie pas'], bonne:0,
+        expl:`C'est la définition du <b>foyer image</b> F′ : le point où convergent les rayons venus de l'infini, parallèlement à l'axe.` },
+      { q:`Qu’appelle-t-on la <b>distance focale</b> d’une lentille ?`,
+        choix:['La distance entre le centre de la lentille et son foyer',
+               'L’épaisseur de la lentille', 'La distance entre l’objet et la lentille'], bonne:0,
+        expl:`Plus la distance focale est courte, plus la lentille est <b>bombée</b> et fait converger fort.` },
+    ] },
+  { badge:'🎯', sousTitre:'Notion : l’image réelle et la mise au point',
+    intro:[`Une <b>image réelle</b> se forme à un endroit précis : là où les rayons se croisent réellement.`,
+      `Pour la voir nette, l'écran doit être <b>exactement</b> à cet endroit. C'est la <b>mise au point</b>.`],
+    lexique:['Image réelle', 'Mise au point'],
+    qcm:[
+      { q:`Qu’est-ce qu’une <b>image réelle</b> ?`,
+        choix:['Une image que l’on peut recueillir sur un écran',
+               'Une image que l’on ne voit qu’à travers la lentille',
+               'Une image toujours plus grande que l’objet'], bonne:0,
+        expl:`Les rayons s'y croisent <b>vraiment</b> : mets un écran là, l'image apparaît. C'est ce qui la distingue d'une image virtuelle.` },
+      { q:`L’image est floue sur l’écran. Que faut-il faire ?`,
+        choix:['Déplacer l’écran jusqu’à l’endroit où les rayons se croisent',
+               'Changer la lampe', 'Agrandir l’objet'], bonne:0,
+        expl:`C'est la <b>mise au point</b> : l'écran doit tomber pile sur le plan de l'image. Ailleurs, chaque point devient une tache.` },
+    ] },
+  { badge:'🎬', sousTitre:'Notion : l’image agrandie',
+    intro:[`La position de l'objet change tout. Quand il est <b>entre F et 2F</b> — entre une et deux focales —, l'image devient <b>plus grande</b> que l'objet.`,
+      `C'est le secret du projecteur de cinéma.`],
+    lexique:['Grandissement', 'Image réelle'],
+    qcm:[
+      { q:`Où placer l’objet pour obtenir une image réelle <b>plus grande</b> que lui ?`,
+        choix:['Entre F et 2F', 'Au-delà de 2F', 'Entre la lentille et F'], bonne:0,
+        expl:`C'est le montage du <b>projecteur</b> : objet un peu au-delà du foyer, image agrandie et renversée, loin de l'autre côté.` },
+      { q:`Que vaut le <b>grandissement</b> quand l’image est deux fois plus grande que l’objet ?`,
+        choix:['2', '0,5', '1'], bonne:0,
+        expl:`Le grandissement est le rapport <b>taille de l'image ÷ taille de l'objet</b>. Au-dessus de 1, l'image est agrandie.` },
+    ] },
+  { badge:'📷', sousTitre:'Notion : l’image réduite',
+    intro:[`Quand l'objet est <b>loin</b> de la lentille — au-delà de 2F —, l'image est <b>petite</b> et se forme près du foyer.`,
+      `C'est exactement ainsi que fonctionnent l'appareil photo… et ton œil.`],
+    lexique:['Grandissement', 'Distance focale'],
+    qcm:[
+      { q:`Où se forme l’image d’un objet très éloigné de la lentille ?`,
+        choix:['Tout près du foyer F′', 'Très loin derrière la lentille',
+               'Sur la lentille elle-même'], bonne:0,
+        expl:`Les rayons venus de très loin arrivent presque parallèles : ils convergent au <b>foyer</b>. C'est le principe de l'appareil photo.` },
+      { q:`Comment est l’image d’un objet placé au-delà de 2F ?`,
+        choix:['Réelle, renversée et plus petite que l’objet',
+               'Réelle, droite et plus grande', 'Virtuelle et droite'], bonne:0,
+        expl:`Objet loin ⇒ image petite et proche du foyer. C'est ce que fait ton œil pour tout ce que tu regardes au loin.` },
+    ] },
+  { badge:'🔎', sousTitre:'Notion : l’image virtuelle',
+    intro:[`Et si l'objet est <b>plus près que le foyer</b> F ? Les rayons ne se croisent plus du tout après la lentille…`,
+      `Prépare-toi à découvrir un nouveau type d'image : l'<b>image virtuelle</b>.`],
+    lexique:['Image virtuelle', 'Loupe'],
+    qcm:[
+      { q:`Qu’est-ce qu’une <b>image virtuelle</b> ?`,
+        choix:['Une image qu’on ne peut pas recueillir sur un écran',
+               'Une image toujours renversée', 'Une image sans couleur'], bonne:0,
+        expl:`Les rayons <b>divergent</b> après la lentille : ils ne se croisent nulle part. C'est leur prolongement qui donne l'image, qu'on voit en regardant à travers.` },
+      { q:`Comment est l’image donnée par une <b>loupe</b> ?`,
+        choix:['Virtuelle, droite et plus grande', 'Réelle, renversée et plus grande',
+               'Réelle, droite et plus petite'], bonne:0,
+        expl:`Objet entre la lentille et son foyer : c'est la loupe. On voit l'objet <b>agrandi et à l'endroit</b>, mais aucun écran ne peut capter cette image.` },
+    ] },
+  { badge:'🏆', sousTitre:'Notion : tout réunir',
+    intro:[`Défi final : utilise tout ce que tu as appris — positions, focale, mise au point.`,
+      `Le panneau 📐 et le lexique sont tes alliés. Bonne chance.`],
+    lexique:['Grandissement', 'Mise au point'],
+    qcm:[
+      { q:`Pour projeter une image très agrandie sur un mur lointain, où placer l’objet ?`,
+        choix:['Juste au-delà du foyer F, entre F et 2F',
+               'Très loin de la lentille', 'Entre la lentille et F'], bonne:0,
+        expl:`Plus l'objet s'approche du foyer par l'extérieur, plus l'image part loin et grandit. C'est le réglage du projecteur.` },
+      { q:`Quels sont les trois rayons de construction d’une lentille convergente ?`,
+        choix:['Le parallèle à l’axe, celui qui passe par le centre, et celui qui passe par F',
+               'Trois rayons parallèles entre eux',
+               'Trois rayons partant du foyer'], bonne:0,
+        expl:`Le parallèle ressort par F′, celui du centre n'est pas dévié, celui passant par F ressort parallèle. Deux suffisent pour trouver l'image ; le troisième vérifie.` },
+    ] },
 ];
 
-function ouvrirLecon() {
-  const m = missionCourante();
-  if (!m || !LECONS[progression.m]) return;
-  document.getElementById('mlecon-titre').textContent =
-    `Mission ${progression.m + 1} — ${m.titre}`;
-  document.getElementById('mlecon-texte').textContent = LECONS[progression.m];
-  document.getElementById('mlecon').classList.add('visible');
-}
-document.getElementById('btn-go-lecon').addEventListener('click', fermerVoiles);
-
-/* ---- Moteur de progression (même architecture que le circuit) ---- */
-const progression = { m: 0, etape: 0, faites: [] };
+/* ---- Moteur de progression (socle IKE, identique aux autres sims) ----
+   `libre` est un drapeau, pas une valeur de `m` : le banc libre n'efface plus
+   la mission en cours, on y va et on en revient sans perdre sa place. */
+const progression = { m: 0, etape: 0, faites: [], libre: false, maitrise: {} };
 
 function chargerProgression() {
   try {
     const d = JSON.parse(localStorage.getItem('ike-optique-progression'));
     if (d) {
-      if (d.m === 'libre' || (Number.isInteger(d.m) && d.m >= 0 && d.m < MISSIONS.length))
-        progression.m = d.m;
+      if (Number.isInteger(d.m) && d.m >= 0 && d.m < MISSIONS.length) progression.m = d.m;
       if (Array.isArray(d.faites)) progression.faites = d.faites.filter(Number.isInteger);
+      // les versions d'avant le socle stockaient m:'libre'
+      progression.libre = d.libre === true || d.m === 'libre';
+      if (d.maitrise && typeof d.maitrise === 'object') progression.maitrise = d.maitrise;
     }
   } catch (e) {}
 }
 function sauverProgression() {
   try {
-    localStorage.setItem('ike-optique-progression',
-      JSON.stringify({ m: progression.m, faites: progression.faites }));
+    localStorage.setItem('ike-optique-progression', JSON.stringify({
+      m: progression.m, faites: progression.faites,
+      libre: progression.libre, maitrise: progression.maitrise,
+    }));
   } catch (e) {}
 }
-function missionCourante() { return progression.m === 'libre' ? null : MISSIONS[progression.m]; }
+function missionCourante() { return progression.libre ? null : MISSIONS[progression.m]; }
 function outilsAutorises() {
   const m = missionCourante();
-  return m ? m.outils : OUTILS.map(o => o.id);
+  return m && m.outils ? m.outils : OUTILS.map(o => o.id);
 }
 
+/* ---- La leçon d'avant-mission : le vocabulaire posé avant de manipuler ---- */
+const missionDeverrouillee = i => i === 0 || progression.faites.includes(i - 1);
+let missionEnAttente = null;
+
+function ouvrirLecon(i) {
+  if (!missionDeverrouillee(i)) { toast('🔒 Termine d’abord la mission précédente !'); return; }
+  missionEnAttente = i;
+  const meta = META[i] || {};
+  $('lecon-titre').textContent = `${meta.badge || '🎯'} Mission ${i + 1} · ${MISSIONS[i].titre}`;
+  $('lecon-sous').textContent = meta.sousTitre || '';
+  $('lecon-contenu').innerHTML =
+    (meta.intro || []).map(p => `<div class="notion-bloc">${p}</div>`).join('');
+  $('lecon-lexique').innerHTML = (meta.lexique || [])
+    .map(t => `<button data-lex="${t}">📖 ${t}</button>`).join('');
+  fermerVoiles();
+  ouvrir('v-lecon');
+}
+$('v-lecon').addEventListener('click', e => {
+  const l = e.target.closest('[data-lex]');
+  if (l) ouvrirLexique(l.dataset.lex);
+});
+$('btn-commencer').addEventListener('click', () => {
+  if (missionEnAttente !== null) lancerMission(missionEnAttente);
+});
+$('btn-fermer-lecon').addEventListener('click', () => { fermer('v-lecon'); ouvrirListe(); });
+
+/* ---- QCM « Je m'évalue » : il clôt chaque mission réussie ---- */
+let qcm = { liste: [], n: 0, justes: 0 };
+
+// Mélange les propositions : sans cela, la bonne réponse resterait toujours en
+// tête de liste et l'élève finirait par cliquer sans lire.
+function melangerQuestion(q) {
+  const ordre = q.choix.map((_, i) => i);
+  for (let i = ordre.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = ordre[i]; ordre[i] = ordre[j]; ordre[j] = t;
+  }
+  return Object.assign({}, q, {
+    choix: ordre.map(k => q.choix[k]), bonne: ordre.indexOf(q.bonne),
+  });
+}
+
+function demarrerQCM(m) {
+  const liste = ((META[progression.m] || {}).qcm || []).map(melangerQuestion);
+  if (!liste.length) { ouvrirPassage(m); return; }
+  qcm = { liste, n: 0, justes: 0 };
+  fermerVoiles();
+  rendreQcm();
+  ouvrir('v-qcm');
+}
+
+function rendreQcm() {
+  const q = qcm.liste[qcm.n];
+  $('qcm-carte').innerHTML = `
+    <div class="q-avance">✅ Mission réussie · question ${qcm.n + 1} sur ${qcm.liste.length}</div>
+    <div class="q-question">${q.q}</div>
+    <div id="q-choix">${q.choix.map((c, i) =>
+      `<button class="q-choix" data-rep="${i}">${c}</button>`).join('')}</div>
+    <div class="q-expl" id="q-expl"></div><div id="q-suite"></div>`;
+}
+
+function repondreQcm(i) {
+  const q = qcm.liste[qcm.n];
+  if (i === q.bonne) qcm.justes++;
+  // ✔️ / ❌ en plus des couleurs : repères universels pour les élèves
+  $('q-choix').querySelectorAll('.q-choix').forEach((b, k) => {
+    b.disabled = true;
+    if (k === q.bonne) { b.classList.add('bon'); b.textContent = '✔️ ' + b.textContent; }
+    else if (k === i) { b.classList.add('mauvais'); b.textContent = '❌ ' + b.textContent; }
+  });
+  const e = $('q-expl');
+  e.innerHTML = '💬 ' + q.expl;
+  e.classList.add('visible');
+  const dernier = qcm.n === qcm.liste.length - 1;
+  $('q-suite').innerHTML = `<button class="btn btn-large" style="margin-top:12px" id="q-continuer">${
+    dernier ? 'Terminer 🏁' : 'Question suivante →'}</button>`;
+  $('q-continuer').addEventListener('click', () => {
+    if (dernier) { fermer('v-qcm'); ouvrirPassage(MISSIONS[progression.m]); }
+    else { qcm.n++; rendreQcm(); }
+  });
+}
+$('v-qcm').addEventListener('click', e => {
+  const b = e.target.closest('[data-rep]');
+  if (b && !b.disabled) repondreQcm(+b.dataset.rep);
+});
+
+// Appelée après chaque manipulation : fait avancer les étapes de la mission.
 function evaluerMission() {
   const m = missionCourante();
   if (!m || progression.etape >= m.etapes.length) return;
@@ -1493,204 +1897,285 @@ function evaluerMission() {
       progression.faites.push(progression.m);
       sauverProgression();
     }
-    // Laisser l'élève ADMIRER son résultat avant d'ouvrir le panneau
-    toast('🎉 Mission réussie ! Regarde ton banc…');
+    toast('🎉 Mission réussie ! Observe ton montage…');
+    // deux secondes pour admirer le résultat avant que le QCM ne s'ouvre
     const mACeMoment = progression.m;
     setTimeout(() => {
-      if (progression.m === mACeMoment && !document.querySelector('.voile.visible'))
-        ouvrirFin(m);
+      if (progression.m === mACeMoment && !progression.libre &&
+          !document.querySelector('.voile.visible')) demarrerQCM(m);
     }, 2100);
   } else {
-    toast(`✅ Étape ${progression.etape} réussie ! Lis la suite ⬆`);
-    const bar = document.getElementById('mbar');
-    bar.classList.remove('flash'); void bar.offsetWidth; bar.classList.add('flash');
+    toast(`✅ Étape ${progression.etape} réussie !`);
+    replierSiPetitEcran();
   }
-  majMissionBar();
+  majMission();
 }
 
 function majDiagnostic(m) {
-  const d = document.getElementById('mdiag');
+  const d = $('m-diag');
   const hit = (m.diags || []).find(x => x.si());
   if (!hit) { masquerDiagnostic(); return; }
   const msg = '🤔 ' + hit.msg;
-  if (d.textContent !== msg || !d.classList.contains('visible')) {
+  if (d.textContent !== msg || d.hidden) {
     d.textContent = msg;
-    d.classList.add('visible');
+    d.hidden = false;
     redimensionner();
   }
 }
 function masquerDiagnostic() {
-  const d = document.getElementById('mdiag');
-  if (d.classList.contains('visible')) { d.classList.remove('visible'); redimensionner(); }
+  const d = $('m-diag');
+  if (!d.hidden) { d.hidden = true; redimensionner(); }
 }
 
+// L'indice se demande — sauf quand le coup de pouce le pousse après 45 s.
+// Le plan replié masque l'astuce : on le rouvre, sinon le bouton ne fait rien.
+function montrerIndice(forcer) {
+  const el = $('m-indice');
+  el.hidden = forcer === true ? false : !el.hidden;
+  if (!el.hidden) {
+    $('mission').classList.add('ouvert');
+    $('m-plier').setAttribute('aria-expanded', 'true');
+  }
+  redimensionner();
+}
+$('btn-indice').addEventListener('click', () => montrerIndice());
+
+// Router : une mission numérotée passe TOUJOURS par sa leçon ;
+// le banc libre est protégé par le verrou de progression.
 function allerMission(m) {
-  progression.m = m;
+  if (m === 'libre') {
+    if (!accueilOuvert()) { toast(MSG_VERROU); return; }
+    lancerMission('libre');
+    return;
+  }
+  ouvrirLecon(m);
+}
+
+function lancerMission(m) {
+  if (m === 'libre') progression.libre = true;
+  else { progression.libre = false; progression.m = m; }
   progression.etape = 0;
   sauverProgression();
   resetEtapeTimer();
   masquerDiagnostic();
-  deselectionner();
   fermerVoiles();
-  document.getElementById('mindice').classList.remove('visible');
-  // Nettoyer le banc des éléments hors mission (ils embrouillent l'élève)
-  const autorises = outilsAutorises();
-  for (const t of Object.keys(etat.elems))
-    if (etat.elems[t] && !autorises.includes(t)) etat.elems[t] = null;
+  deselectionner();
+  $('m-indice').hidden = true;
+  // on entre dans une mission : le plan s'ouvre en entier, on le repliera après
+  progression.repliFait = false;
+  $('mission').classList.add('ouvert');
+  $('m-plier').setAttribute('aria-expanded', 'true');
+  // Une mission qui se lit dans le panneau 📐 l'ouvre d'elle-même — mais
+  // seulement là où il y a la place. Sur un téléphone, il recouvrirait le banc
+  // que l'élève doit justement regarder.
+  const mc = missionCourante();
+  if (mc && mc.panneau && !formuleVisible) {
+    if (window.innerWidth >= 880 || window.innerHeight >= 900) {
+      formuleVisible = true;
+      $('btn-formule').classList.add('actif');
+      majFormule();
+    } else {
+      setTimeout(() => toast('📐 Le calcul détaillé t’attend dans le panneau.'), 900);
+    }
+  }
   majPalette();
-  majMissionBar();
+  majMission();
+  ajusterRepli();
   recalculer(); demanderRendu();
-  if (m !== 'libre') ouvrirLecon();   // la mini-leçon pose le contexte
 }
 
-function majMissionBar() {
-  const m = missionCourante();
-  const l2 = document.querySelector('#mbar .l2');
-  if (!m) {
-    document.getElementById('mchip').textContent = '🧪';
-    document.getElementById('mtitre').textContent = 'Mode libre — expérimente !';
-    l2.style.display = 'none';
-  } else {
-    document.getElementById('mchip').textContent = `Mission ${progression.m + 1}/${MISSIONS.length}`;
-    document.getElementById('mtitre').textContent = m.titre;
-    l2.style.display = '';
-    const fini = progression.etape >= m.etapes.length;
-    const pts = document.getElementById('mpoints');
-    pts.innerHTML = '';
-    if (m.etapes.length > 1) {
-      m.etapes.forEach((e2, i) => {
-        const p = document.createElement('span');
-        p.className = 'pt' + (i < progression.etape ? ' faite' : i === progression.etape ? ' courante' : '');
-        pts.appendChild(p);
-      });
-    }
-    const metape = document.getElementById('metape');
-    // Toutes les étapes sont visibles : faites, en cours, à venir
-    metape.innerHTML = fini
-      ? '<div class="etape faite"><span class="coche">✓</span>' +
-        '<span class="t">🎉 Mission terminée ! Passe à la suivante.</span></div>'
-      : m.etapes.map((e2, i2) => {
-          const faite = i2 < progression.etape;
-          const courante = i2 === progression.etape;
-          return '<div class="etape' + (faite ? ' faite' : '') + (courante ? ' courante' : '') +
-            '"><span class="coche">✓</span><span class="t">' + e2.texte + '</span></div>';
-        }).join('');
-    metape.classList.remove('glisse'); void metape.offsetWidth; metape.classList.add('glisse');
-    document.getElementById('mcompteur').textContent =
-      m.etapes.length > 1 && !fini ? `étape ${progression.etape + 1}/${m.etapes.length}` : '';
-    document.getElementById('mindice').textContent = '💡 ' + m.indice;
-    document.getElementById('btn-indice').style.display = fini ? 'none' : '';
-    document.getElementById('btn-suiv2').style.display = fini ? '' : 'none';
-  }
+// La première étape franchie, le plan se replie sur un petit écran : l'élève a
+// lu ses consignes, il lui faut maintenant voir le banc.
+function replierSiPetitEcran() {
+  if (progression.repliFait || window.innerWidth >= 880) return;
+  progression.repliFait = true;
+  $('mission').classList.remove('ouvert');
+  $('m-plier').setAttribute('aria-expanded', 'false');
   redimensionner();
 }
+
+// Le critère n'est pas la taille du plan mais la place qu'il laisse : si le
+// banc tombe sous 45 % de l'écran, on ne voit plus l'expérience.
+function ajusterRepli() {
+  if (window.innerWidth >= 880) return;
+  if ($('atelier').getBoundingClientRect().height < window.innerHeight * 0.45)
+    replierSiPetitEcran();
+}
+
+// ---- Le plan de mission ----
+function majMission() {
+  const m = missionCourante();
+  if (!m) {
+    $('m-num').textContent = '∞';
+    $('m-rang').textContent = 'Banc libre';
+    $('m-titre').textContent = 'Monte ce que tu veux';
+    $('m-but').textContent = 'Tout le matériel est là, aucune consigne.';
+    $('etapes').innerHTML = '';
+    $('m-jauge').style.width = '100%';
+    $('m-indice').hidden = true; $('m-diag').hidden = true;
+    $('m-actions').hidden = true;
+    redimensionner();
+    return;
+  }
+  const meta = META[progression.m] || {};
+  const fini = progression.etape >= m.etapes.length;
+  const faite = progression.faites.includes(progression.m);
+  $('m-num').textContent = faite ? '✓' : (progression.m + 1);
+  $('m-rang').textContent = `Mission ${progression.m + 1} sur ${MISSIONS.length}`;
+  $('m-titre').textContent = m.titre;
+  $('m-but').textContent = meta.sousTitre || '';
+  $('m-jauge').style.width = Math.round(progression.etape / m.etapes.length * 100) + '%';
+  // Toutes les étapes sont visibles : faites, en cours, à venir
+  const iMontrer = fini ? m.etapes.length - 1 : progression.etape;
+  $('etapes').innerHTML = fini
+    ? '<div class="etape faite a-montrer"><span class="coche">✓</span>' +
+      '<span class="t">🎉 Mission terminée ! Passe à la suivante.</span></div>'
+    : m.etapes.map((e2, i) => {
+        const ok = i < progression.etape;
+        const courante = i === progression.etape;
+        return `<div class="etape${ok ? ' faite' : ''}${courante ? ' courante' : ''}${
+          i === iMontrer ? ' a-montrer' : ''}">
+          <span class="coche">✓</span><span class="t">${e2.texte}</span></div>`;
+      }).join('');
+  $('m-indice').innerHTML = '💡 <b>Astuce :</b> ' + m.indice;
+  $('m-actions').hidden = false;
+  $('btn-indice').hidden = fini;
+  $('btn-suivante-barre').hidden = !fini;
+  redimensionner();
+}
+
+// Le chevron replie le plan : sur un téléphone, le banc reprend la place.
+$('m-plier').addEventListener('click', () => {
+  const ouvert = $('mission').classList.toggle('ouvert');
+  $('m-plier').setAttribute('aria-expanded', ouvert ? 'true' : 'false');
+  redimensionner();
+});
 
 function fermerVoiles() {
   for (const v of document.querySelectorAll('.voile')) v.classList.remove('visible');
 }
+const ouvrir = id => $(id).classList.add('visible');
+const fermer = id => $(id).classList.remove('visible');
 
-function ouvrirFin(m) {
-  const derniere = progression.m === MISSIONS.length - 1;
-  document.getElementById('mfin-titre').textContent = `Mission ${progression.m + 1} — ${m.titre}`;
-  document.getElementById('mfin-retenir').textContent = m.retenir;
-  // On annonce ce qui vient : sinon le changement de mission passe inaperçu
-  const suiv = MISSIONS[progression.m + 1];
-  const zoneSuite = document.getElementById('mfin-suite');
-  if (zoneSuite) zoneSuite.innerHTML = suiv
-    ? '<div class="etiq">Mission ' + (progression.m + 2) + ' sur ' + MISSIONS.length + '</div>' +
-      '<b>' + suiv.titre + '</b><span>' + suiv.etapes[0].texte + '</span>'
-    : '<div class="etiq">Bravo</div><b>Tu as terminé les ' + MISSIONS.length + ' missions !</b>' +
-      '<span>Le mode libre s’ouvre : explore comme tu veux.</span>';
-  document.getElementById('btn-suivante').textContent =
-    derniere ? '🧪 Continuer en Mode libre' : 'Commencer la mission ' + (progression.m + 2) + ' →';
-  document.getElementById('mfin').classList.add('visible');
+// L'écran de passage : ce qu'on vient d'apprendre, puis ce qui attend.
+function ouvrirPassage(m) {
+  const i = progression.m;
+  const suiv = MISSIONS[i + 1];
+  const nbQ = ((META[i] || {}).qcm || []).length;
+  $('passage-carte').innerHTML = `
+    <div class="p-fanion"><span class="rond">✅</span>
+      <span><b>Mission ${i + 1} réussie !</b><span>${m.titre}${
+        nbQ ? ` · QCM : ${qcm.justes}/${nbQ}` : ''}</span></span></div>
+    <div class="p-acquis">📘 <b>Ce que tu as appris :</b> ${m.retenir}${
+      nbQ && qcm.justes < nbQ
+        ? ' <i>(Relis les explications du QCM et rejoue la mission quand tu veux !)</i>' : ''}</div>
+    ${suiv
+      ? `<div class="p-suite"><div class="etiq">Mission ${i + 2} sur ${MISSIONS.length}</div>
+           <b>${suiv.titre}</b><span>${(META[i + 1] || {}).sousTitre || suiv.etapes[0].texte}</span></div>
+         <button class="btn btn-large" id="btn-passer">Commencer la mission ${i + 2} →</button>`
+      : `<div class="p-suite"><div class="etiq">Bravo</div>
+           <b>Tu as terminé les ${MISSIONS.length} missions !</b>
+           <span>Le banc libre et le quiz s'ouvrent : monte ce que tu veux, puis mesure ta maîtrise.</span></div>
+         <button class="btn btn-large" id="btn-passer">🧪 Continuer sur le banc libre →</button>`}
+    <button class="btn btn-fantome btn-large" style="margin-top:8px" id="btn-passage-liste">🎯 Toutes les missions</button>`;
+  ouvrir('v-passage');
+  $('btn-passer').addEventListener('click', () => {
+    fermer('v-passage');
+    allerMission(suiv ? i + 1 : 'libre');
+  });
+  $('btn-passage-liste').addEventListener('click', () => { fermer('v-passage'); ouvrirListe(); });
 }
 
-document.getElementById('btn-suivante').addEventListener('click', () => {
+$('btn-suivante-barre').addEventListener('click', () => {
   const derniere = progression.m === MISSIONS.length - 1;
   allerMission(derniere ? 'libre' : progression.m + 1);
 });
-document.getElementById('btn-suiv2').addEventListener('click', () => {
-  const derniere = progression.m === MISSIONS.length - 1;
-  allerMission(derniere ? 'libre' : progression.m + 1);
-});
-document.getElementById('btn-liste2').addEventListener('click', () => { fermerVoiles(); ouvrirListe(); });
-document.getElementById('btn-fermer-fin').addEventListener('click', fermerVoiles);
 
 function ouvrirListe() {
-  const cont = document.getElementById('mliste-items');
-  cont.innerHTML = '';
-  MISSIONS.forEach((m, i) => {
-    const row = document.createElement('button');
-    row.className = 'mrow'
-      + (progression.faites.includes(i) ? ' faite' : '')
-      + (progression.m === i ? ' courante' : '');
-    const n = document.createElement('span');
-    n.className = 'n';
-    n.textContent = progression.faites.includes(i) ? '✓' : (i + 1) + '.';
-    const t = document.createElement('span');
-    t.className = 't';
-    t.textContent = m.titre;
-    row.append(n, t);
-    row.addEventListener('click', () => allerMission(i));
-    cont.appendChild(row);
-  });
-  document.getElementById('mliste').classList.add('visible');
+  const total = MISSIONS.length, n = progression.faites.length;
+  $('d-barre').style.width = Math.round(n / total * 100) + '%';
+  const cartes = MISSIONS.map((m, i) => {
+    const faite = progression.faites.includes(i);
+    const ouverte = missionDeverrouillee(i);
+    const meta = META[i] || {};
+    return `<button class="d-carte${faite ? ' fait' : ''}" data-mission="${i}"${
+      ouverte ? '' : ' disabled'}>
+      <span class="num">${faite ? '✓' : ouverte ? (i + 1) : '🔒'}</span>
+      <span class="txt"><b>${m.titre}</b><span>${meta.sousTitre || ''}</span></span>
+    </button>`;
+  }).join('');
+  const libre = accueilOuvert()
+    ? `<button class="d-carte" data-mission="libre">
+         <span class="num">∞</span>
+         <span class="txt"><b>Le banc libre</b><span>Tout le matériel, aucune consigne.</span></span>
+       </button>`
+    : '';
+  $('liste-missions').innerHTML = cartes + libre;
+  ouvrir('v-missions');
 }
 
-document.getElementById('btn-missions').addEventListener('click', ouvrirListe);
-document.getElementById('btn-libre').addEventListener('click', () => {
-  if (!experimenterDebloque()) { toast(MSG_VERROU); return; }
-  allerMission('libre');
-  majTabExp();
+$('btn-missions').addEventListener('click', ouvrirListe);
+$('v-missions').addEventListener('click', e => {
+  const b = e.target.closest('[data-mission]');
+  if (!b || b.disabled) return;
+  fermer('v-missions');
+  allerMission(b.dataset.mission === 'libre' ? 'libre' : +b.dataset.mission);
 });
-document.getElementById('btn-fermer-liste').addEventListener('click', fermerVoiles);
 
-const btnResetProg = document.getElementById('btn-reset-prog');
+const btnResetProg = $('btn-rezero');
 let confirmReset = null;
 btnResetProg.addEventListener('click', () => {
   if (confirmReset) {
     clearTimeout(confirmReset); confirmReset = null;
-    btnResetProg.textContent = '↺ Réinitialiser tout le parcours';
+    btnResetProg.textContent = '↺ Recommencer tout le parcours';
     progression.faites = [];
+    progression.libre = false;
     for (const t of Object.keys(etat.elems)) etat.elems[t] = null;
-    allerMission(0);
-    try { localStorage.removeItem('ike-optique-visite'); } catch (e) {}
+    fermer('v-missions');
+    lancerMission(0);
+    // Nouvel élève sur l'appareil : on relance aussi le repérage de l'interface
     lancerVisite();
   } else {
     btnResetProg.textContent = 'Sûr ? Touche encore une fois';
     confirmReset = setTimeout(() => {
       confirmReset = null;
-      btnResetProg.textContent = '↺ Réinitialiser tout le parcours';
+      btnResetProg.textContent = '↺ Recommencer tout le parcours';
     }, 2500);
   }
 });
 
+document.addEventListener('click', e => {
+  const f = e.target.closest('[data-ferme]');
+  if (f) fermer(f.dataset.ferme);
+});
+// Le QCM, l'écran de passage et l'accueil portent le fil du parcours :
+// ils ne se ferment pas par mégarde.
+const ancres = ['v-qcm', 'v-passage', 'v-accueil'];
 for (const v of document.querySelectorAll('.voile'))
-  v.addEventListener('click', e => { if (e.target === v) v.classList.remove('visible'); });
-
-document.getElementById('btn-indice').addEventListener('click', () => {
-  document.getElementById('btn-indice').classList.remove('pulse');
-  document.getElementById('mindice').classList.toggle('visible');
-  redimensionner();
+  v.addEventListener('click', e => {
+    if (e.target === v && ancres.indexOf(v.id) === -1) fermer(v.id);
+  });
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape' || visiteIdx >= 0) return;
+  for (const v of document.querySelectorAll('.voile.visible'))
+    if (ancres.indexOf(v.id) === -1) fermer(v.id);
 });
 
 let toastTimer = null;
-function toast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
+function toast(msg, alerte) {
+  const t = $('toast');
+  t.innerHTML = msg;
+  t.classList.toggle('alerte', !!alerte);
   t.classList.add('visible');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('visible'), 1900);
+  toastTimer = setTimeout(() => t.classList.remove('visible'), 2600);
 }
 
-/* ---- Coup de pouce après 45 s de blocage ---- */
 let etapeDebut = Date.now();
 let coupDePouceFait = false;
 function resetEtapeTimer() {
   etapeDebut = Date.now();
   coupDePouceFait = false;
-  document.getElementById('btn-indice').classList.remove('pulse');
 }
 setInterval(() => {
   const m = missionCourante();
@@ -1698,170 +2183,30 @@ setInterval(() => {
   if (document.querySelector('.voile.visible')) return;
   if (!coupDePouceFait && Date.now() - etapeDebut > 45000) {
     coupDePouceFait = true;
-    document.getElementById('btn-indice').classList.add('pulse');
-    toast('💡 Besoin d\'aide ? Touche le bouton Indice !');
+    montrerIndice(true);
+    toast('💡 Un coup de pouce pour cette étape.');
   }
 }, 5000);
 
 /* =====================================================================
-   8. VISITE GUIDÉE
-   ===================================================================== */
-
-const VISITE = [
-  { cible: '#mbar', titre: '🎯 Ta mission',
-    texte: "Ta mission s'affiche ici : lis l'étape en cours et réalise-la sur le banc d'optique. Les points colorés montrent ta progression." },
-  { cible: '#palette', titre: '🧰 Le matériel',
-    texte: "Touche un élément pour le poser sur le banc : lampe, objet, lentille… De nouveaux éléments se débloquent au fil des missions !" },
-  { cible: '#scene', titre: '📏 Le banc d’optique',
-    texte: "Fais GLISSER les éléments le long du banc gradué (en cm) avec ton doigt. Les rayons lumineux se tracent tout seuls, en temps réel." },
-  { cible: null, titre: '🎛 Régler un élément',
-    texte: "👆 Touche un élément posé pour le sélectionner : un curseur apparaît en bas pour régler sa hauteur, son diamètre ou sa focale — et un bouton pour le retirer." },
-  { cible: '#btn-indice', titre: '💡 Bloqué ? Un indice !',
-    texte: "Ce bouton te donne un coup de pouce pour l'étape en cours. N'hésite jamais à l'utiliser !" },
-  { cible: '#formule', titre: '📐 La formule en direct',
-    texte: "Ce panneau montre la formule de TON montage, avec tes valeurs dedans et le calcul déroulé. Déplace un élément : le calcul se refait sous tes yeux ! Le lien « Lexique » explique tous les termes techniques. (Le bouton 📐 en haut le masque ou l'affiche.)" },
-  { cible: '#btn-theme', titre: '🌙 Confort visuel',
-    texte: "Bascule entre thème clair et sombre. Ton choix est mémorisé sur l'appareil." },
-];
-let visiteIdx = -1;
-const visiteEl = document.getElementById('visite');
-
-/* ---------- Apprendre / Expérimenter (verrou de progression) ---------- */
-
-const MSG_VERROU = '🔒 Termine d’abord toutes les missions d’apprentissage avant d’accéder au mode Expérimenter.';
-const experimenterDebloque = () => progression.faites.length >= MISSIONS.length;
-const prochaineMission = () => {
-  for (let i = 0; i < MISSIONS.length; i++) if (!progression.faites.includes(i)) return i;
-  return 0;
-};
-
-function majTabExp() {
-  const b = document.getElementById('tab-exp');
-  const libre = progression.m === 'libre';
-  const ok = experimenterDebloque();
-  const html = libre
-    ? '🎓<span class="lbl"> Apprendre</span>'
-    : (ok ? '🧪' : '🔒') + '<span class="lbl"> Expérimenter</span>';
-  if (b.dataset.prec !== html) { b.dataset.prec = html; b.innerHTML = html; }
-  b.classList.toggle('verrouille', !libre && !ok);
-}
-setInterval(majTabExp, 1500);
-
-document.getElementById('tab-exp').addEventListener('click', () => {
-  if (progression.m === 'libre') allerMission(prochaineMission());
-  else if (!experimenterDebloque()) toast(MSG_VERROU);
-  else allerMission('libre');
-  majTabExp();
-});
-
-function entrerApprendre() {
-  document.getElementById('choix-mode').classList.remove('visible');
-  if (progression.m === 'libre') { allerMission(prochaineMission()); majTabExp(); return; }
-  majTabExp();
-  try {
-    if (!localStorage.getItem('ike-optique-visite')) { lancerVisite(); return; }
-  } catch (e) { lancerVisite(); return; }
-  if (typeof ouvrirLecon === 'function' && missionCourante() && progression.etape === 0) ouvrirLecon();
-}
-
-function ouvrirChoixMode() {
-  // un ancien « mode libre » sauvegardé sans déblocage n'est plus valable
-  if (progression.m === 'libre' && !experimenterDebloque()) allerMission(prochaineMission());
-  const ok = experimenterDebloque();
-  document.getElementById('gs-exp').textContent = ok
-    ? 'Le bac à sable : tous les outils, aucune consigne.'
-    : `Se débloque à la fin du parcours (${progression.faites.length}/${MISSIONS.length} missions réussies).`;
-  document.getElementById('choix-experimenter').classList.toggle('verrouille', !ok);
-  document.getElementById('choix-mode').classList.add('visible');
-}
-document.getElementById('choix-apprendre').addEventListener('click', entrerApprendre);
-document.getElementById('choix-experimenter').addEventListener('click', () => {
-  if (!experimenterDebloque()) { toast(MSG_VERROU); return; }
-  document.getElementById('choix-mode').classList.remove('visible');
-  allerMission('libre');
-  majTabExp();
-});
-
-function lancerVisite() {
-  fermerVoiles();
-  visiteIdx = 0;
-  visiteEl.style.display = 'block';
-  montrerEtapeVisite();
-}
-function fermerVisite() {
-  visiteIdx = -1;
-  visiteEl.style.display = 'none';
-  try { localStorage.setItem('ike-optique-visite', '1'); } catch (e) {}
-  // Enchaîner sur la mini-leçon si la mission n'a pas encore commencé
-  if (missionCourante() && progression.etape === 0) ouvrirLecon();
-}
-function montrerEtapeVisite() {
-  const et = VISITE[visiteIdx];
-  const halo = document.getElementById('visite-halo');
-  const carte = document.getElementById('visite-carte');
-  let rc = null;
-  if (et.cible) {
-    const el = document.querySelector(et.cible);
-    const r = el && el.getBoundingClientRect();
-    if (r && r.width > 0) rc = r;
-  }
-  if (rc) {
-    visiteEl.classList.remove('sombre');
-    halo.style.display = 'block';
-    halo.style.left = (rc.left - 6) + 'px';
-    halo.style.top = (rc.top - 6) + 'px';
-    halo.style.width = (rc.width + 12) + 'px';
-    halo.style.height = (rc.height + 12) + 'px';
-  } else {
-    visiteEl.classList.add('sombre');
-    halo.style.display = 'none';
-  }
-  carte.querySelector('.vtitre').textContent = et.titre;
-  carte.querySelector('.vtexte').textContent = et.texte;
-  carte.querySelector('.vprog').textContent = `${visiteIdx + 1}/${VISITE.length}`;
-  document.getElementById('visite-suivant').textContent =
-    visiteIdx === VISITE.length - 1 ? "C'est parti !" : 'Suivant';
-  requestAnimationFrame(() => {
-    const cw = carte.offsetWidth, ch = carte.offsetHeight;
-    let x, y;
-    if (rc) {
-      y = rc.bottom + 14;
-      if (y + ch > window.innerHeight - 10) y = rc.top - ch - 14;
-      if (y < 10) y = Math.max(10, (window.innerHeight - ch) / 2);
-      x = Math.max(10, Math.min(window.innerWidth - cw - 10, rc.left + rc.width / 2 - cw / 2));
-    } else {
-      x = (window.innerWidth - cw) / 2;
-      y = (window.innerHeight - ch) / 2;
-    }
-    carte.style.left = x + 'px';
-    carte.style.top = y + 'px';
-  });
-}
-document.getElementById('visite-suivant').addEventListener('click', () => {
-  visiteIdx++;
-  if (visiteIdx >= VISITE.length) fermerVisite(); else montrerEtapeVisite();
-});
-document.getElementById('visite-passer').addEventListener('click', fermerVisite);
-visiteEl.addEventListener('click', e => {
-  if (e.target === visiteEl || e.target.id === 'visite-halo')
-    document.getElementById('visite-suivant').click();
-});
-window.addEventListener('resize', () => { if (visiteIdx >= 0) montrerEtapeVisite(); });
-document.getElementById('btn-aide').addEventListener('click', lancerVisite);
-
-/* =====================================================================
-   8bis. FORMULES EN DIRECT & LEXIQUE
+   7. LE PANNEAU DU CALCUL EN DIRECT & LE LEXIQUE
    ---------------------------------------------------------------------
    Le panneau 📐 affiche la formule du montage EN COURS, avec les valeurs
    de l'élève substituées et le calcul déroulé : on apprend à utiliser
    une formule en la voyant travailler sur SON expérience.
    ===================================================================== */
 
-let formuleVisible = true;
-try { formuleVisible = localStorage.getItem('ike-optique-formule') !== 'non'; } catch (e) {}
+// Sur un téléphone, le panneau recouvrait une bonne part du banc : on y entre
+// replié, et le bouton 📐 l'ouvre à la demande. Dès qu'un écran a de la place —
+// en largeur comme en hauteur — il s'affiche d'emblée.
+let formuleVisible = window.innerWidth >= 880 || window.innerHeight >= 900;
+try {
+  const memo = localStorage.getItem('ike-optique-formule');
+  if (memo === 'oui' || memo === 'non') formuleVisible = memo === 'oui';
+} catch (e) {}
 
 function majFormule() {
-  const f = document.getElementById('formule');
+  const f = $('formule');
   if (!formuleVisible) { f.style.display = 'none'; return; }
   f.style.display = '';
   const E = etat.elems;
@@ -1930,14 +2275,13 @@ function majFormule() {
     titre('Formule du montage');
     note('Pose des éléments sur le banc : la formule s\'affichera ici, calculée avec TES valeurs.');
   }
-  l.push('<button class="flex" id="btn-lexique">📖 Lexique des termes</button>');
   f.innerHTML = l.join('');
-  document.getElementById('btn-lexique').addEventListener('click', ouvrirLexique);
 }
 
-document.getElementById('btn-formule').addEventListener('click', () => {
+$('btn-formule').addEventListener('click', () => {
   formuleVisible = !formuleVisible;
   try { localStorage.setItem('ike-optique-formule', formuleVisible ? 'oui' : 'non'); } catch (e) {}
+  $('btn-formule').classList.toggle('actif', formuleVisible);
   majFormule();
 });
 
@@ -1961,79 +2305,474 @@ const LEXIQUE = [
   ['Mise au point', 'Placer l\'écran exactement là où l\'image est nette (là où les rayons se croisent).'],
 ];
 
-function ouvrirLexique() {
-  const dl = document.getElementById('lex-items');
-  if (!dl.childElementCount) {
-    for (const [terme, def] of LEXIQUE) {
-      const dt = document.createElement('dt'); dt.textContent = terme;
-      const dd = document.createElement('dd'); dd.textContent = def;
-      dl.append(dt, dd);
-    }
+function ouvrirLexique(termeCible) {
+  const zone = $('liste-lexique');
+  zone.innerHTML = LEXIQUE.map(([terme, def]) =>
+    `<div class="lex-entree${terme === termeCible ? ' vise' : ''}"><b>${terme}</b>` +
+    `<span>${def}</span></div>`).join('');
+  ouvrir('v-lexique');
+  if (termeCible) {
+    const el = zone.querySelector('.vise');
+    if (el) el.scrollIntoView({ block: 'center' });
   }
-  document.getElementById('mlexique').classList.add('visible');
 }
-// Modales indépendantes : fermer le lexique ne ferme QUE le lexique
-document.getElementById('btn-fermer-lexique').addEventListener('click', () =>
-  document.getElementById('mlexique').classList.remove('visible'));
+$('btn-lexique').addEventListener('click', () => ouvrirLexique(null));
+
+
+/* ============================================================================
+   L'accueil — « Que veux-tu faire ? »
+   Trois portes d'entrée : le parcours guidé, l'banc libre, et le quiz.
+   Les deux dernières restent fermées tant que le parcours n'est pas terminé.
+   ========================================================================== */
+const MSG_VERROU = '🔒 Termine d’abord les 12 missions d’Apprendre.';
+const accueilFaites = () => progression.faites.length;
+const accueilOuvert = () => accueilFaites() >= MISSIONS.length;
+const prochaineMission = () => {
+  for (let i = 0; i < MISSIONS.length; i++) if (!progression.faites.includes(i)) return i;
+  return 0;
+};
+
+function rendreAccueil() {
+  const n = accueilFaites(), total = MISSIONS.length;
+  $('ac-etat-app').textContent = n === 0 ? 'Commencer'
+    : n >= total ? 'Terminé ✓' : 'Reprendre · ' + n + '/' + total;
+  const ouvert = accueilOuvert();
+  $('ac-experimenter').disabled = !ouvert;
+  $('ac-etat-exp').textContent = ouvert ? 'Ouvert' : '🔒 Verrouillé';
+  $('ac-exercer').disabled = !ouvert;
+  $('ac-etat-ex').textContent = ouvert ? (scoreMaitrise() + ' %') : '🔒 Verrouillé';
+  $('ac-pied').innerHTML = ouvert
+    ? 'Tu as terminé le parcours : les trois portes sont ouvertes.'
+    : 'Termine les <b>' + total + ' missions</b> d’Apprendre pour ouvrir les deux autres.';
+}
+
+function ouvrirAccueil() {
+  // un ancien « mode libre » sauvegardé sans déblocage n'est plus valable
+  if (progression.libre && !accueilOuvert()) { progression.libre = false; sauverProgression(); }
+  rendreAccueil();
+  ouvrir('v-accueil');
+}
+
+$('ac-apprendre').addEventListener('click', () => {
+  fermer('v-accueil');
+  if (progression.libre) { progression.libre = false; sauverProgression(); }
+  // le repérage de l'interface reste proposé tant qu'aucune mission n'est gagnée
+  if (accueilFaites() === 0) { lancerVisite(); return; }
+  allerMission(missionCourante() ? progression.m : prochaineMission());
+});
+$('ac-experimenter').addEventListener('click', () => {
+  if (!accueilOuvert()) return;
+  fermer('v-accueil');
+  allerMission('libre');
+});
+$('ac-exercer').addEventListener('click', () => {
+  if (!accueilOuvert()) return;
+  fermer('v-accueil');
+  ouvrirQuiz();
+});
+
+/* ============================================================================
+   La visite guidée — on montre l'écran au lieu de le décrire
+   ========================================================================== */
+const VISITE = [
+  { cible:'#mission', titre:'🎯 Le plan de mission',
+    texte:"Ton but du moment et les étapes à cocher. Le chevron <b>▼</b> le replie quand tu veux voir tout le banc." },
+  { cible:'#scene', titre:'📏 Le banc d’optique',
+    texte:"Un banc gradué de <b>100 cm</b>. Fais glisser un élément pour le déplacer ; les <b>cotes</b> entre voisins s'affichent toutes seules." },
+  { cible:'#actions', titre:'🧰 Le matériel',
+    texte:"Touche un élément pour le poser sur le banc. Ils <b>se débloquent</b> au fil des missions. Au bout, <b>🗑</b> vide le banc." },
+  { cible:'#scene-cmd', titre:'📐 Le calcul en direct',
+    texte:"Ce bouton ouvre le panneau qui refait <b>le calcul avec tes mesures</b> : taille de l'ombre, formule de conjugaison, grandissement." },
+  { cible:'.tete-fin', titre:'🎓 Les boutons du haut',
+    texte:"Les missions, le lexique des mots difficiles, ce guide, et le thème clair ou sombre." },
+];
+let visiteIdx = -1, visiteEtapes = [];
+const visiteEl = $('visite');
+
+function cibleVisible(sel) {
+  const e = document.querySelector(sel);
+  if (!e) return null;
+  const r = e.getBoundingClientRect();
+  return (r.width > 4 && r.height > 4) ? r : null;
+}
+
+function lancerVisite() {
+  fermerVoiles();
+  // on ne montre que ce qui est réellement à l'écran en ce moment
+  visiteEtapes = VISITE.filter(e => !e.cible || cibleVisible(e.cible));
+  if (!visiteEtapes.length) { fermerVisite(); return; }
+  visiteIdx = 0;
+  visiteEl.classList.add('visible');
+  montrerVisite();
+}
+
+function montrerVisite() {
+  const et = visiteEtapes[visiteIdx];
+  const halo = $('visite-halo');
+  const r = et.cible ? cibleVisible(et.cible) : null;
+  if (r) {
+    halo.style.display = 'block';
+    halo.style.left = (r.left - 5) + 'px';
+    halo.style.top = (r.top - 5) + 'px';
+    halo.style.width = (r.width + 10) + 'px';
+    halo.style.height = (r.height + 10) + 'px';
+  } else halo.style.display = 'none';
+  $('visite-titre').textContent = et.titre;
+  $('visite-texte').innerHTML = et.texte;
+  $('visite-prog').textContent = (visiteIdx + 1) + ' / ' + visiteEtapes.length;
+  $('visite-suivant').textContent =
+    visiteIdx === visiteEtapes.length - 1 ? 'C’est parti !' : 'Suivant';
+  placerCarteVisite(r);
+}
+
+// La carte cherche une place libre autour de la zone montrée : dessous, dessus,
+// à droite, à gauche. Quand la zone occupe presque tout l'écran — le banc,
+// par exemple — aucune place n'est libre : elle se pose alors dans un coin.
+function placerCarteVisite(r) {
+  const c = $('visite-carte');
+  c.style.visibility = 'hidden';
+  const cw = c.offsetWidth, ch = c.offsetHeight;
+  const W = window.innerWidth, H = window.innerHeight;
+  const poser = (x, y) => {
+    c.style.left = Math.round(Math.max(8, Math.min(W - cw - 8, x))) + 'px';
+    c.style.top = Math.round(Math.max(8, Math.min(H - ch - 8, y))) + 'px';
+    c.style.visibility = 'visible';
+  };
+  if (!r) { poser((W - cw) / 2, (H - ch) / 2); return; }
+  const m = 14, cx = r.left + r.width / 2 - cw / 2, cy = r.top + r.height / 2 - ch / 2;
+  const essais = [[cx, r.bottom + m], [cx, r.top - ch - m],
+                  [r.right + m, cy], [r.left - cw - m, cy]];
+  for (const [ex, ey] of essais) {
+    const x = Math.max(8, Math.min(W - cw - 8, ex));
+    const y = Math.max(8, Math.min(H - ch - 8, ey));
+    // retenue seulement si la carte ne recouvre pas ce qu'on montre
+    if (x + cw < r.left || x > r.right || y + ch < r.top || y > r.bottom) { poser(x, y); return; }
+  }
+  poser(W - cw - 12, H - ch - 12);
+}
+
+function fermerVisite() {
+  visiteIdx = -1;
+  visiteEl.classList.remove('visible');
+  // Enchaîner sur la leçon si la mission n'a pas encore commencé
+  if (missionCourante() && progression.etape === 0) ouvrirLecon(progression.m);
+}
+
+$('visite-suivant').addEventListener('click', () => {
+  if (visiteIdx >= visiteEtapes.length - 1) { fermerVisite(); return; }
+  visiteIdx++; montrerVisite();
+});
+$('visite-passer').addEventListener('click', fermerVisite);
+window.addEventListener('resize', () => { if (visiteIdx >= 0) montrerVisite(); });
+document.addEventListener('keydown', e => {
+  if (visiteIdx >= 0 && e.key === 'Escape') fermerVisite();
+});
+
+$('btn-aide').addEventListener('click', () => ouvrir('v-aide'));
+$('btn-revoir-visite').addEventListener('click', () => { fermer('v-aide'); lancerVisite(); });
 
 /* =====================================================================
-   9. THÈME & EN-TÊTE
+   9. LE QUIZ LIBRE — « M'exercer »
+   ---------------------------------------------------------------------
+   Trois niveaux, du vocabulaire aux idées fausses. Il s'ouvre une fois le
+   parcours terminé et se refait autant de fois qu'on veut : c'est le
+   meilleur résultat de chaque niveau qui compte.
+   ===================================================================== */
+
+const NIVEAUX_QUIZ = [
+  { cle:'souviens', em:'🥉', nom:'Je me souviens', poids:1,
+    quoi:'Les mots et les faits que tu as rencontrés sur le banc.' },
+  { cle:'comprends', em:'🥈', nom:'Je comprends', poids:2,
+    quoi:'Les mêmes idées, mais dans des situations que tu n’as pas encore vues.' },
+  { cle:'pieges', em:'🥇', nom:'On ne me piège plus', poids:3,
+    quoi:'Les erreurs que presque tout le monde fait. C’est là que tout se joue.' },
+];
+const PAR_SERIE = 6;
+
+const BANQUE = {
+  souviens: [
+    { q:'Comment la lumière se propage-t-elle dans l’air ?',
+      choix:['En ligne droite', 'En zigzag', 'En cercle autour de la source'], bonne:0, mission:1,
+      expl:"C'est la <b>propagation rectiligne</b> : elle explique les ombres, la chambre noire et les éclipses." },
+    { q:'Qu’est-ce qu’une <b>source de lumière</b> ?',
+      choix:['Un objet qui produit sa propre lumière',
+             'Un objet qui renvoie la lumière reçue', 'Un objet transparent'], bonne:0, mission:0,
+      expl:"Le Soleil et une lampe en sont ; la Lune, elle, ne fait que renvoyer la lumière du Soleil." },
+    { q:'Qu’appelle-t-on un objet <b>opaque</b> ?',
+      choix:['Un objet qui ne laisse pas passer la lumière',
+             'Un objet qui laisse tout passer', 'Un objet qui brille dans le noir'], bonne:0, mission:2,
+      expl:"C'est le contraire de transparent. C'est lui qui fabrique une <b>ombre</b> derrière lui." },
+    { q:'Comment est l’image formée par une <b>chambre noire</b> ?',
+      choix:['Renversée', 'Droite, comme l’objet', 'Il n’y a pas d’image'], bonne:0, mission:4,
+      expl:"Les rayons se croisent dans le petit trou : ce qui part du haut arrive en bas." },
+    { q:'Qu’appelle-t-on la <b>distance focale</b> d’une lentille ?',
+      choix:['La distance entre son centre et son foyer', 'Son épaisseur',
+             'La distance entre l’objet et la lentille'], bonne:0, mission:6,
+      expl:"Plus elle est courte, plus la lentille est bombée et fait converger fort les rayons." },
+    { q:'Qu’est-ce qu’une <b>image réelle</b> ?',
+      choix:['Une image que l’on peut recueillir sur un écran',
+             'Une image que l’on ne voit qu’à travers la lentille',
+             'Une image toujours plus grande que l’objet'], bonne:0, mission:7,
+      expl:"Les rayons s'y croisent vraiment : place un écran là, l'image apparaît." },
+    { q:'Que vaut le <b>grandissement</b> si l’image est deux fois plus grande que l’objet ?',
+      choix:['2', '0,5', '1'], bonne:0, mission:8,
+      expl:"Le grandissement est le rapport <b>taille de l'image ÷ taille de l'objet</b>." },
+  ],
+
+  comprends: [
+    { q:'On rapproche la lampe de la balle, sans bouger l’écran. Que devient l’ombre ?',
+      choix:['Elle grandit', 'Elle rétrécit', 'Elle ne change pas'], bonne:0, mission:3,
+      expl:"Plus la source est près de l'obstacle, plus les rayons qui le frôlent s'écartent : l'ombre projetée s'agrandit." },
+    { q:'Dans une chambre noire, on éloigne l’écran du trou sans rien bouger d’autre. Que devient l’image ?',
+      choix:['Elle grandit', 'Elle rétrécit', 'Elle ne change pas'], bonne:0, mission:5,
+      expl:"image = objet × (distance trou-écran) ÷ (distance objet-trou). Augmenter la première distance agrandit l'image." },
+    { q:'Un objet est placé <b>au-delà de 2F</b> d’une lentille convergente. Comment est son image ?',
+      choix:['Réelle, renversée et plus petite que l’objet',
+             'Réelle, droite et plus grande', 'Virtuelle et droite'], bonne:0, mission:9,
+      expl:"Objet loin ⇒ image petite, près du foyer. C'est le montage de l'appareil photo et de l'œil." },
+    { q:'Un objet est placé <b>entre F et 2F</b>. Comment est son image ?',
+      choix:['Réelle, renversée et plus grande que l’objet',
+             'Réelle, droite et plus petite', 'Virtuelle et plus petite'], bonne:0, mission:8,
+      expl:"C'est le montage du <b>projecteur</b> : image agrandie et renversée, loin de l'autre côté de la lentille." },
+    { q:'Un objet est placé <b>entre la lentille et son foyer F</b>. Que voit-on ?',
+      choix:['Une image virtuelle, droite et agrandie : c’est la loupe',
+             'Une image réelle renversée', 'Rien du tout'], bonne:0, mission:10,
+      expl:"Les rayons divergent après la lentille : aucun écran ne capte cette image, mais l'œil la voit à travers le verre." },
+    { q:'L’image est floue sur l’écran. Que faut-il faire en premier ?',
+      choix:['Déplacer l’écran jusqu’à l’endroit où les rayons se croisent',
+             'Changer la lampe', 'Agrandir l’objet'], bonne:0, mission:7,
+      expl:"C'est la <b>mise au point</b> : l'écran doit tomber pile sur le plan de l'image." },
+    { q:'Sur quel point convergent des rayons arrivant parallèlement à l’axe optique ?',
+      choix:['Sur le foyer image F′', 'Sur le centre de la lentille',
+             'Sur l’objet'], bonne:0, mission:6,
+      expl:"C'est la définition même du foyer image. C'est aussi pourquoi l'image d'un objet très lointain se forme sur F′." },
+  ],
+
+  pieges: [
+    { q:'Un élève affirme qu’on peut voir un objet dans le noir complet, <b>à condition de bien regarder</b>. Cette affirmation est-elle exacte ?',
+      choix:['Non : sans lumière venue de l’objet, l’œil ne reçoit rien',
+             'Oui : les yeux s’habituent à l’obscurité',
+             'Oui, si l’objet est de couleur claire'], bonne:0, mission:0,
+      expl:"S'habituer à l'obscurité aide quand il reste <b>un peu</b> de lumière. Dans le noir complet, il n'y a rien à recevoir." },
+    { q:'Un élève affirme que l’ombre d’un objet a <b>toujours la même taille</b> que l’objet. Cette affirmation est-elle exacte ?',
+      choix:['Non : elle dépend des distances entre la source, l’objet et l’écran',
+             'Oui : l’ombre est le contour exact de l’objet',
+             'Oui, sauf si la lampe est très puissante'], bonne:0, mission:3,
+      expl:"C'est une affaire de <b>proportions</b>. Rapproche la lampe et l'ombre grandit, sans que l'objet ait bougé." },
+    { q:'Un élève affirme que l’image de la chambre noire est renversée <b>parce que le trou retourne la lumière</b>. Cette affirmation est-elle exacte ?',
+      choix:['Non : chaque rayon file tout droit, et l’ensemble se croise au trou',
+             'Oui : le trou agit comme un miroir',
+             'Oui : la lumière tourne en passant dans un petit trou'], bonne:0, mission:4,
+      expl:"Rien ne retourne quoi que ce soit : c'est la <b>propagation rectiligne</b> qui, à elle seule, croise les rayons au passage du trou." },
+    { q:'Un élève affirme qu’une image floue sur l’écran signifie que <b>la lentille est de mauvaise qualité</b>. Cette affirmation est-elle exacte ?',
+      choix:['Non : l’écran n’est pas à l’endroit où les rayons se croisent',
+             'Oui : une bonne lentille donne toujours une image nette',
+             'Oui, il faut une lentille plus épaisse'], bonne:0, mission:7,
+      expl:"C'est un problème de <b>mise au point</b>, pas de lentille. Déplace l'écran jusqu'au plan de l'image." },
+    { q:'Un élève affirme qu’on peut recueillir sur un écran l’image donnée par une <b>loupe</b>. Cette affirmation est-elle exacte ?',
+      choix:['Non : c’est une image virtuelle, les rayons ne s’y croisent pas',
+             'Oui, en plaçant l’écran assez loin',
+             'Oui, mais l’image sera renversée'], bonne:0, mission:10,
+      expl:"Après la lentille, les rayons <b>divergent</b>. C'est leur prolongement qui donne l'image : rien à capter sur un écran." },
+    { q:'Un élève affirme qu’en cachant la <b>moitié</b> d’une lentille, on ne voit plus que la moitié de l’image. Cette affirmation est-elle exacte ?',
+      choix:['Non : l’image reste entière, mais moins lumineuse',
+             'Oui : la moitié de l’image disparaît',
+             'Oui : l’image est coupée en deux'], bonne:0, mission:6,
+      expl:"Chaque point de l'objet envoie de la lumière sur <b>toute</b> la lentille. Avec la moitié, il reste moins de rayons : l'image entière s'assombrit." },
+    { q:'Un élève affirme que plus l’objet est <b>loin</b> de la lentille, plus son image est <b>grande</b>. Cette affirmation est-elle exacte ?',
+      choix:['Non : c’est l’inverse, un objet lointain donne une petite image près du foyer',
+             'Oui : la distance agrandit toujours l’image',
+             'Oui, à condition que la focale soit courte'], bonne:0, mission:9,
+      expl:"Pour agrandir, il faut <b>approcher</b> l'objet du foyer, par l'extérieur. C'est le réglage du projecteur ; l'appareil photo fait le contraire." },
+  ],
+};
+
+/* ---- L'état de maîtrise : le meilleur résultat obtenu à chaque niveau ---- */
+function maitriseDe(cle) { return (progression.maitrise && progression.maitrise[cle]) || 0; }
+
+// Les niveaux difficiles pèsent plus lourd : réussir le premier seul plafonne
+// à 17 %, il faut affronter les pièges pour dépasser 80 %.
+function scoreMaitrise() {
+  let p = 0, total = 0;
+  for (const n of NIVEAUX_QUIZ) { p += maitriseDe(n.cle) * n.poids; total += n.poids; }
+  return total ? Math.round(p / total * 100) : 0;
+}
+function motMaitrise(p) {
+  return p >= 85 ? 'Maîtrisée' : p >= 60 ? 'Solide' : p >= 30 ? 'En bonne voie' : 'Découverte';
+}
+function etoiles(r) {
+  return r >= 1 ? '⭐⭐⭐' : r >= .8 ? '⭐⭐' : r >= .5 ? '⭐' : '';
+}
+
+// Le quiz mélange ses propres propositions : les simulations n'ont pas toutes
+// la même structure de question, et emprunter la leur cassait ici.
+function melangerQuiz(q) {
+  const ordre = q.choix.map((_, i) => i);
+  for (let i = ordre.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = ordre[i]; ordre[i] = ordre[j]; ordre[j] = t;
+  }
+  return Object.assign({}, q, { choix:ordre.map(k => q.choix[k]), bonne:ordre.indexOf(q.bonne) });
+}
+
+let quiz = null;
+
+function ouvrirQuiz() {
+  if (!accueilOuvert()) { toast('Termine les ' + MISSIONS.length + ' missions pour t’exercer.'); return; }
+  quiz = null;
+  rendreAccueilQuiz();
+  ouvrir('v-quiz');
+}
+
+function rendreAccueilQuiz() {
+  const p = scoreMaitrise();
+  $('quiz-carte').innerHTML = `
+    <button class="fermer-x" data-ferme="v-quiz" aria-label="Fermer">✕</button>
+    <h2>🏅 M’exercer</h2>
+    <p>Trois séries de ${PAR_SERIE} questions. Tu peux les refaire autant de fois que tu veux :
+       c’est ton <b>meilleur</b> résultat qui compte.</p>
+    <div class="qz-maitrise">
+      <div class="qz-m-haut"><span>Ma maîtrise de la notion</span><b>${p} %</b></div>
+      <div class="qz-m-barre"><i style="width:${p}%"></i></div>
+      <div class="qz-m-mot">${motMaitrise(p)}</div>
+    </div>
+    ${NIVEAUX_QUIZ.map(n => {
+      const r = maitriseDe(n.cle), et = etoiles(r);
+      return `<button class="qz-niveau" data-niveau="${n.cle}">
+        <span class="qz-em">${n.em}</span>
+        <span class="qz-txt"><b>${n.nom}</b><span>${n.quoi}</span></span>
+        <span class="qz-note">${et || '—'}<span>${r ? Math.round(r * 100) + ' %' : 'jamais fait'}</span></span>
+      </button>`;
+    }).join('')}
+    <p class="qz-pied">Les questions difficiles comptent <b>trois fois plus</b> que les faciles :
+       c’est en les affrontant qu’on prouve qu’on a compris.</p>`;
+}
+
+function lancerSerie(cle) {
+  const banque = BANQUE[cle].slice();
+  for (let i = banque.length - 1; i > 0; i--) {           // tirage sans remise
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = banque[i]; banque[i] = banque[j]; banque[j] = t;
+  }
+  quiz = { niveau:cle, liste:banque.slice(0, PAR_SERIE).map(melangerQuiz),
+           n:0, justes:0, ratees:[] };
+  rendreQuestionQuiz();
+}
+
+function rendreQuestionQuiz() {
+  const q = quiz.liste[quiz.n];
+  const niv = NIVEAUX_QUIZ.find(n => n.cle === quiz.niveau);
+  $('quiz-carte').innerHTML = `
+    <button class="fermer-x" data-ferme="v-quiz" aria-label="Fermer">✕</button>
+    <div class="q-avance">${niv.em} ${niv.nom} · question ${quiz.n + 1} sur ${quiz.liste.length}</div>
+    <div class="qz-jauge"><i style="width:${quiz.n / quiz.liste.length * 100}%"></i></div>
+    <div class="q-question">${q.q}</div>
+    <div id="qz-choix">${q.choix.map((c, i) =>
+      `<button class="q-choix" data-qz="${i}">${c}</button>`).join('')}</div>
+    <div class="q-expl" id="qz-expl"></div><div id="qz-suite"></div>`;
+}
+
+function repondreQuiz(i) {
+  const q = quiz.liste[quiz.n];
+  const juste = i === q.bonne;
+  if (juste) quiz.justes++; else quiz.ratees.push(q);
+  $('qz-choix').querySelectorAll('.q-choix').forEach((b, k) => {
+    b.disabled = true;
+    if (k === q.bonne) { b.classList.add('bon'); b.textContent = '✔️ ' + b.textContent; }
+    else if (k === i) { b.classList.add('mauvais'); b.textContent = '❌ ' + b.textContent; }
+  });
+  const e = $('qz-expl');
+  e.innerHTML = q.expl;
+  e.classList.add('visible');
+  const dernier = quiz.n === quiz.liste.length - 1;
+  $('qz-suite').innerHTML = `<button class="btn btn-large" style="margin-top:12px" id="qz-continuer">${
+    dernier ? 'Voir mon résultat →' : 'Question suivante →'}</button>`;
+  $('qz-continuer').addEventListener('click', () => {
+    if (dernier) finirSerie(); else { quiz.n++; rendreQuestionQuiz(); }
+  });
+}
+
+function finirSerie() {
+  const r = quiz.justes / quiz.liste.length;
+  const niv = NIVEAUX_QUIZ.find(n => n.cle === quiz.niveau);
+  const avant = maitriseDe(quiz.niveau);
+  progression.maitrise = progression.maitrise || {};
+  progression.maitrise[quiz.niveau] = Math.max(avant, r);
+  sauverProgression();
+  // Les questions ratées renvoient à leur mission : le quiz ramène au parcours.
+  const revoir = [];
+  for (const q of quiz.ratees) if (revoir.indexOf(q.mission) === -1) revoir.push(q.mission);
+  revoir.sort((a, b) => a - b);
+  const p = scoreMaitrise();
+  $('quiz-carte').innerHTML = `
+    <button class="fermer-x" data-ferme="v-quiz" aria-label="Fermer">✕</button>
+    <div class="qz-fin">
+      <div class="qz-fin-em">${r >= 1 ? '🎉' : r >= .5 ? '👏' : '💪'}</div>
+      <div><b>${quiz.justes} bonnes réponses sur ${quiz.liste.length}</b>
+        <span>${niv.em} ${niv.nom}</span></div>
+      <div class="qz-fin-et">${etoiles(r) || '—'}</div>
+    </div>
+    ${r > avant
+      ? `<p class="qz-mieux">✨ C’est ton meilleur résultat à ce niveau.</p>`
+      : `<p class="qz-mieux discret">Ton meilleur reste ${Math.round(avant * 100)} %.</p>`}
+    <div class="qz-maitrise">
+      <div class="qz-m-haut"><span>Ma maîtrise de la notion</span><b>${p} %</b></div>
+      <div class="qz-m-barre"><i style="width:${p}%"></i></div>
+      <div class="qz-m-mot">${motMaitrise(p)}</div>
+    </div>
+    ${revoir.length ? `<div class="qz-revoir"><b>📘 À revoir :</b>${revoir.map(i =>
+        `<span>Mission ${i + 1} — ${MISSIONS[i].titre}</span>`).join('')}</div>` : ''}
+    <div class="qz-boutons">
+      <button class="btn btn-contour" id="qz-refaire">↻ Refaire cette série</button>
+      <button class="btn" id="qz-retour">Les niveaux →</button>
+    </div>`;
+  $('qz-refaire').addEventListener('click', () => lancerSerie(quiz.niveau));
+  $('qz-retour').addEventListener('click', rendreAccueilQuiz);
+}
+
+$('v-quiz').addEventListener('click', e => {
+  const n = e.target.closest('[data-niveau]');
+  if (n) { lancerSerie(n.dataset.niveau); return; }
+  const b = e.target.closest('[data-qz]');
+  if (b && !b.disabled) repondreQuiz(+b.dataset.qz);
+});
+
+/* =====================================================================
+   10. THÈME & DÉMARRAGE
    ===================================================================== */
 
 function appliquerTheme() {
-  document.body.classList.toggle('sombre', etat.theme === 'sombre');
-  document.getElementById('btn-theme').innerHTML =
-    etat.theme === 'sombre' ? '☀️<span class="lbl"> Clair</span>' : '🌙<span class="lbl"> Sombre</span>';
-  majPalette();
-  demanderRendu();
+  const sombre = etat.theme === 'sombre';
+  document.body.classList.toggle('sombre', sombre);
+  $('btn-theme').textContent = sombre ? '☀️' : '🌙';
+  document.querySelector('meta[name=theme-color]')
+    .setAttribute('content', sombre ? '#14181C' : '#F7F5F0');
 }
-document.getElementById('btn-theme').addEventListener('click', () => {
+$('btn-theme').addEventListener('click', () => {
   etat.theme = etat.theme === 'sombre' ? 'clair' : 'sombre';
   try { localStorage.setItem('ike-theme', etat.theme); } catch (e) {}
   appliquerTheme();
 });
 try {
-  const memo = localStorage.getItem('ike-theme') || localStorage.getItem('ike-circuit-theme');
+  const memo = localStorage.getItem('ike-theme');
   if (memo === 'sombre' || memo === 'clair') etat.theme = memo;
   else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
     etat.theme = 'sombre';
 } catch (e) {}
 
-const btnEffacer = document.getElementById('btn-effacer');
-let confirmEffacer = null;
-btnEffacer.addEventListener('click', () => {
-  if (confirmEffacer) {
-    clearTimeout(confirmEffacer); confirmEffacer = null;
-    btnEffacer.innerHTML = '🗑<span class="lbl"> Effacer</span>';
-    for (const t of Object.keys(etat.elems)) etat.elems[t] = null;
-    deselectionner(); majPalette();
-    recalculer(); demanderRendu(); evaluerMission();
-  } else {
-    btnEffacer.textContent = 'Sûr ?';
-    confirmEffacer = setTimeout(() => {
-      confirmEffacer = null;
-      btnEffacer.innerHTML = '🗑<span class="lbl"> Effacer</span>';
-    }, 2500);
-  }
-});
-
-/* =====================================================================
-   Démarrage
-   ===================================================================== */
 chargerProgression();
 window.addEventListener('resize', redimensionner);
+$('mission').classList.add('ouvert');
+$('m-plier').setAttribute('aria-expanded', 'true');
+$('btn-formule').classList.toggle('actif', formuleVisible);
 redimensionner();
 appliquerTheme();
-majMissionBar();
+majPalette();
+majMission();
+ajusterRepli();
 recalculer();
 requestAnimationFrame(boucle);
-
-setTimeout(() => {
-  const s = document.getElementById('splash');
-  s.classList.add('fini');
-  setTimeout(() => s.remove(), 600);
-  ouvrirChoixMode();   // écran d'entrée : Apprendre / Expérimenter
-}, 1400);
+ouvrirAccueil();      // écran d'entrée : Apprendre / Expérimenter / M'exercer
 </script>
 </body>
 </html>
