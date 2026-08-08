@@ -1,15 +1,15 @@
-# Guide de création et d'intégration des simulations IKE
+# Guide de création et d'intégration des simulations KONDO LABO
 
-Ce guide explique comment créer une nouvelle simulation IKE, de l'idée à la mise en ligne.
+Ce guide explique comment créer une nouvelle simulation KONDO LABO, de l'idée à la mise en ligne.
 Il est tiré de l'expérience des quatre premières simulations (circuit électrique, banc
 d'optique, états de la matière, molécules 3D) et du [journal technique](journal-technique.md),
 qui documente le *pourquoi* de chaque décision.
 
 ---
 
-## 1. La philosophie IKE
+## 1. La philosophie KONDO LABO
 
-Une simulation IKE n'est pas une animation à regarder : c'est un **laboratoire à manipuler**,
+Une simulation KONDO LABO n'est pas une animation à regarder : c'est un **laboratoire à manipuler**,
 guidé par des missions. Trois principes pédagogiques non négociables :
 
 1. **C'est le montage réel de l'élève qui valide** — jamais un QCM plaqué. L'élève construit,
@@ -39,7 +39,7 @@ Toutes les simulations partagent la même structure de fichier — ouvrez
 `simulations/etats-matiere/index.html` comme référence :
 
 ```
-<style>     écran de démarrage IKE · en-tête · barre de mission · scène ·
+<style>     en-tête · barre de mission · scène ·
             commandes · voiles (leçon, lexique, fin, liste) · visite · thème sombre
 <body>      les mêmes blocs HTML, dans le même ordre
 <script>

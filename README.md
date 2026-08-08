@@ -1,8 +1,12 @@
-# IKE Simulations
+# KONDO LABO
 
 Simulations scientifiques interactives pour le **collège au Bénin** (programme PCT/SVT/Maths),
 conçues pour être intégrées à une plateforme e-learning — et pour fonctionner sur le terrain :
 smartphones Android d'entrée de gamme, salles informatiques anciennes, connexion intermittente ou absente.
+
+Le produit s'appelle **KONDO LABO**. Il devient un module de **Kondo Education**, l'application
+de révision : l'élève lit sa fiche, ouvre le laboratoire, manipule hors-ligne. Le dépôt garde son
+nom historique `ike-simulations` (l'URL publique en dépend).
 
 Inspiration : [PhET Interactive Simulations](https://phet.colorado.edu) (Université du Colorado).
 
@@ -24,12 +28,12 @@ Inspiration : [PhET Interactive Simulations](https://phet.colorado.edu) (Univers
 ## Structure
 
 ```
-IKE Simulations/
+KONDO LABO/
 ├── README.md
 ├── CHANGELOG.md                ← journal des versions (tags git + releases GitHub)
 ├── index.html                  ← page d'accueil / catalogue des simulations
 ├── docs/
-│   ├── guide-creation-simulations.md  ← LE guide : créer et intégrer une simulation IKE
+│   ├── guide-creation-simulations.md  ← LE guide : créer et intégrer une simulation
 │   ├── journal-technique.md    ← décisions techniques et leurs raisons
 │   ├── programme-sa-pct.md     ← programme officiel PCT (SA par promotion)
 │   ├── programme-cursus.md     ← PCT + Maths + SVT (6ᵉ→3ᵉ) + propositions de simulations
@@ -66,4 +70,12 @@ L'historique complet est dans [CHANGELOG.md](CHANGELOG.md). Chaque version est u
 6. ✅ **[Guide de création et d'intégration](docs/guide-creation-simulations.md)** (philosophie, charte, pas-à-pas, moteur de missions, 3D, checklist)
 7. ✅ Cinquième simulation : **Combustions vives** (chimie, 6ᵉ SA3 — triangle du feu, seuil des 15 % d'O₂, eau de chaux)
 8. ✅ Circuit électrique v2 : **voltmètre + loi d'Ohm en direct** · Molécules 3D v2 : **atelier d'assemblage**
-9. ⬜ Choix de la plateforme e-learning → couche d'intégration (iframe + postMessage, ou SCORM/H5P si Moodle)
+9. ✅ **Le socle commun sur les quinze simulations** (v4.35 → v4.39) : accueil à trois portes, plan de
+   mission, QCM de fin de mission, quiz libre à trois niveaux, mode libre
+10. ✅ **Contrat de progression unifié** (v4.40) : les quatorze simulations du catalogue écrivent
+    `{ mission, faites, libre, maitrise }` — la donnée qu'une plateforme peut lire sans rien savoir
+    de la génération de la simulation
+11. ⬜ **Couche d'intégration à Kondo Education** : la plateforme est choisie (module de l'application
+    de révision) ; reste à spécifier les événements remontés (`mission-reussie`, `parcours-termine`)
+12. ⬜ **Plateforme enseignant** : Desktop + Android pour Smart TV — fiche pédagogique, saisie
+    numérique précise, « effet de suspense », outils d'annotation. Rien n'existe encore.

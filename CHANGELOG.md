@@ -5,6 +5,31 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v4.41.0 — 2026-08-08
+
+🏷️ **Le produit s'appelle KONDO LABO.**
+
+Décision du 8 août. Le manifeste fixait ce nom depuis le début ; le code disait encore
+« Labo-Bénin » (les quinze titres de page, la marque et le pied du catalogue, les commentaires des
+jetons du design system) et « IKE Simulations » sur les deux ateliers de molécules. **44 occurrences
+dans 22 fichiers**, code et gabarits 3D compris — un réassemblage des simulations 3D aurait sinon
+ramené l'ancien nom.
+
+L'initiale du catalogue passe de **L** à **K**.
+
+Le dépôt garde son nom historique `ike-simulations` : l'URL publique en dépend, et la renommer
+casserait les liens déjà partagés aux testeurs.
+
+**Les personnages restent.** Le manifeste écrivait rejeter « radicalement les artifices
+narratifs » ; les simulations sont bâties sur Vignon, Élie, Yèmi, le vieux Fignon, Sissi, en
+cohérence avec les situations d'apprentissage du programme béninois, elles-mêmes narratives. C'est
+le manifeste qui cède. Nuance retenue : certaines simulations pourront s'en passer, au cas par cas —
+rien n'impose d'ajouter un récit là où il n'y en a pas.
+
+**La feuille de route du README est remise à jour** : le socle commun et le contrat de progression
+passent en fait ; l'intégration à Kondo Education et la plateforme enseignant deviennent les deux
+chantiers ouverts.
+
 ## v4.40.0 — 2026-08-08
 
 🔗 **Un seul contrat de progression pour les quatorze simulations.**

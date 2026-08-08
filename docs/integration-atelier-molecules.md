@@ -15,7 +15,7 @@ Colle ce code dans n'importe quelle page HTML :
 <iframe
   src="https://edgboy.github.io/ike-simulations/simulations/atelier-molecules/index.html"
   style="width:100%; height:640px; border:0; border-radius:14px;"
-  title="Atelier de molécules — IKE Simulations"
+  title="Atelier de molécules — KONDO LABO"
   allowfullscreen></iframe>
 ```
 
