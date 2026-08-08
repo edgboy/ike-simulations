@@ -5,6 +5,32 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v4.33.0 — 2026-08-08
+
+🏅 **Le quiz libre s'étend, et son niveau 3 prend le registre d'un énoncé.**
+
+**Le niveau « On ne me piège plus » est reformulé.** *« L'idéal ce serait que ce soit formulé comme
+un énoncé scolaire. »* Les questions citaient une phrase parlée — « Le feu de bois, c'est naturel,
+donc ce n'est pas dangereux. » Elles prennent le registre d'un exercice : impersonnel, précis, avec
+le vocabulaire de la leçon — « Un élève affirme que la fumée d'un feu de bois est sans danger,
+**parce que le bois est naturel**. Cette affirmation est-elle exacte ? » L'idée fausse reste au
+centre ; c'est la formulation qui change. L'affichage sévère du score est conservé tel quel.
+
+**Trois simulations de plus** sont équipées, avec leurs trois niveaux et leur banque écrite pour
+elles :
+
+- **Pourquoi mes marmites noircissent ?** — 21 questions. Le niveau 3 attaque l'eau jetée sur du
+  pétrole enflammé, la mèche sortie au maximum, la flamme bleue crue « moins chaude » parce qu'elle
+  éclaire moins, et la buée prise pour de l'humidité de l'air.
+- **La flamme de la bougie** — 21 questions. Le centre cru le plus chaud, la zone lumineuse crue la
+  mieux brûlée, la mèche crue combustible, le noir de fumée pris pour de la cendre.
+- **Les premiers pas du circuit** — 21 questions. La lampe posée sur la pile sans fil, la DEL crue
+  défectueuse alors qu'elle est à l'envers, la couleur prise pour un indice de conduction.
+
+**Le moteur du quiz devient autonome.** Il empruntait le mélangeur de propositions de la simulation
+hôte. Or les questionnaires existent en deux familles — `q.choix` d'un côté, `q.r` de l'autre — et
+le quiz de la flamme plantait sur cette différence. Il mélange désormais lui-même.
+
 ## v4.32.0 — 2026-08-08
 
 🫙 **La bougie sous cloche : des proportions justes.**

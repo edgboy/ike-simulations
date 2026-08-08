@@ -2497,43 +2497,46 @@ const BANQUE = {
   ],
 
   pieges: [
-    { q:'Faton relève son tuyau d’échappement de trois mètres. Le quartier reçoit-il moins de fumée ?',
+    { q:'Le tuyau d’échappement d’un moulin est relevé de trois mètres. La <b>quantité rejetée chaque jour</b> dans le quartier est-elle modifiée ?',
       choix:['Non : la même quantité part dans l’air, elle retombe seulement plus loin',
-             'Oui : elle part plus haut, donc elle disparaît',
-             'Oui : deux fois moins'], bonne:0, mission:2,
-      expl:"Celui qui travaille juste à côté respire mieux, c’est vrai. Mais le moulin lâche toujours <b>240 g</b> chaque jour. <b>On ne fait pas disparaître une pollution en la déplaçant.</b>" },
-    { q:'« Ma fumée est bien blanche, donc elle est propre. » Que réponds-tu à Élie ?',
-      choix:['C’est faux : sa fumée blanche est de l’huile imbrûlée, et elle pollue plus que la noire',
-             'C’est vrai : le blanc salit moins que le noir',
-             'C’est vrai, si le moteur est neuf'], bonne:0, mission:1,
-      expl:"Près du Zem, ton capteur a relevé bien plus de poussières que près du moulin, dont la fumée est pourtant toute noire. <b>La couleur ne dit rien de la dangerosité.</b>" },
-    { q:'« Le feu de bois, c’est naturel, donc ce n’est pas dangereux. »',
-      choix:['Faux : la fumée de bois est pleine de poussières fines et de monoxyde de carbone',
-             'Vrai : ce qui est naturel ne pollue pas',
-             'Vrai : seuls les moteurs polluent'], bonne:0, mission:4,
-      expl:"<b>Naturel ne veut pas dire sans danger.</b> Cuisiner au bois dans un espace fermé est l’une des pollutions les plus nocives qui soient." },
-    { q:'« Je me tiens loin des pollueurs, donc je ne risque rien », dit Yèmi.',
-      choix:['S’éloigner aide, mais l’air se mélange : il n’est jamais totalement propre',
-             'C’est vrai : à dix mètres, l’air est pur',
-             'C’est faux : la distance ne change rien du tout'], bonne:0, mission:3,
-      expl:"Tes relevés le montrent : la mesure baisse nettement avec la distance, mais elle ne retombe jamais au niveau du manguier. <b>Et en roulant, Yèmi rejette elle aussi.</b>" },
-    { q:'Une moto neuve ne laisse voir aucune fumée. Que rejette-t-elle quand même ?',
-      choix:['Du monoxyde de carbone, qu’on ne voit pas', 'Rien du tout', 'De la vapeur d’eau seulement'], bonne:0, mission:3,
-      expl:"Tout moteur qui brûle du carburant en produit. Ne rien voir sortir ne veut pas dire que rien ne sort." },
-    { q:'Le trou dans la couche d’ozone et le réchauffement de la Terre : est-ce le même problème ?',
-      choix:['Non, ce sont deux problèmes différents',
-             'Oui, c’est la même chose',
-             'Oui : c’est l’ozone qui réchauffe la Terre'], bonne:0, mission:5,
-      expl:"La <b>couche d’ozone</b> nous protège des rayons dangereux du Soleil ; certains produits l’abîment. L’<b>effet de serre</b>, lui, retient la chaleur près du sol. Deux histoires différentes, qu’on confond souvent." },
-    { q:'« Puisque le feu de brousse rejette le plus, ça ne sert à rien de régler le moteur du Zem. »',
-      choix:['Faux : chaque source compte, et c’est près du Zem qu’on respire son air',
-             'Vrai : seule la plus grosse source compte',
-             'Vrai : un moteur ne pollue presque pas'], bonne:0, mission:5,
-      expl:"Les rejets du quartier, c’est la somme de toutes les sources. Et surtout, celui qui vit à côté du Zem respire <b>son</b> air à lui, pas la moyenne du quartier." },
-    { q:'Deux élèves mesurent au même endroit, l’un le matin, l’autre à midi. Ils trouvent des chiffres différents. Qui s’est trompé ?',
-      choix:['Personne : l’air change selon ce qui brûle à ce moment-là',
-             'Celui du matin', 'Celui de midi'], bonne:0, mission:0,
-      expl:"Une mesure dit ce qu’il y avait dans l’air <b>à cet endroit et à cet instant</b>. C’est pour cela qu’on note l’endroit de chaque relevé dans son carnet." },
+             'Oui, elle diminue de moitié',
+             'Oui, elle devient nulle'], bonne:0, mission:2,
+      expl:"Relever un tuyau change l’endroit où la fumée retombe, pas la quantité rejetée. Le moulin lâche toujours <b>240 g</b> par jour. <b>On ne fait pas disparaître une pollution en la déplaçant.</b>" },
+    { q:'Deux moteurs rejettent l’un une fumée blanche, l’autre une fumée noire. Que peut-on conclure de la <b>couleur</b> de ces fumées ?',
+      choix:['Rien : la couleur ne renseigne pas sur la quantité de polluants',
+             'La fumée noire est toujours la plus polluante',
+             'La fumée blanche est toujours la plus propre'], bonne:0, mission:1,
+      expl:"Près du Zem, dont la fumée est blanche, le capteur relève plus de poussières que près du moulin, dont la fumée est noire. La fumée blanche du deux-temps est faite d’<b>huile imbrûlée</b>." },
+    { q:'Un élève affirme que la fumée d’un feu de bois est sans danger, <b>parce que le bois est naturel</b>. Cette affirmation est-elle exacte ?',
+      choix:['Non : cette fumée contient des poussières fines et du monoxyde de carbone',
+             'Oui : un matériau naturel ne produit pas de polluants',
+             'Oui, à condition que le feu soit en plein air'], bonne:0, mission:4,
+      expl:"L’origine d’un combustible ne dit rien de ce que sa combustion rejette. <b>Naturel ne veut pas dire sans danger</b> : cuisiner au bois dans un espace fermé est l’une des pollutions les plus nocives." },
+    { q:'S’éloigner d’une source de pollution suffit-il à respirer un air pur ?',
+      choix:['Non : l’air se mélange, la concentration baisse sans jamais s’annuler',
+             'Oui, au-delà de dix mètres',
+             'Non : la distance ne change rien à la concentration'], bonne:0, mission:3,
+      expl:"Tes relevés le montrent : la mesure baisse nettement avec la distance, mais elle ne retombe jamais au niveau du manguier. L’air d’un quartier est un seul et même air." },
+    { q:'Un moteur ne laisse voir <b>aucune fumée</b>. Peut-on en conclure qu’il ne rejette rien ?',
+      choix:['Non : il rejette du monoxyde de carbone, qui est invisible',
+             'Oui : sans fumée, il n’y a pas de rejet',
+             'Oui, si le moteur est récent'], bonne:0, mission:3,
+      expl:"Le <b>monoxyde de carbone</b> est incolore et inodore. Tout moteur qui brûle du carburant en produit. Ne rien voir sortir ne prouve rien." },
+    { q:'La destruction de la couche d’ozone et le réchauffement climatique désignent-ils <b>le même phénomène</b> ?',
+      choix:['Non : ce sont deux phénomènes distincts',
+             'Oui : l’ozone est le gaz qui réchauffe l’atmosphère',
+             'Oui : ce sont deux noms du même problème'], bonne:0, mission:5,
+      expl:"La <b>couche d’ozone</b> nous protège des rayons dangereux du Soleil ; certains produits l’abîment. L’<b>effet de serre</b> retient la chaleur près du sol. Deux mécanismes différents, souvent confondus." },
+    { q:'Dans un quartier, une source rejette à elle seule plus de la moitié du total. Faut-il pour autant <b>négliger les autres sources</b> ?',
+      choix:['Non : le total est la somme de toutes, et chacun respire l’air de son voisinage',
+             'Oui : seule la source principale mérite qu’on agisse',
+             'Oui : les petites sources se compensent entre elles'], bonne:0, mission:5,
+      expl:"Les rejets du quartier sont une somme. Et surtout, celui qui vit à côté du Zem respire <b>son</b> air à lui, pas la moyenne du quartier." },
+    { q:'Deux mesures sont relevées au même endroit, à deux heures différentes, et donnent des valeurs différentes. Comment l’expliquer ?',
+      choix:['L’air change selon ce qui brûle à proximité au moment de la mesure',
+             'L’un des deux capteurs est défectueux',
+             'Une mesure de pollution est toujours identique en un lieu donné'], bonne:0, mission:0,
+      expl:"Une mesure décrit l’air <b>à cet endroit et à cet instant</b>. C’est pourquoi on note le lieu et le moment de chaque relevé dans son carnet." },
   ],
 };
 /* ---- L'état de maîtrise : le meilleur résultat obtenu à chaque niveau ---- */
@@ -2550,6 +2553,17 @@ function motMaitrise(p) {
 }
 function etoiles(r) {
   return r >= 1 ? '⭐⭐⭐' : r >= .8 ? '⭐⭐' : r >= .5 ? '⭐' : '';
+}
+
+// Le quiz mélange ses propres propositions : les simulations n'ont pas toutes
+// la même structure de question, et emprunter la leur cassait ici.
+function melangerQuiz(q) {
+  const ordre = q.choix.map((_, i) => i);
+  for (let i = ordre.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = ordre[i]; ordre[i] = ordre[j]; ordre[j] = t;
+  }
+  return Object.assign({}, q, { choix:ordre.map(k => q.choix[k]), bonne:ordre.indexOf(q.bonne) });
 }
 
 let quiz = null;
@@ -2591,7 +2605,7 @@ function lancerSerie(cle) {
     const j = Math.floor(Math.random() * (i + 1));
     const t = banque[i]; banque[i] = banque[j]; banque[j] = t;
   }
-  quiz = { niveau:cle, liste:banque.slice(0, PAR_SERIE).map(melangerQuestion),
+  quiz = { niveau:cle, liste:banque.slice(0, PAR_SERIE).map(melangerQuiz),
            n:0, justes:0, ratees:[] };
   rendreQuestionQuiz();
 }

@@ -617,6 +617,57 @@ main { flex:1; min-height:0; display:flex; flex-direction:column; }
   font-family:var(--font-body); font-weight:700; font-size:13.5px;
   padding:10px 18px; border-radius:var(--radius-md); cursor:pointer; min-height:40px;
 }
+
+/* ===================== Le quiz libre : m'exercer ===================== */
+#v-quiz .carte-modale { max-width:520px; }
+.qz-maitrise {
+  margin:4px 0 16px; padding:12px 14px; border-radius:var(--radius-md);
+  background:var(--surface-muted);
+}
+.qz-m-haut { display:flex; align-items:baseline; justify-content:space-between; font-size:12.5px; }
+.qz-m-haut b { font-family:var(--font-display); font-size:20px; font-weight:800; }
+.qz-m-barre { height:9px; border-radius:var(--radius-full); background:var(--surface);
+  overflow:hidden; margin-top:6px; }
+.qz-m-barre i { display:block; height:100%; border-radius:inherit;
+  background:var(--primary); transition:width .5s var(--ease); }
+.qz-m-mot { font-size:11.5px; font-weight:700; opacity:.6; margin-top:5px;
+  letter-spacing:.04em; text-transform:uppercase; }
+
+.qz-niveau {
+  display:flex; align-items:center; gap:12px; width:100%; text-align:left;
+  padding:13px 14px; margin-bottom:9px;
+  background:var(--surface); border:2px solid var(--border); border-radius:var(--radius-lg);
+  font-family:var(--font-body); color:inherit; cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+.qz-niveau:hover { border-color:var(--accent); background:var(--accent-doux); }
+.qz-niveau .qz-em {
+  width:42px; height:42px; flex:none; border-radius:var(--radius-md);
+  display:grid; place-items:center; background:var(--surface-muted); font-size:22px;
+}
+.qz-niveau .qz-txt { flex:1; min-width:0; }
+.qz-niveau .qz-txt b { display:block; font-family:var(--font-display); font-size:15.5px; font-weight:800; }
+.qz-niveau .qz-txt span { display:block; font-size:12px; opacity:.7; line-height:1.45; margin-top:1px; }
+.qz-niveau .qz-note { flex:none; text-align:right; font-size:14px; }
+.qz-niveau .qz-note span { display:block; font-size:10.5px; font-weight:600; opacity:.55; margin-top:2px; }
+.qz-pied { font-size:12px; opacity:.65; line-height:1.5; margin-top:4px; }
+
+.qz-jauge { height:4px; border-radius:var(--radius-full); background:var(--surface-muted);
+  overflow:hidden; margin:0 0 12px; }
+.qz-jauge i { display:block; height:100%; background:var(--accent); transition:width .3s var(--ease); }
+
+.qz-fin { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+.qz-fin-em { font-size:34px; line-height:1; flex:none; }
+.qz-fin b { display:block; font-family:var(--font-display); font-size:17px; font-weight:800; }
+.qz-fin span { font-size:12.5px; opacity:.65; }
+.qz-fin-et { margin-left:auto; font-size:17px; letter-spacing:1px; }
+.qz-mieux { font-size:12.5px; font-weight:600; color:var(--vert-fonce); margin:0 0 12px; }
+.qz-mieux.discret { color:inherit; opacity:.55; font-weight:400; }
+.qz-revoir { padding:11px 13px; border-radius:var(--radius-md); background:var(--accent-doux);
+  font-size:12.5px; line-height:1.6; margin-bottom:13px; }
+.qz-revoir span { display:block; }
+.qz-boutons { display:flex; gap:8px; }
+.qz-boutons .btn { flex:1; }
 </style>
 </head>
 <body>
@@ -687,6 +738,10 @@ main { flex:1; min-height:0; display:flex; flex-direction:column; }
   </div>
 </div>
 
+<div class="voile" id="v-quiz">
+  <div class="carte-modale" id="quiz-carte"></div>
+</div>
+
 <div class="voile" id="v-accueil">
   <div class="carte-modale">
     <h2>Que veux-tu faire ?</h2>
@@ -700,6 +755,11 @@ main { flex:1; min-height:0; display:flex; flex-direction:column; }
       <span class="ac-em">🧪</span>
       <span class="ac-txt"><b>Expérimenter</b><span>Le plan de travail libre, tout le matériel.</span></span>
       <span class="ac-etat" id="ac-etat-exp"></span>
+    </button>
+    <button class="ac-choix" id="ac-exercer">
+      <span class="ac-em">🏅</span>
+      <span class="ac-txt"><b>M’exercer</b><span>Trois séries de questions, et un score de maîtrise.</span></span>
+      <span class="ac-etat" id="ac-etat-ex"></span>
     </button>
     <p class="ac-pied" id="ac-pied"></p>
   </div>
@@ -926,13 +986,14 @@ const vierge = () => ({
 let etat = Object.assign({ mission:0, faits:[], libre:false, planLibre:'flamme' }, vierge());
 
 function sauver() {
-  try { localStorage.setItem(CLE, JSON.stringify({ mission:etat.mission, faits:etat.faits,
+  try { localStorage.setItem(CLE, JSON.stringify({ maitrise:etat.maitrise, mission:etat.mission, faits:etat.faits,
     libre:etat.libre, planLibre:etat.planLibre })); }
   catch (e) {}
 }
 function charger() {
   try {
     const d = JSON.parse(localStorage.getItem(CLE) || '{}');
+    if (d.maitrise) etat.maitrise = d.maitrise;
     if (typeof d.mission === 'number') etat.mission = Math.min(d.mission, MISSIONS.length - 1);
     if (Array.isArray(d.faits)) etat.faits = d.faits;
     etat.libre = !!d.libre;
@@ -1919,6 +1980,8 @@ function rendreAccueil() {
   const ouvert = accueilOuvert();
   $('ac-experimenter').disabled = !ouvert;
   $('ac-etat-exp').textContent = ouvert ? 'Ouvert' : '🔒 Verrouillé';
+  $('ac-exercer').disabled = !ouvert;
+  $('ac-etat-ex').textContent = ouvert ? (scoreMaitrise() + ' %') : '🔒 Verrouillé';
   $('ac-pied').innerHTML = ouvert
     ? 'Tu as terminé le parcours : les deux portes sont ouvertes.'
     : 'Termine les <b>' + total + ' missions</b> d’Apprendre pour ouvrir Expérimenter.';
@@ -2034,6 +2097,264 @@ document.addEventListener('keydown', e => {
 });
 const btnRevoir = $('btn-revoir-visite');
 if (btnRevoir) btnRevoir.addEventListener('click', () => { fermer('v-aide'); lancerVisite(); });
+
+const NIVEAUX_QUIZ = [
+  { cle:'souviens', em:'🥉', nom:'Je me souviens',
+    quoi:'Les mots et les faits que tu as rencontrés autour de la bougie.' },
+  { cle:'comprends', em:'🥈', nom:'Je comprends',
+    quoi:'Les mêmes idées, mais dans des situations que tu n’as pas encore vues.' },
+  { cle:'pieges', em:'🥇', nom:'On ne me piège plus',
+    quoi:'Les erreurs que presque tout le monde fait. C’est là que tout se joue.' },
+];
+const PAR_SERIE = 6;
+
+const BANQUE = {
+  souviens: [
+    { q:'Combien de parties distingue-t-on dans une flamme de bougie ?',
+      choix:['Trois', 'Une seule', 'Cinq'], bonne:0, mission:0,
+      expl:"Le <b>cône sombre</b> au centre, la <b>zone lumineuse</b> autour, et le <b>liseré bleu</b> à la base. Chacune fait quelque chose de différent." },
+    { q:'Quelle partie de la flamme est la <b>plus chaude</b> ?',
+      choix:['Le liseré bleu, à la base', 'Le cône sombre, au centre', 'Le haut de la zone lumineuse'], bonne:0, mission:1,
+      expl:"C’est là que la combustion est <b>complète</b>, parce que l’air arrive librement. Beaucoup pensent que le centre est le plus chaud : c’est l’inverse." },
+    { q:'Qu’est-ce qui brûle réellement dans une bougie ?',
+      choix:['La vapeur de cire', 'La mèche', 'La cire liquide'], bonne:0, mission:0,
+      expl:"La mèche aspire la cire fondue, la chaleur la transforme en <b>vapeur</b>, et c’est cette vapeur qui brûle. La mèche ne fait que l’amener." },
+    { q:'Comment appelle-t-on le dépôt noir laissé par une flamme sur une surface froide ?',
+      choix:['Le noir de fumée, fait de carbone', 'De la cendre', 'De la poussière'], bonne:0, mission:2,
+      expl:"Ce sont de fines particules de <b>carbone</b> qui n’ont pas fini de brûler. C’est ce qui noircit le fond des marmites." },
+    { q:'Quelle proportion de l’air le <b>dioxygène</b> occupe-t-il ?',
+      choix:['Environ un cinquième', 'Environ la moitié', 'La totalité'], bonne:0, mission:4,
+      expl:"Un cinquième de dioxygène, quatre cinquièmes de diazote. C’est exactement ce que montre la montée de l’eau sous la cloche." },
+    { q:'Quel gaz de l’air <b>n’entretient pas</b> la combustion ?',
+      choix:['Le diazote', 'Le dioxygène', 'La vapeur d’eau'], bonne:0, mission:4,
+      expl:"Le <b>diazote</b> occupe les quatre cinquièmes de l’air et reste inerte. C’est pourquoi la flamme s’éteint quand le cinquième de dioxygène est consommé." },
+    { q:'Comment appelle-t-on une combustion qui manque de dioxygène ?',
+      choix:['Une combustion incomplète', 'Une combustion lente', 'Une combustion froide'], bonne:0, mission:2,
+      expl:"Faute d’air, une partie du combustible ne se transforme pas entièrement : il reste des <b>imbrûlés</b>, dont le noir de fumée." },
+  ],
+
+  comprends: [
+    { q:'Un fil de cuivre est passé dans la zone lumineuse de la flamme. Que va-t-on observer ?',
+      choix:['Il rougit, et la flamme se creuse là où il passe',
+             'Il fond aussitôt', 'Il ne se passe rien'], bonne:0, mission:1,
+      expl:"Le métal <b>prend la chaleur</b> de la flamme. Il rougit, et la partie refroidie de la flamme cesse d’émettre : on voit un creux." },
+    { q:'Une allumette est tenue horizontalement en travers de la flamme, à mi-hauteur. Où va-t-elle noircir ?',
+      choix:['Aux deux extrémités, pas au milieu', 'Au milieu seulement', 'Sur toute sa longueur'], bonne:0, mission:3,
+      expl:"Le milieu traverse le <b>cône sombre</b>, où la cire est encore en vapeur et où il fait relativement froid. Les bords traversent la zone chaude." },
+    { q:'Une soucoupe froide est tenue dans la zone lumineuse, puis dans le liseré bleu. Que va-t-on constater ?',
+      choix:['Elle noircit dans la zone lumineuse, reste propre dans le liseré bleu',
+             'Elle noircit dans les deux cas', 'Elle reste propre dans les deux cas'], bonne:0, mission:2,
+      expl:"Le liseré bleu reçoit assez d’air pour brûler tout le carbone. La zone lumineuse, non : c’est là que naît le noir de fumée." },
+    { q:'Une bougie brûle sous une cloche posée sur l’eau. Pourquoi l’eau monte-t-elle ?',
+      choix:['Parce que le dioxygène consommé laisse la place libre',
+             'Parce que la flamme chauffe l’eau', 'Parce que la cire aspire l’eau'], bonne:0, mission:4,
+      expl:"La flamme consomme le dioxygène enfermé. Le volume de gaz diminue, et l’eau prend sa place : elle monte d’environ <b>un cinquième</b>." },
+    { q:'Deux bougies identiques brûlent, l’une à l’air libre, l’autre sous un grand bocal. Que va-t-il se passer ?',
+      choix:['Celle du bocal s’éteindra ; l’autre non',
+             'Les deux s’éteindront en même temps',
+             'Celle du bocal brûlera plus longtemps'], bonne:0, mission:4,
+      expl:"À l’air libre, la bougie a une réserve inépuisable de dioxygène. Sous un bocal, la quantité est <b>connue et limitée</b>." },
+    { q:'On souffle doucement de l’air à la base d’une flamme jaune qui fume. Que va-t-elle devenir ?',
+      choix:['Plus bleue et moins fumante', 'Plus jaune et plus fumante', 'Elle s’éteindra aussitôt'], bonne:0, mission:2,
+      expl:"Apporter du dioxygène rend la combustion plus <b>complète</b>. C’est exactement ce que fait la molette d’air d’un réchaud." },
+    { q:'Pourquoi la mèche d’une bougie ne se consume-t-elle presque pas ?',
+      choix:['La cire liquide qui la parcourt la refroidit en s’évaporant',
+             'Elle est faite d’un matériau incombustible',
+             'La flamme ne la touche jamais'], bonne:0, mission:0,
+      expl:"La mèche est un <b>transporteur</b>. La cire qu’elle aspire absorbe la chaleur en devenant vapeur, ce qui protège le fil." },
+  ],
+
+  pieges: [
+    { q:'Le centre d’une flamme de bougie est-il la partie <b>la plus chaude</b> ?',
+      choix:['Non : c’est le liseré bleu de la base qui l’est',
+             'Oui : la chaleur se concentre au cœur',
+             'Oui : c’est là que la flamme est la plus brillante'], bonne:0, mission:1,
+      expl:"Le centre est le <b>cône sombre</b> : de la vapeur de cire qui n’a pas encore brûlé, faute d’air. La combustion complète se fait à la base, où l’air arrive." },
+    { q:'La partie la plus <b>lumineuse</b> d’une flamme est-elle celle où la combustion est la meilleure ?',
+      choix:['Non : elle brille parce que du carbone incandescent n’a pas fini de brûler',
+             'Oui : plus une flamme éclaire, mieux elle brûle',
+             'Oui, sauf pour les bougies'], bonne:0, mission:2,
+      expl:"Ce sont des particules de <b>carbone portées au rouge</b> qui éclairent — donc du combustible en train de se perdre. Une flamme bleue brûle mieux et éclaire moins." },
+    { q:'Une bougie enfermée sous une cloche s’éteint. Peut-on conclure que <b>tout le dioxygène</b> a été consommé ?',
+      choix:['Non : elle s’éteint bien avant, quand la proportion devient insuffisante',
+             'Oui : il n’en reste plus du tout',
+             'Oui : c’est pourquoi l’eau monte entièrement'], bonne:0, mission:4,
+      expl:"L’eau monte d’environ un cinquième, pas de la totalité. Une flamme a besoin d’une <b>proportion minimale</b> de dioxygène : en dessous, elle s’arrête." },
+    { q:'Une allumette placée en travers d’une flamme ne noircit pas en son milieu. Faut-il en conclure que le milieu est <b>vide</b> ?',
+      choix:['Non : il contient de la vapeur de cire qui n’a pas encore brûlé',
+             'Oui : c’est une poche d’air',
+             'Oui : la flamme est creuse'], bonne:0, mission:3,
+      expl:"Le cône sombre est <b>plein</b> — de vapeur de cire. Elle n’a pas encore rencontré assez d’air pour brûler, donc il y fait relativement froid." },
+    { q:'Ce qui brûle dans une bougie, est-ce la <b>mèche</b> ?',
+      choix:['Non : c’est la vapeur de cire, que la mèche se contente d’amener',
+             'Oui : c’est pourquoi elle raccourcit',
+             'Oui : la cire ne sert qu’à la maintenir droite'], bonne:0, mission:0,
+      expl:"Souffle la flamme et approche une allumette du filet de fumée : il se rallume à distance. C’est la <b>vapeur</b> qui brûle, pas le fil." },
+    { q:'Le noir de fumée déposé par une flamme est-il de la <b>cendre</b> ?',
+      choix:['Non : c’est du carbone imbrûlé, donc du combustible perdu',
+             'Oui : c’est le résidu de la combustion',
+             'Oui : c’est ce qui reste quand tout a brûlé'], bonne:0, mission:2,
+      expl:"La cendre est ce qui reste <b>après</b> combustion. Le noir de fumée est au contraire du combustible qui <b>n’a pas</b> brûlé, faute d’air." },
+    { q:'L’air est-il constitué principalement de <b>dioxygène</b> ?',
+      choix:['Non : le diazote en occupe les quatre cinquièmes',
+             'Oui : c’est son gaz majoritaire',
+             'Oui : il en contient environ la moitié'], bonne:0, mission:4,
+      expl:"Le dioxygène n’occupe qu’<b>un cinquième</b> de l’air. C’est justement ce que mesure la montée de l’eau sous la cloche." },
+  ],
+};
+/* ---- L'état de maîtrise : le meilleur résultat obtenu à chaque niveau ---- */
+function maitriseDe(cle) { return (etat.maitrise && etat.maitrise[cle]) || 0; }
+
+// Les niveaux difficiles pèsent plus lourd : réussir le premier seul plafonne
+// à 17 %, il faut affronter les pièges pour dépasser 80 %.
+function scoreMaitrise() {
+  const p = maitriseDe('souviens') * 1 + maitriseDe('comprends') * 2 + maitriseDe('pieges') * 3;
+  return Math.round(p / 6 * 100);
+}
+function motMaitrise(p) {
+  return p >= 85 ? 'Maîtrisée' : p >= 60 ? 'Solide' : p >= 30 ? 'En bonne voie' : 'Découverte';
+}
+function etoiles(r) {
+  return r >= 1 ? '⭐⭐⭐' : r >= .8 ? '⭐⭐' : r >= .5 ? '⭐' : '';
+}
+
+// Le quiz mélange ses propres propositions : les simulations n'ont pas toutes
+// la même structure de question, et emprunter la leur cassait ici.
+function melangerQuiz(q) {
+  const ordre = q.choix.map((_, i) => i);
+  for (let i = ordre.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = ordre[i]; ordre[i] = ordre[j]; ordre[j] = t;
+  }
+  return Object.assign({}, q, { choix:ordre.map(k => q.choix[k]), bonne:ordre.indexOf(q.bonne) });
+}
+
+let quiz = null;
+
+function ouvrirQuiz() {
+  if (!accueilOuvert()) { toast('Termine les ' + MISSIONS.length + ' missions pour t’exercer.'); return; }
+  quiz = null;
+  rendreAccueilQuiz();
+  ouvrir('v-quiz');
+}
+
+function rendreAccueilQuiz() {
+  const p = scoreMaitrise();
+  $('quiz-carte').innerHTML = `
+    <button class="fermer-x" data-ferme="v-quiz" aria-label="Fermer">✕</button>
+    <h2>🏅 M’exercer</h2>
+    <p>Trois séries de ${PAR_SERIE} questions. Tu peux les refaire autant de fois que tu veux :
+       c’est ton <b>meilleur</b> résultat qui compte.</p>
+    <div class="qz-maitrise">
+      <div class="qz-m-haut"><span>Ma maîtrise de la notion</span><b>${p} %</b></div>
+      <div class="qz-m-barre"><i style="width:${p}%"></i></div>
+      <div class="qz-m-mot">${motMaitrise(p)}</div>
+    </div>
+    ${NIVEAUX_QUIZ.map(n => {
+      const r = maitriseDe(n.cle), et = etoiles(r);
+      return `<button class="qz-niveau" data-niveau="${n.cle}">
+        <span class="qz-em">${n.em}</span>
+        <span class="qz-txt"><b>${n.nom}</b><span>${n.quoi}</span></span>
+        <span class="qz-note">${et || '—'}<span>${r ? Math.round(r * 100) + ' %' : 'jamais fait'}</span></span>
+      </button>`;
+    }).join('')}
+    <p class="qz-pied">Les questions difficiles comptent <b>trois fois plus</b> que les faciles :
+       c’est en les affrontant qu’on prouve qu’on a compris.</p>`;
+}
+
+function lancerSerie(cle) {
+  const banque = BANQUE[cle].slice();
+  for (let i = banque.length - 1; i > 0; i--) {           // tirage sans remise
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = banque[i]; banque[i] = banque[j]; banque[j] = t;
+  }
+  quiz = { niveau:cle, liste:banque.slice(0, PAR_SERIE).map(melangerQuiz),
+           n:0, justes:0, ratees:[] };
+  rendreQuestionQuiz();
+}
+
+function rendreQuestionQuiz() {
+  const q = quiz.liste[quiz.n];
+  const niv = NIVEAUX_QUIZ.find(n => n.cle === quiz.niveau);
+  $('quiz-carte').innerHTML = `
+    <button class="fermer-x" data-ferme="v-quiz" aria-label="Fermer">✕</button>
+    <div class="q-avance">${niv.em} ${niv.nom} · question ${quiz.n + 1} sur ${quiz.liste.length}</div>
+    <div class="qz-jauge"><i style="width:${quiz.n / quiz.liste.length * 100}%"></i></div>
+    <div class="q-question">${q.q}</div>
+    <div id="qz-choix">${q.choix.map((c, i) =>
+      `<button class="q-choix" data-qz="${i}">${c}</button>`).join('')}</div>
+    <div class="q-expl" id="qz-expl"></div><div id="qz-suite"></div>`;
+}
+
+function repondreQuiz(i) {
+  const q = quiz.liste[quiz.n];
+  const juste = i === q.bonne;
+  if (juste) quiz.justes++; else quiz.ratees.push(q);
+  $('qz-choix').querySelectorAll('.q-choix').forEach((b, k) => {
+    b.disabled = true;
+    if (k === q.bonne) { b.classList.add('bon'); b.textContent = '✔️ ' + b.textContent; }
+    else if (k === i) { b.classList.add('mauvais'); b.textContent = '❌ ' + b.textContent; }
+  });
+  const e = $('qz-expl');
+  e.innerHTML = q.expl;
+  e.classList.add('visible');
+  const dernier = quiz.n === quiz.liste.length - 1;
+  $('qz-suite').innerHTML = `<button class="btn btn-large" style="margin-top:12px" id="qz-continuer">${
+    dernier ? 'Voir mon résultat →' : 'Question suivante →'}</button>`;
+  $('qz-continuer').addEventListener('click', () => {
+    if (dernier) finirSerie(); else { quiz.n++; rendreQuestionQuiz(); }
+  });
+}
+
+function finirSerie() {
+  const r = quiz.justes / quiz.liste.length;
+  const niv = NIVEAUX_QUIZ.find(n => n.cle === quiz.niveau);
+  const avant = maitriseDe(quiz.niveau);
+  etat.maitrise = etat.maitrise || {};
+  etat.maitrise[quiz.niveau] = Math.max(avant, r);
+  sauver();
+  // Les questions ratées renvoient à leur mission : le quiz ramène au parcours.
+  const revoir = [];
+  for (const q of quiz.ratees) if (revoir.indexOf(q.mission) === -1) revoir.push(q.mission);
+  revoir.sort((a, b) => a - b);
+  const p = scoreMaitrise();
+  $('quiz-carte').innerHTML = `
+    <button class="fermer-x" data-ferme="v-quiz" aria-label="Fermer">✕</button>
+    <div class="qz-fin">
+      <div class="qz-fin-em">${r >= 1 ? '🎉' : r >= .5 ? '👏' : '💪'}</div>
+      <div><b>${quiz.justes} bonnes réponses sur ${quiz.liste.length}</b>
+        <span>${niv.em} ${niv.nom}</span></div>
+      <div class="qz-fin-et">${etoiles(r) || '—'}</div>
+    </div>
+    ${r > avant
+      ? `<p class="qz-mieux">✨ C’est ton meilleur résultat à ce niveau.</p>`
+      : `<p class="qz-mieux discret">Ton meilleur reste ${Math.round(avant * 100)} %.</p>`}
+    <div class="qz-maitrise">
+      <div class="qz-m-haut"><span>Ma maîtrise de la notion</span><b>${p} %</b></div>
+      <div class="qz-m-barre"><i style="width:${p}%"></i></div>
+      <div class="qz-m-mot">${motMaitrise(p)}</div>
+    </div>
+    ${revoir.length ? `<div class="qz-revoir"><b>📘 À revoir :</b>${revoir.map(i =>
+        `<span>Mission ${i + 1} — ${MISSIONS[i].titre}</span>`).join('')}</div>` : ''}
+    <div class="qz-boutons">
+      <button class="btn btn-contour" id="qz-refaire">↻ Refaire cette série</button>
+      <button class="btn" id="qz-retour">Les niveaux →</button>
+    </div>`;
+  $('qz-refaire').addEventListener('click', () => lancerSerie(quiz.niveau));
+  $('qz-retour').addEventListener('click', rendreAccueilQuiz);
+}
+
+$('v-quiz').addEventListener('click', e => {
+  const n = e.target.closest('[data-niveau]');
+  if (n) { lancerSerie(n.dataset.niveau); return; }
+  const b = e.target.closest('[data-qz]');
+  if (b && !b.disabled) repondreQuiz(+b.dataset.qz);
+});
+$('ac-exercer').addEventListener('click', () => {
+  if (!accueilOuvert()) return;
+  fermer('v-accueil');
+  ouvrirQuiz();
+});
 
 ouvrirAccueil();
 

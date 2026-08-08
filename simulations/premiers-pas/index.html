@@ -594,6 +594,57 @@ body.sombre { --accent-texte:#7FD4F5; --vert-fonce:#2A9D8F; --orange-fonce:#F7A4
   font-family:var(--font-body); font-weight:700; font-size:13.5px;
   padding:10px 18px; border-radius:var(--radius-md); cursor:pointer; min-height:40px;
 }
+
+/* ===================== Le quiz libre : m'exercer ===================== */
+#v-quiz .carte-modale { max-width:520px; }
+.qz-maitrise {
+  margin:4px 0 16px; padding:12px 14px; border-radius:var(--radius-md);
+  background:var(--surface-muted);
+}
+.qz-m-haut { display:flex; align-items:baseline; justify-content:space-between; font-size:12.5px; }
+.qz-m-haut b { font-family:var(--font-display); font-size:20px; font-weight:800; }
+.qz-m-barre { height:9px; border-radius:var(--radius-full); background:var(--surface);
+  overflow:hidden; margin-top:6px; }
+.qz-m-barre i { display:block; height:100%; border-radius:inherit;
+  background:var(--primary); transition:width .5s var(--ease); }
+.qz-m-mot { font-size:11.5px; font-weight:700; opacity:.6; margin-top:5px;
+  letter-spacing:.04em; text-transform:uppercase; }
+
+.qz-niveau {
+  display:flex; align-items:center; gap:12px; width:100%; text-align:left;
+  padding:13px 14px; margin-bottom:9px;
+  background:var(--surface); border:2px solid var(--border); border-radius:var(--radius-lg);
+  font-family:var(--font-body); color:inherit; cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+.qz-niveau:hover { border-color:var(--accent); background:var(--accent-doux); }
+.qz-niveau .qz-em {
+  width:42px; height:42px; flex:none; border-radius:var(--radius-md);
+  display:grid; place-items:center; background:var(--surface-muted); font-size:22px;
+}
+.qz-niveau .qz-txt { flex:1; min-width:0; }
+.qz-niveau .qz-txt b { display:block; font-family:var(--font-display); font-size:15.5px; font-weight:800; }
+.qz-niveau .qz-txt span { display:block; font-size:12px; opacity:.7; line-height:1.45; margin-top:1px; }
+.qz-niveau .qz-note { flex:none; text-align:right; font-size:14px; }
+.qz-niveau .qz-note span { display:block; font-size:10.5px; font-weight:600; opacity:.55; margin-top:2px; }
+.qz-pied { font-size:12px; opacity:.65; line-height:1.5; margin-top:4px; }
+
+.qz-jauge { height:4px; border-radius:var(--radius-full); background:var(--surface-muted);
+  overflow:hidden; margin:0 0 12px; }
+.qz-jauge i { display:block; height:100%; background:var(--accent); transition:width .3s var(--ease); }
+
+.qz-fin { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+.qz-fin-em { font-size:34px; line-height:1; flex:none; }
+.qz-fin b { display:block; font-family:var(--font-display); font-size:17px; font-weight:800; }
+.qz-fin span { font-size:12.5px; opacity:.65; }
+.qz-fin-et { margin-left:auto; font-size:17px; letter-spacing:1px; }
+.qz-mieux { font-size:12.5px; font-weight:600; color:var(--vert-fonce); margin:0 0 12px; }
+.qz-mieux.discret { color:inherit; opacity:.55; font-weight:400; }
+.qz-revoir { padding:11px 13px; border-radius:var(--radius-md); background:var(--accent-doux);
+  font-size:12.5px; line-height:1.6; margin-bottom:13px; }
+.qz-revoir span { display:block; }
+.qz-boutons { display:flex; gap:8px; }
+.qz-boutons .btn { flex:1; }
 </style>
 </head>
 <body>
@@ -664,6 +715,10 @@ body.sombre { --accent-texte:#7FD4F5; --vert-fonce:#2A9D8F; --orange-fonce:#F7A4
   </div>
 </div>
 
+<div class="voile" id="v-quiz">
+  <div class="carte-modale" id="quiz-carte"></div>
+</div>
+
 <div class="voile" id="v-accueil">
   <div class="carte-modale">
     <h2>Que veux-tu faire ?</h2>
@@ -677,6 +732,11 @@ body.sombre { --accent-texte:#7FD4F5; --vert-fonce:#2A9D8F; --orange-fonce:#F7A4
       <span class="ac-em">🧪</span>
       <span class="ac-txt"><b>Expérimenter</b><span>Le plan de travail libre, tout le matériel.</span></span>
       <span class="ac-etat" id="ac-etat-exp"></span>
+    </button>
+    <button class="ac-choix" id="ac-exercer">
+      <span class="ac-em">🏅</span>
+      <span class="ac-txt"><b>M’exercer</b><span>Trois séries de questions, et un score de maîtrise.</span></span>
+      <span class="ac-etat" id="ac-etat-ex"></span>
     </button>
     <p class="ac-pied" id="ac-pied"></p>
   </div>
@@ -931,12 +991,13 @@ const etat = {
 
 const CLE = 'ike-premierspas-progression';
 function sauver() {
-  try { localStorage.setItem(CLE, JSON.stringify({ mission:etat.mission, faits:etat.faites,
+  try { localStorage.setItem(CLE, JSON.stringify({ maitrise:etat.maitrise, mission:etat.mission, faits:etat.faites,
     classement:etat.classement, libre:etat.libre, recepteurLibre:etat.recepteurLibre })); } catch (e) {}
 }
 function charger() {
   try {
     const d = JSON.parse(localStorage.getItem(CLE));
+    if (d.maitrise) etat.maitrise = d.maitrise;
     if (!d) return;
     if (Array.isArray(d.faits)) etat.faites = d.faits;
     if (d.classement) etat.classement = d.classement;
@@ -1750,6 +1811,8 @@ function rendreAccueil() {
   const ouvert = accueilOuvert();
   $('ac-experimenter').disabled = !ouvert;
   $('ac-etat-exp').textContent = ouvert ? 'Ouvert' : '🔒 Verrouillé';
+  $('ac-exercer').disabled = !ouvert;
+  $('ac-etat-ex').textContent = ouvert ? (scoreMaitrise() + ' %') : '🔒 Verrouillé';
   $('ac-pied').innerHTML = ouvert
     ? 'Tu as terminé le parcours : les deux portes sont ouvertes.'
     : 'Termine les <b>' + total + ' missions</b> d’Apprendre pour ouvrir Expérimenter.';
@@ -1863,6 +1926,270 @@ document.addEventListener('keydown', e => {
 });
 const btnRevoir = $('btn-revoir-visite');
 if (btnRevoir) btnRevoir.addEventListener('click', () => { fermer('v-aide'); lancerVisite(); });
+
+const NIVEAUX_QUIZ = [
+  { cle:'souviens', em:'🥉', nom:'Je me souviens',
+    quoi:'Les mots et les faits que tu as rencontrés sur la table de montage.' },
+  { cle:'comprends', em:'🥈', nom:'Je comprends',
+    quoi:'Les mêmes idées, mais dans des montages que tu n’as pas encore vus.' },
+  { cle:'pieges', em:'🥇', nom:'On ne me piège plus',
+    quoi:'Les erreurs que presque tout le monde fait. C’est là que tout se joue.' },
+];
+const PAR_SERIE = 6;
+
+const BANQUE = {
+  souviens: [
+    { q:'Combien de bornes d’une lampe faut-il relier pour qu’elle s’allume ?',
+      choix:['Les deux : le culot et le plot', 'Une seule suffit', 'Aucune'], bonne:0, mission:0,
+      expl:"Le courant doit <b>traverser</b> le filament : il entre par une borne et ressort par l’autre. Avec une seule reliée, le circuit reste ouvert." },
+    { q:'Comment appelle-t-on le petit contact métallique situé au bout d’une lampe ?',
+      choix:['Le plot central', 'Le culot', 'La borne +'], bonne:0, mission:0,
+      expl:"Le <b>plot</b> est au bout, le <b>culot</b> est la partie vissée sur le côté. Ce sont les deux contacts de la lampe." },
+    { q:'Qu’est-ce qu’un matériau <b>conducteur</b> ?',
+      choix:['Un matériau qui laisse passer le courant électrique',
+             'Un matériau qui produit du courant',
+             'Un matériau qui empêche le courant de passer'], bonne:0, mission:2,
+      expl:"Les <b>métaux</b> sont conducteurs : cuivre, fer, aluminium. Le plastique, le bois sec, la craie et le caoutchouc sont des <b>isolants</b>." },
+    { q:'Par convention, par quelle borne du générateur le courant sort-il ?',
+      choix:['La borne +', 'La borne −', 'Indifféremment par l’une ou l’autre'], bonne:0, mission:3,
+      expl:"Le courant sort du <b>+</b>, traverse le circuit et revient par le <b>−</b>. C’est la DEL qui permet de le vérifier." },
+    { q:'Qu’est-ce qui distingue une <b>DEL</b> d’une lampe ordinaire ?',
+      choix:['Elle ne s’allume que dans un sens', 'Elle éclaire plus fort',
+             'Elle fonctionne sans générateur'], bonne:0, mission:3,
+      expl:"La DEL ne laisse passer le courant que dans un sens. C’est ce qui en fait un <b>détecteur du sens du courant</b>." },
+    { q:'Dans un circuit, comment appelle-t-on la pile ?',
+      choix:['Le générateur', 'Le récepteur', 'Le conducteur'], bonne:0, mission:0,
+      expl:"Le <b>générateur</b> fournit le courant ; le <b>récepteur</b> le reçoit et le transforme — en lumière pour la lampe, en mouvement pour le moteur." },
+    { q:'Que se passe-t-il quand un circuit est <b>ouvert</b> ?',
+      choix:['Le courant ne circule pas', 'Le courant circule plus vite',
+             'La lampe brille plus fort'], bonne:0, mission:0,
+      expl:"Un circuit coupé quelque part n’est plus une boucle : rien ne circule, et la lampe reste éteinte." },
+  ],
+
+  comprends: [
+    { q:'Les deux fils sont branchés sur la même borne de la pile. Que va-t-il se passer ?',
+      choix:['Rien : le courant ne peut pas faire le tour',
+             'La lampe brillera deux fois plus fort',
+             'La lampe brillera normalement'], bonne:0, mission:1,
+      expl:"Pour circuler, le courant doit <b>partir d’une borne et revenir à l’autre</b>. S’il part et revient au même endroit, il n’y a pas de boucle." },
+    { q:'Une règle en plastique est intercalée dans un circuit qui fonctionnait. Que va-t-on observer ?',
+      choix:['La lampe s’éteint : le plastique est isolant',
+             'La lampe brille plus faiblement',
+             'Rien ne change'], bonne:0, mission:2,
+      expl:"Un isolant <b>coupe</b> le circuit aussi sûrement qu’un fil débranché. C’est pourquoi les fils électriques sont gainés de plastique." },
+    { q:'Une DEL est branchée et reste éteinte, alors que le montage est complet. Que faut-il faire ?',
+      choix:['Inverser ses deux broches', 'Changer de pile', 'Ajouter un deuxième fil'], bonne:0, mission:3,
+      expl:"Dans ce sens, la DEL <b>bloque</b> le courant. Il suffit de l’inverser pour que sa grande broche soit reliée au <b>+</b>." },
+    { q:'On inverse les deux fils sur les bornes de la pile d’un moteur. Que va-t-il se passer ?',
+      choix:['Il tournera dans l’autre sens', 'Il tournera plus vite', 'Il s’arrêtera'], bonne:0, mission:4,
+      expl:"Inverser les bornes inverse le <b>sens du courant</b> dans le moteur, donc son sens de rotation. C’est ce que font les deux boutons d’un jouet." },
+    { q:'Un clou en fer est intercalé dans le circuit et la lampe reste allumée. Que peut-on conclure ?',
+      choix:['Le fer est conducteur, comme tous les métaux',
+             'Le clou produit du courant',
+             'Le clou n’était pas bien branché'], bonne:0, mission:2,
+      expl:"C’est le test du conducteur : si la lampe reste allumée, le courant a traversé l’objet." },
+    { q:'Une lampe ordinaire est branchée, puis on inverse la pile. Que va-t-il se passer ?',
+      choix:['Elle brille exactement pareil', 'Elle s’éteint',
+             'Elle brille plus faiblement'], bonne:0, mission:3,
+      expl:"Une lampe à filament fonctionne <b>dans les deux sens</b>. C’est ce qui la distingue de la DEL, et ce qui rend la DEL utile pour repérer le sens." },
+    { q:'Dans quel ordre le courant parcourt-il un circuit qui fonctionne ?',
+      choix:['Du + vers le récepteur, puis du récepteur vers le −',
+             'Du − vers le + en passant par le récepteur',
+             'Du + vers le − sans passer par le récepteur'], bonne:0, mission:0,
+      expl:"C’est une <b>boucle fermée</b> : le courant sort du +, traverse le récepteur qui le transforme, et revient au −." },
+  ],
+
+  pieges: [
+    { q:'Poser une lampe directement sur une pile, sans fil, suffit-il à l’allumer ?',
+      choix:['Non : il faut relier ses deux bornes aux deux bornes de la pile',
+             'Oui, si le contact est bon',
+             'Oui, à condition d’appuyer fort'], bonne:0, mission:0,
+      expl:"Un seul contact ne fait pas une boucle. Le courant doit <b>entrer</b> par une borne de la lampe et <b>ressortir</b> par l’autre." },
+    { q:'Une DEL reste éteinte dans un montage complet. Peut-on en conclure qu’elle est <b>défectueuse</b> ?',
+      choix:['Non : elle est probablement montée à l’envers',
+             'Oui : un composant intact s’allume toujours',
+             'Oui : il faut la remplacer'], bonne:0, mission:3,
+      expl:"Une DEL ne conduit que dans un sens. Avant de conclure à une panne, il faut <b>l’inverser</b>." },
+    { q:'La <b>couleur</b> d’un objet permet-elle de savoir s’il conduit le courant ?',
+      choix:['Non : c’est sa nature qui compte, et les métaux conduisent',
+             'Oui : les objets gris conduisent',
+             'Oui : les objets brillants conduisent'], bonne:0, mission:2,
+      expl:"Une craie blanche et un fil d’aluminium gris ont des couleurs proches et des comportements opposés. Seul l’<b>essai</b> tranche." },
+    { q:'Brancher les deux fils sur la même borne de la pile fait-il briller la lampe <b>deux fois plus</b> ?',
+      choix:['Non : rien ne se passe, faute de boucle fermée',
+             'Oui : deux fils apportent deux fois plus de courant',
+             'Oui, mais la pile s’use plus vite'], bonne:0, mission:1,
+      expl:"Ce n’est pas le nombre de fils qui compte, mais le <b>trajet</b>. Deux fils sur la même borne ne forment aucun circuit." },
+    { q:'Un moteur tourne dans le mauvais sens. Faut-il en changer ?',
+      choix:['Non : il suffit d’inverser ses branchements sur la pile',
+             'Oui : le sens de rotation est fixé à la fabrication',
+             'Non : il faut ajouter une seconde pile'], bonne:0, mission:4,
+      expl:"Le sens de rotation suit le <b>sens du courant</b>. Inverser les deux fils suffit — c’est le principe de la marche arrière." },
+    { q:'Un objet est dit isolant. Cela signifie-t-il qu’il <b>arrête</b> le courant déjà présent dans le fil ?',
+      choix:['Il empêche le courant de circuler : sans boucle complète, aucun courant ne s’établit',
+             'Il absorbe le courant qui arrive jusqu’à lui',
+             'Il ralentit le courant sans l’arrêter'], bonne:0, mission:2,
+      expl:"Le courant n’est pas un stock qui avance et se heurte à un obstacle : il ne s’établit que si la <b>boucle entière</b> est conductrice." },
+    { q:'Le sens conventionnel du courant a-t-il été choisi <b>au hasard</b> ?',
+      choix:['C’est une convention, mais elle est la même partout et la DEL permet de la vérifier',
+             'Non : c’est le sens réel des particules dans le fil',
+             'Oui : chaque pays choisit le sien'], bonne:0, mission:3,
+      expl:"On convient que le courant sort du <b>+</b>. Cette convention est universelle, et la DEL en donne une preuve expérimentale." },
+  ],
+};
+/* ---- L'état de maîtrise : le meilleur résultat obtenu à chaque niveau ---- */
+function maitriseDe(cle) { return (etat.maitrise && etat.maitrise[cle]) || 0; }
+
+// Les niveaux difficiles pèsent plus lourd : réussir le premier seul plafonne
+// à 17 %, il faut affronter les pièges pour dépasser 80 %.
+function scoreMaitrise() {
+  const p = maitriseDe('souviens') * 1 + maitriseDe('comprends') * 2 + maitriseDe('pieges') * 3;
+  return Math.round(p / 6 * 100);
+}
+function motMaitrise(p) {
+  return p >= 85 ? 'Maîtrisée' : p >= 60 ? 'Solide' : p >= 30 ? 'En bonne voie' : 'Découverte';
+}
+function etoiles(r) {
+  return r >= 1 ? '⭐⭐⭐' : r >= .8 ? '⭐⭐' : r >= .5 ? '⭐' : '';
+}
+
+// Le quiz mélange ses propres propositions : les simulations n'ont pas toutes
+// la même structure de question, et emprunter la leur cassait ici.
+function melangerQuiz(q) {
+  const ordre = q.choix.map((_, i) => i);
+  for (let i = ordre.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = ordre[i]; ordre[i] = ordre[j]; ordre[j] = t;
+  }
+  return Object.assign({}, q, { choix:ordre.map(k => q.choix[k]), bonne:ordre.indexOf(q.bonne) });
+}
+
+let quiz = null;
+
+function ouvrirQuiz() {
+  if (!accueilOuvert()) { toast('Termine les ' + MISSIONS.length + ' missions pour t’exercer.'); return; }
+  quiz = null;
+  rendreAccueilQuiz();
+  ouvrir('v-quiz');
+}
+
+function rendreAccueilQuiz() {
+  const p = scoreMaitrise();
+  $('quiz-carte').innerHTML = `
+    <button class="fermer-x" data-ferme="v-quiz" aria-label="Fermer">✕</button>
+    <h2>🏅 M’exercer</h2>
+    <p>Trois séries de ${PAR_SERIE} questions. Tu peux les refaire autant de fois que tu veux :
+       c’est ton <b>meilleur</b> résultat qui compte.</p>
+    <div class="qz-maitrise">
+      <div class="qz-m-haut"><span>Ma maîtrise de la notion</span><b>${p} %</b></div>
+      <div class="qz-m-barre"><i style="width:${p}%"></i></div>
+      <div class="qz-m-mot">${motMaitrise(p)}</div>
+    </div>
+    ${NIVEAUX_QUIZ.map(n => {
+      const r = maitriseDe(n.cle), et = etoiles(r);
+      return `<button class="qz-niveau" data-niveau="${n.cle}">
+        <span class="qz-em">${n.em}</span>
+        <span class="qz-txt"><b>${n.nom}</b><span>${n.quoi}</span></span>
+        <span class="qz-note">${et || '—'}<span>${r ? Math.round(r * 100) + ' %' : 'jamais fait'}</span></span>
+      </button>`;
+    }).join('')}
+    <p class="qz-pied">Les questions difficiles comptent <b>trois fois plus</b> que les faciles :
+       c’est en les affrontant qu’on prouve qu’on a compris.</p>`;
+}
+
+function lancerSerie(cle) {
+  const banque = BANQUE[cle].slice();
+  for (let i = banque.length - 1; i > 0; i--) {           // tirage sans remise
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = banque[i]; banque[i] = banque[j]; banque[j] = t;
+  }
+  quiz = { niveau:cle, liste:banque.slice(0, PAR_SERIE).map(melangerQuiz),
+           n:0, justes:0, ratees:[] };
+  rendreQuestionQuiz();
+}
+
+function rendreQuestionQuiz() {
+  const q = quiz.liste[quiz.n];
+  const niv = NIVEAUX_QUIZ.find(n => n.cle === quiz.niveau);
+  $('quiz-carte').innerHTML = `
+    <button class="fermer-x" data-ferme="v-quiz" aria-label="Fermer">✕</button>
+    <div class="q-avance">${niv.em} ${niv.nom} · question ${quiz.n + 1} sur ${quiz.liste.length}</div>
+    <div class="qz-jauge"><i style="width:${quiz.n / quiz.liste.length * 100}%"></i></div>
+    <div class="q-question">${q.q}</div>
+    <div id="qz-choix">${q.choix.map((c, i) =>
+      `<button class="q-choix" data-qz="${i}">${c}</button>`).join('')}</div>
+    <div class="q-expl" id="qz-expl"></div><div id="qz-suite"></div>`;
+}
+
+function repondreQuiz(i) {
+  const q = quiz.liste[quiz.n];
+  const juste = i === q.bonne;
+  if (juste) quiz.justes++; else quiz.ratees.push(q);
+  $('qz-choix').querySelectorAll('.q-choix').forEach((b, k) => {
+    b.disabled = true;
+    if (k === q.bonne) { b.classList.add('bon'); b.textContent = '✔️ ' + b.textContent; }
+    else if (k === i) { b.classList.add('mauvais'); b.textContent = '❌ ' + b.textContent; }
+  });
+  const e = $('qz-expl');
+  e.innerHTML = q.expl;
+  e.classList.add('visible');
+  const dernier = quiz.n === quiz.liste.length - 1;
+  $('qz-suite').innerHTML = `<button class="btn btn-large" style="margin-top:12px" id="qz-continuer">${
+    dernier ? 'Voir mon résultat →' : 'Question suivante →'}</button>`;
+  $('qz-continuer').addEventListener('click', () => {
+    if (dernier) finirSerie(); else { quiz.n++; rendreQuestionQuiz(); }
+  });
+}
+
+function finirSerie() {
+  const r = quiz.justes / quiz.liste.length;
+  const niv = NIVEAUX_QUIZ.find(n => n.cle === quiz.niveau);
+  const avant = maitriseDe(quiz.niveau);
+  etat.maitrise = etat.maitrise || {};
+  etat.maitrise[quiz.niveau] = Math.max(avant, r);
+  sauver();
+  // Les questions ratées renvoient à leur mission : le quiz ramène au parcours.
+  const revoir = [];
+  for (const q of quiz.ratees) if (revoir.indexOf(q.mission) === -1) revoir.push(q.mission);
+  revoir.sort((a, b) => a - b);
+  const p = scoreMaitrise();
+  $('quiz-carte').innerHTML = `
+    <button class="fermer-x" data-ferme="v-quiz" aria-label="Fermer">✕</button>
+    <div class="qz-fin">
+      <div class="qz-fin-em">${r >= 1 ? '🎉' : r >= .5 ? '👏' : '💪'}</div>
+      <div><b>${quiz.justes} bonnes réponses sur ${quiz.liste.length}</b>
+        <span>${niv.em} ${niv.nom}</span></div>
+      <div class="qz-fin-et">${etoiles(r) || '—'}</div>
+    </div>
+    ${r > avant
+      ? `<p class="qz-mieux">✨ C’est ton meilleur résultat à ce niveau.</p>`
+      : `<p class="qz-mieux discret">Ton meilleur reste ${Math.round(avant * 100)} %.</p>`}
+    <div class="qz-maitrise">
+      <div class="qz-m-haut"><span>Ma maîtrise de la notion</span><b>${p} %</b></div>
+      <div class="qz-m-barre"><i style="width:${p}%"></i></div>
+      <div class="qz-m-mot">${motMaitrise(p)}</div>
+    </div>
+    ${revoir.length ? `<div class="qz-revoir"><b>📘 À revoir :</b>${revoir.map(i =>
+        `<span>Mission ${i + 1} — ${MISSIONS[i].titre}</span>`).join('')}</div>` : ''}
+    <div class="qz-boutons">
+      <button class="btn btn-contour" id="qz-refaire">↻ Refaire cette série</button>
+      <button class="btn" id="qz-retour">Les niveaux →</button>
+    </div>`;
+  $('qz-refaire').addEventListener('click', () => lancerSerie(quiz.niveau));
+  $('qz-retour').addEventListener('click', rendreAccueilQuiz);
+}
+
+$('v-quiz').addEventListener('click', e => {
+  const n = e.target.closest('[data-niveau]');
+  if (n) { lancerSerie(n.dataset.niveau); return; }
+  const b = e.target.closest('[data-qz]');
+  if (b && !b.disabled) repondreQuiz(+b.dataset.qz);
+});
+$('ac-exercer').addEventListener('click', () => {
+  if (!accueilOuvert()) return;
+  fermer('v-accueil');
+  ouvrirQuiz();
+});
 
 ouvrirAccueil();
 
