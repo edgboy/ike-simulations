@@ -5,6 +5,29 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v4.34.0 — 2026-08-08
+
+🏅 **Le quiz libre est posé sur les huit simulations du socle.**
+
+Les quatre dernières reçoivent leur banque, écrite pour elles. Comme convenu, les simulations qui
+tournent autour d'**une notion centrale** n'ont que deux niveaux — « Je me souviens » et « On ne me
+piège plus » —, les plus denses en gardent trois.
+
+- **Construis ton alambic** — 14 questions. Le niveau 3 attaque le palier d'ébullition (la
+  température ne monte plus quand on chauffe davantage), le distillat sans réfrigérant, le sel cru
+  « détruit » par la chaleur, et le nuage blanc au-dessus d'une casserole pris pour le gaz lui-même.
+- **Fabrique ta lampe de poche** — 14 questions. La surtension qui grille l'ampoule, la grosse pile
+  crue plus « puissante » alors qu'elle donne les mêmes 1,5 V, les piles tête-bêche, le réflecteur
+  cru producteur de lumière.
+- **Fabrique ton tam-tam** — 14 questions. Frapper plus fort cru rendre le son plus aigu, la baguette
+  crue changer la hauteur, la peau lourde crue plus aiguë, le collage cru accordable.
+- **Fabrique de la glace** — 14 questions. Le sel cru « produire du froid », le thermomètre bloqué à
+  0 °C cru défectueux, l'isolant cru refroidir davantage, le givre cru venir d'une fuite.
+
+**La pondération du score s'adapte au nombre de niveaux.** Elle était écrite en dur pour trois
+(1 × / 2 × / 3 ×, sur 6). Chaque niveau porte maintenant son poids et le total s'ajuste : sur deux
+niveaux, « Je me souviens » seul plafonne à **25 %**. La sévérité demandée est conservée.
+
 ## v4.33.0 — 2026-08-08
 
 🏅 **Le quiz libre s'étend, et son niveau 3 prend le registre d'un énoncé.**

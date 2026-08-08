@@ -629,6 +629,57 @@ main { flex:1; min-height:0; display:flex; flex-direction:column; }
   font-family:var(--font-body); font-weight:700; font-size:13.5px;
   padding:10px 18px; border-radius:var(--radius-md); cursor:pointer; min-height:40px;
 }
+
+/* ===================== Le quiz libre : m'exercer ===================== */
+#v-quiz .carte-modale { max-width:520px; }
+.qz-maitrise {
+  margin:4px 0 16px; padding:12px 14px; border-radius:var(--radius-md);
+  background:var(--surface-muted);
+}
+.qz-m-haut { display:flex; align-items:baseline; justify-content:space-between; font-size:12.5px; }
+.qz-m-haut b { font-family:var(--font-display); font-size:20px; font-weight:800; }
+.qz-m-barre { height:9px; border-radius:var(--radius-full); background:var(--surface);
+  overflow:hidden; margin-top:6px; }
+.qz-m-barre i { display:block; height:100%; border-radius:inherit;
+  background:var(--primary); transition:width .5s var(--ease); }
+.qz-m-mot { font-size:11.5px; font-weight:700; opacity:.6; margin-top:5px;
+  letter-spacing:.04em; text-transform:uppercase; }
+
+.qz-niveau {
+  display:flex; align-items:center; gap:12px; width:100%; text-align:left;
+  padding:13px 14px; margin-bottom:9px;
+  background:var(--surface); border:2px solid var(--border); border-radius:var(--radius-lg);
+  font-family:var(--font-body); color:inherit; cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+.qz-niveau:hover { border-color:var(--accent); background:var(--accent-doux); }
+.qz-niveau .qz-em {
+  width:42px; height:42px; flex:none; border-radius:var(--radius-md);
+  display:grid; place-items:center; background:var(--surface-muted); font-size:22px;
+}
+.qz-niveau .qz-txt { flex:1; min-width:0; }
+.qz-niveau .qz-txt b { display:block; font-family:var(--font-display); font-size:15.5px; font-weight:800; }
+.qz-niveau .qz-txt span { display:block; font-size:12px; opacity:.7; line-height:1.45; margin-top:1px; }
+.qz-niveau .qz-note { flex:none; text-align:right; font-size:14px; }
+.qz-niveau .qz-note span { display:block; font-size:10.5px; font-weight:600; opacity:.55; margin-top:2px; }
+.qz-pied { font-size:12px; opacity:.65; line-height:1.5; margin-top:4px; }
+
+.qz-jauge { height:4px; border-radius:var(--radius-full); background:var(--surface-muted);
+  overflow:hidden; margin:0 0 12px; }
+.qz-jauge i { display:block; height:100%; background:var(--accent); transition:width .3s var(--ease); }
+
+.qz-fin { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+.qz-fin-em { font-size:34px; line-height:1; flex:none; }
+.qz-fin b { display:block; font-family:var(--font-display); font-size:17px; font-weight:800; }
+.qz-fin span { font-size:12.5px; opacity:.65; }
+.qz-fin-et { margin-left:auto; font-size:17px; letter-spacing:1px; }
+.qz-mieux { font-size:12.5px; font-weight:600; color:var(--vert-fonce); margin:0 0 12px; }
+.qz-mieux.discret { color:inherit; opacity:.55; font-weight:400; }
+.qz-revoir { padding:11px 13px; border-radius:var(--radius-md); background:var(--accent-doux);
+  font-size:12.5px; line-height:1.6; margin-bottom:13px; }
+.qz-revoir span { display:block; }
+.qz-boutons { display:flex; gap:8px; }
+.qz-boutons .btn { flex:1; }
 </style>
 </head>
 <body>
@@ -706,6 +757,10 @@ main { flex:1; min-height:0; display:flex; flex-direction:column; }
   </div>
 </div>
 
+<div class="voile" id="v-quiz">
+  <div class="carte-modale" id="quiz-carte"></div>
+</div>
+
 <div class="voile" id="v-accueil">
   <div class="carte-modale">
     <h2>Que veux-tu faire ?</h2>
@@ -719,6 +774,11 @@ main { flex:1; min-height:0; display:flex; flex-direction:column; }
       <span class="ac-em">🧪</span>
       <span class="ac-txt"><b>Expérimenter</b><span>Le plan de travail libre, tout le matériel.</span></span>
       <span class="ac-etat" id="ac-etat-exp"></span>
+    </button>
+    <button class="ac-choix" id="ac-exercer">
+      <span class="ac-em">🏅</span>
+      <span class="ac-txt"><b>M’exercer</b><span>Deux séries de questions, et un score de maîtrise.</span></span>
+      <span class="ac-etat" id="ac-etat-ex"></span>
     </button>
     <p class="ac-pied" id="ac-pied"></p>
   </div>
@@ -933,13 +993,14 @@ const vierge = () => ({
 let etat = Object.assign({ mission:0, faits:[], libre:false }, vierge());
 
 function sauver() {
-  try { localStorage.setItem(CLE, JSON.stringify({ mission:etat.mission, faits:etat.faits,
+  try { localStorage.setItem(CLE, JSON.stringify({ maitrise:etat.maitrise, mission:etat.mission, faits:etat.faits,
     libre:etat.libre })); }
   catch (e) {}
 }
 function charger() {
   try {
     const d = JSON.parse(localStorage.getItem(CLE) || '{}');
+    if (d.maitrise) etat.maitrise = d.maitrise;
     if (typeof d.mission === 'number') etat.mission = Math.min(d.mission, MISSIONS.length - 1);
     if (Array.isArray(d.faits)) etat.faits = d.faits;
     etat.libre = !!d.libre;
@@ -1822,6 +1883,8 @@ function rendreAccueil() {
   const ouvert = accueilOuvert();
   $('ac-experimenter').disabled = !ouvert;
   $('ac-etat-exp').textContent = ouvert ? 'Ouvert' : '🔒 Verrouillé';
+  $('ac-exercer').disabled = !ouvert;
+  $('ac-etat-ex').textContent = ouvert ? (scoreMaitrise() + ' %') : '🔒 Verrouillé';
   $('ac-pied').innerHTML = ouvert
     ? 'Tu as terminé le parcours : les deux portes sont ouvertes.'
     : 'Termine les <b>' + total + ' missions</b> d’Apprendre pour ouvrir Expérimenter.';
@@ -1937,6 +2000,238 @@ document.addEventListener('keydown', e => {
 });
 const btnRevoir = $('btn-revoir-visite');
 if (btnRevoir) btnRevoir.addEventListener('click', () => { fermer('v-aide'); lancerVisite(); });
+
+const NIVEAUX_QUIZ = [
+  { cle:'souviens', em:'🥉', nom:'Je me souviens', poids:1,
+    quoi:'Les mots et les faits que tu as rencontrés à la paillasse.' },
+  { cle:'pieges', em:'🥇', nom:'On ne me piège plus', poids:3,
+    quoi:'Les erreurs que presque tout le monde fait. C’est là que tout se joue.' },
+];
+const PAR_SERIE = 6;
+
+const BANQUE = {
+  souviens: [
+    { q:'À quelle température de la glace pilée seule se stabilise-t-elle ?',
+      choix:['0 °C', '−10 °C', '−18 °C'], bonne:0, mission:0,
+      expl:"De la glace seule ne descend pas en dessous de <b>0 °C</b>. C’est pour cela qu’elle ne suffit pas à congeler de l’eau." },
+    { q:'Que se passe-t-il quand on ajoute du sel à de la glace pilée ?',
+      choix:['La température du mélange descend bien en dessous de 0 °C',
+             'La température remonte', 'Rien ne change'], bonne:0, mission:1,
+      expl:"C’est un <b>mélange réfrigérant</b> : il peut descendre vers −20 °C, ce qui permet enfin de faire geler l’eau du flacon." },
+    { q:'Comment appelle-t-on le passage de l’état liquide à l’état solide ?',
+      choix:['La solidification', 'La fusion', 'La vaporisation'], bonne:0, mission:3,
+      expl:"L’eau du flacon se <b>solidifie</b> en glace. Le chemin inverse, de la glace vers l’eau, est la fusion." },
+    { q:'À quoi sert un <b>isolant</b> placé autour du récipient ?',
+      choix:['À ralentir les échanges de chaleur avec l’extérieur',
+             'À refroidir davantage le mélange', 'À accélérer la fonte'], bonne:0, mission:2,
+      expl:"Il ne fabrique pas de froid : il <b>retarde</b> son échappement. Le polystyrène tient 18 minutes, les chiffons 5." },
+    { q:'Pendant qu’une eau pure gèle, sa température :',
+      choix:['Reste bloquée à 0 °C', 'Continue de descendre régulièrement',
+             'Remonte légèrement'], bonne:0, mission:3,
+      expl:"C’est le <b>palier de solidification</b> : tant qu’il reste de l’eau liquide, la température ne bouge pas." },
+    { q:'D’où vient le givre qui se dépose sur la paroi froide du flacon ?',
+      choix:['De la vapeur d’eau contenue dans l’air de la pièce',
+             'De l’eau du flacon qui traverse la paroi',
+             'Du sel du mélange'], bonne:0, mission:4,
+      expl:"L’air contient toujours de la vapeur d’eau invisible. Au contact d’une paroi très froide, elle se dépose directement en <b>glace</b>." },
+    { q:'Parmi ces matériaux, lequel isole le mieux ?',
+      choix:['Le polystyrène', 'Les chiffons', 'Rien du tout'], bonne:0, mission:2,
+      expl:"Le polystyrène emprisonne de l’air en minuscules bulles, et l’air immobile est un excellent isolant." },
+  ],
+
+  pieges: [
+    { q:'Le sel ajouté à la glace <b>produit-il du froid</b> ?',
+      choix:['Non : il abaisse la température de fusion, et la glace fondante puise la chaleur alentour',
+             'Oui : le sel est une substance froide',
+             'Oui : il refroidit l’eau en se dissolvant seulement'], bonne:0, mission:1,
+      expl:"Rien ne « produit du froid ». Le sel force la glace à fondre en dessous de 0 °C, et cette fusion <b>prend</b> de la chaleur à tout ce qui l’entoure." },
+    { q:'Un thermomètre plongé dans une eau en train de geler reste à 0 °C. Est-il défectueux ?',
+      choix:['Non : c’est le palier de solidification, la température ne bouge pas tant qu’il reste du liquide',
+             'Oui : la température devrait descendre régulièrement',
+             'Non : c’est parce que le mélange n’est pas assez froid'], bonne:0, mission:3,
+      expl:"Pendant le changement d’état, la chaleur retirée sert à <b>solidifier</b>, pas à refroidir. La descente ne reprend qu’une fois tout gelé." },
+    { q:'Un isolant placé autour du récipient rend-il le mélange <b>plus froid</b> ?',
+      choix:['Non : il conserve le froid plus longtemps, sans abaisser la température atteinte',
+             'Oui : il fait descendre la température davantage',
+             'Oui : c’est pourquoi on l’utilise'], bonne:0, mission:2,
+      expl:"La température minimale dépend du <b>sel</b>. L’isolant ne change que la <b>durée</b> pendant laquelle on la garde." },
+    { q:'Le givre sur la paroi du flacon prouve-t-il que le récipient <b>fuit</b> ?',
+      choix:['Non : il vient de la vapeur d’eau de l’air, pas du contenu',
+             'Oui : c’est de l’eau qui a traversé la paroi',
+             'Oui : c’est le mélange qui déborde'], bonne:0, mission:4,
+      expl:"Essuie-le et regarde : il revient, alors que rien n’a coulé. L’air de la pièce le renouvelle indéfiniment." },
+    { q:'Ajouter toujours plus de sel abaisse-t-il la température <b>sans limite</b> ?',
+      choix:['Non : au-delà d’une certaine dose, le sel ne se dissout plus et n’agit plus',
+             'Oui : plus il y a de sel, plus il fait froid',
+             'Oui, jusqu’à −100 °C environ'], bonne:0, mission:1,
+      expl:"Passé la <b>saturation</b>, les grains restent entiers au fond : ils ne participent plus. La température plafonne autour de −20 °C." },
+    { q:'De la glace pilée seule, bien isolée, peut-elle faire geler l’eau d’un flacon ?',
+      choix:['Non : elle ne descend pas sous 0 °C, il faut un mélange réfrigérant',
+             'Oui, si l’on attend assez longtemps',
+             'Oui, à condition que l’isolant soit très épais'], bonne:0, mission:0,
+      expl:"Pour qu’une eau gèle, il faut lui retirer de la chaleur <b>en dessous</b> de 0 °C. De la glace seule ne le permet pas, quelle que soit la durée." },
+    { q:'La glace flotte sur l’eau. Que peut-on en conclure ?',
+      choix:['Que l’eau occupe plus de place une fois gelée, donc qu’elle est moins dense',
+             'Que la glace est plus lourde que l’eau',
+             'Que la glace contient de l’air'], bonne:0, mission:3,
+      expl:"C’est une propriété rare : en gelant, l’eau <b>augmente de volume</b>. C’est aussi pourquoi une bouteille pleine oubliée au congélateur éclate." },
+  ],
+};
+/* ---- L'état de maîtrise : le meilleur résultat obtenu à chaque niveau ---- */
+function maitriseDe(cle) { return (etat.maitrise && etat.maitrise[cle]) || 0; }
+
+// Les niveaux difficiles pèsent plus lourd : réussir le premier seul plafonne
+// à 17 %, il faut affronter les pièges pour dépasser 80 %.
+function scoreMaitrise() {
+  // chaque niveau porte son poids : les simulations n'en ont pas toutes trois
+  let p = 0, total = 0;
+  for (const n of NIVEAUX_QUIZ) { p += maitriseDe(n.cle) * n.poids; total += n.poids; }
+  return total ? Math.round(p / total * 100) : 0;
+}
+function motMaitrise(p) {
+  return p >= 85 ? 'Maîtrisée' : p >= 60 ? 'Solide' : p >= 30 ? 'En bonne voie' : 'Découverte';
+}
+function etoiles(r) {
+  return r >= 1 ? '⭐⭐⭐' : r >= .8 ? '⭐⭐' : r >= .5 ? '⭐' : '';
+}
+
+// Le quiz mélange ses propres propositions : les simulations n'ont pas toutes
+// la même structure de question, et emprunter la leur cassait ici.
+function melangerQuiz(q) {
+  const ordre = q.choix.map((_, i) => i);
+  for (let i = ordre.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = ordre[i]; ordre[i] = ordre[j]; ordre[j] = t;
+  }
+  return Object.assign({}, q, { choix:ordre.map(k => q.choix[k]), bonne:ordre.indexOf(q.bonne) });
+}
+
+let quiz = null;
+
+function ouvrirQuiz() {
+  if (!accueilOuvert()) { toast('Termine les ' + MISSIONS.length + ' missions pour t’exercer.'); return; }
+  quiz = null;
+  rendreAccueilQuiz();
+  ouvrir('v-quiz');
+}
+
+function rendreAccueilQuiz() {
+  const p = scoreMaitrise();
+  $('quiz-carte').innerHTML = `
+    <button class="fermer-x" data-ferme="v-quiz" aria-label="Fermer">✕</button>
+    <h2>🏅 M’exercer</h2>
+    <p>Trois séries de ${PAR_SERIE} questions. Tu peux les refaire autant de fois que tu veux :
+       c’est ton <b>meilleur</b> résultat qui compte.</p>
+    <div class="qz-maitrise">
+      <div class="qz-m-haut"><span>Ma maîtrise de la notion</span><b>${p} %</b></div>
+      <div class="qz-m-barre"><i style="width:${p}%"></i></div>
+      <div class="qz-m-mot">${motMaitrise(p)}</div>
+    </div>
+    ${NIVEAUX_QUIZ.map(n => {
+      const r = maitriseDe(n.cle), et = etoiles(r);
+      return `<button class="qz-niveau" data-niveau="${n.cle}">
+        <span class="qz-em">${n.em}</span>
+        <span class="qz-txt"><b>${n.nom}</b><span>${n.quoi}</span></span>
+        <span class="qz-note">${et || '—'}<span>${r ? Math.round(r * 100) + ' %' : 'jamais fait'}</span></span>
+      </button>`;
+    }).join('')}
+    <p class="qz-pied">Les questions difficiles comptent <b>trois fois plus</b> que les faciles :
+       c’est en les affrontant qu’on prouve qu’on a compris.</p>`;
+}
+
+function lancerSerie(cle) {
+  const banque = BANQUE[cle].slice();
+  for (let i = banque.length - 1; i > 0; i--) {           // tirage sans remise
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = banque[i]; banque[i] = banque[j]; banque[j] = t;
+  }
+  quiz = { niveau:cle, liste:banque.slice(0, PAR_SERIE).map(melangerQuiz),
+           n:0, justes:0, ratees:[] };
+  rendreQuestionQuiz();
+}
+
+function rendreQuestionQuiz() {
+  const q = quiz.liste[quiz.n];
+  const niv = NIVEAUX_QUIZ.find(n => n.cle === quiz.niveau);
+  $('quiz-carte').innerHTML = `
+    <button class="fermer-x" data-ferme="v-quiz" aria-label="Fermer">✕</button>
+    <div class="q-avance">${niv.em} ${niv.nom} · question ${quiz.n + 1} sur ${quiz.liste.length}</div>
+    <div class="qz-jauge"><i style="width:${quiz.n / quiz.liste.length * 100}%"></i></div>
+    <div class="q-question">${q.q}</div>
+    <div id="qz-choix">${q.choix.map((c, i) =>
+      `<button class="q-choix" data-qz="${i}">${c}</button>`).join('')}</div>
+    <div class="q-expl" id="qz-expl"></div><div id="qz-suite"></div>`;
+}
+
+function repondreQuiz(i) {
+  const q = quiz.liste[quiz.n];
+  const juste = i === q.bonne;
+  if (juste) quiz.justes++; else quiz.ratees.push(q);
+  $('qz-choix').querySelectorAll('.q-choix').forEach((b, k) => {
+    b.disabled = true;
+    if (k === q.bonne) { b.classList.add('bon'); b.textContent = '✔️ ' + b.textContent; }
+    else if (k === i) { b.classList.add('mauvais'); b.textContent = '❌ ' + b.textContent; }
+  });
+  const e = $('qz-expl');
+  e.innerHTML = q.expl;
+  e.classList.add('visible');
+  const dernier = quiz.n === quiz.liste.length - 1;
+  $('qz-suite').innerHTML = `<button class="btn btn-large" style="margin-top:12px" id="qz-continuer">${
+    dernier ? 'Voir mon résultat →' : 'Question suivante →'}</button>`;
+  $('qz-continuer').addEventListener('click', () => {
+    if (dernier) finirSerie(); else { quiz.n++; rendreQuestionQuiz(); }
+  });
+}
+
+function finirSerie() {
+  const r = quiz.justes / quiz.liste.length;
+  const niv = NIVEAUX_QUIZ.find(n => n.cle === quiz.niveau);
+  const avant = maitriseDe(quiz.niveau);
+  etat.maitrise = etat.maitrise || {};
+  etat.maitrise[quiz.niveau] = Math.max(avant, r);
+  sauver();
+  // Les questions ratées renvoient à leur mission : le quiz ramène au parcours.
+  const revoir = [];
+  for (const q of quiz.ratees) if (revoir.indexOf(q.mission) === -1) revoir.push(q.mission);
+  revoir.sort((a, b) => a - b);
+  const p = scoreMaitrise();
+  $('quiz-carte').innerHTML = `
+    <button class="fermer-x" data-ferme="v-quiz" aria-label="Fermer">✕</button>
+    <div class="qz-fin">
+      <div class="qz-fin-em">${r >= 1 ? '🎉' : r >= .5 ? '👏' : '💪'}</div>
+      <div><b>${quiz.justes} bonnes réponses sur ${quiz.liste.length}</b>
+        <span>${niv.em} ${niv.nom}</span></div>
+      <div class="qz-fin-et">${etoiles(r) || '—'}</div>
+    </div>
+    ${r > avant
+      ? `<p class="qz-mieux">✨ C’est ton meilleur résultat à ce niveau.</p>`
+      : `<p class="qz-mieux discret">Ton meilleur reste ${Math.round(avant * 100)} %.</p>`}
+    <div class="qz-maitrise">
+      <div class="qz-m-haut"><span>Ma maîtrise de la notion</span><b>${p} %</b></div>
+      <div class="qz-m-barre"><i style="width:${p}%"></i></div>
+      <div class="qz-m-mot">${motMaitrise(p)}</div>
+    </div>
+    ${revoir.length ? `<div class="qz-revoir"><b>📘 À revoir :</b>${revoir.map(i =>
+        `<span>Mission ${i + 1} — ${MISSIONS[i].titre}</span>`).join('')}</div>` : ''}
+    <div class="qz-boutons">
+      <button class="btn btn-contour" id="qz-refaire">↻ Refaire cette série</button>
+      <button class="btn" id="qz-retour">Les niveaux →</button>
+    </div>`;
+  $('qz-refaire').addEventListener('click', () => lancerSerie(quiz.niveau));
+  $('qz-retour').addEventListener('click', rendreAccueilQuiz);
+}
+
+$('v-quiz').addEventListener('click', e => {
+  const n = e.target.closest('[data-niveau]');
+  if (n) { lancerSerie(n.dataset.niveau); return; }
+  const b = e.target.closest('[data-qz]');
+  if (b && !b.disabled) repondreQuiz(+b.dataset.qz);
+});
+$('ac-exercer').addEventListener('click', () => {
+  if (!accueilOuvert()) return;
+  fermer('v-accueil');
+  ouvrirQuiz();
+});
 
 ouvrirAccueil();
 

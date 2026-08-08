@@ -521,6 +521,57 @@ body.sombre { --accent-texte:#7FD4F5; --vert-fonce:#2A9D8F; --orange-fonce:#F7A4
   font-family:var(--font-body); font-weight:700; font-size:13.5px;
   padding:10px 18px; border-radius:var(--radius-md); cursor:pointer; min-height:40px;
 }
+
+/* ===================== Le quiz libre : m'exercer ===================== */
+#v-quiz .carte-modale { max-width:520px; }
+.qz-maitrise {
+  margin:4px 0 16px; padding:12px 14px; border-radius:var(--radius-md);
+  background:var(--surface-muted);
+}
+.qz-m-haut { display:flex; align-items:baseline; justify-content:space-between; font-size:12.5px; }
+.qz-m-haut b { font-family:var(--font-display); font-size:20px; font-weight:800; }
+.qz-m-barre { height:9px; border-radius:var(--radius-full); background:var(--surface);
+  overflow:hidden; margin-top:6px; }
+.qz-m-barre i { display:block; height:100%; border-radius:inherit;
+  background:var(--primary); transition:width .5s var(--ease); }
+.qz-m-mot { font-size:11.5px; font-weight:700; opacity:.6; margin-top:5px;
+  letter-spacing:.04em; text-transform:uppercase; }
+
+.qz-niveau {
+  display:flex; align-items:center; gap:12px; width:100%; text-align:left;
+  padding:13px 14px; margin-bottom:9px;
+  background:var(--surface); border:2px solid var(--border); border-radius:var(--radius-lg);
+  font-family:var(--font-body); color:inherit; cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+.qz-niveau:hover { border-color:var(--accent); background:var(--accent-doux); }
+.qz-niveau .qz-em {
+  width:42px; height:42px; flex:none; border-radius:var(--radius-md);
+  display:grid; place-items:center; background:var(--surface-muted); font-size:22px;
+}
+.qz-niveau .qz-txt { flex:1; min-width:0; }
+.qz-niveau .qz-txt b { display:block; font-family:var(--font-display); font-size:15.5px; font-weight:800; }
+.qz-niveau .qz-txt span { display:block; font-size:12px; opacity:.7; line-height:1.45; margin-top:1px; }
+.qz-niveau .qz-note { flex:none; text-align:right; font-size:14px; }
+.qz-niveau .qz-note span { display:block; font-size:10.5px; font-weight:600; opacity:.55; margin-top:2px; }
+.qz-pied { font-size:12px; opacity:.65; line-height:1.5; margin-top:4px; }
+
+.qz-jauge { height:4px; border-radius:var(--radius-full); background:var(--surface-muted);
+  overflow:hidden; margin:0 0 12px; }
+.qz-jauge i { display:block; height:100%; background:var(--accent); transition:width .3s var(--ease); }
+
+.qz-fin { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+.qz-fin-em { font-size:34px; line-height:1; flex:none; }
+.qz-fin b { display:block; font-family:var(--font-display); font-size:17px; font-weight:800; }
+.qz-fin span { font-size:12.5px; opacity:.65; }
+.qz-fin-et { margin-left:auto; font-size:17px; letter-spacing:1px; }
+.qz-mieux { font-size:12.5px; font-weight:600; color:var(--vert-fonce); margin:0 0 12px; }
+.qz-mieux.discret { color:inherit; opacity:.55; font-weight:400; }
+.qz-revoir { padding:11px 13px; border-radius:var(--radius-md); background:var(--accent-doux);
+  font-size:12.5px; line-height:1.6; margin-bottom:13px; }
+.qz-revoir span { display:block; }
+.qz-boutons { display:flex; gap:8px; }
+.qz-boutons .btn { flex:1; }
 </style>
 </head>
 <body>
@@ -593,6 +644,10 @@ body.sombre { --accent-texte:#7FD4F5; --vert-fonce:#2A9D8F; --orange-fonce:#F7A4
   </div>
 </div>
 
+<div class="voile" id="v-quiz">
+  <div class="carte-modale" id="quiz-carte"></div>
+</div>
+
 <div class="voile" id="v-accueil">
   <div class="carte-modale">
     <h2>Que veux-tu faire ?</h2>
@@ -606,6 +661,11 @@ body.sombre { --accent-texte:#7FD4F5; --vert-fonce:#2A9D8F; --orange-fonce:#F7A4
       <span class="ac-em">🧪</span>
       <span class="ac-txt"><b>Expérimenter</b><span>Le plan de travail libre, tout le matériel.</span></span>
       <span class="ac-etat" id="ac-etat-exp"></span>
+    </button>
+    <button class="ac-choix" id="ac-exercer">
+      <span class="ac-em">🏅</span>
+      <span class="ac-txt"><b>M’exercer</b><span>Deux séries de questions, et un score de maîtrise.</span></span>
+      <span class="ac-etat" id="ac-etat-ex"></span>
     </button>
     <p class="ac-pied" id="ac-pied"></p>
   </div>
@@ -1050,11 +1110,12 @@ const etat = {
 
 const CLE = 'ike-alambic-progression';
 function sauver() {
-  try { localStorage.setItem(CLE, JSON.stringify({ mission:etat.mission, faits:etat.faites })); } catch (e) {}
+  try { localStorage.setItem(CLE, JSON.stringify({ maitrise:etat.maitrise, mission:etat.mission, faits:etat.faites })); } catch (e) {}
 }
 function charger() {
   try {
     const d = JSON.parse(localStorage.getItem(CLE));
+    if (d.maitrise) etat.maitrise = d.maitrise;
     if (d && Array.isArray(d.faits)) {
       etat.faites = d.faits;
       etat.mission = Math.min(d.mission || 0, MISSIONS.length - 1);
@@ -2127,6 +2188,8 @@ function rendreAccueil() {
   const ouvert = accueilOuvert();
   $('ac-experimenter').disabled = !ouvert;
   $('ac-etat-exp').textContent = ouvert ? 'Ouvert' : '🔒 Verrouillé';
+  $('ac-exercer').disabled = !ouvert;
+  $('ac-etat-ex').textContent = ouvert ? (scoreMaitrise() + ' %') : '🔒 Verrouillé';
   $('ac-pied').innerHTML = ouvert
     ? 'Tu as terminé le parcours : les deux portes sont ouvertes.'
     : 'Termine les <b>' + total + ' missions</b> d’Apprendre pour ouvrir Expérimenter.';
@@ -2240,6 +2303,236 @@ document.addEventListener('keydown', e => {
 });
 const btnRevoir = $('btn-revoir-visite');
 if (btnRevoir) btnRevoir.addEventListener('click', () => { fermer('v-aide'); lancerVisite(); });
+
+const NIVEAUX_QUIZ = [
+  { cle:'souviens', em:'🥉', nom:'Je me souviens', poids:1,
+    quoi:'Les mots et les faits que tu as rencontrés à l’atelier.' },
+  { cle:'pieges', em:'🥇', nom:'On ne me piège plus', poids:3,
+    quoi:'Les erreurs que presque tout le monde fait. C’est là que tout se joue.' },
+];
+const PAR_SERIE = 6;
+
+const BANQUE = {
+  souviens: [
+    { q:'Comment appelle-t-on le passage de l’état liquide à l’état gazeux ?',
+      choix:['La vaporisation', 'La condensation', 'La solidification'], bonne:0, mission:0,
+      expl:"Dans la chaudière, l’eau chauffée se <b>vaporise</b>. C’est le premier des deux changements d’état de la distillation." },
+    { q:'Comment appelle-t-on le passage de l’état gazeux à l’état liquide ?',
+      choix:['La condensation', 'La vaporisation', 'La fusion'], bonne:0, mission:2,
+      expl:"Dans le réfrigérant, la vapeur perd sa chaleur et redevient liquide : elle se <b>condense</b>. C’est là que naissent les gouttes." },
+    { q:'À quelle température l’eau pure bout-elle, sous la pression habituelle ?',
+      choix:['100 °C', '50 °C', '212 °C'], bonne:0, mission:0,
+      expl:"Pendant toute l’ébullition, la température reste bloquée à <b>100 °C</b> : la chaleur reçue sert à vaporiser, pas à réchauffer." },
+    { q:'À quoi sert le <b>réfrigérant</b> dans un alambic ?',
+      choix:['À refroidir la vapeur pour qu’elle redevienne liquide',
+             'À chauffer le liquide plus vite', 'À filtrer les impuretés'], bonne:0, mission:2,
+      expl:"Sans lui, la vapeur ressort en gaz par le bout du tuyau et se perd : on ne récupère rien." },
+    { q:'Comment appelle-t-on le liquide recueilli au bout du tuyau ?',
+      choix:['Le distillat', 'Le résidu', 'Le filtrat'], bonne:0, mission:2,
+      expl:"Le <b>distillat</b> est ce qui a été vaporisé puis condensé. Ce qui n’a pas pu s’évaporer reste dans la chaudière." },
+    { q:'Que devient le sel lorsqu’on distille de l’eau salée ?',
+      choix:['Il reste dans la chaudière', 'Il passe dans le flacon avec l’eau',
+             'Il se transforme en vapeur'], bonne:0, mission:3,
+      expl:"Le sel ne s’évapore pas à ces températures. L’eau part seule, et le sel se dépose au fond : c’est ainsi qu’on obtient de l’eau douce." },
+    { q:'À quoi sert le <b>chapiteau</b> posé sur la chaudière ?',
+      choix:['À fermer la chaudière pour que la vapeur ne s’échappe pas',
+             'À faire chauffer plus fort', 'À refroidir la vapeur'], bonne:0, mission:1,
+      expl:"Toute vapeur qui fuit sur les côtés est perdue. Un couvercle bien ajusté et luté conserve presque tout." },
+  ],
+
+  pieges: [
+    { q:'Pendant l’ébullition, la température du liquide continue-t-elle de <b>monter</b> si l’on chauffe plus fort ?',
+      choix:['Non : elle reste à 100 °C, la chaleur reçue servant à vaporiser',
+             'Oui : plus le feu est vif, plus la température s’élève',
+             'Oui, jusqu’à 150 °C environ'], bonne:0, mission:0,
+      expl:"C’est un <b>palier</b> : tant qu’il reste du liquide à vaporiser, toute la chaleur y passe. Chauffer plus fort accélère la vaporisation, sans élever la température." },
+    { q:'Un alambic est monté sans réfrigérant. Que recueille-t-on dans le flacon ?',
+      choix:['Presque rien : la vapeur ressort en gaz et se disperse',
+             'La même quantité, mais plus lentement',
+             'Un liquide plus pur'], bonne:0, mission:2,
+      expl:"Mesuré à l’identique : <b>0 mL</b> sans réfrigérant, 25 mL avec un linge mouillé, 43 mL avec un serpentin dans l’eau froide." },
+    { q:'La distillation de l’eau salée fait-elle <b>disparaître</b> le sel ?',
+      choix:['Non : il reste dans la chaudière, séparé de l’eau',
+             'Oui : la chaleur le détruit',
+             'Non : il passe dans le flacon avec l’eau'], bonne:0, mission:3,
+      expl:"Distiller <b>sépare</b>, cela ne détruit rien. Le sel est toujours là, au fond de la chaudière — c’est même ainsi qu’on le récolte." },
+    { q:'Un linge mouillé enroulé autour du tuyau refroidit-il <b>aussi bien</b> qu’un serpentin plongé dans l’eau froide ?',
+      choix:['Non : le trajet dans l’eau froide est plus long, donc la condensation plus complète',
+             'Oui : les deux refroidissent de la même façon',
+             'Oui, si le linge est bien mouillé'], bonne:0, mission:4,
+      expl:"Le serpentin offre un <b>long trajet</b> dans l’eau froide : la vapeur a le temps de tout perdre. Avec un linge, une partie ressort encore en gaz." },
+    { q:'Le distillat d’une eau salée a-t-il <b>le même goût</b> que l’eau de départ ?',
+      choix:['Non : c’est de l’eau douce, le sel étant resté derrière',
+             'Oui : distiller ne change pas le goût',
+             'Oui, mais il est plus chaud'], bonne:0, mission:3,
+      expl:"C’est tout l’intérêt du procédé : on obtient une eau <b>débarrassée</b> de ce qui ne s’évapore pas." },
+    { q:'La vapeur d’eau que l’on voit sortir d’une casserole est-elle <b>le gaz</b> lui-même ?',
+      choix:['Non : ce nuage blanc est déjà de fines gouttes d’eau condensées',
+             'Oui : c’est de la vapeur d’eau à l’état gazeux',
+             'Oui : c’est de la fumée'], bonne:0, mission:2,
+      expl:"La vapeur d’eau, à l’état gazeux, est <b>invisible</b>. Ce qu’on voit s’est déjà refroidi et condensé au contact de l’air." },
+    { q:'Pour distiller des feuilles odorantes, faut-il choisir un tuyau <b>en roseau</b> ?',
+      choix:['Non : il se carbonise et donne un goût au distillat',
+             'Oui : c’est le matériau traditionnel, donc le meilleur',
+             'Oui : le roseau parfume agréablement'], bonne:0, mission:5,
+      expl:"Le matériau du tuyau touche le produit. Un roseau noircit à la chaleur et cède son goût : il faut un tuyau qui ne donne rien au distillat." },
+  ],
+};
+/* ---- L'état de maîtrise : le meilleur résultat obtenu à chaque niveau ---- */
+function maitriseDe(cle) { return (etat.maitrise && etat.maitrise[cle]) || 0; }
+
+// Les niveaux difficiles pèsent plus lourd : réussir le premier seul plafonne
+// à 17 %, il faut affronter les pièges pour dépasser 80 %.
+function scoreMaitrise() {
+  // chaque niveau porte son poids : les simulations n'en ont pas toutes trois
+  let p = 0, total = 0;
+  for (const n of NIVEAUX_QUIZ) { p += maitriseDe(n.cle) * n.poids; total += n.poids; }
+  return total ? Math.round(p / total * 100) : 0;
+}
+function motMaitrise(p) {
+  return p >= 85 ? 'Maîtrisée' : p >= 60 ? 'Solide' : p >= 30 ? 'En bonne voie' : 'Découverte';
+}
+function etoiles(r) {
+  return r >= 1 ? '⭐⭐⭐' : r >= .8 ? '⭐⭐' : r >= .5 ? '⭐' : '';
+}
+
+// Le quiz mélange ses propres propositions : les simulations n'ont pas toutes
+// la même structure de question, et emprunter la leur cassait ici.
+function melangerQuiz(q) {
+  const ordre = q.choix.map((_, i) => i);
+  for (let i = ordre.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = ordre[i]; ordre[i] = ordre[j]; ordre[j] = t;
+  }
+  return Object.assign({}, q, { choix:ordre.map(k => q.choix[k]), bonne:ordre.indexOf(q.bonne) });
+}
+
+let quiz = null;
+
+function ouvrirQuiz() {
+  if (!accueilOuvert()) { toast('Termine les ' + MISSIONS.length + ' missions pour t’exercer.'); return; }
+  quiz = null;
+  rendreAccueilQuiz();
+  ouvrir('v-quiz');
+}
+
+function rendreAccueilQuiz() {
+  const p = scoreMaitrise();
+  $('quiz-carte').innerHTML = `
+    <button class="fermer-x" data-ferme="v-quiz" aria-label="Fermer">✕</button>
+    <h2>🏅 M’exercer</h2>
+    <p>Trois séries de ${PAR_SERIE} questions. Tu peux les refaire autant de fois que tu veux :
+       c’est ton <b>meilleur</b> résultat qui compte.</p>
+    <div class="qz-maitrise">
+      <div class="qz-m-haut"><span>Ma maîtrise de la notion</span><b>${p} %</b></div>
+      <div class="qz-m-barre"><i style="width:${p}%"></i></div>
+      <div class="qz-m-mot">${motMaitrise(p)}</div>
+    </div>
+    ${NIVEAUX_QUIZ.map(n => {
+      const r = maitriseDe(n.cle), et = etoiles(r);
+      return `<button class="qz-niveau" data-niveau="${n.cle}">
+        <span class="qz-em">${n.em}</span>
+        <span class="qz-txt"><b>${n.nom}</b><span>${n.quoi}</span></span>
+        <span class="qz-note">${et || '—'}<span>${r ? Math.round(r * 100) + ' %' : 'jamais fait'}</span></span>
+      </button>`;
+    }).join('')}
+    <p class="qz-pied">Les questions difficiles comptent <b>trois fois plus</b> que les faciles :
+       c’est en les affrontant qu’on prouve qu’on a compris.</p>`;
+}
+
+function lancerSerie(cle) {
+  const banque = BANQUE[cle].slice();
+  for (let i = banque.length - 1; i > 0; i--) {           // tirage sans remise
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = banque[i]; banque[i] = banque[j]; banque[j] = t;
+  }
+  quiz = { niveau:cle, liste:banque.slice(0, PAR_SERIE).map(melangerQuiz),
+           n:0, justes:0, ratees:[] };
+  rendreQuestionQuiz();
+}
+
+function rendreQuestionQuiz() {
+  const q = quiz.liste[quiz.n];
+  const niv = NIVEAUX_QUIZ.find(n => n.cle === quiz.niveau);
+  $('quiz-carte').innerHTML = `
+    <button class="fermer-x" data-ferme="v-quiz" aria-label="Fermer">✕</button>
+    <div class="q-avance">${niv.em} ${niv.nom} · question ${quiz.n + 1} sur ${quiz.liste.length}</div>
+    <div class="qz-jauge"><i style="width:${quiz.n / quiz.liste.length * 100}%"></i></div>
+    <div class="q-question">${q.q}</div>
+    <div id="qz-choix">${q.choix.map((c, i) =>
+      `<button class="q-choix" data-qz="${i}">${c}</button>`).join('')}</div>
+    <div class="q-expl" id="qz-expl"></div><div id="qz-suite"></div>`;
+}
+
+function repondreQuiz(i) {
+  const q = quiz.liste[quiz.n];
+  const juste = i === q.bonne;
+  if (juste) quiz.justes++; else quiz.ratees.push(q);
+  $('qz-choix').querySelectorAll('.q-choix').forEach((b, k) => {
+    b.disabled = true;
+    if (k === q.bonne) { b.classList.add('bon'); b.textContent = '✔️ ' + b.textContent; }
+    else if (k === i) { b.classList.add('mauvais'); b.textContent = '❌ ' + b.textContent; }
+  });
+  const e = $('qz-expl');
+  e.innerHTML = q.expl;
+  e.classList.add('visible');
+  const dernier = quiz.n === quiz.liste.length - 1;
+  $('qz-suite').innerHTML = `<button class="btn btn-large" style="margin-top:12px" id="qz-continuer">${
+    dernier ? 'Voir mon résultat →' : 'Question suivante →'}</button>`;
+  $('qz-continuer').addEventListener('click', () => {
+    if (dernier) finirSerie(); else { quiz.n++; rendreQuestionQuiz(); }
+  });
+}
+
+function finirSerie() {
+  const r = quiz.justes / quiz.liste.length;
+  const niv = NIVEAUX_QUIZ.find(n => n.cle === quiz.niveau);
+  const avant = maitriseDe(quiz.niveau);
+  etat.maitrise = etat.maitrise || {};
+  etat.maitrise[quiz.niveau] = Math.max(avant, r);
+  sauver();
+  // Les questions ratées renvoient à leur mission : le quiz ramène au parcours.
+  const revoir = [];
+  for (const q of quiz.ratees) if (revoir.indexOf(q.mission) === -1) revoir.push(q.mission);
+  revoir.sort((a, b) => a - b);
+  const p = scoreMaitrise();
+  $('quiz-carte').innerHTML = `
+    <button class="fermer-x" data-ferme="v-quiz" aria-label="Fermer">✕</button>
+    <div class="qz-fin">
+      <div class="qz-fin-em">${r >= 1 ? '🎉' : r >= .5 ? '👏' : '💪'}</div>
+      <div><b>${quiz.justes} bonnes réponses sur ${quiz.liste.length}</b>
+        <span>${niv.em} ${niv.nom}</span></div>
+      <div class="qz-fin-et">${etoiles(r) || '—'}</div>
+    </div>
+    ${r > avant
+      ? `<p class="qz-mieux">✨ C’est ton meilleur résultat à ce niveau.</p>`
+      : `<p class="qz-mieux discret">Ton meilleur reste ${Math.round(avant * 100)} %.</p>`}
+    <div class="qz-maitrise">
+      <div class="qz-m-haut"><span>Ma maîtrise de la notion</span><b>${p} %</b></div>
+      <div class="qz-m-barre"><i style="width:${p}%"></i></div>
+      <div class="qz-m-mot">${motMaitrise(p)}</div>
+    </div>
+    ${revoir.length ? `<div class="qz-revoir"><b>📘 À revoir :</b>${revoir.map(i =>
+        `<span>Mission ${i + 1} — ${MISSIONS[i].titre}</span>`).join('')}</div>` : ''}
+    <div class="qz-boutons">
+      <button class="btn btn-contour" id="qz-refaire">↻ Refaire cette série</button>
+      <button class="btn" id="qz-retour">Les niveaux →</button>
+    </div>`;
+  $('qz-refaire').addEventListener('click', () => lancerSerie(quiz.niveau));
+  $('qz-retour').addEventListener('click', rendreAccueilQuiz);
+}
+
+$('v-quiz').addEventListener('click', e => {
+  const n = e.target.closest('[data-niveau]');
+  if (n) { lancerSerie(n.dataset.niveau); return; }
+  const b = e.target.closest('[data-qz]');
+  if (b && !b.disabled) repondreQuiz(+b.dataset.qz);
+});
+$('ac-exercer').addEventListener('click', () => {
+  if (!accueilOuvert()) return;
+  fermer('v-accueil');
+  ouvrirQuiz();
+});
 
 ouvrirAccueil();
 

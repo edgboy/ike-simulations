@@ -2425,11 +2425,11 @@ if (btnRevoir) btnRevoir.addEventListener('click', () => { fermer('v-aide'); lan
    ========================================================================== */
 const NIVEAUX_QUIZ = [
   { cle:'souviens', em:'🥉', nom:'Je me souviens',
-    quoi:'Les mots et les faits que tu as rencontrés dans l’enquête.' },
+    quoi:'Les mots et les faits que tu as rencontrés dans l’enquête.' , poids:1 },
   { cle:'comprends', em:'🥈', nom:'Je comprends',
-    quoi:'Les mêmes idées, mais dans des situations que tu n’as pas encore vues.' },
+    quoi:'Les mêmes idées, mais dans des situations que tu n’as pas encore vues.' , poids:2 },
   { cle:'pieges', em:'🥇', nom:'On ne me piège plus',
-    quoi:'Les erreurs que presque tout le monde fait. C’est là que tout se joue.' },
+    quoi:'Les erreurs que presque tout le monde fait. C’est là que tout se joue.' , poids:3 },
 ];
 const PAR_SERIE = 6;
 
@@ -2545,8 +2545,10 @@ function maitriseDe(cle) { return (etat.maitrise && etat.maitrise[cle]) || 0; }
 // Les niveaux difficiles pèsent plus lourd : réussir le premier seul plafonne
 // à 17 %, il faut affronter les pièges pour dépasser 80 %.
 function scoreMaitrise() {
-  const p = maitriseDe('souviens') * 1 + maitriseDe('comprends') * 2 + maitriseDe('pieges') * 3;
-  return Math.round(p / 6 * 100);
+  // chaque niveau porte son poids : les simulations n'en ont pas toutes trois
+  let p = 0, total = 0;
+  for (const n of NIVEAUX_QUIZ) { p += maitriseDe(n.cle) * n.poids; total += n.poids; }
+  return total ? Math.round(p / total * 100) : 0;
 }
 function motMaitrise(p) {
   return p >= 85 ? 'Maîtrisée' : p >= 60 ? 'Solide' : p >= 30 ? 'En bonne voie' : 'Découverte';
