@@ -5,6 +5,58 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v4.42.0 — 2026-08-08
+
+🔧 **Retours de terrain : une série de corrections, dont plusieurs biaisaient l'apprentissage.**
+
+### Transversal, sur les quinze simulations
+
+- **La carte de la visite guidée ne ressemble plus à un panneau de l'application.** L'œil hésitait
+  entre la zone montrée et la carte qui l'explique — même fond blanc, même style. Elle prend une
+  couleur qui n'existe nulle part ailleurs : c'est « le guide qui parle ». Même identité en clair
+  et en sombre. Contrastes mesurés : 5,7 et 7,7 pour le texte plein ; l'opacité des textes
+  secondaires ne descend pas sous 0,85, plancher en dessous duquel on passait sous le seuil AA.
+- **Les boutons lime étaient illisibles en thème sombre.** Leur encre suivait le jeton `--neutral`, qui passe au blanc en sombre : du blanc sur du vert clair, **1,36 de contraste**
+  au lieu des 4,5 exigés. Un jeton dédié fige l'encre à 7,6, dans les deux thèmes.
+- **Le quiz devenait inaccessible une fois le parcours terminé.** Il n'apparaissait que sur
+  l'écran d'accueil, au lancement : il fallait quitter la simulation et y revenir. Une carte
+  **🏅 M'exercer** rejoint la liste des missions, dans les treize simulations qui ont un quiz.
+
+### Circuit électrique
+
+- **Le plan de travail pivotait tout seul, en pleine manipulation.** La grille basculait 12×8 ↔
+  8×12 selon que le plan était plus large que haut — et transposait alors tous les composants. Or
+  sa hauteur change dès que le panneau de mission s'ouvre : le montage de l'élève tournait d'un
+  quart de tour. C'est aussi ce qui produisait les **tracés en zigzag**, quand la bascule tombait
+  au milieu d'un glissé. La grille est désormais fixe, et la vue ne bouge plus au redimensionnement.
+- **La grille passe de 96 à 768 nœuds** (32 × 24) et le dézoom descend à 0,28 : de quoi voir tout
+  le plan d'un coup. Le bouton ⟲ **recadre sur le montage** au lieu de revenir bêtement au centre.
+- **Deux missions se validaient à tort.** « Un ampèremètre avant la lampe, un après » se validait
+  avec les deux du même côté : dans une boucle simple, tous les éléments portent le même courant.
+  La vérification est maintenant **topologique** — les deux appareils doivent encadrer la lampe —
+  et un diagnostic dédié explique l'erreur. « Les piles se combattent » se validait en
+  **débranchant** le circuit : on vérifie désormais que la boucle est fermée, en demandant au
+  solveur ce que donnerait le montage piles remises dans le même sens.
+- **La vue réaliste ne ressemblait plus à la vue schématique.** L'ampèremètre et l'interrupteur
+  étaient identiques dans les deux. L'ampoule a un culot et un filament suspendu, l'interrupteur
+  un socle et un bouton, les appareils un boîtier à afficheur, et les fils prennent le cuivre.
+
+### Autres simulations
+
+- **Marmites** : les étapes se cochaient avant d'avoir été faites — les réglages et les
+  observations survivaient d'une mission à l'autre. Chaque mission repart d'une paillasse rangée.
+  « Nettoie la marmite » se cochait en **allumant** le réchaud. Le clignotement du bouton
+  **Éteindre** en fin de mission ne se déclenchait jamais : sa condition exigeait le réchaud éteint.
+- **Premiers pas** : l'astuce disparaît de la modale « Le courant ne passe pas », où elle
+  détournait du message qui explique la panne. Le bouton **💡 Indice** revient dans le plan de
+  mission, et se signale après un échec. Même bouton ajouté aux marmites.
+- **Combustions** : l'eau de chaux est un **verre**, et le trouble monte dans le liquide en
+  volutes laiteuses au lieu de changer de teinte. Un verre neuf à chaque pose de cloche.
+- **Flamme de la bougie** et **Fabrique de la glace** : le bouton « Continuer » des bilans était
+  transparent sur le fond de la modale — il passait pour du texte. C'est un vrai bouton.
+- **Le panneau de mesures mangeait le tiers de la scène sur mobile** (combustions, états de la
+  matière, optique, transformations). Il tombe à 15–23 %, avec défilement interne.
+
 ## v4.41.0 — 2026-08-08
 
 🏷️ **Le produit s'appelle KONDO LABO.**

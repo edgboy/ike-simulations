@@ -532,6 +532,58 @@ body.sombre { --accent-texte:#7FD4F5; --vert-fonce:#2A9D8F; --orange-fonce:#F7A4
 .qz-revoir span { display:block; }
 .qz-boutons { display:flex; gap:8px; }
 .qz-boutons .btn { flex:1; }
+
+/* ---- La carte de la visite guidée : elle ne doit ressembler à rien d'autre ----
+   Retour d'usage : l'œil hésitait entre la zone montrée et la carte qui
+   l'explique, surtout quand la zone contient beaucoup de texte — les deux
+   avaient le même fond blanc et le même style. La carte prend donc une couleur
+   qui n'existe nulle part ailleurs dans l'interface : c'est « le guide qui
+   parle », pas un panneau de l'application. Même identité en clair et en
+   sombre, pour qu'on la reconnaisse d'un thème à l'autre.
+   Contrastes vérifiés : 5,7 (clair) et 7,7 (sombre) pour le texte plein ;
+   l'opacité des textes secondaires ne descend pas sous 0,85, plancher mesuré
+   en dessous duquel on passe sous le seuil AA. */
+:root { --visite-fond:#0F6E93; --visite-encre:#FFFFFF; }
+body.sombre { --visite-fond:#0B5674; --visite-encre:#F2FAFE; }
+
+#visite-carte {
+  background:var(--visite-fond); color:var(--visite-encre);
+  border:2px solid rgba(255,255,255,.16);
+  box-shadow:0 14px 46px rgba(0,0,0,.45);
+}
+#visite-carte .v-titre, #visite-carte .vtitre { color:var(--visite-encre); }
+#visite-carte .v-texte, #visite-carte .vtexte { color:var(--visite-encre); opacity:.92; }
+#visite-carte .v-texte b, #visite-carte .vtexte b { color:var(--visite-encre); opacity:1; }
+#visite-carte .v-prog, #visite-carte .vprog { color:var(--visite-encre); opacity:.85; }
+#visite-carte .vmarque { color:var(--visite-encre); opacity:.85; }
+#visite-passer { color:var(--visite-encre); opacity:.85; }
+#visite-passer:hover { opacity:1; }
+/* Le bouton garde le lime de la plateforme : c'est l'action, elle doit sauter aux yeux */
+#visite-suivant { background:var(--primary); color:#3A3632; }
+
+/* Sur un petit écran, le panneau couvrait plus du tiers de la scène et cachait
+   l'expérience qu'il commente. Il s'y fait compact : moins large, texte plus
+   serré, hauteur plafonnée — il défile chez lui plutôt que de manger la scène. */
+@media (max-width:700px), (max-height:560px) {
+  #formule {
+    max-width:min(198px, 50vw); padding:8px 10px; font-size:11.5px;
+    max-height:46%; overflow-y:auto;
+  }
+  #formule .fmath { padding:4px 7px; margin:2px 0; font-size:11.5px; }
+  #formule .ftitre { font-size:10px; }
+  #formule .fnote { font-size:10.5px; line-height:1.35; }
+}
+
+/* ---- Lisibilité des boutons lime en thème sombre ----
+   Le lime (--primary) est une couleur claire dans les DEUX thèmes : son encre
+   doit donc rester sombre dans les deux. Elle suivait le jeton --neutral, qui passe au
+   blanc en sombre : le texte tombait à 1,36 de contraste, illisible. Un jeton
+   dédié fige l'encre posée sur le lime, à 7,6 de contraste. */
+:root, body.sombre { --sur-primary:#3A3632; }
+.btn, #visite-suivant, .go, #btn-continuer, #btn-suivante, #btn-suiv2, #btn-commencer {
+  color:var(--sur-primary);
+}
+.btn-contour, .btn-fantome { color:var(--neutral); }
 </style>
 </head>
 <body>
@@ -1743,6 +1795,19 @@ $('btn-suivante-barre').addEventListener('click', () => {
   allerMission(derniere ? 'libre' : progression.m + 1);
 });
 
+
+/* Le quiz doit rester atteignable SANS quitter la simulation : il n'apparaissait
+   que sur l'écran d'accueil, au lancement. Une fois le parcours terminé, l'élève
+   était obligé de sortir et de revenir pour le retrouver. */
+function carteExercer() {
+  const ouvert = accueilOuvert();
+  return '<button class="d-carte" data-mission="exercer"' + (ouvert ? '' : ' disabled') + '>' +
+    '<span class="num">' + (ouvert ? '🏅' : '🔒') + '</span>' +
+    '<span class="txt"><b>M’exercer</b><span>' + (ouvert
+      ? 'Trois séries de questions, et un score de maîtrise.'
+      : 'Termine le parcours pour l’ouvrir.') + '</span></span></button>';
+}
+
 function ouvrirListe() {
   const total = MISSIONS.length, n = progression.faites.length;
   $('d-barre').style.width = Math.round(n / total * 100) + '%';
@@ -1762,7 +1827,7 @@ function ouvrirListe() {
          <span class="txt"><b>L'enceinte libre</b><span>Chauffer, refroidir, comprimer : aucune consigne.</span></span>
        </button>`
     : '';
-  $('liste-missions').innerHTML = cartes + libre;
+  $('liste-missions').innerHTML = cartes + libre + carteExercer();
   ouvrir('v-missions');
 }
 
@@ -1770,6 +1835,7 @@ $('btn-missions').addEventListener('click', ouvrirListe);
 $('v-missions').addEventListener('click', e => {
   const b = e.target.closest('[data-mission]');
   if (!b || b.disabled) return;
+  if (b.dataset.mission === 'exercer') { fermer('v-missions'); ouvrirQuiz(); return; }
   fermer('v-missions');
   allerMission(b.dataset.mission === 'libre' ? 'libre' : +b.dataset.mission);
 });

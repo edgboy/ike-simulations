@@ -529,6 +529,45 @@ body.sombre { --accent-texte:#7FD4F5; --vert-fonce:#2A9D8F; --orange-fonce:#F7A4
 .qz-revoir span { display:block; }
 .qz-boutons { display:flex; gap:8px; }
 .qz-boutons .btn { flex:1; }
+
+/* ---- La carte de la visite guidée : elle ne doit ressembler à rien d'autre ----
+   Retour d'usage : l'œil hésitait entre la zone montrée et la carte qui
+   l'explique, surtout quand la zone contient beaucoup de texte — les deux
+   avaient le même fond blanc et le même style. La carte prend donc une couleur
+   qui n'existe nulle part ailleurs dans l'interface : c'est « le guide qui
+   parle », pas un panneau de l'application. Même identité en clair et en
+   sombre, pour qu'on la reconnaisse d'un thème à l'autre.
+   Contrastes vérifiés : 5,7 (clair) et 7,7 (sombre) pour le texte plein ;
+   l'opacité des textes secondaires ne descend pas sous 0,85, plancher mesuré
+   en dessous duquel on passe sous le seuil AA. */
+:root { --visite-fond:#0F6E93; --visite-encre:#FFFFFF; }
+body.sombre { --visite-fond:#0B5674; --visite-encre:#F2FAFE; }
+
+#visite-carte {
+  background:var(--visite-fond); color:var(--visite-encre);
+  border:2px solid rgba(255,255,255,.16);
+  box-shadow:0 14px 46px rgba(0,0,0,.45);
+}
+#visite-carte .v-titre, #visite-carte .vtitre { color:var(--visite-encre); }
+#visite-carte .v-texte, #visite-carte .vtexte { color:var(--visite-encre); opacity:.92; }
+#visite-carte .v-texte b, #visite-carte .vtexte b { color:var(--visite-encre); opacity:1; }
+#visite-carte .v-prog, #visite-carte .vprog { color:var(--visite-encre); opacity:.85; }
+#visite-carte .vmarque { color:var(--visite-encre); opacity:.85; }
+#visite-passer { color:var(--visite-encre); opacity:.85; }
+#visite-passer:hover { opacity:1; }
+/* Le bouton garde le lime de la plateforme : c'est l'action, elle doit sauter aux yeux */
+#visite-suivant { background:var(--primary); color:#3A3632; }
+
+/* ---- Lisibilité des boutons lime en thème sombre ----
+   Le lime (--primary) est une couleur claire dans les DEUX thèmes : son encre
+   doit donc rester sombre dans les deux. Elle suivait le jeton --neutral, qui passe au
+   blanc en sombre : le texte tombait à 1,36 de contraste, illisible. Un jeton
+   dédié fige l'encre posée sur le lime, à 7,6 de contraste. */
+:root, body.sombre { --sur-primary:#3A3632; }
+.btn, #visite-suivant, .go, #btn-continuer, #btn-suivante, #btn-suiv2, #btn-commencer {
+  color:var(--sur-primary);
+}
+.btn-contour, .btn-fantome { color:var(--neutral); }
 </style>
 </head>
 <body>
@@ -585,7 +624,7 @@ body.sombre { --accent-texte:#7FD4F5; --vert-fonce:#2A9D8F; --orange-fonce:#F7A4
       <button id="btn-formule" title="Mes mesures en direct" aria-label="Mesures">📐</button>
       <button id="z-plus" title="Zoomer" aria-label="Zoomer">+</button>
       <button id="z-moins" title="Dézoomer" aria-label="Dézoomer">−</button>
-      <button id="z-reset" title="Vue normale" aria-label="Vue normale">⟲</button>
+      <button id="z-reset" title="Recadrer sur mon montage" aria-label="Recadrer">⟲</button>
     </div>
   </div>
   <nav id="palette"></nav>
@@ -745,6 +784,8 @@ const PALETTES = {
     masque: '#F7F5F0',        // cache derrière le symbole de pile (--background)
     symbole: '#3A3632',       // traits du symbole de pile
     filamentEteint: '#B0ABA3', // --border-strong
+    metal: '#9C968E',         // boîtiers, culots, lames
+    cuivre: '#B87333',        // les fils, en vue réaliste
   },
   sombre: {
     grille: '#333E47',        // --border
@@ -754,6 +795,8 @@ const PALETTES = {
     masque: '#14181C',        // --background
     symbole: '#ECEFF1',
     filamentEteint: '#6B767F',
+    metal: '#7E858B',
+    cuivre: '#C9885A',
   },
 };
 const T = () => PALETTES[etat.theme];
@@ -765,41 +808,74 @@ let prochainId = 1;
 
 const canvas = document.getElementById('scene');
 const ctx = canvas.getContext('2d');
-let COLS = 12, ROWS = 8;      // nombre de nœuds (ajusté selon l'orientation)
-let cell = 48;                // pas de la grille en px CSS
-let origX = 0, origY = 0;     // origine de la grille (px CSS)
+
+/* La grille est FIXE et généreuse : 32 × 24 nœuds, soit huit fois la surface
+   de l'ancienne. Deux raisons de ne plus la faire dépendre de l'écran :
+
+   1. Elle basculait 12×8 ↔ 8×12 selon que le plan était plus large que haut,
+      et transposait alors tous les composants. Or la hauteur du plan change
+      dès que le panneau de mission s'ouvre ou qu'un diagnostic apparaît : le
+      montage de l'élève pivotait d'un quart de tour, tout seul, en pleine
+      manipulation. C'est aussi ce qui produisait les tracés en zigzag, quand
+      la bascule tombait au milieu d'un glissé.
+   2. En expérimentation libre, on veut de la place. Le dézoom montre
+      maintenant beaucoup de grille au lieu de buter sur un petit rectangle.
+
+   Les coordonnées d'un nœud sont donc absolues et ne bougent jamais ; seule
+   la fenêtre par laquelle on les regarde se déplace (vueG). */
+const COLS = 32, ROWS = 24;
+const CELL = 48;              // pas de la grille en px, à zoom 1
+const cell = CELL;            // alias : le pas du monde ne change plus
 let largeur = 0, hauteur = 0; // taille du canvas (px CSS)
 
 function redimensionner() {
   const wrap = document.getElementById('atelier');
+  const ancL = largeur, ancH = hauteur;
   largeur = wrap.clientWidth; hauteur = wrap.clientHeight;
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
   canvas.width = Math.round(largeur * dpr);
   canvas.height = Math.round(hauteur * dpr);
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-  // Orientation : grille 12×8 en paysage, 8×12 en portrait.
-  const portrait = hauteur > largeur;
-  const nCols = portrait ? 8 : 12, nRows = portrait ? 12 : 8;
-  if (nCols !== COLS) {
-    // Transposer les composants existants pour préserver le montage.
-    for (const c of etat.comps) {
-      [c.a.c, c.a.r] = [c.a.r, c.a.c];
-      [c.b.c, c.b.r] = [c.b.r, c.b.c];
-    }
-    COLS = nCols; ROWS = nRows;
+  if (ancL && ancH) {
+    // Le plan change de taille (panneau replié, rotation de l'écran) : on garde
+    // au centre le même point de la grille. Rien ne se déplace sous le doigt.
+    vueG.dx += (largeur - ancL) / 2;
+    vueG.dy += (hauteur - ancH) / 2;
+  } else {
+    vueParDefaut();
   }
-  cell = Math.min((largeur - 28) / (COLS - 1), (hauteur - 28) / (ROWS - 1));
-  origX = (largeur - cell * (COLS - 1)) / 2;
-  origY = (hauteur - cell * (ROWS - 1)) / 2;
   demanderRendu();
 }
 
-function pxDeNoeud(n) { return { x: origX + n.c * cell, y: origY + n.r * cell }; }
+/* Vue de départ, et recadrage du bouton ⟲.
+   Sur une grille de 32 × 24, revenir bêtement au centre peut laisser l'élève
+   devant du vide, son montage hors champ. Alors : s'il a construit quelque
+   chose, on cadre SUR son montage ; sinon, on montre le centre de la grille. */
+function vueParDefaut() {
+  let cMin = (COLS - 1) / 2, cMax = cMin, rMin = (ROWS - 1) / 2, rMax = rMin;
+  if (etat.comps.length) {
+    cMin = rMin = Infinity; cMax = rMax = -Infinity;
+    for (const comp of etat.comps)
+      for (const n of [comp.a, comp.b]) {
+        cMin = Math.min(cMin, n.c); cMax = Math.max(cMax, n.c);
+        rMin = Math.min(rMin, n.r); rMax = Math.max(rMax, n.r);
+      }
+  }
+  // au moins une zone de travail de 12 × 8 nœuds, pour ne pas zoomer à l'excès
+  const lc = Math.max(12, cMax - cMin + 3), lr = Math.max(8, rMax - rMin + 3);
+  const z = Math.max(0.28, Math.min(1.6,
+    Math.min((largeur - 24) / (lc * CELL), (hauteur - 24) / (lr * CELL))));
+  vueG.z = z;
+  vueG.dx = largeur / 2 - (cMin + cMax) / 2 * CELL * z;
+  vueG.dy = hauteur / 2 - (rMin + rMax) / 2 * CELL * z;
+}
+
+function pxDeNoeud(n) { return { x: n.c * CELL, y: n.r * CELL }; }
 
 function noeudLePlusProche(x, y) {
-  const c = Math.max(0, Math.min(COLS - 1, Math.round((x - origX) / cell)));
-  const r = Math.max(0, Math.min(ROWS - 1, Math.round((y - origY) / cell)));
+  const c = Math.max(0, Math.min(COLS - 1, Math.round(x / CELL)));
+  const r = Math.max(0, Math.min(ROWS - 1, Math.round(y / CELL)));
   return { c, r };
 }
 
@@ -816,8 +892,11 @@ function compSurArete(a, b) {
   return etat.comps.find(c => cleArete(c.a, c.b) === k) || null;
 }
 
-// Composant le plus proche d'un point (pour la sélection au doigt)
-function compSousPoint(x, y, rayon = 22) {
+// Composant le plus proche d'un point (pour la sélection au doigt).
+// Le rayon est donné en pixels d'écran puis converti : dézoomé, un rayon fixe
+// en coordonnées du monde deviendrait impossible à viser au doigt.
+function compSousPoint(x, y, rayonEcran = 22) {
+  const rayon = Math.min(CELL * 0.7, rayonEcran / vueG.z);
   let meilleur = null, dMin = rayon;
   for (const comp of etat.comps) {
     const pa = pxDeNoeud(comp.a), pb = pxDeNoeud(comp.b);
@@ -853,7 +932,18 @@ function resistanceDe(comp) {
   }
 }
 
+// `resoudre()` calcule PUIS met à jour l'écran. Les missions ont parfois besoin
+// du calcul seul — pour répondre à « et si on inversait cette pile ? » sans rien
+// afficher ni relancer l'évaluation. D'où la séparation.
 function resoudre() {
+  calculer();
+  majBanniere();
+  demanderRendu();
+  evaluerMission();   // le parcours pédagogique observe chaque action de l'élève
+  majFormule();       // la loi d'Ohm en direct avec les mesures de l'élève
+}
+
+function calculer() {
   // Indexer les nœuds réellement utilisés
   const index = new Map();
   for (const comp of etat.comps) {
@@ -863,7 +953,7 @@ function resoudre() {
     }
   }
   const n = index.size;
-  if (n === 0) { etat.courtCircuit = false; majBanniere(); return; }
+  if (n === 0) { etat.courtCircuit = false; return; }
 
   const G = Array.from({ length: n }, () => new Float64Array(n));
   const I = new Float64Array(n);
@@ -898,10 +988,6 @@ function resoudre() {
       if (comp.type === 'voltmetre') comp.U = va - vb;   // tension mesurée
     }
   }
-  majBanniere();
-  demanderRendu();
-  evaluerMission();   // le parcours pédagogique observe chaque action de l'élève
-  majFormule();       // la loi d'Ohm en direct avec les mesures de l'élève
 }
 
 // Panneau 📐 : quand l'élève mesure U et I, la loi d'Ohm se vérifie sous ses yeux
@@ -990,8 +1076,10 @@ function boucle(t) {
    (retour testeurs : pouvoir dégager le circuit de sous les panneaux) */
 const vueG = { z: 1, dx: 0, dy: 0 };
 
+// Le dézoom descend maintenant à 0,28 : de quoi embrasser toute la grille
+// 32 × 24 d'un coup, ce que l'ancienne borne à 0,6 ne permettait pas.
 function zoomAutour(cx, cy, facteur) {
-  const z2 = Math.max(0.6, Math.min(2.5, vueG.z * facteur));
+  const z2 = Math.max(0.28, Math.min(2.5, vueG.z * facteur));
   const wx = (cx - vueG.dx) / vueG.z, wy = (cy - vueG.dy) / vueG.z;
   vueG.z = z2;
   vueG.dx = cx - wx * z2;
@@ -1001,7 +1089,7 @@ function zoomAutour(cx, cy, facteur) {
 document.getElementById('z-plus').addEventListener('click', () => zoomAutour(largeur / 2, hauteur / 2, 1.25));
 document.getElementById('z-moins').addEventListener('click', () => zoomAutour(largeur / 2, hauteur / 2, 0.8));
 document.getElementById('z-reset').addEventListener('click', () => {
-  vueG.z = 1; vueG.dx = 0; vueG.dy = 0; demanderRendu();
+  vueParDefaut(); demanderRendu();
 });
 
 function dessiner() {
@@ -1010,13 +1098,24 @@ function dessiner() {
   ctx.translate(vueG.dx, vueG.dy);
   ctx.scale(vueG.z, vueG.z);
 
-  // Points de la grille
+  // Points de la grille — seulement ceux qui tombent dans la fenêtre visible.
+  // Sur 32 × 24 nœuds, tout dessiner à chaque image ne servirait à rien.
+  const c0 = Math.max(0, Math.floor(-vueG.dx / vueG.z / CELL) - 1);
+  const c1 = Math.min(COLS - 1, Math.ceil((largeur - vueG.dx) / vueG.z / CELL) + 1);
+  const r0 = Math.max(0, Math.floor(-vueG.dy / vueG.z / CELL) - 1);
+  const r1 = Math.min(ROWS - 1, Math.ceil((hauteur - vueG.dy) / vueG.z / CELL) + 1);
   ctx.fillStyle = T().grille;
-  for (let r = 0; r < ROWS; r++)
-    for (let c = 0; c < COLS; c++) {
+  const rayonPoint = vueG.z < 0.5 ? 3.4 : 2.4;   // très dézoomé, les points s'effaceraient
+  for (let r = r0; r <= r1; r++)
+    for (let c = c0; c <= c1; c++) {
       const p = pxDeNoeud({ c, r });
-      ctx.beginPath(); ctx.arc(p.x, p.y, 2.4, 0, 7); ctx.fill();
+      ctx.beginPath(); ctx.arc(p.x, p.y, rayonPoint, 0, 7); ctx.fill();
     }
+  // Le bord de la grille : on sait où finit le plan de travail
+  ctx.strokeStyle = T().grille; ctx.lineWidth = 2 / vueG.z;
+  ctx.setLineDash([10 / vueG.z, 8 / vueG.z]);
+  ctx.strokeRect(-CELL / 2, -CELL / 2, (COLS - 1 + 1) * CELL, (ROWS - 1 + 1) * CELL);
+  ctx.setLineDash([]);
 
   // Halo de sélection
   const sel = etat.comps.find(c => c.id === etat.selection);
@@ -1105,7 +1204,13 @@ function dessinerComp(c2d, comp, icone) {
     c2d.strokeStyle = coul; c2d.lineWidth = larg; c2d.lineCap = 'round';
     c2d.beginPath(); c2d.moveTo(x1, y1); c2d.lineTo(x2, y2); c2d.stroke();
   };
-  const filCoul = T().fil;
+  // Les icônes de l'établi montrent toujours l'objet réel : c'est ainsi qu'on
+  // reconnaît ce qu'on prend en main.
+  const symboles = etat.vue === 'symboles' && !icone;
+  // En vue réaliste, les fils sont des conducteurs de cuivre gainés ; en vue
+  // schématique, de simples traits. C'est le premier repère qui distingue les
+  // deux vues, avant même les composants.
+  const filCoul = symboles ? T().fil : T().cuivre;
 
   switch (comp.type) {
 
@@ -1115,7 +1220,7 @@ function dessinerComp(c2d, comp, icone) {
 
     case 'pile': {
       trait(pa.x, pa.y, pb.x, pb.y, 4 * s, filCoul); // conducteur support
-      if (etat.vue === 'symboles' && !icone) {
+      if (symboles) {
         // Symbole normalisé : trait long fin (+, côté b), trait court épais (−, côté a)
         c2d.fillStyle = T().masque;
         c2d.fillRect(mx - ux * 8 * s - Math.abs(nx) * 14 * s, my - uy * 8 * s - Math.abs(ny) * 14 * s,
@@ -1164,25 +1269,54 @@ function dessinerComp(c2d, comp, icone) {
         c2d.fillStyle = g;
         c2d.beginPath(); c2d.arc(mx, my, R * 3.6, 0, 7); c2d.fill();
       }
-      c2d.fillStyle = eclat > 0.02 ? `rgba(255,236,160,${0.55 + 0.45 * eclat})` : T().compFond;
-      c2d.beginPath(); c2d.arc(mx, my, R, 0, 7); c2d.fill();
-      c2d.strokeStyle = T().trait; c2d.lineWidth = 2.2 * s;
-      c2d.beginPath(); c2d.arc(mx, my, R, 0, 7); c2d.stroke();
-      if (etat.vue === 'symboles' && !icone) {
-        // Symbole normalisé : croix inscrite dans le cercle
+      if (symboles) {
+        // Symbole normalisé : cercle et croix inscrite
+        c2d.fillStyle = eclat > 0.02 ? `rgba(255,236,160,${0.55 + 0.45 * eclat})` : T().compFond;
+        c2d.beginPath(); c2d.arc(mx, my, R, 0, 7); c2d.fill();
+        c2d.strokeStyle = T().trait; c2d.lineWidth = 2.2 * s;
+        c2d.beginPath(); c2d.arc(mx, my, R, 0, 7); c2d.stroke();
         const d = R * 0.7071;
         const cx2 = eclat > 0.02 ? '#37474f' : T().trait;   // croix lisible sur fond allumé
         trait(mx - d, my - d, mx + d, my + d, 2.2 * s, cx2);
         trait(mx - d, my + d, mx + d, my - d, 2.2 * s, cx2);
       } else {
-        // Filament
-        c2d.strokeStyle = eclat > 0.02 ? '#ff8f00' : T().filamentEteint;
+        // Vue réaliste : une VRAIE ampoule — ballon de verre, culot à vis
+        c2d.save();
+        c2d.translate(mx, my); c2d.rotate(Math.atan2(uy, ux));
+        // culot métallique, côté a, avec ses trois filets
+        const cu = 7 * s;
+        c2d.fillStyle = T().metal;
+        c2d.beginPath(); c2d.roundRect(-R - cu, -6 * s, cu + 4 * s, 12 * s, 2 * s); c2d.fill();
+        c2d.strokeStyle = 'rgba(0,0,0,.22)'; c2d.lineWidth = 1 * s;
+        for (let i = 0; i < 3; i++) {
+          c2d.beginPath();
+          c2d.moveTo(-R - cu + 2 * s + i * 2.4 * s, -6 * s);
+          c2d.lineTo(-R - cu + 2 * s + i * 2.4 * s, 6 * s); c2d.stroke();
+        }
+        // ballon de verre : un cercle légèrement étiré, épaulé vers le culot
+        c2d.fillStyle = eclat > 0.02
+          ? `rgba(255,232,150,${0.62 + 0.38 * eclat})`
+          : (etat.theme === 'sombre' ? 'rgba(200,220,235,.20)' : 'rgba(180,205,225,.30)');
+        c2d.beginPath(); c2d.ellipse(1.5 * s, 0, R * 1.06, R, 0, 0, 7); c2d.fill();
+        c2d.strokeStyle = T().trait; c2d.lineWidth = 1.8 * s;
+        c2d.beginPath(); c2d.ellipse(1.5 * s, 0, R * 1.06, R, 0, 0, 7); c2d.stroke();
+        // filament suspendu à ses deux tiges
+        c2d.strokeStyle = eclat > 0.02 ? '#FF8F00' : T().filamentEteint;
+        c2d.lineWidth = 1.5 * s;
+        c2d.beginPath();
+        c2d.moveTo(-R * 0.5, R * 0.45); c2d.lineTo(-R * 0.5, R * 0.05);
+        c2d.moveTo(R * 0.5, R * 0.45); c2d.lineTo(R * 0.5, R * 0.05);
+        c2d.stroke();
         c2d.lineWidth = 1.8 * s;
         c2d.beginPath();
-        c2d.moveTo(mx - R * 0.55, my + R * 0.25);
+        c2d.moveTo(-R * 0.5, R * 0.05);
         for (let i = 0; i <= 4; i++)
-          c2d.lineTo(mx - R * 0.55 + (i + 0.5) * R * 0.22, my + R * 0.25 - (i % 2 ? 0 : R * 0.5));
+          c2d.lineTo(-R * 0.5 + i * R * 0.25, R * 0.05 - (i % 2 ? 0 : R * 0.5));
         c2d.stroke();
+        // reflet sur le verre
+        c2d.strokeStyle = 'rgba(255,255,255,.55)'; c2d.lineWidth = 1.6 * s;
+        c2d.beginPath(); c2d.arc(0, 0, R * 0.72, -2.5, -1.6); c2d.stroke();
+        c2d.restore();
       }
       break;
     }
@@ -1192,12 +1326,27 @@ function dessinerComp(c2d, comp, icone) {
       const c2x = pa.x + ux * L * 0.7, c2y = pa.y + uy * L * 0.7;
       trait(pa.x, pa.y, c1x, c1y, 4 * s, filCoul);
       trait(c2x, c2y, pb.x, pb.y, 4 * s, filCoul);
+      if (!symboles) {
+        // Vue réaliste : socle isolant sous les deux bornes
+        c2d.save();
+        c2d.translate((c1x + c2x) / 2, (c1y + c2y) / 2); c2d.rotate(Math.atan2(uy, ux));
+        const lS = L * 0.28, hS = 9 * s;
+        c2d.fillStyle = etat.theme === 'sombre' ? '#2E3A44' : '#EDE9E3';
+        c2d.strokeStyle = T().metal; c2d.lineWidth = 1.4 * s;
+        c2d.beginPath(); c2d.roundRect(-lS, -hS, 2 * lS, 2 * hS, 3 * s); c2d.fill(); c2d.stroke();
+        c2d.restore();
+      }
       // Levier : à plat si fermé, relevé si ouvert
       const ang = comp.ferme ? 0 : -0.62;
       const lx = Math.cos(ang) * (ux * L * 0.4) - Math.sin(ang) * (uy * L * 0.4);
       const ly = Math.sin(ang) * (ux * L * 0.4) + Math.cos(ang) * (uy * L * 0.4);
-      trait(c1x, c1y, c1x + lx, c1y + ly, 4 * s, comp.ferme ? filCoul : '#e65100');
-      c2d.fillStyle = '#1565c0';
+      trait(c1x, c1y, c1x + lx, c1y + ly, symboles ? 4 * s : 5 * s,
+            comp.ferme ? (symboles ? filCoul : T().metal) : '#E65100');
+      if (!symboles) {   // bouton au bout du levier : on voit où appuyer
+        c2d.fillStyle = comp.ferme ? '#2A9D8F' : '#E65100';
+        c2d.beginPath(); c2d.arc(c1x + lx, c1y + ly, 4 * s, 0, 7); c2d.fill();
+      }
+      c2d.fillStyle = symboles ? '#1565c0' : T().trait;
       c2d.beginPath(); c2d.arc(c1x, c1y, 4.5 * s, 0, 7); c2d.fill();
       c2d.beginPath(); c2d.arc(c2x, c2y, 4.5 * s, 0, 7); c2d.fill();
       break;
@@ -1206,14 +1355,37 @@ function dessinerComp(c2d, comp, icone) {
     case 'amperemetre':
     case 'voltmetre': {
       trait(pa.x, pa.y, pb.x, pb.y, 4 * s, filCoul);
-      const R = 13 * s;
-      c2d.fillStyle = T().compFond;
-      c2d.beginPath(); c2d.arc(mx, my, R, 0, 7); c2d.fill();
-      c2d.strokeStyle = T().trait; c2d.lineWidth = 2.2 * s;
-      c2d.beginPath(); c2d.arc(mx, my, R, 0, 7); c2d.stroke();
-      c2d.fillStyle = T().trait; c2d.font = `bold ${13 * s}px sans-serif`;
-      c2d.textAlign = 'center'; c2d.textBaseline = 'middle';
-      c2d.fillText(comp.type === 'voltmetre' ? 'V' : 'A', mx, my + 0.5);
+      const lettre = comp.type === 'voltmetre' ? 'V' : 'A';
+      if (symboles) {
+        // Symbole normalisé : cercle et lettre
+        const R = 13 * s;
+        c2d.fillStyle = T().compFond;
+        c2d.beginPath(); c2d.arc(mx, my, R, 0, 7); c2d.fill();
+        c2d.strokeStyle = T().trait; c2d.lineWidth = 2.2 * s;
+        c2d.beginPath(); c2d.arc(mx, my, R, 0, 7); c2d.stroke();
+        c2d.fillStyle = T().trait; c2d.font = `bold ${13 * s}px sans-serif`;
+        c2d.textAlign = 'center'; c2d.textBaseline = 'middle';
+        c2d.fillText(lettre, mx, my + 0.5);
+      } else {
+        // Vue réaliste : un boîtier d'appareil, pas un rond
+        c2d.save();
+        c2d.translate(mx, my); c2d.rotate(Math.atan2(uy, ux));
+        const lB = 17 * s, hB = 12 * s;
+        c2d.fillStyle = T().compFond;
+        c2d.strokeStyle = T().trait; c2d.lineWidth = 2 * s;
+        c2d.beginPath(); c2d.roundRect(-lB, -hB, 2 * lB, 2 * hB, 3.5 * s); c2d.fill(); c2d.stroke();
+        // fenêtre de lecture, sombre comme un afficheur
+        c2d.fillStyle = etat.theme === 'sombre' ? '#0E1418' : '#26323A';
+        c2d.beginPath(); c2d.roundRect(-lB + 3.5 * s, -hB + 3 * s, 2 * lB - 7 * s, hB, 2 * s); c2d.fill();
+        // molette de calibre, en bas
+        c2d.fillStyle = T().metal;
+        c2d.beginPath(); c2d.arc(0, hB - 4 * s, 2.6 * s, 0, 7); c2d.fill();
+        // la lettre, gravée à côté de la molette
+        c2d.fillStyle = T().trait; c2d.font = `bold ${9 * s}px sans-serif`;
+        c2d.textAlign = 'center'; c2d.textBaseline = 'middle';
+        c2d.fillText(lettre, -lB + 6 * s, hB - 4 * s);
+        c2d.restore();
+      }
       // (l'écran de mesure est dessiné au premier plan, voir dessinerMesures)
       break;
     }
@@ -2025,6 +2197,53 @@ const amperemetres = () => etat.comps.filter(c => c.type === 'amperemetre');
 const memeIntensite = (x, ref, tol) =>
   Math.abs(Math.abs(x) - Math.abs(ref)) <= tol * Math.max(Math.abs(ref), 1e-9);
 
+/* ---- Analyse topologique : « avant » et « après » un composant ----
+   Compter les composants ne suffit pas à vérifier une consigne comme « un
+   ampèremètre avant la lampe, un après » : dans une boucle simple, tous les
+   éléments portent le même courant, où qu'ils soient. Il faut regarder le
+   CHEMIN. En retirant la lampe et la pile du graphe, la boucle se coupe en
+   deux tronçons : ce qui est d'un côté de la lampe, et ce qui est de l'autre. */
+const cleNoeud = n => n.c + ',' + n.r;
+
+function tronconsHorsLampesEtPiles() {
+  const pere = new Map();
+  const ajouter = k => { if (!pere.has(k)) pere.set(k, k); };
+  const racine = k => { while (pere.get(k) !== k) { pere.set(k, pere.get(pere.get(k))); k = pere.get(k); } return k; };
+  for (const c of etat.comps) { ajouter(cleNoeud(c.a)); ajouter(cleNoeud(c.b)); }
+  for (const c of etat.comps) {
+    if (c.type === 'lampe' || c.type === 'pile') continue;      // ce sont les séparateurs
+    if (c.type === 'interrupteur' && !c.ferme) continue;        // ouvert : ne relie rien
+    if (c.type === 'voltmetre') continue;                       // en dérivation, hors du chemin
+    const ra = racine(cleNoeud(c.a)), rb = racine(cleNoeud(c.b));
+    if (ra !== rb) pere.set(ra, rb);
+  }
+  return n => (pere.has(cleNoeud(n)) ? racine(cleNoeud(n)) : null);
+}
+
+// Les composants donnés sont-ils répartis de part et d'autre de la lampe ?
+function deParEtDautre(comps) {
+  const troncon = tronconsHorsLampesEtPiles();
+  const cotes = new Set(comps.map(c => troncon(c.a)).filter(x => x !== null));
+  return cotes.size >= 2;
+}
+
+/* Les piles s'annulent-elles VRAIMENT, ou le circuit est-il simplement ouvert ?
+   Les deux donnent « tout à zéro ». On tranche en retournant une pile le temps
+   d'un calcul : si le courant repart, c'est bien qu'elles se combattaient. Le
+   montage est restauré aussitôt, avant tout affichage. */
+function pilesEnOpposition() {
+  const p = piles();
+  if (p.length < 2) return false;
+  const sauve = etat.comps.map(c => c.I);
+  [p[0].a, p[0].b] = [p[0].b, p[0].a];
+  calculer();
+  const repart = lampes().some(c => Math.abs(c.I) >= 0.1);
+  [p[0].a, p[0].b] = [p[0].b, p[0].a];       // on remet la pile comme elle était
+  calculer();
+  etat.comps.forEach((c, i) => { c.I = sauve[i]; });
+  return repart;
+}
+
 // Signatures de montage (une seule pile requise) — servent à valider ET à diagnostiquer
 const signatureSerie = () => {
   if (piles().length !== 1) return false;
@@ -2133,15 +2352,23 @@ const MISSIONS = [
         test: () => {
           if (piles().length !== 1 || lampesAllumees().length < 1) return false;
           const Ip = piles()[0].I;
-          return amperemetres().filter(c =>
-            Math.abs(c.I) >= 0.1 && memeIntensite(c.I, Ip, 0.05)).length >= 2;
+          const actifs = amperemetres().filter(c =>
+            Math.abs(c.I) >= 0.1 && memeIntensite(c.I, Ip, 0.05));
+          // Deux ampèremètres traversés ne suffisent pas : la consigne dit
+          // « un avant, un après ». Ils doivent encadrer la lampe.
+          return actifs.length >= 2 && deParEtDautre(actifs);
         } },
     ],
     retenir: "Les deux ampèremètres affichent la même valeur : dans une boucle simple, l'intensité est la même partout. Le courant ne s'use pas en traversant la lampe — c'est l'énergie de la pile qui se transforme en lumière et en chaleur.",
-    indice: "Les deux ampèremètres doivent être sur le même chemin que la lampe, dans la même boucle, avec une seule pile.",
+    indice: "Les deux ampèremètres doivent être sur le même chemin que la lampe, dans la même boucle, avec une seule pile — l'un d'un côté de la lampe, l'autre de l'autre.",
     diags: [
       { si: () => piles().length >= 2,
         msg: "Il y a plusieurs piles sur la grille : garde une seule pile pour cette mission." },
+      { si: () => {
+          const actifs = amperemetres().filter(c => Math.abs(c.I) >= 0.1);
+          return actifs.length >= 2 && !deParEtDautre(actifs);
+        },
+        msg: "Tes deux ampèremètres sont du MÊME côté de la lampe : ils ne peuvent pas comparer l'avant et l'après. Déplaces-en un de l'autre côté." },
       { si: () => amperemetres().filter(c => Math.abs(c.I) >= 0.05).length >= 2,
         msg: "Tes deux ampèremètres ne sont pas dans la même boucle simple que la lampe : mets tout sur un seul chemin." },
     ],
@@ -2220,7 +2447,12 @@ const MISSIONS = [
       { texte: "Place DEUX piles dans le même sens dans ta boucle, avec une lampe : elle doit briller plus fort que jamais (plus de 0,60 A) !",
         test: () => nb('pile') >= 2 && lampes().some(c => Math.abs(c.I) >= 0.6) },
       { texte: "Maintenant, INVERSE une des deux piles (touche-la, puis ↔ Inverser). Que se passe-t-il ?",
-        test: () => nb('pile') >= 2 && nb('lampe') >= 1 && etat.comps.every(c => Math.abs(c.I) < 0.05) },
+        // « Tout est éteint » ne prouve rien : débrancher un fil éteint aussi.
+        // On vérifie que la boucle est bien FERMÉE, en demandant au solveur ce
+        // que donnerait le montage si l'on remettait les piles dans le même sens.
+        test: () => nb('pile') >= 2 && nb('lampe') >= 1 &&
+                    etat.comps.every(c => Math.abs(c.I) < 0.05) &&
+                    pilesEnOpposition() },
       { texte: "Les piles se combattent : TOUT s'éteint ! Remets-les dans le même sens pour rallumer la lampe très fort.",
         test: () => nb('pile') >= 2 && lampes().some(c => Math.abs(c.I) >= 0.6) },
     ],
@@ -2527,6 +2759,19 @@ $('btn-suivante-barre').addEventListener('click', () => {
   allerMission(derniere ? 'libre' : progression.m + 1);
 });
 
+
+/* Le quiz doit rester atteignable SANS quitter la simulation : il n'apparaissait
+   que sur l'écran d'accueil, au lancement. Une fois le parcours terminé, l'élève
+   était obligé de sortir et de revenir pour le retrouver. */
+function carteExercer() {
+  const ouvert = accueilOuvert();
+  return '<button class="d-carte" data-mission="exercer"' + (ouvert ? '' : ' disabled') + '>' +
+    '<span class="num">' + (ouvert ? '🏅' : '🔒') + '</span>' +
+    '<span class="txt"><b>M’exercer</b><span>' + (ouvert
+      ? 'Trois séries de questions, et un score de maîtrise.'
+      : 'Termine le parcours pour l’ouvrir.') + '</span></span></button>';
+}
+
 function ouvrirListe() {
   const total = MISSIONS.length, n = progression.faites.length;
   $('d-barre').style.width = Math.round(n / total * 100) + '%';
@@ -2546,7 +2791,7 @@ function ouvrirListe() {
          <span class="txt"><b>La grille libre</b><span>Tous les composants, aucune consigne.</span></span>
        </button>`
     : '';
-  $('liste-missions').innerHTML = cartes + libre;
+  $('liste-missions').innerHTML = cartes + libre + carteExercer();
   ouvrir('v-missions');
 }
 
@@ -2554,6 +2799,7 @@ $('btn-missions').addEventListener('click', ouvrirListe);
 $('v-missions').addEventListener('click', e => {
   const b = e.target.closest('[data-mission]');
   if (!b || b.disabled) return;
+  if (b.dataset.mission === 'exercer') { fermer('v-missions'); ouvrirQuiz(); return; }
   fermer('v-missions');
   allerMission(b.dataset.mission === 'libre' ? 'libre' : +b.dataset.mission);
 });

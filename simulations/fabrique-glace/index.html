@@ -680,6 +680,45 @@ main { flex:1; min-height:0; display:flex; flex-direction:column; }
 .qz-revoir span { display:block; }
 .qz-boutons { display:flex; gap:8px; }
 .qz-boutons .btn { flex:1; }
+
+/* ---- La carte de la visite guidée : elle ne doit ressembler à rien d'autre ----
+   Retour d'usage : l'œil hésitait entre la zone montrée et la carte qui
+   l'explique, surtout quand la zone contient beaucoup de texte — les deux
+   avaient le même fond blanc et le même style. La carte prend donc une couleur
+   qui n'existe nulle part ailleurs dans l'interface : c'est « le guide qui
+   parle », pas un panneau de l'application. Même identité en clair et en
+   sombre, pour qu'on la reconnaisse d'un thème à l'autre.
+   Contrastes vérifiés : 5,7 (clair) et 7,7 (sombre) pour le texte plein ;
+   l'opacité des textes secondaires ne descend pas sous 0,85, plancher mesuré
+   en dessous duquel on passe sous le seuil AA. */
+:root { --visite-fond:#0F6E93; --visite-encre:#FFFFFF; }
+body.sombre { --visite-fond:#0B5674; --visite-encre:#F2FAFE; }
+
+#visite-carte {
+  background:var(--visite-fond); color:var(--visite-encre);
+  border:2px solid rgba(255,255,255,.16);
+  box-shadow:0 14px 46px rgba(0,0,0,.45);
+}
+#visite-carte .v-titre, #visite-carte .vtitre { color:var(--visite-encre); }
+#visite-carte .v-texte, #visite-carte .vtexte { color:var(--visite-encre); opacity:.92; }
+#visite-carte .v-texte b, #visite-carte .vtexte b { color:var(--visite-encre); opacity:1; }
+#visite-carte .v-prog, #visite-carte .vprog { color:var(--visite-encre); opacity:.85; }
+#visite-carte .vmarque { color:var(--visite-encre); opacity:.85; }
+#visite-passer { color:var(--visite-encre); opacity:.85; }
+#visite-passer:hover { opacity:1; }
+/* Le bouton garde le lime de la plateforme : c'est l'action, elle doit sauter aux yeux */
+#visite-suivant { background:var(--primary); color:#3A3632; }
+
+/* ---- Lisibilité des boutons lime en thème sombre ----
+   Le lime (--primary) est une couleur claire dans les DEUX thèmes : son encre
+   doit donc rester sombre dans les deux. Elle suivait le jeton --neutral, qui passe au
+   blanc en sombre : le texte tombait à 1,36 de contraste, illisible. Un jeton
+   dédié fige l'encre posée sur le lime, à 7,6 de contraste. */
+:root, body.sombre { --sur-primary:#3A3632; }
+.btn, #visite-suivant, .go, #btn-continuer, #btn-suivante, #btn-suiv2, #btn-commencer {
+  color:var(--sur-primary);
+}
+.btn-contour, .btn-fantome { color:var(--neutral); }
 </style>
 </head>
 <body>
@@ -1593,7 +1632,10 @@ function montrerBilan(em, titre, objectif, phrase, suite) {
     '<button class="reduire" id="bilan-x" aria-label="Réduire">✕</button></div>' +
     (objectif ? '<div class="objectif">' + objectif + '</div>' : '') +
     '<p class="phrase">' + phrase + '</p>' +
-    '<div class="actions"><button class="btn btn-fantome" id="bilan-ok">' +
+    // C'est la seule action de la modale : elle doit ressembler à un bouton.
+    // En `btn-fantome`, fond transparent sur le fond du bilan, elle passait
+    // pour du texte cliquable — pas pour un appel à agir.
+    '<div class="actions"><button class="btn" id="bilan-ok">' +
       (suite || 'Continuer') + '</button></div>';
   b.classList.add('visible');
   $('atelier').classList.add('avec-bilan');
@@ -1765,6 +1807,19 @@ function rendreLexique() {
     // le mot et sa définition sur deux lignes : « em » les collait l'un à l'autre
     '<div class="lex-entree"><b>' + m + '</b><span>' + d + '</span></div>').join('');
 }
+
+/* Le quiz doit rester atteignable SANS quitter la simulation : il n'apparaissait
+   que sur l'écran d'accueil, au lancement. Une fois le parcours terminé, l'élève
+   devait sortir de la simulation et y revenir pour le retrouver. */
+function carteExercer() {
+  const ouvert = etat.faites.length >= MISSIONS.length;
+  return '<button class="d-carte" data-mission="exercer"' + (ouvert ? '' : ' disabled') + '>' +
+    '<span class="num">' + (ouvert ? '🏅' : '🔒') + '</span>' +
+    '<span class="txt"><b>M’exercer</b><span>' + (ouvert
+      ? 'Trois séries de questions, et un score de maîtrise.'
+      : 'Termine le parcours pour l’ouvrir.') + '</span></span></button>';
+}
+
 function rendreListeMissions() {
   $('liste-missions').innerHTML = MISSIONS.map((m, i) => {
     const fait = etat.faits.includes(i), ouverte = i <= etat.mission || fait;
@@ -1775,10 +1830,12 @@ function rendreListeMissions() {
       (ouverte ? m.but : 'Termine la mission précédente pour l’ouvrir.') +
       '</span></div></button>';
   }).join('') + carteLibre();
+  $('liste-missions').insertAdjacentHTML('beforeend', carteExercer());
   // une mission déjà ouverte se rejoue d'un clic, comme dans les autres simulations
   $('liste-missions').querySelectorAll('[data-mission]').forEach(b => {
     if (b.disabled) return;
     b.onclick = () => {
+      if (b.dataset.mission === 'exercer') { fermer('v-missions'); ouvrirQuiz(); return; }
       fermer('v-missions');
       etat.libre = false; etat.mission = +b.dataset.mission;
       sauver(); reprendre(); demarrerMission(); rendreListeMissions();
@@ -2108,12 +2165,16 @@ function melangerQuiz(q) {
 
 let quiz = null;
 
+/* Le quiz vit dans le périmètre de init() ; la liste des missions, elle, est
+   dessinée par une fonction globale. On expose donc l’ouverture du quiz pour
+   que la carte « M’exercer » puisse l’appeler. */
 function ouvrirQuiz() {
   if (!accueilOuvert()) { toast('Termine les ' + MISSIONS.length + ' missions pour t’exercer.'); return; }
   quiz = null;
   rendreAccueilQuiz();
   ouvrir('v-quiz');
 }
+window.ouvrirQuiz = ouvrirQuiz;
 
 function rendreAccueilQuiz() {
   const p = scoreMaitrise();
