@@ -5,6 +5,19 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v4.32.0 — 2026-08-08
+
+🫙 **La bougie sous cloche : des proportions justes.**
+
+Défaut trouvé en interne, non signalé par les testeurs. La cloche montait à **60 % de la hauteur du
+plan** alors que la bougie n'en fait qu'un dixième : celle-ci se perdait au fond d'un grand vide, et
+la cuve d'eau filait jusque sous la table. La cloche descend à **44 %** et la bougie grandit d'un
+tiers — elle occupe désormais sa cloche au lieu d'y flotter. La lecture de la montée d'eau, qui se
+compte en pourcentage du volume, n'est pas affectée.
+
+Ceci clôt le **lot C** de la deuxième vague de retours : tam-tam, alambic, fabrique de glace,
+marmites et flamme sont tous repris.
+
 ## v4.31.0 — 2026-08-08
 
 🧯 **Les quatre gestes contre l'incendie : on voit enfin ce qui les produit.**

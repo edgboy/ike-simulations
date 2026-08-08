@@ -131,7 +131,7 @@ fait passer le moulin nettement sous la moto.
 | C4 | ~~Marmites : les quatre gestes~~ — **traité en v4.31.0** | On voit désormais l'objet qui agit : le seau bascule et verse une nappe qui éclabousse, la pelle s'incline et le tas de sable étouffe la flaque, la branche feuillue s'abat et projette des braises, l'extincteur a son flexible, sa lance et son cône de poudre |
 | C5 | **Premiers pas** | Rien : « excellent côté design » |
 | C6 | **Pollution** | Rien : « les illustrations sont beaucoup mieux » |
-| C7 | **Flamme (trouvé en v4.22.0)** | Le plan de la bougie sous cloche est trop grand pour son cadre : la cuve d'eau passe derrière la table. Défaut de dessin déjà présent en parcours, pas signalé par les testeurs |
+| C7 | ~~Flamme : la cloche trop grande~~ — **traité en v4.32.0** | La cloche montait à 60 % de la hauteur du plan pour une bougie qui en fait un dixième. Elle descend à 44 % et la bougie grandit d'un tiers |
 
 ### D. Reste de la vague précédente, non traité
 

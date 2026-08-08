@@ -1181,9 +1181,11 @@ function dessinerCloche(g) {
   const CXc = Math.round(utile * .5);
   const FONDC = Math.round(Hp * .90);
   const EAU0 = Math.round(Hp * .76);                     // niveau de l’eau dans la cuve
-  const HAUTC = Math.round(EAU0 - Hp * .60);             // sommet de la cloche
+  // La cloche faisait cinq fois la hauteur de la bougie, qui s'y perdait au fond
+  // d'un grand vide. On lui laisse de quoi contenir la flamme, sans plus.
+  const HAUTC = Math.round(EAU0 - Hp * .44);             // sommet de la cloche
   const DEMI = Math.round(Math.min(utile * .32, Hp * .26));
-  const ec = Math.max(.55, DEMI / 96);                   // échelle des accessoires
+  const ec = Math.max(.55, DEMI / 74);                   // échelle des accessoires
 
   g.appendChild(el('rect', { x:0, y:FONDC + 5, width:Wp, height:Hp - FONDC,
     fill:sombre ? '#2A2119' : '#B98A5E' }));
