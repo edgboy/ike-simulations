@@ -2,704 +2,701 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#F7F5F0">
-<title>Circuit électrique · IKE Simulations</title>
+<title>Circuit électrique — Labo-Bénin</title>
 <link rel="stylesheet" href="../../assets/polices.css">
 <style>
-/* ===== Design system Labo-Bénin — accent PCT ===== */
+/* ===== Jetons du design system Labo-Bénin (intégrés : fichier autonome) ===== */
 :root {
-  --primary:#C4D94E; --accent:#5BC5F2; --accent-doux:#D6F0FB; --accent-fonce:#2196C4;
-  --tertiary:#F7A430; --destructive:#E83A4B; --destructive-doux:#FDE2E5; --success:#2A9D8F;
-  --neutral:#3A3632; --gris-doux:#7A736C;
-  --background:#F7F5F0; --surface:#FFFFFF; --surface-muted:#F0EEE9;
+  --primary:#C4D94E; --accent:#5BC5F2; --accent-doux:#D6F0FB;
+  --tertiary:#F7A430; --destructive:#E83A4B; --success:#2A9D8F;
+  --neutral:#3A3632; --background:#F7F5F0; --surface:#FFFFFF; --surface-muted:#F0EEE9;
   --border:#D3CFC8; --border-strong:#B0ABA3; --ring:#5BC5F2;
   --font-display:'Baloo 2','Segoe UI',system-ui,sans-serif;
   --font-body:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;
-  --radius-sm:8px; --radius-md:12px; --radius-lg:16px; --radius-full:9999px;
+  --radius-sm:8px; --radius-md:12px; --radius-lg:16px; --radius-xl:24px; --radius-full:9999px;
   --shadow-soft:0 4px 16px rgba(58,54,50,.05);
   --shadow-raised:0 6px 20px rgba(58,54,50,.06);
   --ease:cubic-bezier(.4,0,.2,1);
 }
 body.sombre {
-  --neutral:#ECEFF1; --gris-doux:#A8B0B6;
-  --background:#14181C; --surface:#1C232A; --surface-muted:#232C34;
-  --border:#333E47; --border-strong:#4A5762; --accent-doux:#17323F; --destructive-doux:#3A1F22;
+  --neutral:#ECEFF1; --background:#14181C; --surface:#1C232A; --surface-muted:#232C34;
+  --border:#333E47; --border-strong:#4A5762; --accent-doux:#17323F;
   --shadow-soft:0 4px 16px rgba(0,0,0,.28); --shadow-raised:0 6px 20px rgba(0,0,0,.34);
 }
 
-  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-  html, body { height:100%; overflow:hidden; }
-  body {
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-    background:var(--background); color:var(--neutral);
-    display:flex; flex-direction:column;
-    user-select:none; -webkit-user-select:none; touch-action:manipulation;
-  }
-
-  /* ---------- En-tête ---------- */
-  header {
-    display:flex; align-items:center; gap:8px;
-    padding:8px 12px; background:var(--surface); border-bottom:1px solid var(--border);
-    flex:none; z-index:5;
-  }
-  header h1 { font-size:16px; font-weight:700; color:var(--accent-fonce); white-space:nowrap; }
-  header .spacer { flex:1; }
-  .btn {
-    border:1px solid var(--border); background:var(--surface); color:var(--neutral);
-    border-radius:8px; padding:8px 10px; font-size:13px; font-weight:600;
-    cursor:pointer; white-space:nowrap; min-height:40px;
-  }
-  .btn:active { background:var(--accent-doux); }
-  .btn.danger:active { background:var(--destructive-doux); }
-  @media (max-width:480px) { .btn .lbl { display:none; } header h1 { font-size:14px; } }
-
-  /* ---------- Scène ---------- */
-  #wrap { flex:1; position:relative; overflow:hidden; }
-  canvas#scene { position:absolute; inset:0; width:100%; height:100%; touch-action:none; display:block; }
-
-  /* Bannière court-circuit */
-  #banniere {
-    position:absolute; top:10px; left:50%; transform:translateX(-50%);
-    background:#e53935; color:var(--neutral); font-weight:700; font-size:14px;
-    padding:8px 16px; border-radius:20px; box-shadow:0 3px 10px rgba(229,57,53,.4);
-    display:none; z-index:6; white-space:nowrap;
-  }
-  #banniere.visible { display:block; animation:pulse 1s infinite; }
-  @keyframes pulse { 50% { transform:translateX(-50%) scale(1.06); } }
-
-  /* Mini-barre du composant sélectionné */
-  #selbar {
-    position:absolute; display:none; gap:6px; z-index:7;
-    background:var(--surface); border:1px solid var(--border); border-radius:10px;
-    padding:5px; box-shadow:0 4px 14px rgba(0,0,0,.18);
-  }
-  #selbar.visible { display:flex; }
-  #selbar button {
-    border:none; border-radius:7px; padding:8px 12px; font-size:14px; font-weight:600;
-    cursor:pointer; min-height:42px;
-  }
-  #btn-inverser { background:var(--accent-doux); color:var(--accent-fonce); }
-  #btn-supprimer { background:var(--destructive-doux); color:var(--destructive); }
-
-  /* ---------- Palette ---------- */
-  nav#palette {
-    flex:none; display:flex; justify-content:center; gap:6px;
-    padding:6px 8px calc(6px + env(safe-area-inset-bottom));
-    background:var(--surface); border-top:1px solid var(--border); overflow-x:auto; z-index:5;
-  }
-  nav#palette button {
-    display:flex; flex-direction:column; align-items:center; gap:2px;
-    border:2px solid transparent; border-radius:10px; background:var(--background);
-    padding:6px 8px 4px; min-width:64px; min-height:56px; cursor:pointer;
-  }
-  nav#palette button.actif { border-color:var(--accent-fonce); background:var(--accent-doux); }
-  nav#palette button span { font-size:10px; font-weight:600; color:var(--neutral); white-space:nowrap; }
-  nav#palette button canvas { pointer-events:none; }
-
-  /* ---------- Écran de démarrage IKE ---------- */
-  #splash {
-    position:fixed; inset:0; z-index:100;
-    background:linear-gradient(160deg,var(--accent-fonce) 0%,var(--accent-fonce) 55%,var(--accent) 100%);
-    display:flex; flex-direction:column; align-items:center; justify-content:center;
-    transition:opacity .5s ease;
-  }
-  #splash.fini { opacity:0; pointer-events:none; }
-  #splash .logo {
-    font-size:56px; line-height:1;
-    animation:battement 1.1s ease-in-out infinite;
-    filter:drop-shadow(0 4px 14px rgba(255,202,40,.45));
-  }
-  @keyframes battement { 50% { transform:scale(1.18); } }
-  #splash .nom {
-    margin-top:14px; color:var(--neutral); font-size:30px; font-weight:800; letter-spacing:.5px;
-  }
-  #splash .nom span { font-weight:300; opacity:.9; }
-  #splash .sub {
-    margin-top:4px; color:rgba(255,255,255,.75); font-size:13px; letter-spacing:2px;
-    text-transform:uppercase;
-  }
-  #splash .barre {
-    margin-top:22px; width:150px; height:4px; border-radius:2px;
-    background:rgba(255,255,255,.25); overflow:hidden;
-  }
-  #splash .rempl {
-    height:100%; background:#ffca28; border-radius:2px;
-    transform-origin:left; transform:scaleX(0);
-    animation:charge 1.3s ease-out forwards;
-  }
-  @keyframes charge { to { transform:scaleX(1); } }
-  #splash .ver { position:absolute; bottom:14px; color:rgba(255,255,255,.5); font-size:11px; }
-
-  /* ---------- Barre de mission ---------- */
-  #mbar { flex:none; background:var(--surface); border-bottom:1px solid var(--border); padding:6px 10px; z-index:4; }
-  #mbar .l1 { display:flex; align-items:center; gap:8px; }
-  #mchip {
-    background:var(--accent-fonce); color:var(--neutral); font-size:11px; font-weight:700;
-    border-radius:12px; padding:3px 9px; white-space:nowrap;
-  }
-  #mtitre {
-    font-size:13.5px; font-weight:700; color:var(--neutral); flex:1;
-    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
-  }
-  #mbar .mbtn {
-    border:1px solid var(--border); background:var(--surface); border-radius:8px;
-    font-size:14px; padding:4px 10px; cursor:pointer; min-height:34px;
-  }
-  #mbar .l2 { display:flex; align-items:center; gap:8px; margin-top:5px; }
-  #mbar.flash { animation:flashvert .9s ease; }
-  @keyframes flashvert { 0% { background:#c8e6c9; } 100% { background:var(--surface); } }
-  #mpoints { display:flex; gap:5px; align-items:center; flex:none; }
-  #mpoints .pt { width:9px; height:9px; border-radius:50%; background:var(--border); }
-  #mpoints .pt.faite { background:var(--success); }
-  #mpoints .pt.courante { background:var(--accent-fonce); animation:ptpulse 1.6s infinite; }
-  @keyframes ptpulse { 50% { transform:scale(1.4); } }
-  #metape { flex:1; font-size:12.5px; color:var(--neutral); line-height:1.4; }
-  #metape.glisse { animation:glisse .4s ease; }
-  @keyframes glisse { from { opacity:0; transform:translateX(12px); } }
-  #mcompteur { font-size:11px; color:var(--gris-doux); font-weight:700; white-space:nowrap; }
-  #btn-indice {
-    background:#fff8e1 !important; border-color:#ffca28 !important;
-    color:#795548; font-weight:700; white-space:nowrap;
-  }
-  #btn-indice.pulse { animation:indicepulse 1.2s infinite; }
-  @keyframes indicepulse {
-    50% { transform:scale(1.08); box-shadow:0 0 0 7px rgba(255,202,40,.3); }
-  }
-  #btn-suiv2 {
-    background:var(--accent-fonce) !important; border-color:var(--accent-fonce) !important;
-    color:var(--neutral) !important; font-weight:700; white-space:nowrap;
-  }
-  #mindice {
-    display:none; margin-top:6px; background:#fff8e1; border:1px solid #ffe082;
-    color:#795548; font-size:12.5px; border-radius:8px; padding:7px 10px; line-height:1.45;
-  }
-  #mindice.visible { display:block; }
-  #mdiag {
-    display:none; margin-top:6px; background:#fff3e0; border:1px solid #ffcc80;
-    color:#bf360c; font-size:12.5px; border-radius:8px; padding:7px 10px; line-height:1.45;
-  }
-  #mdiag.visible { display:block; animation:glisse .4s ease; }
-
-  /* Panneau loi d'Ohm en direct */
-  #formule {
-    position:absolute; top:10px; right:10px; z-index:5;
-    background:rgba(255,255,255,.94); border:1px solid var(--border); border-radius:12px;
-    padding:10px 12px; max-width:min(240px, 52vw);
-    font-size:12px; line-height:1.6; color:var(--neutral);
-    box-shadow:0 3px 12px rgba(0,0,0,.12);
-  }
-  #formule .ftitre {
-    font-size:11px; font-weight:800; letter-spacing:.5px; color:var(--accent-fonce);
-    text-transform:uppercase; margin-bottom:4px;
-  }
-  #formule .fmath {
-    font-family:Consolas, "Courier New", monospace; font-size:11.5px;
-    background:var(--background); border-radius:6px; padding:2px 6px; margin:2px 0;
-    white-space:nowrap; overflow-x:auto; display:block;
-  }
-  #formule .fres { font-weight:800; color:var(--success); }
-  #formule .fnote { font-size:11px; color:var(--gris-doux); font-style:italic; }
-
-  /* Toast de progression */
-  #toast {
-    position:absolute; bottom:16px; left:50%;
-    transform:translateX(-50%) translateY(10px) scale(.9);
-    background:var(--success); color:var(--neutral); font-size:14.5px; font-weight:800;
-    padding:11px 22px; border-radius:22px; opacity:0; pointer-events:none;
-    transition:opacity .25s, transform .3s cubic-bezier(.34,1.56,.64,1);
-    box-shadow:0 6px 20px rgba(46,125,50,.4); z-index:6; white-space:nowrap;
-  }
-  #toast.visible { opacity:1; transform:translateX(-50%) translateY(0) scale(1); }
-
-  /* ---------- Visite guidée de l'interface ---------- */
-  #visite { position:fixed; inset:0; z-index:30; display:none; }
-  #visite.sombre { background:rgba(38,50,56,.62); }
-  #visite-halo {
-    position:absolute; border-radius:12px; border:2px solid #ffca28;
-    box-shadow:0 0 0 9999px rgba(38,50,56,.62);
-    transition:all .3s ease; pointer-events:none;
-  }
-  #visite-carte {
-    position:absolute; background:var(--surface); border-radius:14px; padding:16px;
-    width:min(310px, calc(100vw - 24px));
-    box-shadow:0 10px 40px rgba(0,0,0,.35);
-  }
-  .vtitre { font-size:15px; font-weight:800; color:var(--accent-fonce); margin-bottom:6px; }
-  .vtexte { font-size:13px; line-height:1.55; color:var(--neutral); white-space:pre-line; }
-  .vbas { display:flex; align-items:center; gap:10px; margin-top:12px; }
-  .vprog { flex:1; font-size:11px; font-weight:700; color:var(--gris-doux); }
-  #visite-passer {
-    background:none; border:none; color:var(--gris-doux); font-size:12px;
-    text-decoration:underline; cursor:pointer; padding:6px;
-  }
-  #visite-suivant {
-    border:none; background:var(--accent-fonce); color:var(--neutral); font-weight:700;
-    font-size:13px; padding:9px 18px; border-radius:9px; cursor:pointer;
-  }
-  .vmarque { margin-top:10px; text-align:center; font-size:10px; color:var(--gris-doux); }
-
-  /* ---------- Voiles (aide, fin de mission, liste) ---------- */
-  .voile {
-    position:fixed; inset:0; background:rgba(38,50,56,.55);
-    display:none; align-items:center; justify-content:center; z-index:20; padding:16px;
-  }
-  .voile.visible { display:flex; }
-  .voile .carte {
-    position:relative;
-    background:var(--surface); border-radius:16px; padding:22px; max-width:400px; width:100%;
-    max-height:86vh; overflow-y:auto;
-    box-shadow:0 10px 40px rgba(0,0,0,.3);
-  }
-  .fermer-x {
-    position:absolute; top:8px; right:10px; border:none; background:none;
-    font-size:20px; line-height:1; color:var(--gris-doux); cursor:pointer; padding:6px 8px;
-  }
-  .voile .carte h2 { font-size:18px; color:var(--accent-fonce); margin-bottom:12px; }
-  .voile.visible .carte h2 { animation:pop .4s ease-out; }
-  @keyframes pop { 0% { transform:scale(.5); opacity:0; } 80% { transform:scale(1.08); } 100% { transform:scale(1); } }
-  .voile ol { margin:0 0 10px 20px; font-size:14px; line-height:1.9; }
-  .voile p.astuce { font-size:13px; color:var(--gris-doux); line-height:1.5; margin-bottom:14px; }
-  .voile .go {
-    width:100%; border:none; background:var(--accent-fonce); color:var(--neutral); font-size:15px; font-weight:700;
-    padding:12px; border-radius:10px; cursor:pointer;
-  }
-  .voile .btn2 {
-    width:100%; border:1px solid var(--border); background:var(--surface); color:var(--neutral);
-    font-size:13px; font-weight:600; padding:10px; border-radius:10px;
-    cursor:pointer; margin-top:8px;
-  }
-  .voile .lien {
-    display:block; width:100%; text-align:center; margin-top:10px;
-    background:none; border:none; color:var(--gris-doux); font-size:11.5px;
-    text-decoration:underline; cursor:pointer;
-  }
-  .voile .marque { text-align:center; font-size:11px; color:var(--gris-doux); margin-top:10px; }
-
-  /* Fin de mission */
-  #mfin-titre { font-weight:700; font-size:15px; color:var(--neutral); margin-bottom:10px; }
-  .retenir-label { font-size:12px; font-weight:800; color:var(--success); margin-bottom:4px; }
-  #mfin-retenir {
-    background:#e8f5e9; border-radius:10px; padding:10px 12px;
-    font-size:13.5px; line-height:1.55; color:#1b5e20; margin:0 0 14px;
-  }
-
-  /* Liste des missions */
-  .mrow {
-    display:flex; align-items:center; gap:8px; width:100%;
-    border:none; background:var(--background); border-radius:8px; padding:10px;
-    margin-bottom:5px; font-size:13px; cursor:pointer; text-align:left; color:var(--neutral);
-  }
-  .mrow .n { font-weight:700; color:var(--gris-doux); min-width:22px; }
-  .mrow.faite .n { color:var(--success); }
-  .mrow.courante { outline:2px solid var(--accent-fonce); background:var(--accent-doux); }
-  .mrow .t { flex:1; }
-
-  /* ---------- Choix du mode : Apprendre / Expérimenter ---------- */
-  #mlexique { z-index:26; }             /* le lexique s'empile au-dessus des modales */
-  #tab-exp.verrouille { opacity:.55; }
-  #choix-mode .deux { display:flex; flex-direction:column; gap:12px; }
-  .gros-btn {
-    display:flex; align-items:center; gap:14px; width:100%;
-    border:2px solid var(--border); background:var(--background); border-radius:14px;
-    padding:15px 16px; cursor:pointer; text-align:left;
-  }
-  .gros-btn:active { background:var(--accent-doux); }
-  .gros-btn .gi { font-size:30px; flex:none; }
-  .gros-btn .gt { font-size:16px; font-weight:800; color:var(--neutral); }
-  .gros-btn .gs { font-size:12px; color:#78909c; line-height:1.45; display:block; margin-top:2px; }
-  .gros-btn.verrouille { opacity:.55; }
-  body.sombre .gros-btn { background:var(--surface-muted); border-color:var(--gris-doux); }
-  body.sombre .gros-btn .gt { color:var(--neutral); }
-
-  /* ---------- Fiche notion, QCM, cartes de mission (structure Labo-Bénin) ---------- */
-  .notion-bloc { font-size:13.5px; line-height:1.6; color:var(--neutral); margin-bottom:10px; }
-  .notion-bloc b { color:var(--accent-fonce); }
-  .lex { margin-bottom:6px; }
-  .lex dt { font-size:13px; font-weight:800; color:var(--accent-fonce); margin-top:10px; }
-  .lex dd { font-size:12.5px; line-height:1.5; color:var(--neutral); margin:2px 0 0; }
-  body.sombre .lex dt { color:var(--accent); }
-  body.sombre .lex dd { color:var(--gris-doux); }
-  .notion-formule {
-    font-family:Consolas, monospace; text-align:center; font-size:16px; font-weight:800;
-    background:var(--accent-doux); color:var(--accent-fonce); border-radius:10px; padding:10px; margin:10px 0;
-  }
-  .m-sous { font-size:12px; font-weight:700; color:#78909c; margin:-8px 0 10px; }
-  .lex-chips { display:flex; flex-wrap:wrap; gap:6px; margin:10px 0 6px; }
-  .lex-chips button {
-    border:1px solid var(--border); background:var(--background); color:var(--accent-fonce);
-    border-radius:14px; padding:5px 11px; font-size:11.5px; font-weight:700; cursor:pointer;
-  }
-  .m-carte {
-    display:flex; align-items:center; gap:10px; width:100%;
-    border:1px solid var(--border); background:var(--background); border-radius:11px; padding:10px;
-    margin-bottom:6px; cursor:pointer; text-align:left; color:var(--neutral);
-  }
-  .m-carte .mbadge { font-size:21px; flex:none; }
-  .m-carte .infos { flex:1; }
-  .m-carte .t { font-size:13px; font-weight:800; }
-  .m-carte .s { font-size:11px; color:#78909c; }
-  .m-carte .statut { font-size:10.5px; font-weight:800; white-space:nowrap; }
-  .m-carte .statut.ok { color:var(--success); }
-  .m-carte .statut.attente { color:var(--accent-fonce); }
-  .m-carte .statut.gris { color:var(--gris-doux); }
-  .m-carte.faite { border-color:#a5d6a7; }
-  .m-carte.verrou { opacity:.55; cursor:not-allowed; }
-  .m-barre-fond { height:8px; background:var(--surface-muted); border-radius:4px; overflow:hidden; margin:4px 0 12px; }
-  .m-barre { height:100%; width:0; background:linear-gradient(90deg,var(--accent-fonce),#42a5f5); border-radius:4px; transition:width .4s; }
-  .m-pct { font-size:12px; font-weight:800; color:var(--accent-fonce); }
-  .choix-qcm { display:flex; flex-direction:column; gap:8px; margin:12px 0; }
-  .choix-qcm button {
-    border:2px solid var(--border); background:var(--background); color:var(--neutral); border-radius:10px;
-    padding:11px 13px; font-size:13.5px; font-weight:600; cursor:pointer; text-align:left;
-  }
-  .choix-qcm button.bonne { border-color:var(--success); background:#e8f5e9; color:#1b5e20; font-weight:800; }
-  .choix-qcm button.mauvaise { border-color:var(--destructive); background:var(--destructive-doux); color:#b71c1c; }
-  .q-expl {
-    display:none; background:#fff8e1; border:1px solid #ffe082; border-radius:10px;
-    padding:10px 12px; font-size:12.5px; line-height:1.5; color:#795548; margin-bottom:10px;
-  }
-  .q-expl.visible { display:block; }
-  #btn-continuer {
-    background:var(--success) !important; border-color:var(--success) !important;
-    color:var(--neutral) !important; font-weight:800; white-space:nowrap; display:none;
-  }
-  /* Zoom / déplacement du plan de travail */
-  #zoomctl { position:absolute; right:10px; bottom:14px; display:flex; flex-direction:column; gap:6px; z-index:5; }
-  #zoomctl button {
-    width:40px; height:40px; border-radius:10px; border:1px solid var(--border);
-    background:rgba(255,255,255,.95); font-size:18px; font-weight:800; color:var(--neutral);
-    cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,.12);
-  }
-  #zoomctl button:active { background:var(--accent-doux); }
-  body.sombre #zoomctl button { background:rgba(34,48,58,.95); border-color:var(--gris-doux); color:var(--gris-doux); }
-
-  /* Le bouton Continuer pulse pour rediriger l'attention de l'élève */
-  #btn-continuer.visible { display:inline-block; animation:continuerPulse 1.3s infinite; }
-  @keyframes continuerPulse {
-    50% { transform:scale(1.07); box-shadow:0 0 0 7px rgba(46,125,50,.28); }
-  }
-  body.sombre .notion-bloc { color:var(--gris-doux); }
-  body.sombre .notion-bloc b { color:var(--accent); }
-  body.sombre .notion-formule { background:var(--accent-doux); color:#90caf9; }
-  body.sombre .lex-chips button { background:var(--surface-muted); border-color:var(--gris-doux); color:var(--accent); }
-  body.sombre .m-carte { background:#26313a; border-color:var(--gris-doux); color:var(--neutral); }
-  body.sombre .m-carte .s { color:var(--gris-doux); }
-  body.sombre .m-carte.faite { border-color:var(--success); }
-  body.sombre .m-barre-fond { background:var(--surface-muted); }
-  body.sombre .choix-qcm button { background:#26313a; border-color:var(--gris-doux); color:var(--neutral); }
-  body.sombre .choix-qcm button.bonne { background:#16281a; border-color:var(--success); color:#a5d6a7; }
-  body.sombre .choix-qcm button.mauvaise { background:#3a1f22; border-color:var(--destructive); color:#ef9a9a; }
-  body.sombre .q-expl { background:#2b2618; border-color:#5d4d1a; color:#ffe082; }
-
-  /* ==================== THÈME SOMBRE ==================== */
-  body.sombre { background:var(--background); color:var(--neutral); }
-  body.sombre header,
-  body.sombre #mbar,
-  body.sombre nav#palette { background:var(--surface); border-color:#2c3a45; }
-  body.sombre header h1 { color:var(--accent); }
-  body.sombre .btn { background:var(--surface-muted); border-color:var(--gris-doux); color:var(--gris-doux); }
-  body.sombre .btn:active { background:var(--accent-doux); }
-  body.sombre .btn.danger:active { background:#3a1f22; }
-  body.sombre #mtitre { color:var(--neutral); }
-  body.sombre #metape { color:var(--gris-doux); }
-  body.sombre #mbar .mbtn { background:var(--surface-muted); border-color:var(--gris-doux); color:var(--gris-doux); }
-  body.sombre #btn-indice { background:#3a3220 !important; border-color:#8d6e63 !important; color:#ffd54f; }
-  body.sombre #mindice { background:#2b2618; border-color:#5d4d1a; color:#ffe082; }
-  body.sombre #mdiag { background:#33261a; border-color:#7a5c3d; color:#ffcc80; }
-  body.sombre #mpoints .pt { background:var(--border); }
-  body.sombre #mpoints .pt.faite { background:#66bb6a; }
-  body.sombre #mpoints .pt.courante { background:var(--accent); }
-  body.sombre #mbar.flash { animation-name:flashvert-sombre; }
-  @keyframes flashvert-sombre { 0% { background:#1b3a22; } 100% { background:var(--surface); } }
-  body.sombre nav#palette button { background:var(--surface-muted); }
-  body.sombre nav#palette button span { color:var(--gris-doux); }
-  body.sombre nav#palette button.actif { background:var(--accent-doux); border-color:var(--accent); }
-  body.sombre #selbar { background:var(--surface); border-color:var(--gris-doux); }
-  body.sombre #formule { background:rgba(28,38,46,.95); border-color:var(--gris-doux); color:var(--gris-doux); }
-  body.sombre #formule .ftitre { color:var(--accent); }
-  body.sombre #formule .fmath { background:var(--background); }
-  body.sombre #formule .fres { color:#81c784; }
-  body.sombre #btn-inverser { background:var(--accent-doux); color:#90caf9; }
-  body.sombre #btn-supprimer { background:#3a1f22; color:#ef9a9a; }
-  body.sombre .voile .carte, body.sombre #visite-carte { background:var(--surface); }
-  body.sombre .voile .carte h2, body.sombre .vtitre { color:var(--accent); }
-  body.sombre .vtexte { color:var(--gris-doux); }
-  body.sombre .voile .btn2 { background:var(--surface-muted); border-color:var(--gris-doux); color:var(--gris-doux); }
-  body.sombre #mfin-titre { color:var(--neutral); }
-  body.sombre .retenir-label { color:#81c784; }
-  body.sombre #mfin-retenir { background:#16281a; color:#a5d6a7; }
-  body.sombre .mrow { background:#26313a; color:var(--neutral); }
-  body.sombre .mrow.courante { background:var(--accent-doux); outline-color:var(--accent); }
-
-/* ===== Mise au standard Labo-Bénin ===== */
-/* Les étapes prennent toute la largeur ; les boutons passent dessous */
-#mbar .l2 { flex-wrap:wrap; align-items:center; }
-#metape { flex:1 1 100%; order:-1; margin-bottom:2px; }
-/* Les coches disent déjà où on en est : les anciens repères font doublon */
-#mpoints, #mcompteur { display:none; }
-#mbar .l2 #btn-indice { margin-left:auto; }
-/* En-tête : beaucoup de boutons sur un petit écran */
-header { overflow-x:auto; scrollbar-width:none; }
-header::-webkit-scrollbar { display:none; }
-@media (max-width:520px) {
-  header { gap:4px; padding:6px 8px; }
-  header .btn { min-height:36px; padding:0 8px; }
-  header h1 { font-size:14px; }
+*,*::before,*::after { box-sizing:border-box; }
+body {
+  margin:0; font-family:var(--font-body); font-size:16px; color:var(--neutral);
+  background:var(--background); overflow:hidden;
+  height:100dvh; display:flex; flex-direction:column;
+  user-select:none; -webkit-user-select:none;
+  -webkit-tap-highlight-color:transparent; -webkit-text-size-adjust:100%;
 }
-#metape { flex:1 1 100%; }
-#mbar .etape {
-  display:flex; align-items:flex-start; gap:9px; padding:4px 0;
-  font-size:12.5px; line-height:1.4; color:var(--neutral);
+h1,h2,h3,h4 { font-family:var(--font-display); margin:0; line-height:1.2; }
+p { margin:0; }
+:focus-visible { outline:2px solid var(--ring); outline-offset:2px; border-radius:var(--radius-sm); }
+
+/* ============================ En-tête ============================ */
+header {
+  display:flex; align-items:center; gap:8px; flex:none;
+  padding:6px 10px; background:var(--surface); border-bottom:1px solid var(--border);
 }
-#mbar .etape .coche {
-  width:20px; height:20px; flex:none; margin-top:1px; border-radius:var(--radius-full);
+header h1 { font-size:15px; font-weight:800; line-height:1.15; }
+header .sous { font-size:10.5px; opacity:.6; }
+.icone-btn {
+  width:40px; height:40px; flex:none; display:grid; place-items:center;
+  border:none; background:none; border-radius:var(--radius-md);
+  font-size:18px; color:inherit; cursor:pointer; text-decoration:none;
+}
+.icone-btn:hover { background:var(--surface-muted); }
+.tete-fin { margin-left:auto; display:flex; gap:2px; align-items:center; }
+
+/* ===================== Bandeau de mission (EN HAUT) ===================== */
+#mission {
+  flex:none; background:var(--surface); border-bottom:1px solid var(--border);
+  padding:8px 12px 9px;
+}
+.m-haut { display:flex; align-items:center; gap:9px; }
+.m-pastille {
+  width:30px; height:30px; flex:none; border-radius:var(--radius-sm);
+  display:grid; place-items:center; background:var(--accent-doux);
+  font-family:var(--font-display); font-weight:800; font-size:13px;
+}
+.m-titres { flex:1; min-width:0; }
+.m-titres b { display:block; font-size:14px; font-weight:600; line-height:1.2; }
+.m-titres span { font-size:11.5px; opacity:.65; line-height:1.35; display:block; }
+.m-rang {
+  font-size:10.5px !important; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--accent); opacity:1 !important; margin-bottom:1px;
+}
+.m-plier {
+  width:34px; height:34px; flex:none; border:none; background:none; cursor:pointer;
+  border-radius:var(--radius-sm); font-size:14px; color:inherit;
+  transition:transform .2s var(--ease);
+}
+.m-plier:hover { background:var(--surface-muted); }
+#mission.ouvert .m-plier { transform:rotate(180deg); }
+/* Replié, on ne montre que l'étape en cours : la grille reste visible.
+   Le diagnostic, lui, reste toujours affiché — c'est lui qui explique
+   pourquoi le montage ne marche pas, et l'élève en a besoin là, tout de suite. */
+#mission:not(.ouvert) .etape:not(.a-montrer) { display:none; }
+#mission:not(.ouvert) .m-indice { display:none; }
+.m-jauge { height:5px; border-radius:var(--radius-full); background:var(--surface-muted); margin-top:8px; overflow:hidden; }
+.m-jauge i { display:block; height:100%; background:var(--accent); transition:width .4s var(--ease); }
+
+/* ---- Liste des étapes : le guidage pas à pas ---- */
+#etapes { margin-top:9px; }
+.etape {
+  display:flex; align-items:flex-start; gap:9px; padding:5px 0;
+  font-size:13px; line-height:1.4;
+}
+.etape .coche {
+  width:21px; height:21px; flex:none; margin-top:1px; border-radius:var(--radius-full);
   display:grid; place-items:center; font-size:11px; font-weight:700;
   border:2px solid var(--border-strong); color:transparent; background:none;
 }
-#mbar .etape.faite .coche { background:var(--success); border-color:var(--success); color:#fff; }
-#mbar .etape.faite .t { opacity:.5; text-decoration:line-through; }
-#mbar .etape.courante .coche { border-color:var(--accent); animation:pulseCoche 1.5s infinite; }
-#mbar .etape.courante .t { font-weight:600; }
+.etape.faite .coche { background:var(--success); border-color:var(--success); color:#fff; }
+.etape.faite .t { opacity:.5; text-decoration:line-through; }
+.etape.courante .coche { border-color:var(--accent); animation:pulseCoche 1.5s infinite; }
+.etape.courante .t { font-weight:600; }
 @keyframes pulseCoche { 50% { box-shadow:0 0 0 5px var(--accent-doux); } }
-#mbar .etape .t { flex:1; }
-/* Écran de passage : ce qu'on a appris, puis la mission suivante */
+.etape .t { flex:1; }
+.m-indice, .m-diag {
+  margin-top:8px; padding:9px 11px; border-radius:var(--radius-md);
+  font-size:12.5px; line-height:1.5;
+}
+.m-indice { background:var(--accent-doux); }
+.m-indice b { font-weight:600; }
+.m-diag { background:rgba(247,164,48,.16); }
+.m-indice[hidden], .m-diag[hidden] { display:none; }
+/* Les commandes de la mission : indice, puis le pas suivant.
+   `display` explicite l'emporte sur l'attribut `hidden` : il faut le redire. */
+.m-actions { display:flex; gap:8px; margin-top:10px; }
+.m-actions .btn { flex:1; min-height:40px; padding:0 12px; font-size:13px; }
+.m-actions[hidden], .m-actions .btn[hidden] { display:none; }
+#btn-continuer.appelle { animation:appelle 1.3s infinite; }
+@keyframes appelle { 50% { box-shadow:0 0 0 7px rgba(196,217,78,.35); } }
+
+/* ============================ Atelier ============================ */
+main { flex:1; min-height:0; display:flex; flex-direction:column; }
+#atelier { flex:1; min-height:0; position:relative; overflow:hidden; }
+canvas#scene { position:absolute; inset:0; width:100%; height:100%; touch-action:none; display:block; }
+
+/* Commandes posées sur le plan de travail */
+#zoomctl {
+  position:absolute; right:10px; bottom:12px; z-index:5;
+  display:flex; flex-direction:column; gap:6px;
+}
+#zoomctl button {
+  width:40px; height:40px; border-radius:var(--radius-md);
+  border:1px solid var(--border); background:var(--surface); color:var(--neutral);
+  font-size:17px; font-weight:700; cursor:pointer; box-shadow:var(--shadow-soft);
+}
+#zoomctl button:hover { background:var(--surface-muted); }
+#zoomctl button.actif { background:var(--accent-doux); border-color:var(--accent); }
+
+/* Bannière court-circuit */
+#banniere {
+  position:absolute; top:10px; left:50%; transform:translateX(-50%);
+  background:var(--destructive); color:#fff; font-weight:700; font-size:13.5px;
+  padding:8px 16px; border-radius:var(--radius-full);
+  box-shadow:0 3px 10px rgba(232,58,75,.35);
+  display:none; z-index:6; white-space:nowrap;
+}
+#banniere.visible { display:block; animation:battre 1s infinite; }
+@keyframes battre { 50% { transform:translateX(-50%) scale(1.05); } }
+
+/* Mini-barre du composant sélectionné */
+#selbar {
+  position:absolute; display:none; gap:6px; z-index:7;
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md);
+  padding:5px; box-shadow:var(--shadow-raised);
+}
+#selbar.visible { display:flex; }
+#selbar button {
+  border:none; border-radius:var(--radius-sm); padding:8px 12px;
+  font-family:var(--font-body); font-size:13.5px; font-weight:600;
+  cursor:pointer; min-height:42px;
+}
+#btn-inverser { background:var(--accent-doux); color:var(--accent-texte); }
+#btn-supprimer { background:rgba(232,58,75,.14); color:var(--rouge-fonce); }
+
+/* Panneau 📐 : les mesures de l'élève, en direct */
+#formule {
+  position:absolute; top:10px; right:10px; z-index:5;
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg);
+  padding:11px 13px; max-width:min(250px, 56vw);
+  font-size:12px; line-height:1.6; box-shadow:var(--shadow-raised);
+}
+#formule .ftitre {
+  font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--accent-texte); margin-bottom:4px;
+}
+#formule .fmath {
+  display:block; background:var(--surface-muted); border-radius:var(--radius-sm);
+  padding:5px 9px; margin:3px 0; font-size:12px; line-height:1.5;
+}
+#formule .fres { font-weight:700; color:var(--vert-fonce); }
+#formule .fnote { font-size:11.5px; line-height:1.45; opacity:.7; font-style:italic; }
+
+/* ======================= Palette de composants =======================
+   L'établi défile quand les composants ne tiennent plus. Un `justify-content:
+   center` mettrait alors le premier outil hors de portée : le débordement part
+   à gauche, et rien ne permet d'y revenir. Le rang vit donc dans une boîte
+   intérieure centrée par des marges automatiques, qui s'effacent d'elles-mêmes
+   dès qu'il faut défiler. */
+nav#palette {
+  flex:none; display:flex; align-items:stretch;
+  padding:7px 8px calc(7px + env(safe-area-inset-bottom));
+  background:var(--surface); border-top:1px solid var(--border); overflow-x:auto;
+  scrollbar-width:none;
+}
+nav#palette::-webkit-scrollbar { display:none; }
+#palette-int { display:flex; align-items:stretch; gap:6px; margin:0 auto; }
+nav#palette button {
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
+  flex:none; border:2px solid var(--border); border-radius:var(--radius-md);
+  background:var(--surface); padding:6px 9px 5px; min-width:66px; min-height:56px;
+  font-family:var(--font-body); color:var(--neutral); cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+nav#palette button:hover { border-color:var(--border-strong); background:var(--surface-muted); }
+nav#palette button.actif { border-color:var(--accent); background:var(--accent-doux); }
+nav#palette button span { font-size:10.5px; font-weight:600; white-space:nowrap; }
+nav#palette button canvas { pointer-events:none; }
+#btn-effacer { border-style:dashed; color:var(--rouge-fonce); min-width:58px; }
+#btn-effacer .pal-ico { font-size:19px; line-height:1.2; }
+
+/* ============================ Boutons ============================ */
+.btn {
+  display:inline-flex; align-items:center; justify-content:center; gap:7px;
+  min-height:44px; padding:0 18px; border:none; border-radius:var(--radius-lg);
+  font-family:var(--font-body); font-size:14px; font-weight:600;
+  color:var(--neutral); background:var(--primary); cursor:pointer;
+  transition:filter .15s var(--ease);
+}
+.btn:hover { filter:brightness(.94); }
+.btn:active { filter:brightness(.88); }
+.btn[disabled] { opacity:.45; cursor:not-allowed; filter:none; }
+.btn-contour { background:var(--surface); border:2px solid var(--neutral); }
+.btn-contour:hover { background:var(--surface-muted); filter:none; }
+.btn-fantome { background:transparent; }
+.btn-fantome:hover { background:var(--surface-muted); filter:none; }
+.btn-large { width:100%; }
+
+/* ============================ Voiles ============================ */
+.voile {
+  position:fixed; inset:0; z-index:40; display:none;
+  background:rgba(14,18,23,.93); padding:14px; overflow-y:auto;
+}
+.voile.visible { display:flex; align-items:center; justify-content:center; }
+.carte-modale {
+  position:relative; width:100%; max-width:470px; margin:auto;
+  background:var(--surface); border-radius:var(--radius-lg); padding:22px 20px;
+  box-shadow:var(--shadow-raised);
+}
+.carte-modale h2 { font-size:20px; margin-bottom:9px; padding-right:34px; }
+.carte-modale > p { font-size:13.5px; line-height:1.6; opacity:.8; margin-bottom:10px; }
+.fermer-x {
+  position:absolute; top:8px; right:10px; width:36px; height:36px;
+  border:none; background:none; font-size:20px; color:inherit; cursor:pointer;
+  border-radius:var(--radius-md);
+}
+.fermer-x:hover { background:var(--surface-muted); }
+/* Le lexique s'ouvre depuis la leçon : il s'empile par-dessus */
+#v-lexique { z-index:42; }
+
+/* Cartes de mission */
+.d-carte {
+  display:flex; align-items:center; gap:11px; width:100%; text-align:left;
+  padding:11px 13px; margin-bottom:8px;
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md);
+  font-family:var(--font-body); color:inherit; cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+.d-carte:hover:not([disabled]) { border-color:var(--border-strong); background:var(--surface-muted); }
+.d-carte[disabled] { opacity:.5; cursor:not-allowed; }
+.d-carte .num {
+  width:30px; height:30px; flex:none; border-radius:var(--radius-sm);
+  display:grid; place-items:center; background:var(--accent-doux);
+  font-family:var(--font-display); font-weight:800; font-size:13px;
+}
+.d-carte.fait .num { background:var(--success); color:#fff; }
+.d-carte .txt { flex:1; min-width:0; }
+.d-carte .txt b { display:block; font-size:13.5px; font-weight:600; }
+.d-carte .txt span { font-size:11.5px; opacity:.65; line-height:1.4; }
+.d-barre { height:7px; border-radius:var(--radius-full); background:var(--surface-muted);
+  overflow:hidden; margin:2px 0 14px; }
+.d-barre i { display:block; height:100%; background:var(--accent); border-radius:inherit;
+  transition:width .5s var(--ease); }
+
+/* Guide d'accueil */
+.g-titre { font-family:var(--font-display); font-weight:800; font-size:14px;
+  margin:14px 0 7px; color:var(--accent-texte); }
+.g-titre:first-of-type { margin-top:8px; }
+.g-etape { display:flex; gap:11px; margin-bottom:13px; }
+.g-etape .num {
+  width:26px; height:26px; flex:none; border-radius:var(--radius-full);
+  display:grid; place-items:center; background:var(--accent-doux);
+  font-family:var(--font-display); font-weight:800; font-size:12.5px;
+}
+.g-etape .t { font-size:13.5px; line-height:1.5; opacity:.85; flex:1; }
+.g-etape .t b { opacity:1; }
+
+/* Lexique */
+.lex-entree { padding:11px 0; border-bottom:1px solid var(--border); }
+.lex-entree:last-child { border-bottom:none; }
+.lex-entree b { display:block; font-size:14px; font-weight:600; margin-bottom:2px; }
+.lex-entree span { font-size:12.5px; line-height:1.55; opacity:.78; }
+.lex-entree.vise { background:var(--accent-doux); border-radius:var(--radius-md);
+  padding:11px 12px; border-bottom:none; }
+
+/* La leçon d'avant-mission : le vocabulaire posé avant de manipuler */
+.notion-bloc { font-size:13.5px; line-height:1.6; margin-bottom:10px; opacity:.9; }
+.notion-bloc b { font-weight:600; opacity:1; }
+.notion-formule {
+  text-align:center; font-family:var(--font-display); font-size:16px; font-weight:800;
+  background:var(--accent-doux); border-radius:var(--radius-md); padding:11px; margin:12px 0;
+}
+.lex-chips { display:flex; flex-wrap:wrap; gap:6px; margin:12px 0 14px; }
+.lex-chips button {
+  border:1px solid var(--border); background:var(--surface); color:var(--accent-texte);
+  border-radius:var(--radius-full); padding:6px 12px;
+  font-family:var(--font-body); font-size:11.5px; font-weight:600; cursor:pointer;
+}
+.lex-chips button:hover { background:var(--surface-muted); border-color:var(--border-strong); }
+
+/* Écran de passage d'une mission à la suivante */
+.p-fanion { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+.p-fanion .rond {
+  width:44px; height:44px; flex:none; border-radius:var(--radius-full);
+  display:grid; place-items:center; background:var(--success); font-size:22px;
+}
+.p-fanion b { display:block; font-size:17px; font-family:var(--font-display); font-weight:800; }
+.p-fanion span { font-size:12px; opacity:.65; }
 .p-acquis {
   padding:12px 14px; border-radius:var(--radius-md); background:var(--accent-doux);
-  font-size:13px; line-height:1.55; margin-bottom:14px; text-align:left;
+  font-size:13px; line-height:1.55; margin-bottom:14px;
 }
+.p-acquis b { font-weight:600; }
 .p-suite {
   border:2px dashed var(--border-strong); border-radius:var(--radius-md);
-  padding:12px 14px; margin-bottom:14px; text-align:left;
+  padding:12px 14px; margin-bottom:14px;
 }
 .p-suite .etiq {
   font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
-  color:var(--accent-fonce); margin-bottom:3px;
+  color:var(--accent); margin-bottom:3px;
 }
 .p-suite b { display:block; font-size:15px; font-family:var(--font-display); font-weight:800; }
 .p-suite span { font-size:12.5px; opacity:.7; line-height:1.45; }
-body { font-family:var(--font-body); color:var(--neutral); background:var(--background); }
-h1, h2, h3, #mtitre, .m-carte .mtitre, #mfin-titre { font-family:var(--font-display); }
-header {
-  background:var(--surface) !important; color:var(--neutral) !important;
-  border-bottom:1px solid var(--border); box-shadow:none !important;
+.p-neuf { font-size:12px; opacity:.6; text-align:center; margin-top:9px; line-height:1.45; }
+
+/* QCM */
+.q-question { font-size:15px; font-weight:600; line-height:1.4; margin-bottom:12px; }
+.q-choix {
+  display:block; width:100%; text-align:left; margin-bottom:8px;
+  padding:12px 14px; min-height:46px;
+  background:var(--surface); border:2px solid var(--border); border-radius:var(--radius-md);
+  font-family:var(--font-body); font-size:13.5px; color:var(--neutral); cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
 }
-header h1 { font-size:16px; font-weight:800; color:var(--neutral); }
-header .btn, #mbar .mbtn {
-  background:var(--surface); border:1px solid var(--border); color:var(--neutral);
-  border-radius:var(--radius-md); min-height:40px; font-family:var(--font-body); font-weight:600;
-  box-shadow:none;
+.q-choix:hover:not([disabled]) { border-color:var(--border-strong); background:var(--surface-muted); }
+.q-choix.bon { border-color:var(--success); background:rgba(42,157,143,.12); font-weight:600; }
+.q-choix.mauvais { border-color:var(--destructive); background:rgba(232,58,75,.1); }
+.q-choix[disabled] { cursor:default; }
+.q-expl {
+  margin-top:4px; padding:11px 13px; border-radius:var(--radius-md);
+  background:var(--accent-doux); font-size:12.5px; line-height:1.55; display:none;
 }
-header .btn:hover, #mbar .mbtn:hover { background:var(--surface-muted); border-color:var(--gris-doux); }
-header .btn.danger { color:var(--destructive); }
-#mbar { background:var(--surface); border-bottom:1px solid var(--border); }
-#mchip {
-  background:var(--accent-doux); color:var(--accent-fonce);
-  border-radius:var(--radius-full); font-weight:700; letter-spacing:.04em;
+.q-expl.visible { display:block; }
+.q-avance { font-size:11.5px; opacity:.55; margin-bottom:10px; letter-spacing:.04em;
+  text-transform:uppercase; font-weight:600; }
+
+/* ============================ Toast ============================ */
+#toast {
+  position:fixed; left:50%; bottom:calc(78px + env(safe-area-inset-bottom));
+  transform:translateX(-50%);
+  max-width:calc(100vw - 28px); padding:10px 16px; z-index:45;
+  background:var(--neutral); color:var(--background);
+  border-radius:var(--radius-full); font-size:13px; font-weight:600;
+  opacity:0; pointer-events:none; transition:opacity .2s var(--ease); text-align:center;
 }
-#mtitre { font-size:15px; font-weight:800; color:var(--neutral); }
-#mindice, #mdiag {
-  border-radius:var(--radius-md); font-size:12.5px; line-height:1.5;
+#toast.visible { opacity:1; }
+#toast.alerte { background:var(--destructive); color:#fff; }
+
+/* ================= Adaptations d'écran ================= */
+
+/* Paysage sur téléphone : chaque pixel de hauteur compte */
+@media (orientation:landscape) and (max-height:520px) {
+  header { padding:3px 8px; }
+  header h1 { font-size:13px; }
+  header .sous { display:none; }
+  .icone-btn { width:34px; height:34px; font-size:16px; }
+  #mission { padding:5px 10px 6px; }
+  .m-pastille { width:24px; height:24px; font-size:11px; }
+  .m-titres b { font-size:12.5px; }
+  .m-titres span { display:none; }
+  #mission.ouvert .m-titres span { display:block; }
+  .m-jauge { margin-top:5px; }
+  /* la hauteur est comptée : les étapes et l'astuce se resserrent */
+  #etapes { margin-top:6px; }
+  .etape { padding:3px 0; font-size:12px; line-height:1.35; }
+  .etape .coche { width:18px; height:18px; font-size:10px; }
+  .m-indice, .m-diag { margin-top:6px; padding:7px 9px; font-size:11.5px; }
+  .m-actions { margin-top:7px; }
+  .m-actions .btn { min-height:34px; font-size:12.5px; }
+  nav#palette button { min-height:48px; min-width:60px; padding:4px 7px; }
 }
-#mindice { background:var(--accent-doux); }
-.voile .carte, #visite-carte, #formule, #selbar {
-  border-radius:var(--radius-lg); box-shadow:var(--shadow-raised);
-  border:1px solid var(--border); background:var(--surface);
+
+/* Écran large : la mission passe en colonne, l'atelier prend le reste */
+@media (min-width:880px) {
+  body { flex-direction:row; }
+  #colonne {
+    width:330px; flex:none; display:flex; flex-direction:column;
+    background:var(--surface); border-right:1px solid var(--border);
+    overflow-y:auto;
+  }
+  /* la colonne est étroite : les icônes passent sous le titre au lieu de l'écraser */
+  header { border-bottom:1px solid var(--border); flex-wrap:wrap; }
+  header h1 { font-size:16px; }
+  .tete-fin { width:100%; justify-content:flex-end; }
+  #mission { border-bottom:none; padding:12px 16px; }
+  /* la place ne manque pas : toutes les étapes restent visibles */
+  #mission:not(.ouvert) .etape:not(.a-montrer) { display:flex; }
+  #mission:not(.ouvert) .m-indice { display:block; }
+  .m-plier { display:none; }
+  main { flex:1; min-width:0; }
 }
-.m-carte { border-radius:var(--radius-md); border:1px solid var(--border); }
-.m-carte:hover { border-color:var(--gris-doux); background:var(--surface-muted); }
-nav#palette { background:var(--surface); border-top:1px solid var(--border); }
-nav#palette button {
-  border-radius:var(--radius-md); border:2px solid var(--border);
-  background:var(--surface); font-family:var(--font-body);
-}
-nav#palette button.actif { border-color:var(--accent); background:var(--accent-doux); }
-/* Le bouton d'action principal reprend le lime de la plateforme */
-#btn-continuer, #btn-suivante, #btn-suiv2, #visite-suivant, .go, #btn-commencer {
-  background:var(--primary) !important; color:var(--neutral) !important;
-  border:none !important; border-radius:var(--radius-lg) !important;
-  font-weight:600; min-height:44px;
-}
-#z-plus, #z-moins, #z-reset {
-  background:var(--surface); border:1px solid var(--border); color:var(--neutral);
-  border-radius:var(--radius-md);
-}
-:focus-visible { outline:2px solid var(--ring); outline-offset:2px; border-radius:var(--radius-sm); }
+
 @media (prefers-reduced-motion:reduce) {
   *,*::before,*::after { animation-duration:.01ms !important; transition-duration:.01ms !important; }
 }
 
-/* « Ce que tu as appris » : le bloc est désormais porté par .p-acquis.
-   L'ancien encadré vert imbriqué faisait un double fond illisible. */
-#mfin-retenir, body.sombre #mfin-retenir {
-  background:none !important; color:inherit !important;
-  padding:0 !important; margin:0 !important; border-radius:0 !important;
-  font-size:inherit !important; line-height:inherit !important;
-}
-.retenir-label { display:none; }
-
-/* Panneau de formule : une police lisible et du texte qui revient à la ligne.
-   La monospace en nowrap coupait les phrases (« la cire de la boug… »). */
-#formule .fmath {
-  font-family:var(--font-body) !important; font-size:12px !important;
-  white-space:normal !important; overflow-x:visible !important;
-  line-height:1.5; padding:5px 9px !important; border-radius:var(--radius-sm) !important;
-}
-#formule .ftitre { font-size:10.5px; letter-spacing:.06em; }
-#formule .fnote { font-size:11.5px; line-height:1.45; }
-/* L'action motrice de la simulation prend le lime des boutons principaux */
-#btn-allumer, #btn-chauffer, #btn-lancer {
-  background:var(--primary) !important; border-color:transparent !important;
-  color:var(--neutral) !important;
-}
-
 /* ===== Accessibilité : contraste des textes colorés =====
-   L'accent (#5BC5F2) et sa variante #2196C4 sont des couleurs de fond.
-   Sur clair, elles tombent sous 3 de contraste : on passe à une teinte lisible. */
-:root { --accent-texte:#0F6E93; }
-body.sombre { --accent-texte:#7FD4F5; }
-#mchip, .p-suite .etiq, #formule .ftitre, .retenir-label, .lien,
-#mfin-titre, .m-pct { color:var(--accent-texte) !important; }
+   L'accent (#5BC5F2) est une couleur de fond. Sur blanc, il tombe à 2,0 de
+   contraste : illisible. On lui adjoint une variante foncée pour le texte. */
+:root { --accent-texte:#0F6E93; --vert-fonce:#1F7A6F; --orange-fonce:#A85F00; --rouge-fonce:#C62828; }
+body.sombre { --accent-texte:#7FD4F5; --vert-fonce:#2A9D8F; --orange-fonce:#F7A430; --rouge-fonce:#EF5350; }
+.m-rang, .p-suite .etiq, .q-avance, .g-titre, #formule .ftitre { color:var(--accent-texte) !important; }
+
+/* ===================== L'accueil : « Que veux-tu faire ? » ===================== */
+#v-accueil .carte-modale { max-width:520px; }
+.ac-intro { font-size:13.5px; line-height:1.6; opacity:.8; margin-bottom:14px; }
+.ac-choix {
+  display:flex; align-items:center; gap:13px; width:100%; text-align:left;
+  padding:15px 16px; margin-bottom:11px;
+  background:var(--surface); border:2px solid var(--border); border-radius:var(--radius-lg);
+  font-family:var(--font-body); color:inherit; cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+.ac-choix:hover:not([disabled]) { border-color:var(--accent); background:var(--accent-doux); }
+.ac-choix[disabled] { opacity:.55; cursor:not-allowed; }
+.ac-choix .ac-em {
+  width:46px; height:46px; flex:none; border-radius:var(--radius-md);
+  display:grid; place-items:center; background:var(--surface-muted); font-size:25px;
+}
+.ac-choix .ac-txt { flex:1; min-width:0; }
+.ac-choix .ac-txt b { display:block; font-family:var(--font-display); font-size:17px; font-weight:800; }
+.ac-choix .ac-txt span { display:block; font-size:12.5px; opacity:.7; line-height:1.45; margin-top:1px; }
+.ac-choix .ac-etat { font-size:11.5px; font-weight:700; opacity:.75; flex:none; text-align:right; max-width:34%; }
+.ac-pied { font-size:12px; opacity:.6; line-height:1.5; margin-top:2px; }
+
+/* ===================== La visite guidée de l'interface =====================
+   Un halo encadre la zone dont on parle et assombrit tout le reste ; la carte
+   se pose à côté. Une liste écrite ne montrait rien : ici, on regarde. */
+#visite { position:fixed; inset:0; z-index:48; display:none; }
+#visite.visible { display:block; }
+#visite-halo {
+  position:absolute; border-radius:var(--radius-md);
+  border:3px solid var(--primary);
+  box-shadow:0 0 0 9999px rgba(12,16,20,.91);
+  transition:left .3s var(--ease), top .3s var(--ease),
+             width .3s var(--ease), height .3s var(--ease);
+  pointer-events:none;
+}
+#visite-carte {
+  position:absolute; background:var(--surface); border-radius:var(--radius-lg);
+  padding:15px 16px 13px; width:min(320px, calc(100vw - 24px));
+  box-shadow:0 12px 44px rgba(0,0,0,.34);
+  transition:left .3s var(--ease), top .3s var(--ease);
+}
+.v-titre { font-family:var(--font-display); font-size:16px; font-weight:800; margin-bottom:5px; }
+.v-texte { font-size:13px; line-height:1.55; opacity:.85; }
+.v-texte b { opacity:1; }
+.v-bas { display:flex; align-items:center; gap:8px; margin-top:13px; }
+.v-prog { flex:1; font-size:11.5px; font-weight:700; opacity:.5; letter-spacing:.04em; }
+#visite-passer {
+  background:none; border:none; color:inherit; opacity:.6;
+  font-family:var(--font-body); font-size:12.5px; text-decoration:underline;
+  cursor:pointer; padding:6px;
+}
+#visite-passer:hover { opacity:1; }
+#visite-suivant {
+  border:none; background:var(--primary); color:var(--neutral);
+  font-family:var(--font-body); font-weight:700; font-size:13.5px;
+  padding:10px 18px; border-radius:var(--radius-md); cursor:pointer; min-height:40px;
+}
+
+/* ===================== Le quiz libre : m'exercer ===================== */
+#v-quiz .carte-modale { max-width:520px; }
+.qz-maitrise {
+  margin:4px 0 16px; padding:12px 14px; border-radius:var(--radius-md);
+  background:var(--surface-muted);
+}
+.qz-m-haut { display:flex; align-items:baseline; justify-content:space-between; font-size:12.5px; }
+.qz-m-haut b { font-family:var(--font-display); font-size:20px; font-weight:800; }
+.qz-m-barre { height:9px; border-radius:var(--radius-full); background:var(--surface);
+  overflow:hidden; margin-top:6px; }
+.qz-m-barre i { display:block; height:100%; border-radius:inherit;
+  background:var(--primary); transition:width .5s var(--ease); }
+.qz-m-mot { font-size:11.5px; font-weight:700; opacity:.6; margin-top:5px;
+  letter-spacing:.04em; text-transform:uppercase; }
+
+.qz-niveau {
+  display:flex; align-items:center; gap:12px; width:100%; text-align:left;
+  padding:13px 14px; margin-bottom:9px;
+  background:var(--surface); border:2px solid var(--border); border-radius:var(--radius-lg);
+  font-family:var(--font-body); color:inherit; cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+.qz-niveau:hover { border-color:var(--accent); background:var(--accent-doux); }
+.qz-niveau .qz-em {
+  width:42px; height:42px; flex:none; border-radius:var(--radius-md);
+  display:grid; place-items:center; background:var(--surface-muted); font-size:22px;
+}
+.qz-niveau .qz-txt { flex:1; min-width:0; }
+.qz-niveau .qz-txt b { display:block; font-family:var(--font-display); font-size:15.5px; font-weight:800; }
+.qz-niveau .qz-txt span { display:block; font-size:12px; opacity:.7; line-height:1.45; margin-top:1px; }
+.qz-niveau .qz-note { flex:none; text-align:right; font-size:14px; }
+.qz-niveau .qz-note span { display:block; font-size:10.5px; font-weight:600; opacity:.55; margin-top:2px; }
+.qz-pied { font-size:12px; opacity:.65; line-height:1.5; margin-top:4px; }
+
+.qz-jauge { height:4px; border-radius:var(--radius-full); background:var(--surface-muted);
+  overflow:hidden; margin:0 0 12px; }
+.qz-jauge i { display:block; height:100%; background:var(--accent); transition:width .3s var(--ease); }
+
+.qz-fin { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+.qz-fin-em { font-size:34px; line-height:1; flex:none; }
+.qz-fin b { display:block; font-family:var(--font-display); font-size:17px; font-weight:800; }
+.qz-fin span { font-size:12.5px; opacity:.65; }
+.qz-fin-et { margin-left:auto; font-size:17px; letter-spacing:1px; }
+.qz-mieux { font-size:12.5px; font-weight:600; color:var(--vert-fonce); margin:0 0 12px; }
+.qz-mieux.discret { color:inherit; opacity:.55; font-weight:400; }
+.qz-revoir { padding:11px 13px; border-radius:var(--radius-md); background:var(--accent-doux);
+  font-size:12.5px; line-height:1.6; margin-bottom:13px; }
+.qz-revoir span { display:block; }
+.qz-boutons { display:flex; gap:8px; }
+.qz-boutons .btn { flex:1; }
 </style>
 </head>
 <body>
 
-<div id="splash">
-  <div class="logo">⚡</div>
-  <div class="nom">IKE <span>Simulations</span></div>
-  <div class="sub">Sciences au collège</div>
-  <div class="barre"><div class="rempl"></div></div>
-  <div class="ver">v3.4.0</div>
+<div id="colonne">
+  <header>
+    <a class="icone-btn" href="../../index.html#/pct/6e" title="Retour au catalogue" aria-label="Retour">←</a>
+    <div>
+      <h1>Circuit électrique</h1>
+      <div class="sous">PCT · 6ᵉ SA1 · 4ᵉ SA1</div>
+    </div>
+    <div class="tete-fin">
+      <button class="icone-btn" id="btn-vue" title="Réaliste ou symboles" aria-label="Changer de vue">👁</button>
+      <button class="icone-btn" id="btn-missions" title="Les missions" aria-label="Missions">🎯</button>
+      <button class="icone-btn" id="btn-lexique" title="Lexique" aria-label="Lexique">📖</button>
+      <button class="icone-btn" id="btn-aide" title="Comment jouer" aria-label="Aide">❓</button>
+      <button class="icone-btn" id="btn-theme" title="Thème" aria-label="Thème">🌙</button>
+    </div>
+  </header>
+
+  <section id="mission">
+    <div class="m-haut">
+      <span class="m-pastille" id="m-num">1</span>
+      <div class="m-titres">
+        <span class="m-rang" id="m-rang">Mission 1 sur 15</span>
+        <b id="m-titre">—</b>
+        <span id="m-but"></span>
+      </div>
+      <button class="m-plier" id="m-plier" aria-label="Afficher toutes les étapes"
+              aria-expanded="false">▼</button>
+    </div>
+    <div class="m-jauge"><i id="m-jauge" style="width:0"></i></div>
+    <div id="etapes"></div>
+    <div class="m-indice" id="m-indice" hidden></div>
+    <div class="m-diag" id="m-diag" hidden></div>
+    <div class="m-actions" id="m-actions">
+      <button class="btn btn-contour" id="btn-indice">💡 Indice</button>
+      <button class="btn" id="btn-continuer" hidden>Continuer →</button>
+      <button class="btn" id="btn-suivante-barre" hidden>Mission suivante ▶</button>
+    </div>
+  </section>
 </div>
 
-<header>
-  <h1>⚡ Circuit électrique</h1>
-  <div class="spacer"></div>
-  <button class="btn" id="tab-exp">🧪<span class="lbl"> Expérimenter</span></button>
-  <button class="btn" id="btn-formule">📐<span class="lbl"> Formule</span></button>
-  <button class="btn" id="btn-theme">🌙<span class="lbl"> Sombre</span></button>
-  <button class="btn" id="btn-vue">👁 <span class="lbl" id="lbl-vue">Symboles</span></button>
-  <button class="btn" id="btn-aide">❓<span class="lbl"> Aide</span></button>
-  <button class="btn danger" id="btn-effacer">🗑<span class="lbl"> Vider</span></button>
-</header>
-
-<div id="mbar">
-  <div class="l1">
-    <span id="mchip"></span>
-    <span id="mtitre"></span>
-    <button class="mbtn" id="btn-missions" title="Toutes les missions">📋</button>
-  </div>
-  <div class="l2">
-    <span id="mpoints"></span>
-    <span id="metape"></span>
-    <span id="mcompteur"></span>
-    <button class="mbtn" id="btn-indice" title="Indice">💡 Indice</button>
-    <button class="mbtn" id="btn-continuer">Continuer →</button>
-    <button class="mbtn" id="btn-suiv2" style="display:none">Suivante ▶</button>
-  </div>
-  <div id="mindice"></div>
-  <div id="mdiag"></div>
-</div>
-
-<div id="wrap">
-  <canvas id="scene"></canvas>
-  <div id="zoomctl">
-    <button id="z-plus" title="Zoomer">+</button>
-    <button id="z-moins" title="Dézoomer">−</button>
-    <button id="z-reset" title="Vue normale">⟲</button>
-  </div>
-  <div id="formule" style="display:none"></div>
-  <div id="banniere">⚠️ Court-circuit ! La pile chauffe.</div>
-  <div id="toast"></div>
-  <div id="selbar">
-    <button id="btn-inverser">↔ Inverser</button>
-    <button id="btn-supprimer">🗑 Supprimer</button>
-  </div>
-</div>
-
-<nav id="palette"></nav>
-
-<div id="mfin" class="voile">
-  <div class="carte">
-    <button class="fermer-x" id="btn-fermer-fin" title="Fermer et admirer le montage">✕</button>
-    <h2>🎉 Mission réussie !</h2>
-    <div id="mfin-titre"></div>
-    <div class="p-acquis">📘 <b>Ce que tu as appris :</b> <span id="mfin-retenir"></span></div>
-    <div class="p-suite" id="mfin-suite"></div>
-    <button class="go" id="btn-suivante">Mission suivante ▶</button>
-    <button class="btn2" id="btn-liste2">📋 Toutes les missions</button>
-  </div>
-</div>
-
-<div id="mintro" class="voile">
-  <div class="carte">
-    <button class="fermer-x" id="btn-fermer-intro">✕</button>
-    <h2 id="in-titre"></h2>
-    <div class="m-sous" id="in-sous"></div>
-    <div id="in-contenu"></div>
-    <div class="lex-chips" id="in-lexique"></div>
-    <button class="go" id="btn-commencer">🚀 Commencer la mission</button>
-  </div>
-</div>
-
-<div id="mqcm" class="voile">
-  <div class="carte">
-    <h2 id="q-num"></h2>
-    <div class="notion-bloc" id="q-texte" style="font-weight:700"></div>
-    <div class="choix-qcm" id="q-choix"></div>
-    <div class="q-expl" id="q-expl"></div>
-    <button class="go" id="q-suivant" style="display:none"></button>
-  </div>
-</div>
-
-<div id="mlexique" class="voile">
-  <div class="carte">
-    <button class="fermer-x" id="btn-fermer-lexique">✕</button>
-    <h2>📖 Lexique de l'électricité</h2>
-    <dl class="lex" id="lex-items"></dl>
-  </div>
-</div>
-
-<div id="mliste" class="voile">
-  <div class="carte">
-    <h2>📋 Parcours d'apprentissage <span class="m-pct" id="m-pct"></span></h2>
-    <div class="m-barre-fond"><div class="m-barre" id="m-barre"></div></div>
-    <div id="mliste-items"></div>
-    <button class="btn2" id="btn-libre">🧪 Mode libre — construis ce que tu veux</button>
-    <button class="go" id="btn-fermer-liste">Fermer</button>
-    <button class="lien" id="btn-reset-prog">↺ Réinitialiser tout le parcours</button>
-  </div>
-</div>
-
-<div id="choix-mode" class="voile">
-  <div class="carte">
-    <h2>⚡ Que veux-tu faire ?</h2>
-    <div class="deux">
-      <button class="gros-btn" id="choix-apprendre">
-        <span class="gi">🎓</span>
-        <span><span class="gt">Apprendre</span><span class="gs">Le parcours guidé, mission par mission — recommandé pour commencer.</span></span>
-      </button>
-      <button class="gros-btn" id="choix-experimenter">
-        <span class="gi">🧪</span>
-        <span><span class="gt">Expérimenter</span><span class="gs" id="gs-exp"></span></span>
-      </button>
+<main>
+  <div id="atelier">
+    <canvas id="scene"></canvas>
+    <div id="formule" style="display:none"></div>
+    <div id="banniere">⚠️ Court-circuit ! La pile chauffe.</div>
+    <div id="selbar">
+      <button id="btn-inverser">↔ Inverser</button>
+      <button id="btn-supprimer">🗑 Supprimer</button>
+    </div>
+    <div id="zoomctl">
+      <button id="btn-formule" title="Mes mesures en direct" aria-label="Mesures">📐</button>
+      <button id="z-plus" title="Zoomer" aria-label="Zoomer">+</button>
+      <button id="z-moins" title="Dézoomer" aria-label="Dézoomer">−</button>
+      <button id="z-reset" title="Vue normale" aria-label="Vue normale">⟲</button>
     </div>
   </div>
-</div>
+  <nav id="palette"></nav>
+</main>
+
+<div id="toast" role="status" aria-live="polite"></div>
 
 <div id="visite">
   <div id="visite-halo"></div>
   <div id="visite-carte">
-    <div class="vtitre"></div>
-    <div class="vtexte"></div>
-    <div class="vbas">
-      <span class="vprog"></span>
-      <button id="visite-passer">Passer</button>
-      <button id="visite-suivant">Suivant</button>
+    <div class="v-titre" id="visite-titre"></div>
+    <div class="v-texte" id="visite-texte"></div>
+    <div class="v-bas">
+      <span class="v-prog" id="visite-prog"></span>
+      <button id="visite-passer" type="button">Passer</button>
+      <button id="visite-suivant" type="button">Suivant</button>
     </div>
-    <div class="vmarque">IKE Simulations · collège (PCT)</div>
   </div>
 </div>
+
+<div class="voile" id="v-quiz">
+  <div class="carte-modale" id="quiz-carte"></div>
+</div>
+
+<div class="voile" id="v-accueil">
+  <div class="carte-modale">
+    <h2>⚡ Que veux-tu faire ?</h2>
+    <p class="ac-intro">Tu vas <b>construire des circuits</b> sur la grille, fil après fil.</p>
+    <button class="ac-choix" id="ac-apprendre">
+      <span class="ac-em">🎓</span>
+      <span class="ac-txt"><b>Apprendre</b><span>Le parcours guidé, mission après mission.</span></span>
+      <span class="ac-etat" id="ac-etat-app"></span>
+    </button>
+    <button class="ac-choix" id="ac-experimenter">
+      <span class="ac-em">🧪</span>
+      <span class="ac-txt"><b>Expérimenter</b><span>La grille libre, tous les composants.</span></span>
+      <span class="ac-etat" id="ac-etat-exp"></span>
+    </button>
+    <button class="ac-choix" id="ac-exercer">
+      <span class="ac-em">🏅</span>
+      <span class="ac-txt"><b>M’exercer</b><span>Trois séries de questions, et un score de maîtrise.</span></span>
+      <span class="ac-etat" id="ac-etat-ex"></span>
+    </button>
+    <p class="ac-pied" id="ac-pied"></p>
+  </div>
+</div>
+
+<div class="voile" id="v-lecon">
+  <div class="carte-modale">
+    <button class="fermer-x" id="btn-fermer-lecon" aria-label="Fermer">✕</button>
+    <h2 id="lecon-titre"></h2>
+    <p id="lecon-sous"></p>
+    <div id="lecon-contenu"></div>
+    <div class="lex-chips" id="lecon-lexique"></div>
+    <button class="btn btn-large" id="btn-commencer">🚀 Commencer la mission</button>
+  </div>
+</div>
+
+<div class="voile" id="v-missions">
+  <div class="carte-modale">
+    <button class="fermer-x" data-ferme="v-missions" aria-label="Fermer">✕</button>
+    <h2>🎯 Les missions</h2>
+    <p>Elles se suivent : termine l'une pour ouvrir la suivante.</p>
+    <div class="d-barre"><i id="d-barre"></i></div>
+    <div id="liste-missions"></div>
+    <button class="btn btn-fantome btn-large" id="btn-rezero"
+            style="margin-top:6px;color:var(--rouge-fonce)">↺ Recommencer tout le parcours</button>
+  </div>
+</div>
+
+<div class="voile" id="v-lexique">
+  <div class="carte-modale">
+    <button class="fermer-x" data-ferme="v-lexique" aria-label="Fermer">✕</button>
+    <h2>📖 Les mots de l'électricité</h2>
+    <p>Le vocabulaire du programme, expliqué avec ce que tu construis.</p>
+    <div id="liste-lexique"></div>
+  </div>
+</div>
+
+<div class="voile" id="v-aide">
+  <div class="carte-modale">
+    <button class="fermer-x" data-ferme="v-aide" aria-label="Fermer">✕</button>
+    <h2>⚡ Bienvenue à l'atelier !</h2>
+    <p>Tu vas monter de vrais circuits, comme ceux du programme : une pile, des fils,
+       une lampe… et tout ce qui vient ensuite.</p>
+    <div class="g-titre">Comment construire ?</div>
+    <div class="g-etape"><span class="num">1</span><span class="t">
+      <b>Choisis un composant</b> dans la barre du bas : fil, pile, lampe… De nouveaux
+      composants se débloquent au fil des missions.</span></div>
+    <div class="g-etape"><span class="num">2</span><span class="t">
+      <b>Fais glisser ton doigt</b> d'un point de la grille vers un point voisin :
+      le composant se pose entre les deux.</span></div>
+    <div class="g-etape"><span class="num">3</span><span class="t">
+      <b>Touche un interrupteur</b> pour l'ouvrir ou le fermer. Touche un autre composant
+      pour le sélectionner : tu peux alors le <b>🗑 supprimer</b>, ou <b>↔ inverser</b> une pile.</span></div>
+    <div class="g-etape"><span class="num">4</span><span class="t">
+      <b>Trace par-dessus</b> un composant déjà posé pour le remplacer.</span></div>
+    <div class="g-etape"><span class="num">5</span><span class="t">
+      Le bouton <b>👁</b> bascule entre le dessin réaliste et les <b>symboles normalisés</b> —
+      ceux du tableau et des évaluations.</span></div>
+    <div class="g-etape"><span class="num">6</span><span class="t">
+      Le bouton <b>📐</b>, sur la grille, affiche <b>tes mesures en direct</b> dès que tu poses
+      un ampèremètre ou un voltmètre.</span></div>
+    <button class="btn btn-contour btn-large" id="btn-revoir-visite"
+            style="margin-bottom:8px">🔍 Revoir la visite guidée</button>
+    <button class="btn btn-large" data-ferme="v-aide">Commencer !</button>
+  </div>
+</div>
+
+<div class="voile" id="v-qcm"><div class="carte-modale" id="qcm-carte"></div></div>
+<div class="voile" id="v-passage"><div class="carte-modale" id="passage-carte"></div></div>
 
 <script>
 'use strict';
@@ -736,25 +733,27 @@ const etat = {
   courtCircuit: false,
 };
 
-// Couleurs du canvas selon le thème (l'interface est gérée par le CSS)
+// Couleurs du canvas selon le thème. Elles reprennent les jetons du design
+// system : la grille est du même bois que le reste de la plateforme, sinon la
+// scène jure avec l'interface dès qu'on bascule en sombre.
 const PALETTES = {
   clair: {
-    grille: '#c9d4e0',        // points de la grille
-    fil: '#455a64',           // conducteurs
-    trait: '#37474f',         // contours, croix, lettre A, bornes
-    compFond: '#ffffff',      // fond des lampes / ampèremètres
-    masque: '#f4f7fb',        // cache derrière le symbole de pile (= fond de page)
-    symbole: '#263238',       // traits du symbole de pile
-    filamentEteint: '#90a4ae',
+    grille: '#CFC9C1',        // points de la grille (≈ --border)
+    fil: '#57514B',           // conducteurs
+    trait: '#3A3632',         // contours, croix, lettre A, bornes (--neutral)
+    compFond: '#FFFFFF',      // fond des lampes / ampèremètres (--surface)
+    masque: '#F7F5F0',        // cache derrière le symbole de pile (--background)
+    symbole: '#3A3632',       // traits du symbole de pile
+    filamentEteint: '#B0ABA3', // --border-strong
   },
   sombre: {
-    grille: '#3d4c59',
-    fil: '#b0bec5',
-    trait: '#cfd8dc',
-    compFond: '#22303a',
-    masque: '#10181f',
-    symbole: '#eceff1',
-    filamentEteint: '#78909c',
+    grille: '#333E47',        // --border
+    fil: '#B3BBC1',
+    trait: '#ECEFF1',         // --neutral
+    compFond: '#1C232A',      // --surface
+    masque: '#14181C',        // --background
+    symbole: '#ECEFF1',
+    filamentEteint: '#6B767F',
   },
 };
 const T = () => PALETTES[etat.theme];
@@ -772,7 +771,7 @@ let origX = 0, origY = 0;     // origine de la grille (px CSS)
 let largeur = 0, hauteur = 0; // taille du canvas (px CSS)
 
 function redimensionner() {
-  const wrap = document.getElementById('wrap');
+  const wrap = document.getElementById('atelier');
   largeur = wrap.clientWidth; hauteur = wrap.clientHeight;
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
   canvas.width = Math.round(largeur * dpr);
@@ -935,7 +934,10 @@ function majFormule() {
 document.getElementById('btn-formule').addEventListener('click', () => {
   formuleVisible = !formuleVisible;
   try { localStorage.setItem('ike-circuit-formule', formuleVisible ? 'oui' : 'non'); } catch (e) {}
+  document.getElementById('btn-formule').classList.toggle('actif', formuleVisible);
   majFormule();
+  if (formuleVisible && document.getElementById('formule').style.display === 'none')
+    toast('📐 Pose un ampèremètre ou un voltmètre : tes mesures s’afficheront ici.');
 });
 
 // Élimination de Gauss avec pivot partiel
@@ -1412,7 +1414,10 @@ document.getElementById('btn-inverser').addEventListener('click', () => {
    6. UI — palette, boutons, aide
    ===================================================================== */
 
-const palette = document.getElementById('palette');
+const $ = id => document.getElementById(id);
+const palette = document.createElement('div');   // le rang défilable des outils
+palette.id = 'palette-int';
+$('palette').appendChild(palette);
 for (const outil of OUTILS) {
   const btn = document.createElement('button');
   const ic = document.createElement('canvas');
@@ -1429,11 +1434,20 @@ for (const outil of OUTILS) {
   palette.appendChild(btn);
 }
 
+// « Tout enlever » vit au bout de l'établi, à portée de pouce — pas dans
+// l'en-tête, où il aurait fait un sixième bouton sur un écran de téléphone.
+const btnEffacer = document.createElement('button');
+btnEffacer.id = 'btn-effacer';
+btnEffacer.title = 'Tout enlever';
+btnEffacer.innerHTML = '<span class="pal-ico">🗑</span><span>Tout enlever</span>';
+palette.appendChild(btnEffacer);
+
 function majPalette() {
   // La mission en cours limite les outils disponibles (déblocage progressif)
   const autorises = outilsAutorises();
   if (!autorises.includes(etat.outil)) etat.outil = autorises[0];
   for (const btn of palette.children) {
+    if (!btn.dataset.outil) continue;             // le bouton « Tout enlever »
     btn.style.display = autorises.includes(btn.dataset.outil) ? '' : 'none';
     btn.classList.toggle('actif', btn.dataset.outil === etat.outil);
     const ic = btn.firstChild, c2d = ic.getContext('2d');
@@ -1448,47 +1462,54 @@ function majPalette() {
 }
 
 // ---- Boutons d'en-tête ----
-// Thème clair/sombre : préférence système au premier lancement, puis choix mémorisé
+// Thème clair/sombre : préférence système au premier lancement, puis choix
+// mémorisé sous la clé commune à toute la plateforme.
 function appliquerTheme() {
-  document.body.classList.toggle('sombre', etat.theme === 'sombre');
-  document.getElementById('btn-theme').innerHTML =
-    etat.theme === 'sombre' ? '☀️<span class="lbl"> Clair</span>' : '🌙<span class="lbl"> Sombre</span>';
+  const sombre = etat.theme === 'sombre';
+  document.body.classList.toggle('sombre', sombre);
+  $('btn-theme').textContent = sombre ? '☀️' : '🌙';
+  document.querySelector('meta[name=theme-color]')
+    .setAttribute('content', sombre ? '#14181C' : '#F7F5F0');
   majPalette();      // les icônes de la palette sont redessinées aux couleurs du thème
   demanderRendu();
 }
 
-document.getElementById('btn-theme').addEventListener('click', () => {
+$('btn-theme').addEventListener('click', () => {
   etat.theme = etat.theme === 'sombre' ? 'clair' : 'sombre';
-  try { localStorage.setItem('ike-circuit-theme', etat.theme); } catch (e) {}
+  try { localStorage.setItem('ike-theme', etat.theme); } catch (e) {}
   appliquerTheme();
 });
 
 try {
-  const memo = localStorage.getItem('ike-circuit-theme');
+  const memo = localStorage.getItem('ike-theme');
   if (memo === 'sombre' || memo === 'clair') etat.theme = memo;
   else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
     etat.theme = 'sombre';
 } catch (e) {}
 
-document.getElementById('btn-vue').addEventListener('click', () => {
+$('btn-vue').addEventListener('click', () => {
   etat.vue = etat.vue === 'realiste' ? 'symboles' : 'realiste';
-  document.getElementById('lbl-vue').textContent =
-    etat.vue === 'realiste' ? 'Symboles' : 'Réaliste';
+  const b = $('btn-vue');
+  b.classList.toggle('actif', etat.vue === 'symboles');
+  b.title = etat.vue === 'realiste' ? 'Passer aux symboles' : 'Revenir au dessin réaliste';
+  toast(etat.vue === 'symboles'
+    ? '👁 Symboles normalisés — ceux du tableau.'
+    : '👁 Dessin réaliste — les objets tels quels.');
   majPalette(); demanderRendu();
 });
 
-const btnEffacer = document.getElementById('btn-effacer');
 let confirmEffacer = null;
+const libelleEffacer = '<span class="pal-ico">🗑</span><span>Tout enlever</span>';
 btnEffacer.addEventListener('click', () => {
   if (confirmEffacer) {                 // deuxième appui : on efface
     clearTimeout(confirmEffacer); confirmEffacer = null;
-    btnEffacer.innerHTML = '🗑<span class="lbl"> Vider</span>';
+    btnEffacer.innerHTML = libelleEffacer;
     etat.comps = []; deselectionner(); resoudre();
   } else {                              // premier appui : demander confirmation
-    btnEffacer.textContent = 'Sûr ?';
+    btnEffacer.innerHTML = '<span class="pal-ico">⚠️</span><span>Sûr ?</span>';
     confirmEffacer = setTimeout(() => {
       confirmEffacer = null;
-      btnEffacer.innerHTML = '🗑<span class="lbl"> Vider</span>';
+      btnEffacer.innerHTML = libelleEffacer;
     }, 2500);
   }
 });
@@ -1502,20 +1523,18 @@ btnEffacer.addEventListener('click', () => {
    ===================================================================== */
 
 const VISITE = [
-  { cible: '#mbar', titre: '🎯 Ta mission',
-    texte: "Ta mission s'affiche ici : lis l'étape en cours et réalise-la sur la grille. Les points colorés montrent ta progression dans la mission." },
-  { cible: '#palette', titre: '🧰 Les composants',
-    texte: "Choisis ici ce que tu veux poser : fil, pile, lampe… De nouveaux composants se débloquent au fil des missions !" },
-  { cible: '#scene', titre: '🕸️ La grille de construction',
-    texte: "Pour poser un composant : fais glisser ton doigt d'un point de la grille vers un point voisin." },
-  { cible: null, titre: '✋ Modifier ton circuit',
-    texte: "👆 Touche un interrupteur pour l'ouvrir ou le fermer.\n👆 Touche un autre composant pour le sélectionner : tu peux alors le 🗑 supprimer, ou ↔ inverser une pile.\n✏️ Trace par-dessus un composant pour le remplacer." },
-  { cible: '#btn-indice', titre: '💡 Bloqué ? Un indice !',
-    texte: "Ce bouton te donne un coup de pouce pour l'étape en cours. N'hésite jamais à l'utiliser, il est là pour ça !" },
-  { cible: '#btn-vue', titre: '👁 Deux façons de voir',
-    texte: "Bascule entre le dessin réaliste et les symboles normalisés — ceux utilisés en classe et aux évaluations." },
+  { cible:'#mission', titre:'🎯 Le plan de mission',
+    texte:"Ton but du moment et les étapes à cocher. Le chevron <b>▼</b> le replie quand tu veux de la place pour construire." },
+  { cible:'#scene', titre:'🕸️ La grille de construction',
+    texte:"Ton circuit se monte ici. Pour poser un composant, <b>fais glisser ton doigt</b> d'un point de la grille vers un point voisin." },
+  { cible:'#palette', titre:'🧰 Les composants',
+    texte:"Choisis ici ce que tu veux poser : fil, pile, lampe… De nouveaux composants <b>se débloquent</b> au fil des missions. Au bout, <b>🗑</b> vide la grille." },
+  { cible:'#zoomctl', titre:'📐 Les commandes de la grille',
+    texte:"<b>📐</b> affiche tes mesures en direct dès qu'un ampèremètre ou un voltmètre est posé. Les autres boutons zooment et recadrent la vue." },
+  { cible:'.tete-fin', titre:'🎓 Les boutons du haut',
+    texte:"La vue <b>👁</b> réaliste ou symboles, les missions, le lexique des mots difficiles, ce guide, et le thème clair ou sombre." },
 ];
-let visiteIdx = -1;
+let visiteIdx = -1, visiteEtapes = [];
 const visiteEl = document.getElementById('visite');
 
 /* =====================================================================
@@ -1706,68 +1725,56 @@ const META = [
 
 /* ---- Lexique ---- */
 function ouvrirLexique(termeCible) {
-  const dl = document.getElementById('lex-items');
-  if (!dl.childElementCount) {
-    for (const [terme, def] of LEXIQUE) {
-      const dt = document.createElement('dt'); dt.textContent = terme; dt.dataset.t = terme;
-      const dd = document.createElement('dd'); dd.textContent = def;
-      dl.append(dt, dd);
-    }
-  }
-  for (const dt of dl.querySelectorAll('dt')) dt.style.background = '';
-  document.getElementById('mlexique').classList.add('visible');
+  const zone = $('liste-lexique');
+  zone.innerHTML = LEXIQUE.map(([terme, def]) =>
+    `<div class="lex-entree${terme === termeCible ? ' vise' : ''}" data-terme="${terme}">
+      <b>${terme}</b><span>${def}</span></div>`).join('');
+  ouvrir('v-lexique');
   if (termeCible) {
-    const el = dl.querySelector(`dt[data-t="${termeCible}"]`);
-    if (el) {
-      el.scrollIntoView({ block: 'center' });
-      el.style.background = 'rgba(255,202,40,.25)';
-      el.style.borderRadius = '6px';
-    }
+    const el = zone.querySelector('.vise');
+    if (el) el.scrollIntoView({ block: 'center' });
   }
 }
-// Modales indépendantes : la croix du lexique ne ferme QUE le lexique
-document.getElementById('btn-fermer-lexique').addEventListener('click', () =>
-  document.getElementById('mlexique').classList.remove('visible'));
+$('btn-lexique').addEventListener('click', () => ouvrirLexique(null));
 
-/* ---- Déverrouillage séquentiel & fiche notion ---- */
+/* ---- Déverrouillage séquentiel & leçon d'avant-mission ----
+   La leçon pose le vocabulaire AVANT de manipuler : c'est le cours, et il
+   ouvre chaque mission numérotée. ---- */
 const missionDeverrouillee = i => i === 0 || progression.faites.includes(i - 1);
 let missionEnAttente = null;
 
-function ouvrirIntro(i) {
+function ouvrirLecon(i) {
   if (!missionDeverrouillee(i)) {
     toast('🔒 Termine d’abord la mission précédente !');
     return;
   }
   missionEnAttente = i;
   const meta = META[i] || {};
-  document.getElementById('in-titre').textContent =
+  $('lecon-titre').textContent =
     `${meta.badge || '🎯'} Mission ${i + 1} · ${MISSIONS[i].titre}`;
-  document.getElementById('in-sous').textContent = meta.sousTitre || '';
-  document.getElementById('in-contenu').innerHTML =
+  $('lecon-sous').textContent = meta.sousTitre || '';
+  $('lecon-contenu').innerHTML =
     (meta.intro || []).map(p => `<div class="notion-bloc">${p}</div>`).join('') +
     (meta.formule ? `<div class="notion-formule">${meta.formule}</div>` : '');
-  const lx = document.getElementById('in-lexique');
-  lx.innerHTML = '';
-  for (const terme of meta.lexique || []) {
-    const b = document.createElement('button');
-    b.textContent = '📖 ' + terme;
-    b.addEventListener('click', () => ouvrirLexique(terme));
-    lx.appendChild(b);
-  }
+  $('lecon-lexique').innerHTML = (meta.lexique || [])
+    .map(t => `<button data-lex="${t}">📖 ${t}</button>`).join('');
   fermerVoiles();
-  document.getElementById('mintro').classList.add('visible');
+  ouvrir('v-lecon');
 }
-document.getElementById('btn-commencer').addEventListener('click', () => {
+$('v-lecon').addEventListener('click', e => {
+  const l = e.target.closest('[data-lex]');
+  if (l) ouvrirLexique(l.dataset.lex);
+});
+$('btn-commencer').addEventListener('click', () => {
   if (missionEnAttente !== null) lancerMission(missionEnAttente);
 });
-document.getElementById('btn-fermer-intro').addEventListener('click', () => {
-  document.getElementById('mintro').classList.remove('visible');
+$('btn-fermer-lecon').addEventListener('click', () => {
+  fermer('v-lecon');
   ouvrirListe();
 });
 
-/* ---- QCM « Je m'évalue » ---- */
-let qcmIdx = 0, qcmScore = 0;
-
+/* ---- QCM « Je m'évalue » : il clôt chaque mission réussie ---- */
+let qcm = { liste: [], n: 0, justes: 0 };
 
 // Mélange les propositions : sans cela, la bonne réponse resterait toujours en
 // tête de liste et l'élève finirait par cliquer sans lire.
@@ -1782,55 +1789,51 @@ function melangerQuestion(q) {
     bonne: ordre.indexOf(q.bonne),
   });
 }
-let qcmMelange = [];
+
 function demarrerQCM() {
-  qcmIdx = 0; qcmScore = 0;
-  qcmMelange = ((META[progression.m] || {}).qcm || []).map(melangerQuestion);
-  afficherQuestion();
-}
-function afficherQuestion() {
-  const m = missionCourante(), meta = META[progression.m] || {};
-  const liste = qcmMelange;
+  const liste = ((META[progression.m] || {}).qcm || []).map(melangerQuestion);
   if (!liste.length) { terminerQCM(); return; }
-  const q = liste[qcmIdx];
-  document.getElementById('q-num').textContent =
-    `${meta.badge || '🎯'} Je m'évalue — question ${qcmIdx + 1} / ${liste.length}`;
-  document.getElementById('q-texte').textContent = q.q;
-  const zone = document.getElementById('q-choix');
-  zone.innerHTML = '';
-  const expl = document.getElementById('q-expl');
-  expl.classList.remove('visible');
-  const suiv = document.getElementById('q-suivant');
-  suiv.style.display = 'none';
-  suiv.textContent = qcmIdx < liste.length - 1 ? 'Question suivante →' : 'Terminer 🏁';
-  q.choix.forEach((c, i) => {
-    const b = document.createElement('button');
-    b.textContent = c;
-    b.addEventListener('click', () => {
-      for (const x of zone.children) x.disabled = true;
-      // ✔️ / ❌ en plus des couleurs : repères universels pour les élèves
-      if (i === q.bonne) {
-        b.classList.add('bonne'); b.textContent = '✔️ ' + b.textContent;
-        qcmScore++;
-      } else {
-        b.classList.add('mauvaise'); b.textContent = '❌ ' + b.textContent;
-        const bb = zone.children[q.bonne];
-        bb.classList.add('bonne'); bb.textContent = '✔️ ' + bb.textContent;
-      }
-      expl.textContent = '💬 ' + q.expl;
-      expl.classList.add('visible');
-      suiv.style.display = 'block';
-    });
-    zone.appendChild(b);
-  });
+  qcm = { liste, n: 0, justes: 0 };
   fermerVoiles();
-  document.getElementById('mqcm').classList.add('visible');
+  rendreQcm();
+  ouvrir('v-qcm');
 }
-document.getElementById('q-suivant').addEventListener('click', () => {
-  const liste = qcmMelange;
-  if (qcmIdx < liste.length - 1) { qcmIdx++; afficherQuestion(); }
-  else terminerQCM();
+
+function rendreQcm() {
+  const q = qcm.liste[qcm.n];
+  $('qcm-carte').innerHTML = `
+    <div class="q-avance">✅ Mission réussie · question ${qcm.n + 1} sur ${qcm.liste.length}</div>
+    <div class="q-question">${q.q}</div>
+    <div id="q-choix">${q.choix.map((c, i) =>
+      `<button class="q-choix" data-rep="${i}">${c}</button>`).join('')}</div>
+    <div class="q-expl" id="q-expl"></div><div id="q-suite"></div>`;
+}
+
+function repondreQcm(i) {
+  const q = qcm.liste[qcm.n];
+  if (i === q.bonne) qcm.justes++;
+  // ✔️ / ❌ en plus des couleurs : repères universels pour les élèves
+  $('q-choix').querySelectorAll('.q-choix').forEach((b, k) => {
+    b.disabled = true;
+    if (k === q.bonne) { b.classList.add('bon'); b.textContent = '✔️ ' + b.textContent; }
+    else if (k === i) { b.classList.add('mauvais'); b.textContent = '❌ ' + b.textContent; }
+  });
+  const e = $('q-expl');
+  e.innerHTML = '💬 ' + q.expl;
+  e.classList.add('visible');
+  const dernier = qcm.n === qcm.liste.length - 1;
+  $('q-suite').innerHTML = `<button class="btn btn-large" style="margin-top:12px" id="q-continuer">${
+    dernier ? 'Terminer 🏁' : 'Question suivante →'}</button>`;
+  $('q-continuer').addEventListener('click', () => {
+    if (dernier) { fermer('v-qcm'); terminerQCM(); }
+    else { qcm.n++; rendreQcm(); }
+  });
+}
+$('v-qcm').addEventListener('click', e => {
+  const b = e.target.closest('[data-rep]');
+  if (b && !b.disabled) repondreQcm(+b.dataset.rep);
 });
+
 function terminerQCM() {
   const m = missionCourante();
   progression.etape = m.etapes.length;      // mission bouclée
@@ -1838,137 +1841,150 @@ function terminerQCM() {
     progression.faites.push(progression.m);
     sauverProgression();
   }
-  majMissionBar();
+  majMission();
   fermerVoiles();
-  ouvrirFin(m);
+  ouvrirPassage(m);
 }
 
-/* ---------- Apprendre / Expérimenter (verrou de progression) ---------- */
-
-const MSG_VERROU = '🔒 Termine d’abord toutes les missions d’apprentissage avant d’accéder au mode Expérimenter.';
-const experimenterDebloque = () => progression.faites.length >= MISSIONS.length;
+/* ============================================================================
+   L'accueil — « Que veux-tu faire ? »
+   Trois portes d'entrée : le parcours guidé, la grille libre, et le quiz. Les
+   deux dernières restent fermées tant que le parcours n'est pas terminé.
+   L'écran se présente à chaque ouverture, et indique où l'on en est.
+   ========================================================================== */
+const MSG_VERROU = '🔒 Termine d’abord les 15 missions d’Apprendre.';
+const accueilFaites = () => progression.faites.length;
+const accueilOuvert = () => accueilFaites() >= MISSIONS.length;
 const prochaineMission = () => {
   for (let i = 0; i < MISSIONS.length; i++) if (!progression.faites.includes(i)) return i;
   return 0;
 };
 
-function majTabExp() {
-  const b = document.getElementById('tab-exp');
-  const libre = progression.m === 'libre';
-  const ok = experimenterDebloque();
-  const html = libre
-    ? '🎓<span class="lbl"> Apprendre</span>'
-    : (ok ? '🧪' : '🔒') + '<span class="lbl"> Expérimenter</span>';
-  if (b.dataset.prec !== html) { b.dataset.prec = html; b.innerHTML = html; }
-  b.classList.toggle('verrouille', !libre && !ok);
-}
-setInterval(majTabExp, 1500);
-
-document.getElementById('tab-exp').addEventListener('click', () => {
-  if (progression.m === 'libre') allerMission(prochaineMission());
-  else if (!experimenterDebloque()) toast(MSG_VERROU);
-  else allerMission('libre');
-  majTabExp();
-});
-
-function entrerApprendre() {
-  document.getElementById('choix-mode').classList.remove('visible');
-  if (progression.m === 'libre') { allerMission(prochaineMission()); majTabExp(); return; }
-  majTabExp();
-  try {
-    if (!localStorage.getItem('ike-circuit-visite')) { lancerVisite(); return; }
-  } catch (e) { lancerVisite(); return; }
-  if (missionCourante() && progression.etape === 0 && !etapeValidee) ouvrirIntro(progression.m);
+function rendreAccueil() {
+  const n = accueilFaites(), total = MISSIONS.length;
+  $('ac-etat-app').textContent = n === 0 ? 'Commencer'
+    : n >= total ? 'Terminé ✓' : 'Reprendre · ' + n + '/' + total;
+  const ouvert = accueilOuvert();
+  $('ac-experimenter').disabled = !ouvert;
+  $('ac-etat-exp').textContent = ouvert ? 'Ouvert' : '🔒 Verrouillé';
+  $('ac-exercer').disabled = !ouvert;
+  $('ac-etat-ex').textContent = ouvert ? (scoreMaitrise() + ' %') : '🔒 Verrouillé';
+  $('ac-pied').innerHTML = ouvert
+    ? 'Tu as terminé le parcours : les trois portes sont ouvertes.'
+    : 'Termine les <b>' + total + ' missions</b> d’Apprendre pour ouvrir les deux autres.';
 }
 
-function ouvrirChoixMode() {
+function ouvrirAccueil() {
   // un ancien « mode libre » sauvegardé sans déblocage n'est plus valable
-  if (progression.m === 'libre' && !experimenterDebloque()) allerMission(prochaineMission());
-  const ok = experimenterDebloque();
-  document.getElementById('gs-exp').textContent = ok
-    ? 'Le bac à sable : tous les outils, aucune consigne.'
-    : `Se débloque à la fin du parcours (${progression.faites.length}/${MISSIONS.length} missions réussies).`;
-  document.getElementById('choix-experimenter').classList.toggle('verrouille', !ok);
-  document.getElementById('choix-mode').classList.add('visible');
+  if (progression.libre && !accueilOuvert()) { progression.libre = false; sauverProgression(); }
+  rendreAccueil();
+  ouvrir('v-accueil');
 }
-document.getElementById('choix-apprendre').addEventListener('click', entrerApprendre);
-document.getElementById('choix-experimenter').addEventListener('click', () => {
-  if (!experimenterDebloque()) { toast(MSG_VERROU); return; }
-  document.getElementById('choix-mode').classList.remove('visible');
-  allerMission('libre');
-  majTabExp();
+
+$('ac-apprendre').addEventListener('click', () => {
+  fermer('v-accueil');
+  if (progression.libre) { progression.libre = false; sauverProgression(); }
+  // le repérage de l'interface reste proposé tant qu'aucune mission n'est gagnée
+  if (accueilFaites() === 0) { lancerVisite(); return; }
+  allerMission(missionCourante() ? progression.m : prochaineMission());
 });
+$('ac-experimenter').addEventListener('click', () => {
+  if (!accueilOuvert()) return;
+  fermer('v-accueil');
+  allerMission('libre');
+});
+$('ac-exercer').addEventListener('click', () => {
+  if (!accueilOuvert()) return;
+  fermer('v-accueil');
+  ouvrirQuiz();
+});
+
+/* ============================================================================
+   La visite guidée — on montre l'écran au lieu de le décrire
+   ========================================================================== */
+function cibleVisible(sel) {
+  const e = document.querySelector(sel);
+  if (!e) return null;
+  const r = e.getBoundingClientRect();
+  return (r.width > 4 && r.height > 4) ? r : null;
+}
 
 function lancerVisite() {
   fermerVoiles();
+  // on ne montre que ce qui est réellement à l'écran en ce moment
+  visiteEtapes = VISITE.filter(e => !e.cible || cibleVisible(e.cible));
+  if (!visiteEtapes.length) { fermerVisite(); return; }
   visiteIdx = 0;
-  visiteEl.style.display = 'block';
-  montrerEtapeVisite();
+  visiteEl.classList.add('visible');
+  montrerVisite();
+}
+
+function montrerVisite() {
+  const et = visiteEtapes[visiteIdx];
+  const halo = $('visite-halo');
+  const r = et.cible ? cibleVisible(et.cible) : null;
+  if (r) {
+    halo.style.display = 'block';
+    halo.style.left = (r.left - 5) + 'px';
+    halo.style.top = (r.top - 5) + 'px';
+    halo.style.width = (r.width + 10) + 'px';
+    halo.style.height = (r.height + 10) + 'px';
+  } else halo.style.display = 'none';
+  $('visite-titre').textContent = et.titre;
+  $('visite-texte').innerHTML = et.texte;
+  $('visite-prog').textContent = (visiteIdx + 1) + ' / ' + visiteEtapes.length;
+  $('visite-suivant').textContent =
+    visiteIdx === visiteEtapes.length - 1 ? 'C’est parti !' : 'Suivant';
+  placerCarteVisite(r);
+}
+
+// La carte cherche une place libre autour de la zone montrée : dessous, dessus,
+// à droite, à gauche. Quand la zone occupe presque tout l'écran — la grille de
+// construction, par exemple — aucune place n'est libre : elle se pose alors
+// dans un coin, en couvrant le moins possible.
+function placerCarteVisite(r) {
+  const c = $('visite-carte');
+  c.style.visibility = 'hidden';
+  const cw = c.offsetWidth, ch = c.offsetHeight;
+  const W = window.innerWidth, H = window.innerHeight;
+  const poser = (x, y) => {
+    c.style.left = Math.round(Math.max(8, Math.min(W - cw - 8, x))) + 'px';
+    c.style.top = Math.round(Math.max(8, Math.min(H - ch - 8, y))) + 'px';
+    c.style.visibility = 'visible';
+  };
+  if (!r) { poser((W - cw) / 2, (H - ch) / 2); return; }
+  const m = 14, cx = r.left + r.width / 2 - cw / 2, cy = r.top + r.height / 2 - ch / 2;
+  const essais = [[cx, r.bottom + m], [cx, r.top - ch - m],
+                  [r.right + m, cy], [r.left - cw - m, cy]];
+  for (const [ex, ey] of essais) {
+    const x = Math.max(8, Math.min(W - cw - 8, ex));
+    const y = Math.max(8, Math.min(H - ch - 8, ey));
+    // retenue seulement si la carte ne recouvre pas ce qu'on montre
+    if (x + cw < r.left || x > r.right || y + ch < r.top || y > r.bottom) { poser(x, y); return; }
+  }
+  // dernier recours : le coin bas droit, loin du centre de la zone
+  poser(W - cw - 12, H - ch - 12);
 }
 
 function fermerVisite() {
   visiteIdx = -1;
-  visiteEl.style.display = 'none';
-  try { localStorage.setItem('ike-circuit-visite', '1'); } catch (e) {}
-  // Enchaîner sur la fiche notion si la mission n'a pas encore commencé
-  if (missionCourante() && progression.etape === 0 && !etapeValidee) ouvrirIntro(progression.m);
+  visiteEl.classList.remove('visible');
+  // Enchaîner sur la leçon si la mission n'a pas encore commencé
+  if (missionCourante() && progression.etape === 0 && !etapeValidee) ouvrirLecon(progression.m);
 }
 
-function montrerEtapeVisite() {
-  const et = VISITE[visiteIdx];
-  const halo = document.getElementById('visite-halo');
-  const carte = document.getElementById('visite-carte');
-  let rc = null;
-  if (et.cible) {
-    const el = document.querySelector(et.cible);
-    const r = el && el.getBoundingClientRect();
-    if (r && r.width > 0) rc = r;
-  }
-  if (rc) {
-    visiteEl.classList.remove('sombre');       // le halo assombrit le reste
-    halo.style.display = 'block';
-    halo.style.left = (rc.left - 6) + 'px';
-    halo.style.top = (rc.top - 6) + 'px';
-    halo.style.width = (rc.width + 12) + 'px';
-    halo.style.height = (rc.height + 12) + 'px';
-  } else {
-    visiteEl.classList.add('sombre');          // pas de cible : fond assombri
-    halo.style.display = 'none';
-  }
-  carte.querySelector('.vtitre').textContent = et.titre;
-  carte.querySelector('.vtexte').textContent = et.texte;
-  carte.querySelector('.vprog').textContent = `${visiteIdx + 1}/${VISITE.length}`;
-  document.getElementById('visite-suivant').textContent =
-    visiteIdx === VISITE.length - 1 ? "C'est parti !" : 'Suivant';
-  requestAnimationFrame(() => {
-    const cw = carte.offsetWidth, ch = carte.offsetHeight;
-    let x, y;
-    if (rc) {
-      y = rc.bottom + 14;
-      if (y + ch > window.innerHeight - 10) y = rc.top - ch - 14;
-      if (y < 10) y = Math.max(10, (window.innerHeight - ch) / 2);
-      x = Math.max(10, Math.min(window.innerWidth - cw - 10, rc.left + rc.width / 2 - cw / 2));
-    } else {
-      x = (window.innerWidth - cw) / 2;
-      y = (window.innerHeight - ch) / 2;
-    }
-    carte.style.left = x + 'px';
-    carte.style.top = y + 'px';
-  });
-}
-
-document.getElementById('visite-suivant').addEventListener('click', () => {
-  visiteIdx++;
-  if (visiteIdx >= VISITE.length) fermerVisite(); else montrerEtapeVisite();
+$('visite-suivant').addEventListener('click', () => {
+  if (visiteIdx >= visiteEtapes.length - 1) { fermerVisite(); return; }
+  visiteIdx++; montrerVisite();
 });
-document.getElementById('visite-passer').addEventListener('click', fermerVisite);
-visiteEl.addEventListener('click', e => {
-  if (e.target === visiteEl || e.target.id === 'visite-halo')
-    document.getElementById('visite-suivant').click();
+$('visite-passer').addEventListener('click', fermerVisite);
+window.addEventListener('resize', () => { if (visiteIdx >= 0) montrerVisite(); });
+document.addEventListener('keydown', e => {
+  if (visiteIdx >= 0 && e.key === 'Escape') fermerVisite();
 });
-window.addEventListener('resize', () => { if (visiteIdx >= 0) montrerEtapeVisite(); });
 
-document.getElementById('btn-aide').addEventListener('click', lancerVisite);
+$('btn-aide').addEventListener('click', () => ouvrir('v-aide'));
+$('btn-revoir-visite').addEventListener('click', () => { fermer('v-aide'); lancerVisite(); });
 
 /* ---- Coup de pouce : élève bloqué sur une étape depuis 45 s ---- */
 let etapeDebut = Date.now();
@@ -1977,7 +1993,6 @@ let coupDePouceFait = false;
 function resetEtapeTimer() {
   etapeDebut = Date.now();
   coupDePouceFait = false;
-  document.getElementById('btn-indice').classList.remove('pulse');
 }
 
 setInterval(() => {
@@ -1986,8 +2001,8 @@ setInterval(() => {
   if (document.querySelector('.voile.visible')) return;
   if (!coupDePouceFait && Date.now() - etapeDebut > 45000) {
     coupDePouceFait = true;
-    document.getElementById('btn-indice').classList.add('pulse');
-    toast('💡 Besoin d\'aide ? Touche le bouton Indice !');
+    montrerIndice(true);
+    toast('💡 Un coup de pouce pour cette étape.');
   }
 }, 5000);
 
@@ -2266,27 +2281,33 @@ const MISSIONS = [
 ];
 
 // ---- Progression (persistée) ----
-const progression = { m: 0, etape: 0, faites: [] };
+// `libre` est un drapeau, pas une valeur de `m` : la grille libre n'efface plus
+// la mission en cours, on y va et on en revient sans perdre sa place.
+const progression = { m: 0, etape: 0, faites: [], libre: false, maitrise: {} };
 
 function chargerProgression() {
   try {
     const d = JSON.parse(localStorage.getItem('ike-circuit-progression-v2'));
     if (d) {
-      if (d.m === 'libre' || (Number.isInteger(d.m) && d.m >= 0 && d.m < MISSIONS.length))
-        progression.m = d.m;
+      if (Number.isInteger(d.m) && d.m >= 0 && d.m < MISSIONS.length) progression.m = d.m;
       if (Array.isArray(d.faites)) progression.faites = d.faites.filter(Number.isInteger);
+      // les versions d'avant le socle stockaient m:'libre'
+      progression.libre = d.libre === true || d.m === 'libre';
+      if (d.maitrise && typeof d.maitrise === 'object') progression.maitrise = d.maitrise;
     }
   } catch (e) {}
 }
 function sauverProgression() {
   try {
-    localStorage.setItem('ike-circuit-progression-v2',
-      JSON.stringify({ m: progression.m, faites: progression.faites }));
+    localStorage.setItem('ike-circuit-progression-v2', JSON.stringify({
+      m: progression.m, faites: progression.faites,
+      libre: progression.libre, maitrise: progression.maitrise,
+    }));
   } catch (e) {}
 }
 
 function missionCourante() {
-  return progression.m === 'libre' ? null : MISSIONS[progression.m];
+  return progression.libre ? null : MISSIONS[progression.m];
 }
 function outilsAutorises() {
   const m = missionCourante();
@@ -2310,20 +2331,36 @@ function evaluerMission() {
   resetEtapeTimer();
   etapeValidee = true;
   toast('✅ Étape réussie ! Observe, puis Continuer →');
-  const bar = document.getElementById('mbar');
-  bar.classList.remove('flash');
-  void bar.offsetWidth;                    // relance l'animation CSS
-  bar.classList.add('flash');
-  majMissionBar();
+  replierSiPetitEcran();
+  majMission();
 }
 
-document.getElementById('btn-continuer').addEventListener('click', () => {
+// La première étape franchie, le plan se replie sur un petit écran : l'élève a
+// lu ses consignes, il lui faut maintenant de la grille pour construire.
+function replierSiPetitEcran() {
+  if (progression.repliFait || window.innerWidth >= 880) return;
+  progression.repliFait = true;
+  $('mission').classList.remove('ouvert');
+  $('m-plier').setAttribute('aria-expanded', 'false');
+  redimensionner();
+}
+
+// Une mission longue en paysage occupait tout l'écran : il ne restait qu'un
+// filet de grille pour construire. Si le plan dépasse 45 % de la hauteur, il
+// s'ouvre déjà replié — le chevron le rouvre quand l'élève veut tout relire.
+function ajusterRepli() {
+  if (window.innerWidth >= 880) return;
+  if ($('colonne').getBoundingClientRect().height > window.innerHeight * 0.45)
+    replierSiPetitEcran();
+}
+
+$('btn-continuer').addEventListener('click', () => {
   const m = missionCourante();
   if (!m || !etapeValidee) return;
   etapeValidee = false;
   if (progression.etape < m.etapes.length - 1) {
     progression.etape++;
-    majMissionBar();
+    majMission();
     evaluerMission();      // l'étape suivante est peut-être déjà satisfaite
   } else {
     demarrerQCM();         // « Je m'évalue » avant la fin de mission
@@ -2333,39 +2370,49 @@ document.getElementById('btn-continuer').addEventListener('click', () => {
 // Diagnostic pédagogique : quand l'action de l'élève ne valide pas l'étape,
 // on cherche une erreur classique reconnaissable et on la lui explique.
 function majDiagnostic(m) {
-  const d = document.getElementById('mdiag');
+  const d = $('m-diag');
   const hit = (m.diags || []).find(x => x.si());
   if (!hit) { masquerDiagnostic(); return; }
   const msg = '🤔 ' + hit.msg;
-  if (d.textContent !== msg || !d.classList.contains('visible')) {
+  if (d.textContent !== msg || d.hidden) {
     d.textContent = msg;
-    d.classList.add('visible');
+    d.hidden = false;
     redimensionner();
   }
 }
 
 function masquerDiagnostic() {
-  const d = document.getElementById('mdiag');
-  if (d.classList.contains('visible')) {
-    d.classList.remove('visible');
-    redimensionner();
-  }
+  const d = $('m-diag');
+  if (!d.hidden) { d.hidden = true; redimensionner(); }
 }
 
-// Router : une mission numérotée passe TOUJOURS par sa fiche notion ;
-// le mode libre est protégé par le verrou de progression.
+// L'indice se demande — sauf quand le coup de pouce le pousse après 45 s.
+// Le plan replié masque l'astuce : on le rouvre, sinon le bouton ne fait rien.
+function montrerIndice(forcer) {
+  const el = $('m-indice');
+  el.hidden = forcer === true ? false : !el.hidden;
+  if (!el.hidden) {
+    $('mission').classList.add('ouvert');
+    $('m-plier').setAttribute('aria-expanded', 'true');
+  }
+  redimensionner();
+}
+$('btn-indice').addEventListener('click', () => montrerIndice());
+
+// Router : une mission numérotée passe TOUJOURS par sa leçon ;
+// la grille libre est protégée par le verrou de progression.
 function allerMission(m) {
   if (m === 'libre') {
-    if (!experimenterDebloque()) { toast(MSG_VERROU); return; }
+    if (!accueilOuvert()) { toast(MSG_VERROU); return; }
     lancerMission('libre');
-    majTabExp();
     return;
   }
-  ouvrirIntro(m);
+  ouvrirLecon(m);
 }
 
 function lancerMission(m) {
-  progression.m = m;
+  if (m === 'libre') progression.libre = true;
+  else { progression.libre = false; progression.m = m; }
   progression.etape = 0;
   etapeValidee = false;
   sauverProgression();
@@ -2373,201 +2420,481 @@ function lancerMission(m) {
   masquerDiagnostic();
   deselectionner();
   fermerVoiles();
-  document.getElementById('mindice').classList.remove('visible');
+  $('m-indice').hidden = true;
+  // on entre dans une mission : le plan s'ouvre en entier, on le repliera après
+  progression.repliFait = false;
+  $('mission').classList.add('ouvert');
+  $('m-plier').setAttribute('aria-expanded', 'true');
   majPalette();
-  majMissionBar();
+  majMission();
+  ajusterRepli();     // un plan trop haut s'ouvre replié : la grille passe d'abord
   evaluerMission();   // la 1re étape est peut-être déjà satisfaite (continuité)
 }
 
-// ---- Barre de mission ----
-function majMissionBar() {
+// ---- Le plan de mission ----
+function majMission() {
   const m = missionCourante();
-  const l2 = document.querySelector('#mbar .l2');
   if (!m) {
-    document.getElementById('mchip').textContent = '🧪';
-    document.getElementById('mtitre').textContent = 'Mode libre — construis ce que tu veux !';
-    l2.style.display = 'none';
-  } else {
-    const n = progression.m + 1;
-    document.getElementById('mchip').textContent = `Mission ${n}/${MISSIONS.length}`;
-    document.getElementById('mtitre').textContent = m.titre;
-    l2.style.display = '';
-    const fini = progression.etape >= m.etapes.length;
-    // Points de progression des étapes (vert = faite, bleu = en cours)
-    const pts = document.getElementById('mpoints');
-    pts.innerHTML = '';
-    if (m.etapes.length > 1) {
-      m.etapes.forEach((e2, i) => {
-        const p = document.createElement('span');
-        p.className = 'pt' + (i < progression.etape ? ' faite' : i === progression.etape ? ' courante' : '');
-        pts.appendChild(p);
-      });
-    }
-    // Toutes les étapes de la mission sont visibles : faites, en cours, à venir.
-    // L'élève voit ainsi où il en est et ce qui l'attend, comme dans les ateliers.
-    const metape = document.getElementById('metape');
-    metape.innerHTML = fini
-      ? '<div class="etape faite"><span class="coche">✓</span>' +
-        '<span class="t">🎉 Mission terminée ! Passe à la suivante.</span></div>'
-      : m.etapes.map((e2, i) => {
-          const faite = i < progression.etape || (i === progression.etape && etapeValidee);
-          const courante = i === progression.etape && !etapeValidee;
-          return `<div class="etape${faite ? ' faite' : ''}${courante ? ' courante' : ''}">
-            <span class="coche">✓</span><span class="t">${e2.texte}</span></div>`;
-        }).join('');
-    metape.classList.remove('glisse');
-    void metape.offsetWidth;
-    metape.classList.add('glisse');
-    document.getElementById('mcompteur').textContent =
-      m.etapes.length > 1 && !fini ? `étape ${progression.etape + 1}/${m.etapes.length}` : '';
-    document.getElementById('mindice').textContent = '💡 ' + m.indice;
-    document.getElementById('btn-indice').style.display = fini || etapeValidee ? 'none' : '';
-    document.getElementById('btn-suiv2').style.display = fini ? '' : 'none';
-    document.getElementById('btn-continuer').classList.toggle('visible', !fini && etapeValidee);
+    $('m-num').textContent = '∞';
+    $('m-rang').textContent = 'Grille libre';
+    $('m-titre').textContent = 'Construis ce que tu veux';
+    $('m-but').textContent = 'Tous les composants sont là, aucune consigne.';
+    $('etapes').innerHTML = '';
+    $('m-jauge').style.width = '100%';
+    $('m-indice').hidden = true; $('m-diag').hidden = true;
+    $('m-actions').hidden = true;
+    redimensionner();
+    return;
   }
-  redimensionner(); // la hauteur de la barre peut changer → recaler la grille
+  const meta = META[progression.m] || {};
+  const fini = progression.etape >= m.etapes.length;
+  const faite = progression.faites.includes(progression.m);
+  $('m-num').textContent = faite ? '✓' : (progression.m + 1);
+  $('m-rang').textContent = `Mission ${progression.m + 1} sur ${MISSIONS.length}`;
+  $('m-titre').textContent = m.titre;
+  $('m-but').textContent = meta.sousTitre || '';
+  // combien d'étapes sont derrière : la jauge le dit d'un coup d'œil
+  const avance = Math.min(m.etapes.length, progression.etape + (etapeValidee ? 1 : 0));
+  $('m-jauge').style.width = Math.round(avance / m.etapes.length * 100) + '%';
+  // Toutes les étapes de la mission sont visibles : faites, en cours, à venir.
+  // L'élève voit ainsi où il en est et ce qui l'attend, comme dans les ateliers.
+  const iMontrer = fini ? m.etapes.length - 1 : progression.etape;
+  $('etapes').innerHTML = fini
+    ? '<div class="etape faite a-montrer"><span class="coche">✓</span>' +
+      '<span class="t">🎉 Mission terminée ! Passe à la suivante.</span></div>'
+    : m.etapes.map((e2, i) => {
+        const ok = i < progression.etape || (i === progression.etape && etapeValidee);
+        const courante = i === progression.etape && !etapeValidee;
+        return `<div class="etape${ok ? ' faite' : ''}${courante ? ' courante' : ''}${
+          i === iMontrer ? ' a-montrer' : ''}">
+          <span class="coche">✓</span><span class="t">${e2.texte}</span></div>`;
+      }).join('');
+  $('m-indice').innerHTML = '💡 <b>Astuce :</b> ' + m.indice;
+  $('m-actions').hidden = false;
+  $('btn-indice').hidden = fini || etapeValidee;
+  $('btn-continuer').hidden = fini || !etapeValidee;
+  $('btn-continuer').classList.toggle('appelle', etapeValidee && !fini);
+  $('btn-suivante-barre').hidden = !fini;
+  redimensionner(); // la hauteur du plan peut changer → recaler la grille
 }
+
+// Le chevron replie le plan : sur un téléphone, la grille reprend la place.
+$('m-plier').addEventListener('click', () => {
+  const ouvert = $('mission').classList.toggle('ouvert');
+  $('m-plier').setAttribute('aria-expanded', ouvert ? 'true' : 'false');
+  redimensionner();
+});
 
 // ---- Panneaux ----
 function fermerVoiles() {
   for (const v of document.querySelectorAll('.voile')) v.classList.remove('visible');
 }
+const ouvrir = id => $(id).classList.add('visible');
+const fermer = id => $(id).classList.remove('visible');
 
-function ouvrirFin(m) {
-  const derniere = progression.m === MISSIONS.length - 1;
-  const nbQ = ((META[progression.m] || {}).qcm || []).length;
-  document.getElementById('mfin-titre').textContent =
-    `${(META[progression.m] || {}).badge || '🎯'} Mission ${progression.m + 1} — ${m.titre}` +
-    (nbQ ? ` · QCM : ${qcmScore}/${nbQ}` : '');
-  document.getElementById('mfin-retenir').innerHTML =
-    m.retenir + (nbQ && qcmScore < nbQ
-      ? ' <i>(Relis les explications du QCM et rejoue la mission quand tu veux !)</i>' : '');
-  // On annonce clairement ce qui vient ensuite : sans cela, le changement de mission passe inaperçu
-  const suiv = MISSIONS[progression.m + 1];
-  const zone = document.getElementById('mfin-suite');
-  zone.innerHTML = suiv
-    ? `<div class="etiq">Mission ${progression.m + 2} sur ${MISSIONS.length}</div>
-       <b>${suiv.titre}</b><span>${suiv.etapes[0].texte}</span>`
-    : `<div class="etiq">Bravo</div><b>Tu as terminé les ${MISSIONS.length} missions !</b>
-       <span>Le mode libre s'ouvre : construis le circuit que tu veux.</span>`;
-  document.getElementById('btn-suivante').textContent =
-    derniere ? '🧪 Continuer en Mode libre' : `Commencer la mission ${progression.m + 2} →`;
-  document.getElementById('mfin').classList.add('visible');
+// L'écran de passage : ce qu'on vient d'apprendre, puis ce qui attend.
+function ouvrirPassage(m) {
+  const i = progression.m;
+  const suiv = MISSIONS[i + 1];
+  const nbQ = ((META[i] || {}).qcm || []).length;
+  $('passage-carte').innerHTML = `
+    <div class="p-fanion"><span class="rond">✅</span>
+      <span><b>Mission ${i + 1} réussie !</b><span>${m.titre}${
+        nbQ ? ` · QCM : ${qcm.justes}/${nbQ}` : ''}</span></span></div>
+    <div class="p-acquis">📘 <b>Ce que tu as appris :</b> ${m.retenir}${
+      nbQ && qcm.justes < nbQ
+        ? ' <i>(Relis les explications du QCM et rejoue la mission quand tu veux !)</i>' : ''}</div>
+    ${suiv
+      ? `<div class="p-suite"><div class="etiq">Mission ${i + 2} sur ${MISSIONS.length}</div>
+           <b>${suiv.titre}</b><span>${(META[i + 1] || {}).sousTitre || suiv.etapes[0].texte}</span></div>
+         <button class="btn btn-large" id="btn-passer">Commencer la mission ${i + 2} →</button>`
+      : `<div class="p-suite"><div class="etiq">Bravo</div>
+           <b>Tu as terminé les ${MISSIONS.length} missions !</b>
+           <span>La grille libre et le quiz s'ouvrent : construis, puis mesure ta maîtrise.</span></div>
+         <button class="btn btn-large" id="btn-passer">🧪 Continuer sur la grille libre →</button>`}
+    <button class="btn btn-fantome btn-large" style="margin-top:8px" id="btn-passage-liste">🎯 Toutes les missions</button>`;
+  ouvrir('v-passage');
+  $('btn-passer').addEventListener('click', () => {
+    fermer('v-passage');
+    allerMission(suiv ? i + 1 : 'libre');
+  });
+  $('btn-passage-liste').addEventListener('click', () => { fermer('v-passage'); ouvrirListe(); });
 }
 
-document.getElementById('btn-suivante').addEventListener('click', () => {
+$('btn-suivante-barre').addEventListener('click', () => {
   const derniere = progression.m === MISSIONS.length - 1;
   allerMission(derniere ? 'libre' : progression.m + 1);
 });
-document.getElementById('btn-suiv2').addEventListener('click', () => {
-  const derniere = progression.m === MISSIONS.length - 1;
-  allerMission(derniere ? 'libre' : progression.m + 1);
-});
-document.getElementById('btn-liste2').addEventListener('click', () => {
-  fermerVoiles(); ouvrirListe();
-});
-// ✕ : fermer pour admirer le montage — « Suivante ▶ » attend dans la barre
-document.getElementById('btn-fermer-fin').addEventListener('click', fermerVoiles);
 
 function ouvrirListe() {
-  const cont = document.getElementById('mliste-items');
-  cont.innerHTML = '';
-  MISSIONS.forEach((m, i) => {
+  const total = MISSIONS.length, n = progression.faites.length;
+  $('d-barre').style.width = Math.round(n / total * 100) + '%';
+  const cartes = MISSIONS.map((m, i) => {
     const faite = progression.faites.includes(i);
     const ouverte = missionDeverrouillee(i);
     const meta = META[i] || {};
-    const carte = document.createElement('button');
-    carte.className = 'm-carte'
-      + (faite ? ' faite' : '')
-      + (!ouverte ? ' verrou' : '');
-    carte.innerHTML =
-      `<span class="mbadge">${ouverte ? (meta.badge || '🎯') : '🔒'}</span>` +
-      `<span class="infos"><span class="t">Mission ${i + 1} · ${m.titre}</span><br>` +
-      `<span class="s">${meta.sousTitre || ''}</span></span>` +
-      `<span class="statut ${faite ? 'ok' : ouverte ? 'attente' : 'gris'}">` +
-      `${faite ? '✓ réussie' : ouverte ? '▶ jouer' : 'verrouillée'}</span>`;
-    if (ouverte) carte.addEventListener('click', () => allerMission(i));
-    cont.appendChild(carte);
-  });
-  const n = progression.faites.length, total = MISSIONS.length;
-  document.getElementById('m-barre').style.width = (n / total * 100) + '%';
-  document.getElementById('m-pct').textContent = Math.round(n / total * 100) + ' %';
-  document.getElementById('mliste').classList.add('visible');
+    return `<button class="d-carte${faite ? ' fait' : ''}" data-mission="${i}"${
+      ouverte ? '' : ' disabled'}>
+      <span class="num">${faite ? '✓' : ouverte ? (i + 1) : '🔒'}</span>
+      <span class="txt"><b>${m.titre}</b><span>${meta.sousTitre || ''}</span></span>
+    </button>`;
+  }).join('');
+  const libre = accueilOuvert()
+    ? `<button class="d-carte" data-mission="libre">
+         <span class="num">∞</span>
+         <span class="txt"><b>La grille libre</b><span>Tous les composants, aucune consigne.</span></span>
+       </button>`
+    : '';
+  $('liste-missions').innerHTML = cartes + libre;
+  ouvrir('v-missions');
 }
 
-document.getElementById('btn-missions').addEventListener('click', ouvrirListe);
-document.getElementById('btn-libre').addEventListener('click', () => {
-  if (!experimenterDebloque()) { toast(MSG_VERROU); return; }
-  allerMission('libre');
-  majTabExp();
+$('btn-missions').addEventListener('click', ouvrirListe);
+$('v-missions').addEventListener('click', e => {
+  const b = e.target.closest('[data-mission]');
+  if (!b || b.disabled) return;
+  fermer('v-missions');
+  allerMission(b.dataset.mission === 'libre' ? 'libre' : +b.dataset.mission);
 });
-document.getElementById('btn-fermer-liste').addEventListener('click', fermerVoiles);
 
-const btnResetProg = document.getElementById('btn-reset-prog');
+const btnResetProg = $('btn-rezero');
 let confirmReset = null;
 btnResetProg.addEventListener('click', () => {
   if (confirmReset) {
     clearTimeout(confirmReset); confirmReset = null;
-    btnResetProg.textContent = '↺ Réinitialiser tout le parcours';
+    btnResetProg.textContent = '↺ Recommencer tout le parcours';
     progression.faites = [];
+    progression.libre = false;
     etat.comps = [];
-    allerMission(0);
+    fermer('v-missions');
+    lancerMission(0);
     resoudre();
-    // Nouvel élève sur l'appareil : on relance aussi la visite guidée
-    try { localStorage.removeItem('ike-circuit-visite'); } catch (e) {}
+    // Nouvel élève sur l'appareil : on relance aussi le repérage de l'interface
     lancerVisite();
   } else {
     btnResetProg.textContent = 'Sûr ? Touche encore une fois';
     confirmReset = setTimeout(() => {
       confirmReset = null;
-      btnResetProg.textContent = '↺ Réinitialiser tout le parcours';
+      btnResetProg.textContent = '↺ Recommencer tout le parcours';
     }, 2500);
   }
 });
 
-// Toucher le fond sombre ferme le panneau
+document.addEventListener('click', e => {
+  const f = e.target.closest('[data-ferme]');
+  if (f) fermer(f.dataset.ferme);
+});
+// Le QCM, l'écran de passage et l'accueil portent le fil du parcours :
+// ils ne se ferment pas par mégarde.
+const ancres = ['v-qcm', 'v-passage', 'v-accueil'];
 for (const v of document.querySelectorAll('.voile'))
   v.addEventListener('click', e => {
-    // le QCM ne se ferme pas par simple clic à côté (parcours guidé)
-    if (e.target === v && v.id !== 'mqcm') v.classList.remove('visible');
+    if (e.target === v && ancres.indexOf(v.id) === -1) fermer(v.id);
   });
-
-// ---- Indice ----
-document.getElementById('btn-indice').addEventListener('click', () => {
-  document.getElementById('btn-indice').classList.remove('pulse');
-  document.getElementById('mindice').classList.toggle('visible');
-  redimensionner();
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape' || visiteIdx >= 0) return;
+  for (const v of document.querySelectorAll('.voile.visible'))
+    if (ancres.indexOf(v.id) === -1) fermer(v.id);
 });
 
 // ---- Toast ----
 let toastTimer = null;
-function toast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
+function toast(msg, alerte) {
+  const t = $('toast');
+  t.innerHTML = msg;
+  t.classList.toggle('alerte', !!alerte);
   t.classList.add('visible');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('visible'), 1700);
+  toastTimer = setTimeout(() => t.classList.remove('visible'), 2600);
 }
+
+/* =====================================================================
+   9. LE QUIZ LIBRE — « M'exercer »
+   ---------------------------------------------------------------------
+   Trois niveaux, du vocabulaire aux idées fausses. Il s'ouvre une fois le
+   parcours terminé et se refait autant de fois qu'on veut : c'est le
+   meilleur résultat de chaque niveau qui compte.
+   ===================================================================== */
+
+const NIVEAUX_QUIZ = [
+  { cle:'souviens', em:'🥉', nom:'Je me souviens', poids:1,
+    quoi:'Les mots et les faits que tu as rencontrés sur la grille.' },
+  { cle:'comprends', em:'🥈', nom:'Je comprends', poids:2,
+    quoi:'Les mêmes idées, mais dans des montages que tu n’as pas encore vus.' },
+  { cle:'pieges', em:'🥇', nom:'On ne me piège plus', poids:3,
+    quoi:'Les erreurs que presque tout le monde fait. C’est là que tout se joue.' },
+];
+const PAR_SERIE = 6;
+
+const BANQUE = {
+  souviens: [
+    { q:'Dans un circuit, quel est le rôle de la <b>pile</b> ?',
+      choix:['C’est le générateur : elle fournit l’énergie',
+             'C’est un récepteur : elle utilise l’énergie',
+             'C’est un isolant : elle bloque le courant'], bonne:0, mission:1,
+      expl:"La pile est le <b>générateur</b> : c’est elle qui fait circuler le courant, de sa borne + vers sa borne −. La lampe, elle, est un <b>récepteur</b>." },
+    { q:'Que faut-il pour que le courant circule et que la lampe s’allume ?',
+      choix:['Un circuit fermé : une boucle complète, sans coupure',
+             'Un fil très long', 'Une pile neuve, même sans boucle'], bonne:0, mission:2,
+      expl:"Le courant sort par la borne <b>+</b>, traverse la lampe et revient à la borne <b>−</b>. S’il manque un seul morceau de chemin, plus rien ne passe." },
+    { q:'En quelle unité mesure-t-on l’<b>intensité</b> du courant ?',
+      choix:['En ampères (A)', 'En volts (V)', 'En ohms (Ω)'], bonne:0, mission:5,
+      expl:"L’ampère est l’unité de l’intensité — d’où le nom de l’<b>ampèremètre</b>, l’appareil qui la mesure." },
+    { q:'Comment branche-t-on un <b>ampèremètre</b> ?',
+      choix:['En série, sur le chemin du courant',
+             'En parallèle, à cheval sur la lampe', 'N’importe où dans le circuit'], bonne:0, mission:5,
+      expl:"Pour compter le courant, il faut qu’il le <b>traverse</b> : l’ampèremètre se pose dans la boucle, comme un maillon." },
+    { q:'Comment branche-t-on un <b>voltmètre</b> ?',
+      choix:['En parallèle, à cheval sur l’élément mesuré',
+             'En série, dans la boucle', 'À la place de la pile'], bonne:0, mission:12,
+      expl:"Sa très grande résistance bloquerait le circuit s’il était en série. <b>En parallèle</b>, il mesure la tension sans perturber le montage." },
+    { q:'Quel est le branchement utilisé dans les maisons ?',
+      choix:['La dérivation : chaque appareil a sa propre branche',
+             'La série : les appareils se suivent sur une seule boucle',
+             'Le court-circuit'], bonne:0, mission:8,
+      expl:"En <b>dérivation</b>, chaque branche est indépendante : éteindre la cuisine n’éteint pas le salon." },
+    { q:'Comment s’écrit la <b>loi d’Ohm</b> ?',
+      choix:['U = R × I', 'R = U × I', 'I = U × R'], bonne:0, mission:14,
+      expl:"U = R × I. On en déduit R = U ÷ I et I = U ÷ R : trois grandeurs, une seule formule." },
+  ],
+
+  comprends: [
+    { q:'Deux ampèremètres sont placés dans la même boucle, l’un avant la lampe et l’autre après. Que lit-on ?',
+      choix:['La même intensité sur les deux',
+             'Une intensité plus faible après la lampe',
+             'Une intensité plus forte après la lampe'], bonne:0, mission:6,
+      expl:"C’est l’<b>unicité de l’intensité</b> : dans une boucle simple, le même courant traverse tous les éléments." },
+    { q:'Trois lampes identiques sont montées <b>en série</b> avec une seule pile. Comment brillent-elles ?',
+      choix:['Plus faiblement qu’une seule lampe sur la même pile',
+             'Exactement comme une seule lampe',
+             'Plus fort, car elles sont trois'], bonne:0, mission:7,
+      expl:"La pile doit pousser le même courant à travers <b>trois</b> récepteurs : chacune en reçoit moins et brille moins." },
+    { q:'Deux lampes sont en dérivation. Un interrupteur est placé sur le <b>chemin commun</b>, juste après la pile. Que se passe-t-il si on l’ouvre ?',
+      choix:['Les deux lampes s’éteignent',
+             'Une seule lampe s’éteint', 'Rien ne change'], bonne:0, mission:9,
+      expl:"Sur le chemin commun, l’interrupteur coupe <b>toute</b> l’alimentation. Pour n’éteindre qu’une lampe, il faut le poser <b>sur sa branche</b>." },
+    { q:'Deux piles de 4,5 V sont montées en série, dans le <b>même sens</b>, avec une lampe. Que reçoit la lampe ?',
+      choix:['9 V : les tensions s’ajoutent, elle brille plus fort',
+             '4,5 V : la tension ne change pas',
+             '0 V : les piles se combattent'], bonne:0, mission:11,
+      expl:"4,5 + 4,5 = <b>9 V</b>. Le + de l’une doit pointer vers le − de l’autre ; sinon, les tensions se soustraient." },
+    { q:'Deux lampes identiques sont en série sous une pile de 4,5 V. Quelle tension mesure-t-on aux bornes d’<b>une seule</b> lampe ?',
+      choix:['Environ 2,2 V', 'Environ 4,5 V', 'Environ 9 V'], bonne:0, mission:13,
+      expl:"En série, la tension du générateur <b>se partage</b> entre les récepteurs : deux lampes identiques en prennent chacune la moitié." },
+    { q:'Sur un dipôle, on mesure U = 12 V et I = 0,4 A. Quelle est sa résistance ?',
+      choix:['30 Ω', '4,8 Ω', '12,4 Ω'], bonne:0, mission:14,
+      expl:"R = U ÷ I = 12 ÷ 0,4 = <b>30 Ω</b>. C’est la loi d’Ohm écrite dans l’autre sens." },
+    { q:'On ajoute une troisième lampe <b>en dérivation</b> sur le même montage. Qu’arrive-t-il à la pile ?',
+      choix:['Elle débite plus de courant et s’use plus vite',
+             'Elle débite moins de courant et dure plus longtemps',
+             'Rien ne change pour elle'], bonne:0, mission:8,
+      expl:"Chaque branche prend son propre courant, et tous se rejoignent dans la pile : plus de branches, plus d’intensité totale, donc une pile qui s’épuise plus vite." },
+  ],
+
+  pieges: [
+    { q:'Un élève affirme que le courant <b>s’use</b> en traversant la lampe, et qu’il en ressort donc moins qu’il n’en est entré. Cette affirmation est-elle exacte ?',
+      choix:['Non : l’intensité est la même avant et après ; c’est l’énergie qui se transforme',
+             'Oui : la lampe consomme une partie du courant',
+             'Oui, mais seulement si la lampe est puissante'], bonne:0, mission:6,
+      expl:"Deux ampèremètres, l’un avant et l’autre après, affichent la <b>même</b> valeur. Ce que la lampe consomme, c’est l’<b>énergie</b> de la pile, transformée en lumière et en chaleur." },
+    { q:'Un élève affirme qu’un <b>court-circuit</b> est sans danger avec une petite pile, <b>parce qu’elle est petite</b>. Cette affirmation est-elle exacte ?',
+      choix:['Non : sans récepteur, l’intensité devient énorme et la pile chauffe très fort',
+             'Oui : une petite pile ne peut pas fournir assez de courant',
+             'Oui : le danger n’existe qu’avec le courant du secteur'], bonne:0, mission:10,
+      expl:"Rien ne freine le courant : il monte à près de <b>9 A</b> dans notre simulation. En vrai, la pile chauffe au point de brûler, voire de mettre le feu." },
+    { q:'Un élève affirme que deux piles donnent toujours plus de tension qu’une seule, <b>quel que soit leur sens</b>. Cette affirmation est-elle exacte ?',
+      choix:['Non : montées en opposition, leurs tensions se soustraient et tout s’éteint',
+             'Oui : deux piles donnent toujours le double',
+             'Oui, mais la lampe brille alors un peu moins'], bonne:0, mission:11,
+      expl:"Il faut relier le <b>+</b> de l’une au <b>−</b> de l’autre. En sens opposés : 4,5 − 4,5 = <b>0 V</b>, aucun courant ne circule." },
+    { q:'Un élève affirme que le <b>voltmètre</b> se branche comme l’ampèremètre, c’est-à-dire dans la boucle. Cette affirmation est-elle exacte ?',
+      choix:['Non : sa très grande résistance bloquerait le courant, tout s’éteindrait',
+             'Oui : tous les appareils de mesure se branchent en série',
+             'Oui, à condition que le circuit contienne une seule lampe'], bonne:0, mission:12,
+      expl:"L’ampèremètre se met <b>en série</b>, le voltmètre <b>en parallèle</b> : c’est l’inverse l’un de l’autre, et c’est l’erreur la plus fréquente en évaluation." },
+    { q:'Un élève affirme que deux lampes en <b>dérivation</b> brillent faiblement, <b>parce qu’elles se partagent le courant de la pile</b>. Cette affirmation est-elle exacte ?',
+      choix:['Non : chaque branche reçoit la pleine tension, chaque lampe brille normalement',
+             'Oui : le courant se partage, donc l’éclat aussi',
+             'Oui : c’est ce qui distingue la dérivation de la série'], bonne:0, mission:8,
+      expl:"L’intensité se partage, mais la <b>tension</b>, elle, est la même sur chaque branche : chaque lampe brille comme si elle était seule. C’est en <b>série</b> que la tension se partage et que l’éclat baisse." },
+    { q:'Un élève affirme qu’un interrupteur <b>ouvert</b> laisse encore passer un peu de courant, <b>parce que le reste du circuit est intact</b>. Cette affirmation est-elle exacte ?',
+      choix:['Non : le chemin est coupé, l’intensité est nulle dans tout le circuit',
+             'Oui : une petite partie du courant passe malgré tout',
+             'Oui, si la pile est neuve'], bonne:0, mission:4,
+      expl:"Ouvrir l’interrupteur, c’est le coup de ciseaux ✂️ dans le chemin. Sans boucle complète, il ne circule <b>rien du tout</b> — pas même un peu." },
+    { q:'Un élève affirme que la <b>résistance</b> d’une lampe augmente quand on augmente la tension, <b>puisque le courant a plus de mal à passer</b>. Cette affirmation est-elle exacte ?',
+      choix:['Non : U et I augmentent ensemble, le rapport U ÷ I reste le même',
+             'Oui : plus la tension est forte, plus la résistance grandit',
+             'Oui : c’est pour cela que les lampes finissent par griller'], bonne:0, mission:14,
+      expl:"C’est tout le sens de la loi d’Ohm : <b>U = R × I</b>, avec R constante. Double la tension, l’intensité double aussi — et U ÷ I redonne les mêmes 10 Ω." },
+  ],
+};
+
+/* ---- L'état de maîtrise : le meilleur résultat obtenu à chaque niveau ---- */
+function maitriseDe(cle) { return (progression.maitrise && progression.maitrise[cle]) || 0; }
+
+// Les niveaux difficiles pèsent plus lourd : réussir le premier seul plafonne
+// à 17 %, il faut affronter les pièges pour dépasser 80 %.
+function scoreMaitrise() {
+  let p = 0, total = 0;
+  for (const n of NIVEAUX_QUIZ) { p += maitriseDe(n.cle) * n.poids; total += n.poids; }
+  return total ? Math.round(p / total * 100) : 0;
+}
+function motMaitrise(p) {
+  return p >= 85 ? 'Maîtrisée' : p >= 60 ? 'Solide' : p >= 30 ? 'En bonne voie' : 'Découverte';
+}
+function etoiles(r) {
+  return r >= 1 ? '⭐⭐⭐' : r >= .8 ? '⭐⭐' : r >= .5 ? '⭐' : '';
+}
+
+// Le quiz mélange ses propres propositions : les simulations n'ont pas toutes
+// la même structure de question, et emprunter la leur cassait ici.
+function melangerQuiz(q) {
+  const ordre = q.choix.map((_, i) => i);
+  for (let i = ordre.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = ordre[i]; ordre[i] = ordre[j]; ordre[j] = t;
+  }
+  return Object.assign({}, q, { choix:ordre.map(k => q.choix[k]), bonne:ordre.indexOf(q.bonne) });
+}
+
+let quiz = null;
+
+function ouvrirQuiz() {
+  if (!accueilOuvert()) { toast('Termine les ' + MISSIONS.length + ' missions pour t’exercer.'); return; }
+  quiz = null;
+  rendreAccueilQuiz();
+  ouvrir('v-quiz');
+}
+
+function rendreAccueilQuiz() {
+  const p = scoreMaitrise();
+  $('quiz-carte').innerHTML = `
+    <button class="fermer-x" data-ferme="v-quiz" aria-label="Fermer">✕</button>
+    <h2>🏅 M’exercer</h2>
+    <p>Trois séries de ${PAR_SERIE} questions. Tu peux les refaire autant de fois que tu veux :
+       c’est ton <b>meilleur</b> résultat qui compte.</p>
+    <div class="qz-maitrise">
+      <div class="qz-m-haut"><span>Ma maîtrise de la notion</span><b>${p} %</b></div>
+      <div class="qz-m-barre"><i style="width:${p}%"></i></div>
+      <div class="qz-m-mot">${motMaitrise(p)}</div>
+    </div>
+    ${NIVEAUX_QUIZ.map(n => {
+      const r = maitriseDe(n.cle), et = etoiles(r);
+      return `<button class="qz-niveau" data-niveau="${n.cle}">
+        <span class="qz-em">${n.em}</span>
+        <span class="qz-txt"><b>${n.nom}</b><span>${n.quoi}</span></span>
+        <span class="qz-note">${et || '—'}<span>${r ? Math.round(r * 100) + ' %' : 'jamais fait'}</span></span>
+      </button>`;
+    }).join('')}
+    <p class="qz-pied">Les questions difficiles comptent <b>trois fois plus</b> que les faciles :
+       c’est en les affrontant qu’on prouve qu’on a compris.</p>`;
+}
+
+function lancerSerie(cle) {
+  const banque = BANQUE[cle].slice();
+  for (let i = banque.length - 1; i > 0; i--) {           // tirage sans remise
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = banque[i]; banque[i] = banque[j]; banque[j] = t;
+  }
+  quiz = { niveau:cle, liste:banque.slice(0, PAR_SERIE).map(melangerQuiz),
+           n:0, justes:0, ratees:[] };
+  rendreQuestionQuiz();
+}
+
+function rendreQuestionQuiz() {
+  const q = quiz.liste[quiz.n];
+  const niv = NIVEAUX_QUIZ.find(n => n.cle === quiz.niveau);
+  $('quiz-carte').innerHTML = `
+    <button class="fermer-x" data-ferme="v-quiz" aria-label="Fermer">✕</button>
+    <div class="q-avance">${niv.em} ${niv.nom} · question ${quiz.n + 1} sur ${quiz.liste.length}</div>
+    <div class="qz-jauge"><i style="width:${quiz.n / quiz.liste.length * 100}%"></i></div>
+    <div class="q-question">${q.q}</div>
+    <div id="qz-choix">${q.choix.map((c, i) =>
+      `<button class="q-choix" data-qz="${i}">${c}</button>`).join('')}</div>
+    <div class="q-expl" id="qz-expl"></div><div id="qz-suite"></div>`;
+}
+
+function repondreQuiz(i) {
+  const q = quiz.liste[quiz.n];
+  const juste = i === q.bonne;
+  if (juste) quiz.justes++; else quiz.ratees.push(q);
+  $('qz-choix').querySelectorAll('.q-choix').forEach((b, k) => {
+    b.disabled = true;
+    if (k === q.bonne) { b.classList.add('bon'); b.textContent = '✔️ ' + b.textContent; }
+    else if (k === i) { b.classList.add('mauvais'); b.textContent = '❌ ' + b.textContent; }
+  });
+  const e = $('qz-expl');
+  e.innerHTML = q.expl;
+  e.classList.add('visible');
+  const dernier = quiz.n === quiz.liste.length - 1;
+  $('qz-suite').innerHTML = `<button class="btn btn-large" style="margin-top:12px" id="qz-continuer">${
+    dernier ? 'Voir mon résultat →' : 'Question suivante →'}</button>`;
+  $('qz-continuer').addEventListener('click', () => {
+    if (dernier) finirSerie(); else { quiz.n++; rendreQuestionQuiz(); }
+  });
+}
+
+function finirSerie() {
+  const r = quiz.justes / quiz.liste.length;
+  const niv = NIVEAUX_QUIZ.find(n => n.cle === quiz.niveau);
+  const avant = maitriseDe(quiz.niveau);
+  progression.maitrise = progression.maitrise || {};
+  progression.maitrise[quiz.niveau] = Math.max(avant, r);
+  sauverProgression();
+  // Les questions ratées renvoient à leur mission : le quiz ramène au parcours.
+  const revoir = [];
+  for (const q of quiz.ratees) if (revoir.indexOf(q.mission) === -1) revoir.push(q.mission);
+  revoir.sort((a, b) => a - b);
+  const p = scoreMaitrise();
+  $('quiz-carte').innerHTML = `
+    <button class="fermer-x" data-ferme="v-quiz" aria-label="Fermer">✕</button>
+    <div class="qz-fin">
+      <div class="qz-fin-em">${r >= 1 ? '🎉' : r >= .5 ? '👏' : '💪'}</div>
+      <div><b>${quiz.justes} bonnes réponses sur ${quiz.liste.length}</b>
+        <span>${niv.em} ${niv.nom}</span></div>
+      <div class="qz-fin-et">${etoiles(r) || '—'}</div>
+    </div>
+    ${r > avant
+      ? `<p class="qz-mieux">✨ C’est ton meilleur résultat à ce niveau.</p>`
+      : `<p class="qz-mieux discret">Ton meilleur reste ${Math.round(avant * 100)} %.</p>`}
+    <div class="qz-maitrise">
+      <div class="qz-m-haut"><span>Ma maîtrise de la notion</span><b>${p} %</b></div>
+      <div class="qz-m-barre"><i style="width:${p}%"></i></div>
+      <div class="qz-m-mot">${motMaitrise(p)}</div>
+    </div>
+    ${revoir.length ? `<div class="qz-revoir"><b>📘 À revoir :</b>${revoir.map(i =>
+        `<span>Mission ${i + 1} — ${MISSIONS[i].titre}</span>`).join('')}</div>` : ''}
+    <div class="qz-boutons">
+      <button class="btn btn-contour" id="qz-refaire">↻ Refaire cette série</button>
+      <button class="btn" id="qz-retour">Les niveaux →</button>
+    </div>`;
+  $('qz-refaire').addEventListener('click', () => lancerSerie(quiz.niveau));
+  $('qz-retour').addEventListener('click', rendreAccueilQuiz);
+}
+
+$('v-quiz').addEventListener('click', e => {
+  const n = e.target.closest('[data-niveau]');
+  if (n) { lancerSerie(n.dataset.niveau); return; }
+  const b = e.target.closest('[data-qz]');
+  if (b && !b.disabled) repondreQuiz(+b.dataset.qz);
+});
 
 /* =====================================================================
    Démarrage
    ===================================================================== */
 chargerProgression();
 window.addEventListener('resize', redimensionner);
+$('mission').classList.add('ouvert');
+$('m-plier').setAttribute('aria-expanded', 'true');
+$('btn-formule').classList.toggle('actif', formuleVisible);
 redimensionner();
 appliquerTheme();     // applique thème + palette d'outils
-majMissionBar();
+majMission();
+ajusterRepli();
 resoudre();
 requestAnimationFrame(boucle);
-
-// Écran de démarrage : la marque s'affiche ~1,4 s puis s'efface en fondu.
-// Au tout premier lancement, on enchaîne sur la visite guidée de l'interface.
-setTimeout(() => {
-  const s = document.getElementById('splash');
-  s.classList.add('fini');
-  setTimeout(() => s.remove(), 600);
-  ouvrirChoixMode();   // écran d'entrée : Apprendre / Expérimenter
-}, 1400);
+ouvrirAccueil();      // écran d'entrée : Apprendre / Expérimenter / M'exercer
 </script>
 </body>
 </html>

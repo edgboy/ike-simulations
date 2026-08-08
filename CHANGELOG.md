@@ -5,6 +5,47 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v4.35.0 — 2026-08-08
+
+⚡ **Le circuit électrique rejoint le socle.**
+
+La plus ancienne simulation du catalogue — et la première du programme de 6ᵉ — gardait sa propre
+palette, ses propres modales et son propre vocabulaire de code. Elle reprend maintenant la forme
+commune à toute la plateforme, sans qu'un seul trait de sa physique ne bouge : le solveur nodal,
+les quinze missions, leurs diagnostics et le panneau 📐 sont ceux d'avant.
+
+- **Les jetons du design system** remplacent l'ancienne palette. La grille elle-même suit : ses
+  points, ses conducteurs et le fond de scène étaient des gris bleutés qui juraient avec le reste
+  dès qu'on basculait en sombre. Le thème se mémorise désormais sous la clé commune `ike-theme`,
+  partagée avec les autres simulations.
+- **L'en-tête** passe à la rangée d'icônes compactes : retour au catalogue, vue 👁 réaliste ou
+  symboles, missions, lexique, aide, thème. « Tout enlever » descend au bout de l'établi, à portée
+  de pouce, et le panneau 📐 rejoint les commandes posées sur la grille.
+- **Le plan de mission** prend la forme du socle : pastille numérotée, rang, but, jauge d'avancement
+  et **chevron de repli**. La première étape franchie, il se replie tout seul sur un téléphone —
+  la grille reprend la place. Le diagnostic, lui, reste visible même replié : c'est lui qui dit
+  *pourquoi* le montage ne marche pas.
+- **Les modales** deviennent des `.carte-modale` : leçon d'avant-mission, QCM, écran de passage,
+  liste des missions, lexique et guide d'accueil. Le splash disparaît, remplacé par l'accueil.
+- **Le mode libre suit la mécanique du socle.** Il était une valeur de la mission en cours
+  (`m: 'libre'`) et écrasait donc la place de l'élève dans le parcours. C'est désormais un drapeau :
+  on va sur la grille libre et on en revient sans rien perdre.
+- **Le quiz libre arrive**, avec ses trois niveaux et ses **21 questions** écrites pour cette
+  simulation. Le niveau 3 attaque le courant cru « usé » par la lampe, le court-circuit cru sans
+  danger sur une petite pile, le voltmètre cru se brancher en série, les lampes en dérivation crues
+  se partager l'éclat, l'interrupteur ouvert cru laisser filer un peu de courant, et la résistance
+  crue grandir avec la tension.
+- **Sur écran large**, la mission passe en colonne à gauche et la grille prend tout le reste.
+
+Deux défauts d'affichage trouvés en chemin, sur les écrans les plus petits : sur 320 px de large,
+le premier composant de l'établi partait hors de la zone visible sans qu'on puisse y revenir ;
+et en paysage, un plan de mission à trois étapes ne laissait qu'un filet de grille. L'établi se
+centre autrement, et le plan mesure sa hauteur à l'ouverture — au-delà de 45 % de l'écran, il
+s'ouvre déjà replié.
+
+Les anciennes simulations restant à aligner : combustions, états de la matière, optique,
+transformations, plus les deux ateliers de molécules retirés du catalogue.
+
 ## v4.34.0 — 2026-08-08
 
 🏅 **Le quiz libre est posé sur les huit simulations du socle.**

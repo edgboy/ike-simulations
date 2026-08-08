@@ -201,3 +201,42 @@ cohérence.
 
 Les autres anciennes simulations à traiter ensuite : **combustions, états de la matière, optique,
 transformations**, plus les deux ateliers de molécules retirés du catalogue.
+
+### Alignement fait (v4.35.0)
+
+Les six points du tableau sont traités, dans l'ordre proposé. Ce qu'on a appris en le faisant,
+et qui servira pour les quatre suivantes :
+
+- **Le socle n'a pas de fiche notion.** Le circuit en a quinze, une par mission — le cours, posé
+  avant de manipuler. On ne les a pas jetées : elles deviennent une modale `v-lecon` au format
+  `.carte-modale`. Aligner la forme n'oblige pas à perdre le fond ; les autres anciennes en ont
+  aussi, il faudra faire pareil.
+- **`etat.libre` du socle se traduit ici en `progression.libre`** : `etat` désigne déjà le circuit
+  posé sur la grille. C'est le mécanisme qui compte, pas le nom — un drapeau, pas une valeur de la
+  mission en cours, sinon le passage en libre efface la place de l'élève dans le parcours.
+- **La palette du canvas fait partie du design system.** On y pense pour l'interface et on l'oublie
+  pour la scène : les gris bleutés du circuit juraient avec le fond chaud du socle, en clair comme
+  en sombre. À vérifier sur chaque simulation à canvas.
+- **Deux pièges d'attribut `hidden`** : une règle d'auteur `display:flex` l'emporte sur lui — il
+  faut redire `[hidden] { display:none }` ; et un élément peut être `hidden=false` tout en restant
+  masqué par le repli du plan de mission — le bouton « Indice » ne faisait rien tant qu'il ne
+  rouvrait pas le plan.
+- **Le diagnostic ne se replie pas.** Le socle masque l'astuce quand le plan est replié ; le
+  diagnostic, lui, doit rester — c'est la réponse au « pourquoi ça ne marche pas », et elle est
+  attendue au moment même où l'élève regarde sa grille.
+- **Le quiz a trois niveaux ici** (21 questions) : quinze missions, du fil conducteur à la loi
+  d'Ohm, c'est une simulation dense au sens de la règle posée en v4.34.0.
+
+- **Le rang d'outils qui défile ne se centre pas avec `justify-content`.** Sur un écran de 320 px,
+  le premier composant partait à gauche hors de la zone visible, sans moyen d'y revenir. Le rang
+  vit maintenant dans une boîte intérieure centrée par `margin:0 auto` : les marges s'effacent
+  d'elles-mêmes dès qu'il faut défiler. Piège classique, à surveiller sur toute barre défilable.
+- **En paysage sur téléphone, un plan de mission à trois étapes mangeait l'écran.** Le repli
+  n'arrivait qu'après la première étape franchie — trop tard pour construire. Le plan mesure
+  désormais sa propre hauteur à l'ouverture : au-delà de 45 % de l'écran, il s'ouvre replié.
+
+Vérification : parcours joué de bout en bout dans Chrome piloté par CDP — accueil, visite, leçon,
+mission, repli du plan, indice, diagnostic, QCM, écran de passage, liste, quiz complet, grille
+libre, lexique, aide, vue symboles, thème sombre. Débordement horizontal contrôlé à 320, 390, 740,
+820 et 1280 px : aucun. Progression toujours lue par le catalogue. Aucune erreur JS.
+144 Ko, 2 900 lignes.

@@ -94,10 +94,28 @@ Leçon pour le guide : la **détection de blocage** (timer d'étape) et la **vis
 sont des mécaniques réutilisables dans toutes les futures simulations.
 
 ### Pistes pour la v2 (notées, non faites)
-- Voltmètre (se branche en parallèle → interaction à concevoir : appui long sur deux nœuds ?)
 - Résistance variable (potentiomètre) ; sauvegarde/chargement d'un montage (JSON dans l'URL ou localStorage)
 - API `postMessage` vers la plateforme hôte : événements `mission-reussie`, `mesure-effectuee` (traçabilité)
 - Sons de célébration optionnels ; défis chronométrés ; mode enseignant (voir la progression de la classe)
+
+### Alignement sur le socle (2026-08, v4.35.0)
+
+La simulation qui a **inventé** l'accueil et la visite guidée est la dernière à en recevoir la
+forme commune. Refonte de l'habillage sans toucher au solveur nodal ni aux quinze missions.
+
+| Décision | Pourquoi |
+|---|---|
+| La **palette du canvas** reprend les jetons (`--background`, `--surface`, `--neutral`, `--border`) | On aligne l'interface et on oublie la scène : les gris bleutés d'origine juraient avec le fond chaud du socle. À vérifier sur toute simulation à canvas. |
+| Le mode libre devient un **drapeau** `progression.libre`, plus une valeur de `progression.m` | `m: 'libre'` écrasait la place de l'élève dans le parcours : on partait expérimenter, on revenait ailleurs. |
+| Les couleurs sémantiques de la scène restent en dur (filament, bornes de pile, écran d'appareil) | Ce sont les couleurs **de l'objet réel**, pas celles du thème. Un + de pile est laiton dans les deux thèmes. |
+| La fiche notion devient `v-lecon` au format `.carte-modale` | Le socle n'a pas de fiche notion ; le circuit en a quinze, et c'est le cours. Aligner la forme n'oblige pas à jeter le fond. |
+| Le **diagnostic reste visible** quand le plan de mission est replié | L'astuce peut attendre ; le « pourquoi ça ne marche pas » est attendu pile au moment où l'élève regarde sa grille. |
+| « Tout enlever » descend au bout de l'établi ; 📐 rejoint les commandes de la grille | Cinq icônes maximum dans l'en-tête, comme les autres simulations : au-delà, un téléphone de 360 px écrase le titre. |
+
+**Deux pièges d'attribut `hidden`**, à retenir pour les prochaines migrations : une règle d'auteur
+`display:flex` l'emporte sur `hidden` — il faut écrire `[hidden] { display:none }` explicitement ;
+et un élément peut être `hidden = false` tout en restant masqué par une règle de repli — le bouton
+« Indice » ne faisait rien tant qu'il ne rouvrait pas le plan de mission.
 
 ---
 
