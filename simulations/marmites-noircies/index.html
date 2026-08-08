@@ -1266,23 +1266,100 @@ function dessinerFeu() {
   // ce que le geste projette : eau, sable, feuilles ou extincteur
   if (f.geste && f.tGeste < GESTES[f.geste].duree) {
     const av = f.tGeste / GESTES[f.geste].duree;
+    // On voit ce qui produit le geste — le seau, la pelletée, la branche,
+    // l'extincteur — et non plus un amas de ronds tombant du ciel.
     if (f.geste === 'eau') {
-      for (let i = 0; i < 9; i++) g.appendChild(el('ellipse', {
-        cx:cx - 60 + i * 15, cy:ly - 150 + av * 160 + i * 4, rx:5, ry:11,
-        fill:'#5BC5F2', 'fill-opacity':.8 }));
+      // un seau qui bascule, et la nappe d'eau qui part en arc
+      const bx = cx - 148, by = ly - 116, incl = -18 - av * 72;
+      const seau = el('g', { transform:'rotate(' + incl + ' ' + bx + ' ' + by + ')' });
+      seau.appendChild(el('path', { fill:'#6E7C85', stroke:'#454F56', 'stroke-width':2,
+        d:'M ' + (bx - 22) + ' ' + (by - 20) + ' L ' + (bx + 22) + ' ' + (by - 20) +
+          ' L ' + (bx + 16) + ' ' + (by + 20) + ' L ' + (bx - 16) + ' ' + (by + 20) + ' z' }));
+      seau.appendChild(el('path', { fill:'none', stroke:'#454F56', 'stroke-width':2.5,
+        d:'M ' + (bx - 22) + ' ' + (by - 18) + ' q 22 -26 44 0' }));
+      g.appendChild(seau);
+      const t = Math.min(1, av * 1.5);
+      const xf = bx + 26 + t * (cx - bx - 10), yf = by - 6 + t * t * (ly - by);
+      g.appendChild(el('path', { fill:'#4FB3E8', 'fill-opacity':.72,
+        d:'M ' + (bx + 18) + ' ' + (by - 14) + ' Q ' + ((bx + xf) / 2) + ' ' + (by - 34) +
+          ' ' + xf + ' ' + yf + ' l 15 11 Q ' + ((bx + xf) / 2 + 10) + ' ' + (by - 14) +
+          ' ' + (bx + 22) + ' ' + (by + 5) + ' z' }));
+      if (t > .55) for (let i = 0; i < 9; i++) {
+        const u = (t - .55) / .45, a2 = -2.9 + i * .33;
+        g.appendChild(el('ellipse', { cx:cx + Math.cos(a2) * (22 + u * 82),
+          cy:ly - 4 - Math.abs(Math.sin(a2)) * (16 + u * 14), rx:4, ry:6.5,
+          fill:'#4FB3E8', 'fill-opacity':.8 * (1 - u) }));
+      }
+
     } else if (f.geste === 'sable') {
-      for (let i = 0; i < 34; i++) g.appendChild(el('circle', {
-        cx:cx - 56 + (i % 12) * 10, cy:ly - 140 + av * 150 + (i % 5) * 12, r:2.6,
-        fill:'#D7A86E', 'fill-opacity':.95 }));
+      // une pelle qui verse, le sable en cône, puis le tas qui étouffe
+      const px = cx - 116, py = ly - 130;
+      const pel = el('g', { transform:'rotate(' + (28 + av * 58) + ' ' + px + ' ' + py + ')' });
+      pel.appendChild(el('path', { fill:'#8B99A2', stroke:'#5D6970', 'stroke-width':1.6,
+        d:'M ' + (px - 20) + ' ' + (py - 12) + ' q 20 -8 40 0 l -6 22 q -14 6 -28 0 z' }));
+      pel.appendChild(el('rect', { x:px + 16, y:py - 8, width:46, height:6, rx:3, fill:'#8D6E63' }));
+      g.appendChild(pel);
+      const larg = 12 + av * 44;
+      g.appendChild(el('path', { fill:'#D7A86E', 'fill-opacity':.88,
+        d:'M ' + (px + 2) + ' ' + (py + 8) + ' L ' + (cx - larg) + ' ' + (ly + 2) +
+          ' L ' + (cx + larg * .4) + ' ' + (ly + 2) + ' L ' + (px + 20) + ' ' + (py + 10) + ' z' }));
+      for (let i = 0; i < 20; i++) {
+        const u = ((i * 37) % 100) / 100;
+        g.appendChild(el('circle', { cx:px + 10 + u * (cx - px - 10) + (i % 5 - 2) * u * larg * .3,
+          cy:py + 10 + u * (ly - py - 8), r:2.3, fill:'#C08A4E' }));
+      }
+      g.appendChild(el('path', { fill:'#C89257',
+        d:'M ' + (cx - 40 - av * 26) + ' ' + (ly + 3) + ' q ' + (40 + av * 26) + ' ' +
+          (-15 - av * 22) + ' ' + (80 + av * 52) + ' 0 z' }));
+
     } else if (f.geste === 'feuilles') {
-      const bal = Math.sin(av * Math.PI * 4) * 46;
-      g.appendChild(el('path', { d:'M ' + (cx + bal - 30) + ' ' + (ly - 62) + ' q 30 -22 62 0 q -30 20 -62 0 z',
-        fill:'#2E7D32' }));
-      g.appendChild(el('rect', { x:cx + bal + 30, y:ly - 70, width:36, height:5, rx:2, fill:'#6D4C33' }));
+      // une branche feuillue qu'on abat, et les braises qu'elle éparpille
+      const bal = Math.sin(av * Math.PI * 4);
+      const bx = cx + bal * 50, by = ly - 72 - Math.abs(bal) * 26;
+      const br = el('g', { transform:'rotate(' + (bal * 32) + ' ' + bx + ' ' + by + ')' });
+      br.appendChild(el('path', { fill:'none', stroke:'#6D4C33', 'stroke-width':5,
+        'stroke-linecap':'round',
+        d:'M ' + (bx + 46) + ' ' + (by - 14) + ' L ' + (bx - 34) + ' ' + (by + 8) }));
+      for (let i = 0; i < 6; i++) {
+        const t = i / 5, lx = bx + 40 - t * 72, lyf = by - 12 + t * 20;
+        br.appendChild(el('path', { fill:i % 2 ? '#3E8E45' : '#2E7D32',
+          transform:'rotate(' + (-24 + i * 16) + ' ' + lx + ' ' + lyf + ')',
+          d:'M ' + (lx - 11) + ' ' + lyf + ' C ' + (lx - 5) + ' ' + (lyf - 8) + ' ' +
+            (lx + 7) + ' ' + (lyf - 8) + ' ' + (lx + 13) + ' ' + lyf +
+            ' C ' + (lx + 7) + ' ' + (lyf + 8) + ' ' + (lx - 5) + ' ' + (lyf + 8) + ' ' +
+            (lx - 11) + ' ' + lyf + ' z' }));
+      }
+      g.appendChild(br);
+      for (let i = 0; i < 10; i++) {
+        const u = (av * 1.6 + i * .1) % 1, a2 = -2.9 + i * .32;
+        g.appendChild(el('circle', { cx:cx + Math.cos(a2) * u * 114,
+          cy:ly - 6 - Math.abs(Math.sin(a2)) * u * 52, r:2.6 + u * 2,
+          fill:'#FF7043', 'fill-opacity':.9 * (1 - u) }));
+      }
+
     } else {
-      for (let i = 0; i < 26; i++) g.appendChild(el('circle', {
-        cx:cx - 90 + i * 8 + av * 40, cy:ly - 70 + (i % 6) * 11 - av * 12,
-        r:9 + av * 7, fill:'#ECEFF1', 'fill-opacity':.5 }));
+      // l'extincteur : corps rouge, poignée, lance, et son nuage de poudre
+      const ex = cx - 150, ey = ly - 94;
+      g.appendChild(el('rect', { x:ex - 17, y:ey - 34, width:34, height:66, rx:12,
+        fill:'#C62828', stroke:'#8E1F1F', 'stroke-width':2 }));
+      g.appendChild(el('rect', { x:ex - 13, y:ey - 26, width:26, height:16, rx:2,
+        fill:'#FFFFFF', 'fill-opacity':.85 }));
+      g.appendChild(el('rect', { x:ex - 7, y:ey - 44, width:14, height:12, rx:3, fill:'#4A555C' }));
+      g.appendChild(el('path', { fill:'none', stroke:'#37474F', 'stroke-width':4,
+        'stroke-linecap':'round',
+        d:'M ' + (ex + 8) + ' ' + (ey - 38) + ' q 42 6 56 26' }));
+      g.appendChild(el('path', { fill:'#4A555C',
+        d:'M ' + (ex + 62) + ' ' + (ey - 16) + ' l 20 -8 l 0 22 l -20 -6 z' }));
+      const port = av * (cx + 44 - ex - 82);
+      g.appendChild(el('path', { fill:'#ECEFF1', 'fill-opacity':.5,
+        d:'M ' + (ex + 82) + ' ' + (ey - 8) + ' L ' + (ex + 82 + port) + ' ' + (ey - 10 - port * .3) +
+          ' L ' + (ex + 82 + port) + ' ' + (ly + 6) + ' L ' + (ex + 82) + ' ' + (ey + 2) + ' z' }));
+      for (let i = 0; i < 16; i++) {
+        const u = ((i * 29) % 100) / 100;
+        g.appendChild(el('circle', { cx:ex + 86 + u * port,
+          cy:ey - 4 + (i % 6 - 3) * u * 14 + u * 20, r:5 + u * 9,
+          fill:'#ECEFF1', 'fill-opacity':.38 * (1 - u * .5) }));
+      }
     }
   }
 

@@ -5,6 +5,24 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v4.31.0 — 2026-08-08
+
+🧯 **Les quatre gestes contre l'incendie : on voit enfin ce qui les produit.**
+
+*« Il faut revoir le design des animations pour les quatre actions à effectuer, ça doit être un peu
+plus réaliste. »* Chaque geste montrait un amas de ronds tombant du ciel : neuf ellipses bleues
+alignées pour l'eau, trente-quatre points pour le sable, une tache verte pour les feuilles, vingt-six
+cercles gris pour l'extincteur. On ne voyait jamais **l'objet** qui agit.
+
+- **Le seau d'eau** bascule, verse une **nappe continue** qui part en arc, et éclabousse au contact
+  du pétrole — d'où les flammes qui s'étalent.
+- **Le sable** est versé d'une **pelle** qui s'incline ; il tombe en cône, et le tas s'amoncelle sur
+  la flaque jusqu'à l'étouffer.
+- **Les feuilles vertes** sont une **branche feuillue** qu'on abat, avec ses six feuilles et son
+  balancement — et les **braises** qu'elle projette, qui expliquent pourquoi le feu se disperse.
+- **L'extincteur** a son corps rouge, son étiquette, sa poignée, son flexible et sa lance ; il
+  projette un **cône de poudre** qui recouvre le foyer.
+
 ## v4.30.0 — 2026-08-08
 
 🧊 **La fabrique de glace : chaque isolant a sa matière, et le plan respire sur téléphone.**
