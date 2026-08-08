@@ -240,3 +240,30 @@ mission, repli du plan, indice, diagnostic, QCM, écran de passage, liste, quiz 
 libre, lexique, aide, vue symboles, thème sombre. Débordement horizontal contrôlé à 320, 390, 740,
 820 et 1280 px : aucun. Progression toujours lue par le catalogue. Aucune erreur JS.
 144 Ko, 2 900 lignes.
+
+### Combustions vives (v4.36.0)
+
+Deuxième migration. Les six points du circuit s'appliquent tels quels ; ce qui s'ajoute :
+
+- **La simulation n'avait pas de QCM.** Le cycle du socle est `étapes → QCM → écran de passage` :
+  il s'arrêtait aux étapes. Dix missions × deux questions ont donc été écrites. À prévoir sur les
+  suivantes — c'est le poste de travail le plus long de la migration, bien avant le CSS.
+- **Le repli du plan se décide sur la place laissée, pas sur sa propre taille.** Première version :
+  « replier si le plan dépasse 45 % ». Mauvais critère — ce qui compte est que la scène reste
+  regardable. Deuxième version : « replier si la scène tombe sous 45 % », qui se corrige seule
+  quand la barre du bas change de hauteur.
+- **Un rang de boutons qui se casse en plusieurs lignes coûte très cher en hauteur.** Ici, trois
+  rangées mangeaient 175 px sur un écran de 640 : la paillasse tombait à un tiers de l'écran. En
+  rang unique défilable — la même boîte intérieure centrée que l'établi du circuit — elle remonte
+  à la moitié. À vérifier sur toute barre de commandes.
+- **Un panneau flottant se ferme par défaut sur téléphone.** Le triangle du feu recouvrait la
+  moitié de la scène. Il s'ouvre à la demande, et la mission dont l'étape se lit dedans l'ouvre
+  elle-même (drapeau `panneau` sur la mission). Il défile chez lui : la scène le rognait.
+- **Piège de rendu à chercher partout : une réserve de place qui ne compte qu'un objet.** La marge
+  droite réservait la largeur d'une jauge alors que deux sont dessinées — sur 320 px, la seconde
+  passait par-dessus bord. La géométrie est devenue une constante partagée entre le dessin et la
+  réserve, pour que les deux ne puissent plus diverger.
+
+Vérification : même protocole. Parcours, QCM, passage, quiz complet, paillasse libre, diagnostic
+replié, indice, lexique, aide, thème sombre. Cinq largeurs sans débordement, part de l'écran
+laissée à la scène mesurée à chaque taille. Aucune erreur JS. 112 Ko, 2 272 lignes.

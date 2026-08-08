@@ -257,6 +257,30 @@ et à terme une application Élève (mobile) + une plateforme Enseignant (démon
 
 ---
 
+## Migration des anciennes simulations vers le socle (2026-08)
+
+Les simulations d'avant le socle sont reprises une à une. Le circuit électrique (v4.35.0) a servi
+de premier cas — ses décisions sont notées dans sa propre section. Ce qui s'ajoute avec les
+**combustions vives** (v4.36.0), et qui vaut pour les suivantes :
+
+| Décision | Pourquoi |
+|---|---|
+| Le **QCM de fin de mission** est écrit, pas porté | Le cycle du socle est `étapes → QCM → passage`. Une simulation qui n'en a pas doit en recevoir un : dix missions × deux questions ici. C'est le plus long poste de la migration, loin devant le CSS. |
+| Le repli du plan se décide sur **la place laissée à la scène**, pas sur la taille du plan | « Replier si le plan dépasse 45 % » ne dit rien de ce qu'on cherche. « Replier si la scène tombe sous 45 % » se corrige seul quand la barre du bas change de hauteur. |
+| Une barre de commandes ne se **casse pas en plusieurs rangées** | Trois rangées coûtaient 175 px de hauteur sur un écran de 640 : la scène tombait à un tiers. En rang unique défilable, elle remonte à la moitié. |
+| Un panneau flottant s'ouvre **replié sur téléphone** | Le triangle du feu recouvrait la moitié de la scène. Un drapeau `panneau` sur la mission dont l'étape s'y lit le rouvre automatiquement. Et il défile chez lui, sinon la scène le rogne. |
+| La **réserve de place** d'un rendu doit compter *tous* les objets qu'elle protège | La marge droite réservait la largeur d'une jauge alors que deux sont dessinées : sur 320 px, la seconde sortait de l'écran. La géométrie est passée en constante partagée entre le dessin et la réserve. |
+
+**Protocole de vérification** établi sur ces deux migrations, à reprendre tel quel : Chrome piloté
+par CDP, parcours joué de bout en bout (accueil → visite → leçon → mission → QCM → passage →
+liste → quiz → mode libre), puis contrôle du débordement horizontal et de la part d'écran laissée
+à la scène sur cinq tailles — 320, 390, 740 (paysage), 820 et 1280 px.
+
+**Restent à traiter** : états de la matière, optique, transformations, plus les deux ateliers de
+molécules retirés du catalogue.
+
+---
+
 ## Intégration plateforme (à compléter quand la plateforme sera choisie)
 
 Options gardées ouvertes par le format « un fichier autonome » :

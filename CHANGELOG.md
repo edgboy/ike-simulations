@@ -5,6 +5,38 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v4.36.0 — 2026-08-08
+
+🔥 **Les combustions vives rejoignent le socle — et gagnent leur QCM.**
+
+Deuxième ancienne simulation alignée, après le circuit électrique. Le modèle ne bouge pas : les
+21 % de dioxygène de l'air, la consommation proportionnelle au volume de la cloche, le seuil
+d'extinction à 15 %, l'eau de chaux et la buée sont ceux d'avant.
+
+- **Jetons du design system, en-tête à icônes, plan de mission à pastille et chevron, modales
+  `.carte-modale`, mode libre en drapeau** — les cinq points communs à toute migration. Le splash
+  disparaît, remplacé par l'accueil « Que veux-tu faire ? » et ses trois portes.
+- **Le cycle de mission est complété.** Il s'arrêtait aux étapes : la simulation n'avait pas de
+  QCM. Chaque mission reçoit **deux questions** écrites pour elle, entre la réussite et l'écran de
+  passage — le cycle du socle est désormais entier. Les dix leçons deviennent de vraies fiches
+  notion, avec leur sous-titre et leurs mots de lexique cliquables.
+- **Le quiz libre arrive**, avec ses trois niveaux et ses **21 questions**. Le niveau 3 attaque la
+  flamme crue s'éteindre faute de tout dioxygène, l'air cru être du dioxygène pur, le souffle cru
+  priver d'air, la cire crue disparaître, la combustion crue démarrer seule, l'eau de chaux crue
+  réagir à la vapeur d'eau, et la grande cloche crue protéger indéfiniment.
+
+**Trois défauts d'affichage corrigés en chemin**, tous trouvés en pilotant la simulation :
+
+- **La jauge de CO₂ sortait de l'écran sur 320 px.** La réserve de place à droite ne comptait
+  qu'une seule jauge alors que deux sont dessinées : neuf pixels passaient par-dessus bord. La
+  géométrie du couple de jauges est maintenant une constante partagée par le dessin et la réserve.
+- **La barre des gestes se cassait en trois rangées** sur un écran étroit et mangeait 175 px de
+  paillasse. Elle passe en rang unique défilable : la paillasse récupère **la moitié de l'écran**
+  au lieu d'un tiers.
+- **Le panneau 🔺 recouvrait la moitié de la paillasse** sur téléphone. Il s'y ouvre désormais
+  replié — le bouton posé sur la paillasse le déplie, et la mission qui s'y lit l'ouvre d'elle-même.
+  Ouvert sur un petit écran, il défile chez lui au lieu d'être coupé.
+
 ## v4.35.0 — 2026-08-08
 
 ⚡ **Le circuit électrique rejoint le socle.**
