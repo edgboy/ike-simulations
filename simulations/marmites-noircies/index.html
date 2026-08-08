@@ -1132,7 +1132,7 @@ const sim = { actif:false, fini:false, t:0, T:T0, suieTotale:0, minutesEcoulees:
 
 const CLE = 'ike-marmites-progression';
 function sauver() {
-  try { localStorage.setItem(CLE, JSON.stringify({ maitrise:etat.maitrise, mission:etat.mission, faits:etat.faites,
+  try { localStorage.setItem(CLE, JSON.stringify({ maitrise:etat.maitrise, mission:etat.mission, faites:etat.faites,
     tests:etat.testsFaits, flammes:etat.flammesVues, feuEteint:etat.feuEteint,
     libre:etat.libre, planLibre:etat.planLibre })); } catch (e) {}
 }
@@ -1141,7 +1141,7 @@ function charger() {
     const d = JSON.parse(localStorage.getItem(CLE));
     if (d.maitrise) etat.maitrise = d.maitrise;
     if (!d) return;
-    if (Array.isArray(d.faits)) etat.faites = d.faits;
+    if (Array.isArray(d.faites || d.faits)) etat.faites = d.faites || d.faits;
     if (d.tests) etat.testsFaits = d.tests;
     if (d.flammes) etat.flammesVues = d.flammes;
     // le mode libre et le plan choisi se retrouvent au retour

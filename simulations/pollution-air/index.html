@@ -1332,7 +1332,7 @@ const VERDICTS = { vrai:'✅ Vrai', partiel:'🟡 En partie vrai', faux:'❌ Fau
 const CLE = 'ike-pollution-progression';
 function sauver() {
   try {
-    localStorage.setItem(CLE, JSON.stringify({ mission:etat.mission, faits:etat.faites,
+    localStorage.setItem(CLE, JSON.stringify({ mission:etat.mission, faites:etat.faites,
       notes:etat.notes, actions:etat.actions, verdicts:etat.verdicts,
       vuAgir:etat.vuAgir, maitrise:etat.maitrise }));
   } catch (e) {}
@@ -1341,7 +1341,7 @@ function charger() {
   try {
     const d = JSON.parse(localStorage.getItem(CLE));
     if (!d) return;
-    if (Array.isArray(d.faits)) etat.faites = d.faits;
+    if (Array.isArray(d.faites || d.faits)) etat.faites = d.faites || d.faits;
     if (Array.isArray(d.notes)) etat.notes = d.notes;
     if (d.actions) etat.actions = d.actions;
     // parcours commencé avant que le tuyau relevé devienne l'état de départ

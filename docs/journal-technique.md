@@ -324,6 +324,45 @@ de molécules, retirés du catalogue.
 
 ---
 
+## Le contrat de progression (2026-08, v4.40.0)
+
+La campagne a fait apparaître une divergence que personne n'avait vue : les deux générations
+écrivaient **le même sens sous deux noms**. Les huit simulations du socle enregistraient
+`{ mission, faits }`, les six autres `{ m, faites }` — et le catalogue s'en sortait avec un
+`champ:` par simulation, un contournement plutôt qu'un contrat.
+
+**Forme unique, écrite par les quatorze :**
+
+```json
+{ "mission": 3, "faites": [0, 1, 2], "libre": false, "maitrise": { "pieges": 0.83 } }
+```
+
+| Champ | Sens |
+|---|---|
+| `mission` | index de la mission en cours (0 = la première) |
+| `faites` | indices des missions réussies — l'accord correct : *les missions faites* |
+| `libre` | l'élève est dans le mode libre |
+| `maitrise` | meilleur résultat par niveau de quiz, de 0 à 1 |
+
+Les champs propres à une simulation (notes de pollution, classement des premiers pas, plan libre de
+la flamme…) restent à côté et ne regardent qu'elle.
+
+**Règle de migration, à reprendre pour tout changement de format** : on change ce qu'on **écrit**,
+jamais ce qu'on **lit**. Les anciens noms `faits` et `m` restent acceptés partout — un appareil déjà
+utilisé en classe reprend où il en était, et bascule à la nouvelle forme au premier enregistrement.
+Il n'existe aucun moyen de prévenir un élève qu'il a perdu sa progression : la compatibilité de
+lecture n'est pas une politesse, c'est la seule protection.
+
+**Piège rencontré** : le remplacement automatique a bien changé les huit écritures, mais **trois
+lectures sur huit** ont échappé au motif (indentation différente). Écrire `faites` en ne lisant que
+`faits` aurait effacé la progression de tous les élèves de ces trois simulations. Vérifier les deux
+côtés séparément, et tester avec une charge utile à l'ancien format.
+
+C'est le préalable à toute lecture extérieure de la progression — le tableau de bord enseignant du
+manifeste, notamment : sans cela il faudrait connaître la génération de chaque simulation.
+
+---
+
 ## Intégration plateforme (à compléter quand la plateforme sera choisie)
 
 Options gardées ouvertes par le format « un fichier autonome » :

@@ -991,7 +991,7 @@ const etat = {
 
 const CLE = 'ike-premierspas-progression';
 function sauver() {
-  try { localStorage.setItem(CLE, JSON.stringify({ maitrise:etat.maitrise, mission:etat.mission, faits:etat.faites,
+  try { localStorage.setItem(CLE, JSON.stringify({ maitrise:etat.maitrise, mission:etat.mission, faites:etat.faites,
     classement:etat.classement, libre:etat.libre, recepteurLibre:etat.recepteurLibre })); } catch (e) {}
 }
 function charger() {
@@ -999,7 +999,7 @@ function charger() {
     const d = JSON.parse(localStorage.getItem(CLE));
     if (d.maitrise) etat.maitrise = d.maitrise;
     if (!d) return;
-    if (Array.isArray(d.faits)) etat.faites = d.faits;
+    if (Array.isArray(d.faites || d.faits)) etat.faites = d.faites || d.faits;
     if (d.classement) etat.classement = d.classement;
     // le montage libre se retrouve au retour : il était perdu à chaque rechargement
     etat.libre = !!d.libre;

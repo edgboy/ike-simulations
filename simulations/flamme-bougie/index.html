@@ -986,7 +986,7 @@ const vierge = () => ({
 let etat = Object.assign({ mission:0, faits:[], libre:false, planLibre:'flamme' }, vierge());
 
 function sauver() {
-  try { localStorage.setItem(CLE, JSON.stringify({ maitrise:etat.maitrise, mission:etat.mission, faits:etat.faits,
+  try { localStorage.setItem(CLE, JSON.stringify({ maitrise:etat.maitrise, mission:etat.mission, faites:etat.faits,
     libre:etat.libre, planLibre:etat.planLibre })); }
   catch (e) {}
 }
@@ -995,7 +995,7 @@ function charger() {
     const d = JSON.parse(localStorage.getItem(CLE) || '{}');
     if (d.maitrise) etat.maitrise = d.maitrise;
     if (typeof d.mission === 'number') etat.mission = Math.min(d.mission, MISSIONS.length - 1);
-    if (Array.isArray(d.faits)) etat.faits = d.faits;
+    if (Array.isArray(d.faites || d.faits)) etat.faits = d.faites || d.faits;
     etat.libre = !!d.libre;
     if (d.planLibre) etat.planLibre = d.planLibre;
   } catch (e) {}

@@ -983,14 +983,14 @@ const etat = {
 
 const CLE = 'ike-lampe-progression';
 function sauver() {
-  try { localStorage.setItem(CLE, JSON.stringify({ maitrise:etat.maitrise, mission:etat.mission, faits:etat.faites })); } catch (e) {}
+  try { localStorage.setItem(CLE, JSON.stringify({ maitrise:etat.maitrise, mission:etat.mission, faites:etat.faites })); } catch (e) {}
 }
 function charger() {
   try {
     const d = JSON.parse(localStorage.getItem(CLE));
     if (d.maitrise) etat.maitrise = d.maitrise;
-    if (d && Array.isArray(d.faits)) {
-      etat.faites = d.faits;
+    if (d && Array.isArray(d.faites || d.faits)) {
+      etat.faites = d.faites || d.faits;
       etat.mission = Math.min(d.mission || 0, MISSIONS.length - 1);
     }
   } catch (e) {}

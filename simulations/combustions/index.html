@@ -1404,10 +1404,11 @@ function chargerProgression() {
   try {
     const d = JSON.parse(localStorage.getItem('ike-combustion-progression'));
     if (d) {
-      if (Number.isInteger(d.m) && d.m >= 0 && d.m < MISSIONS.length) progression.m = d.m;
+      const im = d.mission !== undefined ? d.mission : d.m;   // « m » : forme d'avant l'unification
+      if (Number.isInteger(im) && im >= 0 && im < MISSIONS.length) progression.m = im;
       if (Array.isArray(d.faites)) progression.faites = d.faites.filter(Number.isInteger);
       // les versions d'avant le socle stockaient m:'libre'
-      progression.libre = d.libre === true || d.m === 'libre';
+      progression.libre = d.libre === true || im === 'libre';
       if (d.maitrise && typeof d.maitrise === 'object') progression.maitrise = d.maitrise;
     }
   } catch (e) {}
@@ -1415,7 +1416,7 @@ function chargerProgression() {
 function sauverProgression() {
   try {
     localStorage.setItem('ike-combustion-progression', JSON.stringify({
-      m: progression.m, faites: progression.faites,
+      mission: progression.m, faites: progression.faites,
       libre: progression.libre, maitrise: progression.maitrise,
     }));
   } catch (e) {}

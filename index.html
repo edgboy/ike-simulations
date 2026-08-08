@@ -250,7 +250,7 @@
 </main>
 
 <footer class="enveloppe pied">
-  <span>Labo-Bénin · <span class="ver">v4.39.0</span></span>
+  <span>Labo-Bénin · <span class="ver">v4.40.0</span></span>
   <span>·</span>
   <span>Programme officiel du Bénin (APC)</span>
   <span>·</span>
@@ -268,15 +268,18 @@
 
 // Simulations livrées : clé de progression et nombre de missions, pour lire
 // une progression réelle depuis le stockage local.
+// Toutes les simulations écrivent désormais la même chose : { mission, faites,
+// maitrise }. Le champ « faits » et l'index « m » sont les formes d'avant
+// l'unification : elles sont encore lues, pour ne perdre aucune progression.
 const LIVREES = {
-  'lampe-de-poche':     { cle: 'ike-lampe-progression',      missions: 6, champ: 'faits' },
-  'alambic':            { cle: 'ike-alambic-progression',    missions: 6, champ: 'faits' },
-  'tam-tam':            { cle: 'ike-tamtam-progression',     missions: 6, champ: 'faits' },
-  'pollution-air':      { cle: 'ike-pollution-progression',  missions: 6, champ: 'faits' },
-  'marmites-noircies':  { cle: 'ike-marmites-progression',   missions: 8, champ: 'faits' },
-  'flamme-bougie':      { cle: 'ike-flamme-progression',     missions: 5, champ: 'faits' },
-  'fabrique-glace':     { cle: 'ike-glace-progression',      missions: 5, champ: 'faits' },
-  'premiers-pas':       { cle: 'ike-premierspas-progression', missions: 5, champ: 'faits' },
+  'lampe-de-poche':     { cle: 'ike-lampe-progression',      missions: 6 },
+  'alambic':            { cle: 'ike-alambic-progression',    missions: 6 },
+  'tam-tam':            { cle: 'ike-tamtam-progression',     missions: 6 },
+  'pollution-air':      { cle: 'ike-pollution-progression',  missions: 6 },
+  'marmites-noircies':  { cle: 'ike-marmites-progression',   missions: 8 },
+  'flamme-bougie':      { cle: 'ike-flamme-progression',     missions: 5 },
+  'fabrique-glace':     { cle: 'ike-glace-progression',      missions: 5 },
+  'premiers-pas':       { cle: 'ike-premierspas-progression', missions: 5 },
   'circuit-electrique': { cle: 'ike-circuit-progression-v2', missions: 15 },
   'combustions':        { cle: 'ike-combustion-progression', missions: 10 },
   'etats-matiere':      { cle: 'ike-matiere-progression-v2', missions: 13 },
@@ -510,7 +513,7 @@ function progressionDe(dossier) {
     const brut = localStorage.getItem(info.cle);
     if (!brut) return { faites: 0, total: info.missions, pct: 0 };
     const d = JSON.parse(brut);
-    const liste = d[info.champ || 'faites'];
+    const liste = Array.isArray(d.faites) ? d.faites : d.faits;
     const faites = Array.isArray(liste) ? liste.length : 0;
     return { faites, total: info.missions, pct: Math.min(100, Math.round(faites / info.missions * 100)) };
   } catch (e) {

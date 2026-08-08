@@ -1249,8 +1249,9 @@ function chargerProgression() {
   try {
     const d = JSON.parse(localStorage.getItem('ike-mol3d-progression'));
     if (d) {
-      if (d.m === 'libre' || (Number.isInteger(d.m) && d.m >= 0 && d.m < MISSIONS.length))
-        progression.m = d.m;
+      const im = d.mission !== undefined ? d.mission : d.m;   // « m » : forme d'avant l'unification
+      if (im === 'libre' || (Number.isInteger(im) && im >= 0 && im < MISSIONS.length))
+        progression.m = im;
       if (Array.isArray(d.faites)) progression.faites = d.faites.filter(Number.isInteger);
     }
   } catch (e) {}
@@ -1258,7 +1259,7 @@ function chargerProgression() {
 function sauverProgression() {
   try {
     localStorage.setItem('ike-mol3d-progression',
-      JSON.stringify({ m: progression.m, faites: progression.faites }));
+      JSON.stringify({ mission: progression.m, faites: progression.faites }));
   } catch (e) {}
 }
 function missionCourante() { return progression.m === 'libre' ? null : MISSIONS[progression.m]; }

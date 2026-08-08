@@ -5,6 +5,35 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v4.40.0 — 2026-08-08
+
+🔗 **Un seul contrat de progression pour les quatorze simulations.**
+
+Les deux générations n'écrivaient pas la même chose dans le stockage local. Les huit du socle
+enregistraient `{ mission, faits }`, les six autres `{ m, faites }` : **le même sens sous deux
+noms**, avec un contournement par simulation dans le catalogue pour s'y retrouver.
+
+Toutes écrivent désormais la même forme :
+
+```json
+{ "mission": 3, "faites": [0, 1, 2], "libre": false, "maitrise": { "pieges": 0.83 } }
+```
+
+- `faites` — l'accord correct : *les missions faites*.
+- `mission` — le nom déjà employé par les huit du socle, plus clair que `m`.
+- Les champs propres à chaque simulation (notes de pollution, classement des premiers pas,
+  plan libre de la flamme…) restent à côté, inchangés.
+
+**Aucune progression d'élève n'est perdue** : les anciens noms `faits` et `m` sont encore lus, sur
+les quatorze simulations comme dans le catalogue. Un appareil déjà utilisé en classe reprend
+exactement où il en était, et réécrit à la nouvelle forme au premier enregistrement.
+
+C'est le préalable à toute lecture extérieure de la progression — un tableau de bord enseignant,
+par exemple : jusqu'ici il aurait fallu connaître la génération de chaque simulation.
+
+**Défaut corrigé au passage** : l'onglet des transformations du plan affichait « États de la
+matière », reste de l'assemblage de la v4.39.0.
+
 ## v4.39.0 — 2026-08-08
 
 🔺 **Les transformations du plan rejoignent le socle — la campagne est bouclée.**
