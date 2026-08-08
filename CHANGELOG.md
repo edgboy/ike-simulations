@@ -5,6 +5,34 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v4.39.0 — 2026-08-08
+
+🔺 **Les transformations du plan rejoignent le socle — la campagne est bouclée.**
+
+Cinquième et dernière ancienne simulation, et la seule de **mathématiques** : douze missions, du
+miroir au choix raisonné de la transformation. La géométrie ne bouge pas — symétrie axiale,
+symétrie centrale, translation et rotation sont calculées comme avant.
+
+- **Les cinq points communs** : jetons du design system, en-tête à icônes, plan de mission à
+  pastille et chevron, modales `.carte-modale`, mode libre en drapeau. Le splash disparaît,
+  remplacé par l'accueil et ses trois portes.
+- **Le QCM de fin de mission arrive** : **24 questions**, deux par mission. Les douze leçons
+  deviennent de vraies fiches notion, avec sous-titre et mots de lexique cliquables.
+- **Le quiz libre**, trois niveaux, **21 questions**. Le niveau 3 attaque la symétrie centrale crue
+  retourner la figure comme un miroir, la symétrie axiale crue agrandir quand l'axe s'éloigne, la
+  translation crue faire pivoter avec un vecteur incliné, +90° et −90° crus donner la même image,
+  le centre cru devoir être sur la figure, la figure superposée à son image crue n'avoir subi
+  aucune transformation, et les angles crus non conservés par le miroir.
+- **Le quadrillage suivait déjà la place disponible dans les deux sens** — la seule des cinq à ne
+  pas avoir le défaut de marge fixe.
+
+**Les cinq anciennes simulations sont désormais alignées** : circuit électrique, combustions, états
+de la matière, banc d'optique et transformations du plan. Toutes partagent le même accueil, le même
+plan de mission, les mêmes modales, la même mécanique de mode libre, un QCM à chaque fin de mission
+et un quiz libre à trois niveaux. Un contrôle transversal vérifie sur les cinq : bloc de style
+unique, utilitaire `$` déclaré avant usage, huit voiles du socle présents, aucun reste de l'ancienne
+interface.
+
 ## v4.38.0 — 2026-08-08
 
 🔭 **Le banc d'optique rejoint le socle.**

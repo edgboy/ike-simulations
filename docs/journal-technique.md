@@ -305,7 +305,22 @@ quiz → mode libre), puis contrôle du débordement horizontal, de la part d'é
 et de la tenue du dessin dans ses bornes, sur cinq tailles — 320, 390, 740 (paysage), 820 et
 1280 px. Le banc d'optique se teste en paysage seulement : 640×360, 740×380, 1024×768, 1280×800.
 
-**Restent à traiter** : transformations, plus les deux ateliers de molécules retirés du catalogue.
+Les **transformations du plan** (v4.39.0) closent la campagne. Seule des cinq à ne pas avoir le
+défaut de marge fixe : son quadrillage se déduisait déjà de la largeur *et* de la hauteur. Deux
+leçons s'ajoutent :
+
+| Décision | Pourquoi |
+|---|---|
+| Un moteur repris d'une autre simulation traîne ses **noms de données** | `outilsAutorises()` référençait `OUTILS` (banc d'optique) au lieu de `TRANSFOS`. Syntaxe correcte, contrôle d'identifiants au vert : seul le pilotage l'a trouvé. Relire les symboles référencés, pas seulement les `id` du DOM. |
+| **Mesurer d'abord, regarder ensuite** | Une capture prise trop tôt après un changement de taille montre un écran faux : l'émulation n'est pas encore appliquée. Les mesures, elles, étaient justes. Laisser une pause après redimensionnement avant de capturer. |
+
+**Contrôle transversal**, à relancer après toute retouche : un seul bloc `</style>` par fichier,
+`$` déclaré avant son premier usage, les huit voiles du socle présents, aucun reste de l'ancienne
+interface. Les cinq simulations sont au vert.
+
+**Campagne terminée** : circuit électrique, combustions, états de la matière, banc d'optique et
+transformations du plan partagent désormais le même socle. Restent hors périmètre les deux ateliers
+de molécules, retirés du catalogue.
 
 ---
 

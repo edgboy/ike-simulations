@@ -323,3 +323,30 @@ demande de lire — elle se range à gauche quand le banc est écrasé.
 Vérification : même protocole, en formats **paysage uniquement** (le banc de 100 cm l'exige, un
 écran le rappelle en portrait) — 640×360, 740×380, 1024×768, 1280×800. Tenue de la scène contrôlée
 au-dessus *et* au-dessous de l'axe à chaque taille. Aucune erreur JS. 136 Ko, 2 778 lignes.
+
+### Transformations du plan (v4.39.0) — fin de la campagne
+
+Cinquième et dernière, la seule de mathématiques. Les trois écueils d'outillage relevés sur le banc
+d'optique ont été vérifiés **avant** de couper cette fois : ordre des sections lu, bloc `<style>`
+compté, `$` déclaré. Aucun n'est réapparu. Deux points nouveaux :
+
+- **Le gabarit repris d'une autre simulation traîne ses noms.** `outilsAutorises()` renvoyait
+  `OUTILS` — la liste du banc d'optique — alors qu'ici les outils s'appellent `TRANSFOS`. La
+  syntaxe passait, le contrôle d'identifiants aussi : seul le pilotage l'a trouvé. Quand on reprend
+  un moteur, **relire les noms de données qu'il référence**, pas seulement ceux du DOM.
+- **Une capture d'écran prise trop tôt après un changement de taille ment.** La vue téléphone
+  paraissait décalée et tronquée ; toutes les mesures disaient l'inverse. L'émulation n'était pas
+  encore appliquée au compositeur. **Mesurer d'abord, regarder ensuite** — et laisser une pause
+  après le redimensionnement avant de capturer.
+
+Le quadrillage, lui, suivait déjà la place disponible dans les deux sens : la seule des cinq sans
+le défaut de marge fixe.
+
+Vérification : même protocole, cinq tailles. Aucune erreur JS. 116 Ko, 2 333 lignes.
+
+### Contrôle transversal des cinq
+
+Ajouté en fin de campagne, il passe sur les cinq fichiers et vérifie : un seul bloc `</style>`,
+`$` déclaré avant son premier usage, les huit voiles du socle présents, et aucun reste de
+l'ancienne interface (`mbar`, `mchip`, `splash`, `tab-exp`, `choix-mode`). Les cinq sont au vert.
+À relancer après toute retouche d'une de ces simulations.
