@@ -166,3 +166,38 @@ CHANGELOG, commit, `git tag -a`, `git push --tags`, `gh release create`, puis
 **Écueils d'outillage rencontrés** : les heredocs bash cassent sur les apostrophes typographiques
 et les backticks — écrire les scripts avec l'outil d'écriture de fichier, et éviter les littéraux
 de gabarit imbriqués quand un script génère du code qui en contient.
+
+---
+
+## Les anciennes simulations : état des lieux (8 août 2026)
+
+Décision du 8 août : **le quiz libre ira sur toutes les simulations de la plateforme.** Or les
+anciennes n'ont pas la structure dont il dépend. Diagnostic du **circuit électrique**, la première
+nommée et la plus utilisée du programme de 6ᵉ.
+
+**Bonne nouvelle : l'accueil et la visite guidée y sont déjà** — et c'est de là qu'ils viennent.
+`#choix-mode` porte le « ⚡ Que veux-tu faire ? » avec Apprendre / Expérimenter, Expérimenter étant
+verrouillé tant que les 15 missions ne sont pas finies. `#visite` porte le halo et la carte pas à
+pas. C'est le modèle que le socle a repris ; il n'a jamais été retiré ici.
+
+**Ce qui manque pour l'aligner sur le socle** (2 573 lignes, 124 Ko) :
+
+| Point | État |
+|---|---|
+| Jetons du design system (`--primary`, `--accent`, rayons, polices) | Palette et polices propres, différentes du socle |
+| En-tête | Boutons texte pleine largeur, au lieu de la rangée d'icônes compactes |
+| Panneau de mission | Barre pleine largeur en haut : pas de pastille numérotée, pas de jauge, pas de chevron de repli |
+| Modales | `mfin`, `mintro`, `mqcm`, `mlexique`, `mliste` — noms et styles propres, pas `.carte-modale` |
+| Mode libre | `etat.libre` absent : « Expérimenter » existe mais ne suit pas la mécanique du socle |
+| Quiz | Absent, et sa porte « M'exercer » dépend de l'accueil du socle |
+
+**Ordre proposé** : jetons et en-tête d'abord (effet visible immédiat, risque faible), puis le
+panneau de mission, puis les modales, puis le mode libre au sens du socle, et le quiz en dernier —
+il ne peut se poser qu'une fois l'accueil aligné.
+
+Sur téléphone, la simulation tient correctement : les boutons d'en-tête se réduisent à leurs icônes
+et la barre de mission reste lisible. Ce n'est donc pas une urgence d'affichage, mais une mise en
+cohérence.
+
+Les autres anciennes simulations à traiter ensuite : **combustions, états de la matière, optique,
+transformations**, plus les deux ateliers de molécules retirés du catalogue.
