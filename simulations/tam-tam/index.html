@@ -1282,6 +1282,43 @@ const refs = {};
 // Rayon dessiné de la peau, d'après le vrai diamètre de la caisse
 const rayonPeau = () => etat.caisse ? 46 + (CAISSES[etat.caisse].d - .10) * 320 : 70;
 
+/* Le repère du dessin est plus large que le dessin : sur un écran haut et
+   étroit, la scène se réduisait à un bandeau au milieu du plan de travail, avec
+   du vide au-dessus et au-dessous. On recadre donc le repère sur ce qui est
+   réellement dessiné. Le cadre ne fait que grandir, jamais rétrécir : l'échelle
+   ne saute pas pendant que l'élève manipule, et rien n'est rogné si une pièce
+   sort du cadre de départ. */
+const CADRE_PLAN = { x:112, y:24, x2:390, y2:258 };
+function cadrerPlan() {
+  // L'oscillogramme occupe la moitié droite du repère, mais il reste dans le
+  // plan à opacity 0 tant que rien ne vibre : s'il comptait tout le temps, le
+  // tam-tam serait repoussé dans le coin gauche pour rien. On ne cadre donc
+  // que ce qui s'affiche vraiment.
+  // On mesure les rectangles tels qu'ils sont rendus, puis on revient aux
+  // coordonnées du plan : getBBox() d'un groupe ignore sa propre
+  // transformation, et la baguette qui pivote fausserait le cadre.
+  const ctm = plan.getScreenCTM();
+  if (!ctm) return;
+  const inv = ctm.inverse(), pt = plan.createSVGPoint();
+  const versPlan = (x, y) => { pt.x = x; pt.y = y; return pt.matrixTransform(inv); };
+  for (const n of plan.children) {
+    if (n.getAttribute('opacity') === '0') continue;
+    const r = n.getBoundingClientRect();
+    if (!r.width && !r.height) continue;
+    const a = versPlan(r.left, r.top), b = versPlan(r.right, r.bottom);
+    CADRE_PLAN.x = Math.min(CADRE_PLAN.x, a.x);
+    CADRE_PLAN.y = Math.min(CADRE_PLAN.y, a.y);
+    CADRE_PLAN.x2 = Math.max(CADRE_PLAN.x2, b.x);
+    CADRE_PLAN.y2 = Math.max(CADRE_PLAN.y2, b.y);
+  }
+  // Un peu d'air autour : le cadre serré fait toucher les bords de l'écran.
+  // La marge se calcule à l'écriture, pas dans le cadre, sinon elle s'ajoute
+  // à elle-même à chaque dessin.
+  const m = Math.max(10, (CADRE_PLAN.x2 - CADRE_PLAN.x) * .035);
+  plan.setAttribute('viewBox', (CADRE_PLAN.x - m) + ' ' + (CADRE_PLAN.y - m) + ' ' +
+    (CADRE_PLAN.x2 - CADRE_PLAN.x + 2 * m) + ' ' + (CADRE_PLAN.y2 - CADRE_PLAN.y + 2 * m));
+}
+
 function dessiner() {
   plan.textContent = '';
   for (const k in refs) delete refs[k];
@@ -1512,7 +1549,10 @@ function dessiner() {
   refs.oscilloG.appendChild(refs.oscTxt);
   plan.appendChild(refs.oscilloG);
 
+  // animer() d'abord : il place la baguette et la membrane. Cadrer avant, ce
+  // serait cadrer sur des pièces encore posées à l'origine du plan.
   animer(frappe.actif ? frappe.amplitude : 0);
+  cadrerPlan();
 }
 
 /* ---- Courbe de la peau : au repos elle est plate, frappée elle ondule ---- */

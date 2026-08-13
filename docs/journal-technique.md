@@ -286,6 +286,32 @@ ne se déduisait que de la largeur du banc, si bien que les flèches sortaient p
 au-dessus et au-dessous de l'axe optique, déclaré en centimètres — et le banc se centre quand c'est
 la hauteur qui commande. **Chercher ce défaut en premier sur chaque nouvelle migration.**
 
+### Le repère d'une scène SVG se cadre sur le dessin, pas sur un gabarit (v4.44.0)
+
+Même famille, côté SVG cette fois. Un `viewBox="0 0 660 3xx"` écrit une fois pour toutes vaut
+gabarit : avec `preserveAspectRatio="meet"`, c'est la dimension la plus contraignante qui fixe
+l'échelle, et sur un téléphone c'est toujours la largeur. Le résultat se mesure : sur les huit
+simulations en SVG, quatre perdaient **de 42 % à 54 %** de leur plan de travail en bandes vides.
+
+Le cadrage se calcule donc à partir de ce qui est dessiné (`cadrerPlan()` dans `alambic`,
+`premiers-pas`, `tam-tam`). Trois pièges, chacun trouvé par l'essai :
+
+| Piège | Ce qu'il produit |
+|---|---|
+| Cadrer sur `plan.getBBox()` | Les groupes en attente à `opacity 0` comptent quand même : l'oscillogramme du tam-tam réservait la moitié droite du repère et poussait le tam-tam dans le coin. Il faut parcourir les enfants et sauter les invisibles. |
+| Cadrer sur le `getBBox()` d'un groupe | `getBBox()` rend la boîte dans le repère **local** du groupe, sans sa propre transformation : la baguette qui pivote tirait le cadre à 80 unités au-dessus de la scène. Passer par `getBoundingClientRect()` puis revenir au plan via `getScreenCTM().inverse()`. |
+| Cadrer avant l'animation | Les pièces créées puis placées par la boucle (flèches de courant, flammes, vapeur) traînent à l'origine du plan tant qu'elle n'a pas tourné. Cadrer **après** `animer()` quand elle est synchrone, marquer `data-anim` et sauter quand elle ne l'est pas. |
+
+Deux garde-fous à garder : le cadre **ne fait que grandir** — sinon l'échelle saute pendant que
+l'élève manipule, et une pièce hors cadre serait rognée ; la **marge se calcule à l'écriture**, pas
+dans le cadre mémorisé, sinon elle s'ajoute à elle-même à chaque dessin.
+
+**Un espace inutilisé n'est pas toujours un défaut** : `pollution-air` affiche 48 % de perte au même
+calcul, mais son dessin remplit exactement son repère — la bande de rue est une composition large,
+voulue. Mesurer la part occupée *par le dessin*, pas seulement la part occupée par le repère.
+`fabrique-glace` et `flamme-bougie`, qui recalculent leur repère en pixels depuis leur conteneur,
+n'avaient aucun défaut : c'est le modèle.
+
 Trois écueils d'outillage relevés en assemblant ce fichier, qui valent pour toute génération de
 code par morceaux :
 

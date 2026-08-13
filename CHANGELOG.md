@@ -5,6 +5,51 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v4.44.0 — 2026-08-13
+
+📐 **Les scènes remplissent enfin le plan de travail.**
+
+Le cadrage trop large corrigé sur les marmites n'était pas un cas isolé : je suis allé mesurer,
+sur les huit simulations dessinées en SVG, la part de l'espace que la scène occupe réellement.
+Sur un téléphone, quatre d'entre elles perdaient entre 42 % et 54 % de leur plan de travail en
+bandes vides. Le dessin y flottait, minuscule, au milieu du gris.
+
+La cause est la même partout : un repère fixe de 660 unités de large pour un dessin qui n'en
+occupe que 250 à 500. Le repère se cale sur la largeur de l'écran, et la hauteur reste inutilisée.
+
+### Le cadrage suit maintenant le dessin
+
+`alambic`, `premiers-pas` et `tam-tam` recalculent leur repère à partir de ce qui est
+effectivement affiché, avec une marge proportionnelle. Le tam-tam est **deux fois plus grand**
+qu'avant sur téléphone, les premiers pas du circuit et l'alambic gagnent 20 %.
+
+Trois précautions, chacune payée par un essai raté :
+
+- **Le cadre ne fait que grandir.** L'échelle ne saute pas pendant que l'élève manipule, et rien
+  n'est rogné si une pièce sort du cadre de départ.
+- **On ne cadre que ce qui s'affiche.** L'oscillogramme du tam-tam attend dans le plan à
+  `opacity 0` : s'il comptait tout le temps, il repousserait le tam-tam dans le coin gauche pour
+  réserver une place vide.
+- **On mesure les rectangles rendus, pas les `getBBox()`.** Le `getBBox()` d'un groupe ignore sa
+  propre transformation : la baguette qui pivote tirait le cadre à 80 unités au-dessus de la
+  scène. Et les pièces animées, créées avant d'être placées, traînent à l'origine du plan — d'où
+  le cadrage repoussé après l'animation, et le marquage `data-anim` sur les flèches de courant.
+
+### La lampe de poche
+
+Son repère était juste : monté, le montage occupe toute la largeur, faisceau compris. C'est
+**l'écran d'accueil** qui n'allait pas — un rectangle de 380 × 110 perdu dans un plan de 660 × 320,
+avec un texte devenu illisible à cette échelle. L'emplacement du boîtier occupe maintenant presque
+tout le plan, et son invitation se lit.
+
+### Ce qui n'a pas bougé, et pourquoi
+
+`pollution-air` affiche 48 % d'espace inutilisé au même calcul, mais son dessin remplit
+exactement son repère : la bande de rue est une composition large, volontairement. Recadrer
+n'aurait rien agrandi. `fabrique-glace` et `flamme-bougie` étaient déjà propres — elles
+recalculent leur repère en pixels depuis leur conteneur, et c'est de là que vient le principe
+appliqué ici.
+
 ## v4.43.0 — 2026-08-10
 
 🎨 **Passe de design : les quatre chantiers laissés de côté au tour précédent.**

@@ -1331,6 +1331,43 @@ function couleurTube() {
   return `rgb(${base.map(c => Math.round(c * (1 - k * .8))).join(',')})`;
 }
 
+/* Le repère du dessin est plus large que le dessin : sur un écran haut et
+   étroit, la scène se réduisait à un bandeau au milieu du plan de travail, avec
+   du vide au-dessus et au-dessous. On recadre donc le repère sur ce qui est
+   réellement dessiné — ce qui remet aussi dans le champ le haut du montage, qui
+   dépassait du repère d'origine. Le cadre ne fait que grandir, jamais
+   rétrécir : l'échelle ne saute pas pendant que l'élève manipule, et rien n'est
+   rogné si une pièce sort du cadre de départ. */
+const CADRE_PLAN = { x:56, y:94, x2:574, y2:308 };
+function cadrerPlan() {
+  // Les groupes en attente (vapeur, gouttes…) restent dans le plan à opacity 0 :
+  // s'ils comptaient dans le cadre, ils réserveraient de la place pour rien.
+  // On ne cadre donc que ce qui s'affiche vraiment.
+  // On mesure les rectangles tels qu'ils sont rendus, puis on revient aux
+  // coordonnées du plan : getBBox() d'un groupe ignore sa propre
+  // transformation, et les pièces animées fausseraient le cadre.
+  const ctm = plan.getScreenCTM();
+  if (!ctm) return;
+  const inv = ctm.inverse(), pt = plan.createSVGPoint();
+  const versPlan = (x, y) => { pt.x = x; pt.y = y; return pt.matrixTransform(inv); };
+  for (const n of plan.children) {
+    if (n.getAttribute('opacity') === '0') continue;
+    const r = n.getBoundingClientRect();
+    if (!r.width && !r.height) continue;
+    const a = versPlan(r.left, r.top), b = versPlan(r.right, r.bottom);
+    CADRE_PLAN.x = Math.min(CADRE_PLAN.x, a.x);
+    CADRE_PLAN.y = Math.min(CADRE_PLAN.y, a.y);
+    CADRE_PLAN.x2 = Math.max(CADRE_PLAN.x2, b.x);
+    CADRE_PLAN.y2 = Math.max(CADRE_PLAN.y2, b.y);
+  }
+  // Un peu d'air autour : le cadre serré fait toucher les bords de l'écran.
+  // La marge se calcule à l'écriture, pas dans le cadre, sinon elle s'ajoute
+  // à elle-même à chaque dessin.
+  const m = Math.max(10, (CADRE_PLAN.x2 - CADRE_PLAN.x) * .035);
+  plan.setAttribute('viewBox', (CADRE_PLAN.x - m) + ' ' + (CADRE_PLAN.y - m) + ' ' +
+    (CADRE_PLAN.x2 - CADRE_PLAN.x + 2 * m) + ' ' + (CADRE_PLAN.y2 - CADRE_PLAN.y + 2 * m));
+}
+
 function dessiner() {
   plan.textContent = '';
   for (const k in refs) delete refs[k];
@@ -1606,7 +1643,10 @@ function dessiner() {
     x:330, y:22, class:'chgt-etat',
     style:'fill:var(--destructive);font-size:12px;font-weight:700' }, '⚠️ ' + d.dangers[0]));
 
+  // animer() d'abord : il place les flammes, la vapeur et les gouttes. Cadrer
+  // avant, ce serait cadrer sur des pièces encore posées à l'origine du plan.
   animer();
+  cadrerPlan();
 }
 
 // Où le tuyau entre-t-il dans le réfrigérant ? C'est là que la vapeur commence à se condenser.

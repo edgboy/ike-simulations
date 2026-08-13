@@ -1203,11 +1203,13 @@ function dessiner() {
     // Rien encore : on montre un grand emplacement pour le boîtier
     const g = el('g', { class:'slot' + (vise === 'boitier' ? ' vise' : ''), 'data-slot':'boitier',
       role:'button', tabindex:'0', 'aria-label':'Choisir un boîtier' });
-    g.appendChild(el('rect', { x:140, y:110, width:380, height:110, class:'zone' }));
-    g.appendChild(el('rect', { x:140, y:110, width:380, height:110, fill:'transparent' }));
-    g.appendChild(el('text', { x:330, y:158, class:'txt-piece', style:'font-size:15px' },
+    // L'emplacement occupe presque tout le plan : c'est la première chose que
+    // l'élève voit, et une petite vignette perdue au milieu du vide ne se lit pas.
+    g.appendChild(el('rect', { x:76, y:52, width:508, height:216, rx:12, class:'zone' }));
+    g.appendChild(el('rect', { x:76, y:52, width:508, height:216, fill:'transparent' }));
+    g.appendChild(el('text', { x:330, y:152, class:'txt-piece', style:'font-size:22px' },
       'Touche ici pour choisir un boîtier'));
-    g.appendChild(el('text', { x:330, y:182, class:'etiq-slot' },
+    g.appendChild(el('text', { x:330, y:186, class:'etiq-slot', style:'font-size:14px' },
       'C’est le corps de ta lampe : il décide combien de piles tiennent dedans.'));
     plan.appendChild(g);
     return;

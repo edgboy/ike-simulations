@@ -350,3 +350,37 @@ Ajouté en fin de campagne, il passe sur les cinq fichiers et vérifie : un seul
 `$` déclaré avant son premier usage, les huit voiles du socle présents, et aucun reste de
 l'ancienne interface (`mbar`, `mchip`, `splash`, `tab-exp`, `choix-mode`). Les cinq sont au vert.
 À relancer après toute retouche d'une de ces simulations.
+
+---
+
+## Contrôle de cadrage des scènes SVG (v4.44.0)
+
+Celui-ci ne vient pas d'un testeur mais d'une remarque de terrain sur la marmite — « le design des
+éléments n'est pas très beau » — dont la correction a fait apparaître un défaut de cadrage. Restait
+à savoir s'il était isolé. Il ne l'était pas.
+
+**Protocole.** Pour chacune des huit simulations dessinées en SVG, à 390×780 et 820×1100 : part du
+plan de travail réellement occupée par la scène, compte tenu de `preserveAspectRatio="meet"`.
+
+| Simulation | Espace perdu sur téléphone | Verdict |
+|---|---|---|
+| `premiers-pas` | 54 % | corrigé |
+| `pollution-air` | 48 % | **pas un défaut** — le dessin remplit son repère |
+| `tam-tam` | 47 % | corrigé |
+| `alambic` | 42 % | corrigé |
+| `lampe-de-poche` | 42 % | autre défaut — écran d'accueil, pas cadrage |
+| `marmites-noircies` | 23 % | corrigé en v4.43.0 |
+| `fabrique-glace` | 0 % | le modèle |
+| `flamme-bougie` | 0 % | le modèle |
+
+**Ce que la mesure ne dit pas.** Le pourcentage compare le repère au conteneur, pas le *dessin* au
+conteneur. Sur `pollution-air`, les deux coïncident : recadrer n'aurait rien agrandi. Sur
+`lampe-de-poche`, le repère est juste — c'est l'écran d'accueil qui affichait un rectangle de
+380 × 110 dans un plan de 660 × 320. Il a fallu **ouvrir les cinq captures et regarder** avant de
+décider, au lieu de corriger les cinq chiffres.
+
+**Résultat mesuré, à 390×780** : tam-tam ×2,2 ; premiers pas +20 % ; alambic +18 %.
+
+**Vérification.** Cadrage contrôlé à trois tailles (390×780, 820×1100, 1280×800), à chaque mission,
+et en montage terminé. Contrôle de rognage : rien de visible ne sort du repère, à aucun état. Les
+quinze simulations rechargées sans erreur console.
