@@ -5,6 +5,54 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v4.43.0 — 2026-08-10
+
+🎨 **Passe de design : les quatre chantiers laissés de côté au tour précédent.**
+
+### Les modales du quiz, sur les treize simulations
+
+Les trois niveaux se ressemblaient trait pour trait — même carte blanche, même texte, et trois
+médailles que rien ne distingue à cette taille. Rien ne disait qu'il s'agit d'une **échelle de
+difficulté**, ni qu'un niveau **pèse plus lourd** qu'un autre.
+
+- Chaque niveau reçoit sa teinte — bronze, argent, or — portée par un rail à gauche et par le
+  disque de la médaille, et **son poids est écrit** : ×1, ×2, ×3.
+- Le score de maîtrise devient le personnage principal : chiffre en 34 px, jauge dégradée qui
+  reprend les trois teintes.
+- **Les propositions de réponse reçoivent une lettre** (A, B, C) et une cible au doigt bien plus
+  grande. Elles ressemblaient à des champs de saisie ; on peut maintenant les désigner à l'oral —
+  « la B ». Vaut aussi pour le QCM de fin de mission.
+
+### La marmite et le réchaud
+
+- **La marmite** était un trapèze gris avec un rectangle bleu dedans. C'est maintenant une marmite
+  d'aluminium — fond arrondi, col rentré, bord roulé, deux anses, reflet.
+- **La suie**, qui est le sujet même de la simulation, se dépose d'abord **au fond**, là où lèche
+  la flamme, puis remonte sur les flancs quand ça noircit fort. Le dépôt sur le mur était un
+  rectangle à bords francs : c'est un dégradé, donc une trace de fumée.
+- **Le réchaud à pétrole** était un rectangle arrondi. Il a son réservoir bombé, la couronne du
+  brûleur, trois pieds, les supports de marmite, la molette de mèche, et des ouïes d'air qui
+  s'ouvrent vraiment avec le curseur.
+- La scène était cadrée très large : sur un écran haut, elle se réduisait à un bandeau au milieu.
+  Le cadrage descend sous la table et remplit la place offerte.
+
+### Les états de la matière
+
+- **Le solide montre enfin ses liaisons.** « Molécules rangées, serrées et **liées** » est la
+  définition du cours, et rien ne la montrait : on voyait des points bleus en quadrillage. Les
+  traits n'apparaissent qu'entre voisins proches et **se rompent à la fusion** — on regarde la
+  transformation au lieu de la deviner.
+- Les molécules sont des **sphères** avec leur reflet, plus des pastilles plates.
+- **L'enceinte devient un récipient de verre** : paroi épaisse, fond arrondi, reflet, buvant.
+- Elle prenait toute la largeur offerte, jusqu'à deux fois et demie celle du réseau de molécules :
+  on voyait surtout du vide. Elle se cale sur son contenu.
+
+### Le circuit électrique
+
+- **Le plan de travail existe.** C'était un semis de points sur le fond de la page : rien ne disait
+  où l'on avait le droit de construire. C'est une planche — fond teinté, bord net, ombre douce.
+- **Un point sur quatre est plus marqué** : on compte les carreaux d'un coup d'œil.
+
 ## v4.42.0 — 2026-08-08
 
 🔧 **Retours de terrain : une série de corrections, dont plusieurs biaisaient l'apprentissage.**

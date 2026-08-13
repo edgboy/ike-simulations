@@ -451,56 +451,145 @@ body.sombre { --accent-texte:#7FD4F5; --vert-fonce:#2A9D8F; --orange-fonce:#F7A4
   padding:10px 18px; border-radius:var(--radius-md); cursor:pointer; min-height:40px;
 }
 
-/* ===================== Le quiz libre : m'exercer ===================== */
+/* ===================== Le quiz libre : m'exercer =====================
+   Refonte : les trois niveaux se ressemblaient trait pour trait — même carte
+   blanche, même texte, et trois médailles que rien ne distingue à cette taille.
+   Rien ne disait qu'il s'agit d'une échelle de difficulté, ni qu'un niveau pèse
+   plus lourd qu'un autre. Chacun reçoit donc sa teinte (bronze, argent, or),
+   portée par un rail à gauche et par le disque de la médaille, et son poids est
+   écrit. Le score de maîtrise devient le personnage principal de l'écran. */
 #v-quiz .carte-modale { max-width:520px; }
-.qz-maitrise {
-  margin:4px 0 16px; padding:12px 14px; border-radius:var(--radius-md);
-  background:var(--surface-muted);
-}
-.qz-m-haut { display:flex; align-items:baseline; justify-content:space-between; font-size:12.5px; }
-.qz-m-haut b { font-family:var(--font-display); font-size:20px; font-weight:800; }
-.qz-m-barre { height:9px; border-radius:var(--radius-full); background:var(--surface);
-  overflow:hidden; margin-top:6px; }
-.qz-m-barre i { display:block; height:100%; border-radius:inherit;
-  background:var(--primary); transition:width .5s var(--ease); }
-.qz-m-mot { font-size:11.5px; font-weight:700; opacity:.6; margin-top:5px;
-  letter-spacing:.04em; text-transform:uppercase; }
 
+/* ---- Le bandeau de maîtrise : c'est LE chiffre qu'on vient voir ---- */
+.qz-maitrise {
+  margin:4px 0 18px; padding:15px 16px; border-radius:var(--radius-lg);
+  background:linear-gradient(135deg, var(--accent-doux), var(--surface-muted));
+  border:1px solid var(--border);
+}
+.qz-m-haut { display:flex; align-items:center; justify-content:space-between; gap:10px; font-size:12.5px; }
+.qz-m-haut span { opacity:.75; font-weight:600; }
+.qz-m-haut b {
+  font-family:var(--font-display); font-size:34px; font-weight:800; line-height:1;
+  letter-spacing:-.02em;
+}
+.qz-m-barre {
+  height:12px; border-radius:var(--radius-full); background:var(--surface);
+  overflow:hidden; margin-top:10px; border:1px solid var(--border);
+}
+.qz-m-barre i {
+  display:block; height:100%; border-radius:inherit;
+  background:linear-gradient(90deg, #B87333 0%, #8A9BA8 45%, var(--primary) 100%);
+  transition:width .6s var(--ease);
+}
+.qz-m-mot {
+  font-size:11px; font-weight:800; opacity:.7; margin-top:7px;
+  letter-spacing:.08em; text-transform:uppercase;
+}
+
+/* ---- Les trois niveaux : une échelle, pas une liste ---- */
 .qz-niveau {
-  display:flex; align-items:center; gap:12px; width:100%; text-align:left;
-  padding:13px 14px; margin-bottom:9px;
+  position:relative; display:flex; align-items:center; gap:13px;
+  width:100%; text-align:left; padding:14px 15px 14px 22px; margin-bottom:10px;
   background:var(--surface); border:2px solid var(--border); border-radius:var(--radius-lg);
   font-family:var(--font-body); color:inherit; cursor:pointer;
-  transition:border-color .15s var(--ease), background .15s var(--ease);
+  transition:border-color .15s var(--ease), background .15s var(--ease),
+             transform .15s var(--ease);
 }
-.qz-niveau:hover { border-color:var(--accent); background:var(--accent-doux); }
+/* le rail coloré : on lit le niveau avant même d'avoir lu son nom */
+.qz-niveau::before {
+  content:''; position:absolute; left:0; top:0; bottom:0; width:7px;
+  background:var(--qz-teinte); border-radius:var(--radius-lg) 0 0 var(--radius-lg);
+}
+.qz-niveau:hover { border-color:var(--qz-teinte); background:var(--surface-muted); }
+.qz-niveau:active { transform:scale(.99); }
+.qz-niveau[data-niveau="souviens"]  { --qz-teinte:#C08A4A; }   /* bronze */
+.qz-niveau[data-niveau="comprends"] { --qz-teinte:#8E9BA6; }   /* argent */
+.qz-niveau[data-niveau="pieges"]    { --qz-teinte:#D9A520; }   /* or     */
+body.sombre .qz-niveau[data-niveau="souviens"]  { --qz-teinte:#D19A5C; }
+body.sombre .qz-niveau[data-niveau="comprends"] { --qz-teinte:#A6B3BE; }
+body.sombre .qz-niveau[data-niveau="pieges"]    { --qz-teinte:#EBBB3A; }
+
 .qz-niveau .qz-em {
-  width:42px; height:42px; flex:none; border-radius:var(--radius-md);
-  display:grid; place-items:center; background:var(--surface-muted); font-size:22px;
+  width:46px; height:46px; flex:none; border-radius:var(--radius-full);
+  display:grid; place-items:center; font-size:23px;
+  background:color-mix(in srgb, var(--qz-teinte) 20%, var(--surface));
+  border:2px solid var(--qz-teinte);
 }
 .qz-niveau .qz-txt { flex:1; min-width:0; }
-.qz-niveau .qz-txt b { display:block; font-family:var(--font-display); font-size:15.5px; font-weight:800; }
-.qz-niveau .qz-txt span { display:block; font-size:12px; opacity:.7; line-height:1.45; margin-top:1px; }
-.qz-niveau .qz-note { flex:none; text-align:right; font-size:14px; }
-.qz-niveau .qz-note span { display:block; font-size:10.5px; font-weight:600; opacity:.55; margin-top:2px; }
-.qz-pied { font-size:12px; opacity:.65; line-height:1.5; margin-top:4px; }
+.qz-niveau .qz-txt b {
+  display:block; font-family:var(--font-display); font-size:16px; font-weight:800;
+}
+.qz-niveau .qz-txt span {
+  display:block; font-size:12px; opacity:.7; line-height:1.4; margin-top:2px;
+}
+/* Le poids du niveau, écrit : c'est l'information qui manquait le plus. */
+.qz-niveau .qz-txt b::after {
+  content:'×' attr(data-poids); margin-left:8px;
+  padding:2px 7px; border-radius:var(--radius-full); vertical-align:2px;
+  background:var(--qz-teinte); color:#fff;
+  font-family:var(--font-body); font-size:10px; font-weight:700; letter-spacing:.02em;
+}
+.qz-niveau .qz-note { flex:none; text-align:right; font-size:15px; line-height:1.2; }
+.qz-niveau .qz-note span {
+  display:block; font-size:10.5px; font-weight:600; opacity:.55; margin-top:3px;
+}
+.qz-pied { font-size:12px; opacity:.65; line-height:1.5; margin-top:6px; }
 
-.qz-jauge { height:4px; border-radius:var(--radius-full); background:var(--surface-muted);
-  overflow:hidden; margin:0 0 12px; }
-.qz-jauge i { display:block; height:100%; background:var(--accent); transition:width .3s var(--ease); }
+/* ---- Le fil des questions ---- */
+.qz-jauge {
+  height:8px; border-radius:var(--radius-full); background:var(--surface-muted);
+  overflow:hidden; margin:0 0 14px; border:1px solid var(--border);
+}
+.qz-jauge i {
+  display:block; height:100%; border-radius:inherit;
+  background:var(--accent); transition:width .3s var(--ease);
+}
 
-.qz-fin { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
-.qz-fin-em { font-size:34px; line-height:1; flex:none; }
-.qz-fin b { display:block; font-family:var(--font-display); font-size:17px; font-weight:800; }
-.qz-fin span { font-size:12.5px; opacity:.65; }
-.qz-fin-et { margin-left:auto; font-size:17px; letter-spacing:1px; }
+/* ---- L'écran de résultat : le score et les étoiles font la une ---- */
+.qz-fin {
+  display:flex; align-items:center; gap:14px; margin-bottom:12px;
+  padding:14px 15px; border-radius:var(--radius-lg);
+  background:var(--surface-muted);
+}
+.qz-fin-em { font-size:40px; line-height:1; flex:none; }
+.qz-fin b { display:block; font-family:var(--font-display); font-size:19px; font-weight:800; line-height:1.15; }
+.qz-fin span { font-size:12.5px; opacity:.68; }
+.qz-fin-et { margin-left:auto; font-size:20px; letter-spacing:2px; white-space:nowrap; }
 .qz-mieux { font-size:12.5px; font-weight:600; color:var(--vert-fonce); margin:0 0 12px; }
 .qz-mieux.discret { color:inherit; opacity:.55; font-weight:400; }
-.qz-revoir { padding:11px 13px; border-radius:var(--radius-md); background:var(--accent-doux);
-  font-size:12.5px; line-height:1.6; margin-bottom:13px; }
+.qz-revoir {
+  padding:12px 14px; border-radius:var(--radius-md);
+  background:var(--accent-doux); font-size:12.5px; line-height:1.65; margin-bottom:14px;
+}
 .qz-revoir span { display:block; }
 .qz-boutons { display:flex; gap:8px; }
 .qz-boutons .btn { flex:1; }
+
+/* ---- Les propositions de réponse, ici comme dans le QCM de fin de mission ----
+   Elles ressemblaient à des champs de saisie : un trait fin, du texte, rien qui
+   dise « on me choisit ». Chacune reçoit sa lettre — on peut alors la désigner à
+   l'oral, « la B » — et une cible au doigt franchement plus grande. */
+#qz-choix, #q-choix { counter-reset:choix; }
+#qz-choix .q-choix, #q-choix .q-choix {
+  position:relative; display:flex; align-items:center;
+  padding:13px 14px 13px 48px; min-height:54px; line-height:1.4;
+}
+#qz-choix .q-choix::before, #q-choix .q-choix::before {
+  counter-increment:choix; content:counter(choix, upper-alpha);
+  position:absolute; left:12px; top:50%; transform:translateY(-50%);
+  width:27px; height:27px; border-radius:var(--radius-full);
+  display:grid; place-items:center;
+  background:var(--surface-muted); border:1.5px solid var(--border);
+  font-family:var(--font-display); font-size:12.5px; font-weight:800;
+}
+#qz-choix .q-choix:hover:not([disabled])::before,
+#q-choix .q-choix:hover:not([disabled])::before { border-color:var(--border-strong); }
+#qz-choix .q-choix.bon::before, #q-choix .q-choix.bon::before {
+  background:var(--success); border-color:var(--success); color:#fff;
+}
+#qz-choix .q-choix.mauvais::before, #q-choix .q-choix.mauvais::before {
+  background:var(--destructive); border-color:var(--destructive); color:#fff;
+}
 
 /* ================= La barre des transformations =================
    Quatre transformations, plus le réglage d'angle et le bouton « Replacer ».
@@ -2262,7 +2351,7 @@ function rendreAccueilQuiz() {
       const r = maitriseDe(n.cle), et = etoiles(r);
       return `<button class="qz-niveau" data-niveau="${n.cle}">
         <span class="qz-em">${n.em}</span>
-        <span class="qz-txt"><b>${n.nom}</b><span>${n.quoi}</span></span>
+        <span class="qz-txt"><b data-poids="${n.poids}">${n.nom}</b><span>${n.quoi}</span></span>
         <span class="qz-note">${et || '—'}<span>${r ? Math.round(r * 100) + ' %' : 'jamais fait'}</span></span>
       </button>`;
     }).join('')}

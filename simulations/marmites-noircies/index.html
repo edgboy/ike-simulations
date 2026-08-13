@@ -602,56 +602,145 @@ body.sombre { --accent-texte:#7FD4F5; --vert-fonce:#2A9D8F; --orange-fonce:#F7A4
   padding:10px 18px; border-radius:var(--radius-md); cursor:pointer; min-height:40px;
 }
 
-/* ===================== Le quiz libre : m'exercer ===================== */
+/* ===================== Le quiz libre : m'exercer =====================
+   Refonte : les trois niveaux se ressemblaient trait pour trait — même carte
+   blanche, même texte, et trois médailles que rien ne distingue à cette taille.
+   Rien ne disait qu'il s'agit d'une échelle de difficulté, ni qu'un niveau pèse
+   plus lourd qu'un autre. Chacun reçoit donc sa teinte (bronze, argent, or),
+   portée par un rail à gauche et par le disque de la médaille, et son poids est
+   écrit. Le score de maîtrise devient le personnage principal de l'écran. */
 #v-quiz .carte-modale { max-width:520px; }
-.qz-maitrise {
-  margin:4px 0 16px; padding:12px 14px; border-radius:var(--radius-md);
-  background:var(--surface-muted);
-}
-.qz-m-haut { display:flex; align-items:baseline; justify-content:space-between; font-size:12.5px; }
-.qz-m-haut b { font-family:var(--font-display); font-size:20px; font-weight:800; }
-.qz-m-barre { height:9px; border-radius:var(--radius-full); background:var(--surface);
-  overflow:hidden; margin-top:6px; }
-.qz-m-barre i { display:block; height:100%; border-radius:inherit;
-  background:var(--primary); transition:width .5s var(--ease); }
-.qz-m-mot { font-size:11.5px; font-weight:700; opacity:.6; margin-top:5px;
-  letter-spacing:.04em; text-transform:uppercase; }
 
+/* ---- Le bandeau de maîtrise : c'est LE chiffre qu'on vient voir ---- */
+.qz-maitrise {
+  margin:4px 0 18px; padding:15px 16px; border-radius:var(--radius-lg);
+  background:linear-gradient(135deg, var(--accent-doux), var(--surface-muted));
+  border:1px solid var(--border);
+}
+.qz-m-haut { display:flex; align-items:center; justify-content:space-between; gap:10px; font-size:12.5px; }
+.qz-m-haut span { opacity:.75; font-weight:600; }
+.qz-m-haut b {
+  font-family:var(--font-display); font-size:34px; font-weight:800; line-height:1;
+  letter-spacing:-.02em;
+}
+.qz-m-barre {
+  height:12px; border-radius:var(--radius-full); background:var(--surface);
+  overflow:hidden; margin-top:10px; border:1px solid var(--border);
+}
+.qz-m-barre i {
+  display:block; height:100%; border-radius:inherit;
+  background:linear-gradient(90deg, #B87333 0%, #8A9BA8 45%, var(--primary) 100%);
+  transition:width .6s var(--ease);
+}
+.qz-m-mot {
+  font-size:11px; font-weight:800; opacity:.7; margin-top:7px;
+  letter-spacing:.08em; text-transform:uppercase;
+}
+
+/* ---- Les trois niveaux : une échelle, pas une liste ---- */
 .qz-niveau {
-  display:flex; align-items:center; gap:12px; width:100%; text-align:left;
-  padding:13px 14px; margin-bottom:9px;
+  position:relative; display:flex; align-items:center; gap:13px;
+  width:100%; text-align:left; padding:14px 15px 14px 22px; margin-bottom:10px;
   background:var(--surface); border:2px solid var(--border); border-radius:var(--radius-lg);
   font-family:var(--font-body); color:inherit; cursor:pointer;
-  transition:border-color .15s var(--ease), background .15s var(--ease);
+  transition:border-color .15s var(--ease), background .15s var(--ease),
+             transform .15s var(--ease);
 }
-.qz-niveau:hover { border-color:var(--accent); background:var(--accent-doux); }
+/* le rail coloré : on lit le niveau avant même d'avoir lu son nom */
+.qz-niveau::before {
+  content:''; position:absolute; left:0; top:0; bottom:0; width:7px;
+  background:var(--qz-teinte); border-radius:var(--radius-lg) 0 0 var(--radius-lg);
+}
+.qz-niveau:hover { border-color:var(--qz-teinte); background:var(--surface-muted); }
+.qz-niveau:active { transform:scale(.99); }
+.qz-niveau[data-niveau="souviens"]  { --qz-teinte:#C08A4A; }   /* bronze */
+.qz-niveau[data-niveau="comprends"] { --qz-teinte:#8E9BA6; }   /* argent */
+.qz-niveau[data-niveau="pieges"]    { --qz-teinte:#D9A520; }   /* or     */
+body.sombre .qz-niveau[data-niveau="souviens"]  { --qz-teinte:#D19A5C; }
+body.sombre .qz-niveau[data-niveau="comprends"] { --qz-teinte:#A6B3BE; }
+body.sombre .qz-niveau[data-niveau="pieges"]    { --qz-teinte:#EBBB3A; }
+
 .qz-niveau .qz-em {
-  width:42px; height:42px; flex:none; border-radius:var(--radius-md);
-  display:grid; place-items:center; background:var(--surface-muted); font-size:22px;
+  width:46px; height:46px; flex:none; border-radius:var(--radius-full);
+  display:grid; place-items:center; font-size:23px;
+  background:color-mix(in srgb, var(--qz-teinte) 20%, var(--surface));
+  border:2px solid var(--qz-teinte);
 }
 .qz-niveau .qz-txt { flex:1; min-width:0; }
-.qz-niveau .qz-txt b { display:block; font-family:var(--font-display); font-size:15.5px; font-weight:800; }
-.qz-niveau .qz-txt span { display:block; font-size:12px; opacity:.7; line-height:1.45; margin-top:1px; }
-.qz-niveau .qz-note { flex:none; text-align:right; font-size:14px; }
-.qz-niveau .qz-note span { display:block; font-size:10.5px; font-weight:600; opacity:.55; margin-top:2px; }
-.qz-pied { font-size:12px; opacity:.65; line-height:1.5; margin-top:4px; }
+.qz-niveau .qz-txt b {
+  display:block; font-family:var(--font-display); font-size:16px; font-weight:800;
+}
+.qz-niveau .qz-txt span {
+  display:block; font-size:12px; opacity:.7; line-height:1.4; margin-top:2px;
+}
+/* Le poids du niveau, écrit : c'est l'information qui manquait le plus. */
+.qz-niveau .qz-txt b::after {
+  content:'×' attr(data-poids); margin-left:8px;
+  padding:2px 7px; border-radius:var(--radius-full); vertical-align:2px;
+  background:var(--qz-teinte); color:#fff;
+  font-family:var(--font-body); font-size:10px; font-weight:700; letter-spacing:.02em;
+}
+.qz-niveau .qz-note { flex:none; text-align:right; font-size:15px; line-height:1.2; }
+.qz-niveau .qz-note span {
+  display:block; font-size:10.5px; font-weight:600; opacity:.55; margin-top:3px;
+}
+.qz-pied { font-size:12px; opacity:.65; line-height:1.5; margin-top:6px; }
 
-.qz-jauge { height:4px; border-radius:var(--radius-full); background:var(--surface-muted);
-  overflow:hidden; margin:0 0 12px; }
-.qz-jauge i { display:block; height:100%; background:var(--accent); transition:width .3s var(--ease); }
+/* ---- Le fil des questions ---- */
+.qz-jauge {
+  height:8px; border-radius:var(--radius-full); background:var(--surface-muted);
+  overflow:hidden; margin:0 0 14px; border:1px solid var(--border);
+}
+.qz-jauge i {
+  display:block; height:100%; border-radius:inherit;
+  background:var(--accent); transition:width .3s var(--ease);
+}
 
-.qz-fin { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
-.qz-fin-em { font-size:34px; line-height:1; flex:none; }
-.qz-fin b { display:block; font-family:var(--font-display); font-size:17px; font-weight:800; }
-.qz-fin span { font-size:12.5px; opacity:.65; }
-.qz-fin-et { margin-left:auto; font-size:17px; letter-spacing:1px; }
+/* ---- L'écran de résultat : le score et les étoiles font la une ---- */
+.qz-fin {
+  display:flex; align-items:center; gap:14px; margin-bottom:12px;
+  padding:14px 15px; border-radius:var(--radius-lg);
+  background:var(--surface-muted);
+}
+.qz-fin-em { font-size:40px; line-height:1; flex:none; }
+.qz-fin b { display:block; font-family:var(--font-display); font-size:19px; font-weight:800; line-height:1.15; }
+.qz-fin span { font-size:12.5px; opacity:.68; }
+.qz-fin-et { margin-left:auto; font-size:20px; letter-spacing:2px; white-space:nowrap; }
 .qz-mieux { font-size:12.5px; font-weight:600; color:var(--vert-fonce); margin:0 0 12px; }
 .qz-mieux.discret { color:inherit; opacity:.55; font-weight:400; }
-.qz-revoir { padding:11px 13px; border-radius:var(--radius-md); background:var(--accent-doux);
-  font-size:12.5px; line-height:1.6; margin-bottom:13px; }
+.qz-revoir {
+  padding:12px 14px; border-radius:var(--radius-md);
+  background:var(--accent-doux); font-size:12.5px; line-height:1.65; margin-bottom:14px;
+}
 .qz-revoir span { display:block; }
 .qz-boutons { display:flex; gap:8px; }
 .qz-boutons .btn { flex:1; }
+
+/* ---- Les propositions de réponse, ici comme dans le QCM de fin de mission ----
+   Elles ressemblaient à des champs de saisie : un trait fin, du texte, rien qui
+   dise « on me choisit ». Chacune reçoit sa lettre — on peut alors la désigner à
+   l'oral, « la B » — et une cible au doigt franchement plus grande. */
+#qz-choix, #q-choix { counter-reset:choix; }
+#qz-choix .q-choix, #q-choix .q-choix {
+  position:relative; display:flex; align-items:center;
+  padding:13px 14px 13px 48px; min-height:54px; line-height:1.4;
+}
+#qz-choix .q-choix::before, #q-choix .q-choix::before {
+  counter-increment:choix; content:counter(choix, upper-alpha);
+  position:absolute; left:12px; top:50%; transform:translateY(-50%);
+  width:27px; height:27px; border-radius:var(--radius-full);
+  display:grid; place-items:center;
+  background:var(--surface-muted); border:1.5px solid var(--border);
+  font-family:var(--font-display); font-size:12.5px; font-weight:800;
+}
+#qz-choix .q-choix:hover:not([disabled])::before,
+#q-choix .q-choix:hover:not([disabled])::before { border-color:var(--border-strong); }
+#qz-choix .q-choix.bon::before, #q-choix .q-choix.bon::before {
+  background:var(--success); border-color:var(--success); color:#fff;
+}
+#qz-choix .q-choix.mauvais::before, #q-choix .q-choix.mauvais::before {
+  background:var(--destructive); border-color:var(--destructive); color:#fff;
+}
 
 /* ---- La carte de la visite guidée : elle ne doit ressembler à rien d'autre ----
    Retour d'usage : l'œil hésitait entre la zone montrée et la carte qui
@@ -733,7 +822,11 @@ body.sombre { --visite-fond:#0B5674; --visite-encre:#F2FAFE; }
 
 <main>
   <div id="atelier">
-    <svg id="plan" viewBox="0 0 660 330" preserveAspectRatio="xMidYMid meet" role="img"
+    <!-- La scène était cadrée en 660 × 330, très large : sur un écran haut, elle
+         se réduisait à un bandeau au milieu, avec du vide dessus et dessous. Le
+         cadrage descend sous la table (le sol fait partie de la cuisine) : la
+         scène remplit alors la place qu'on lui donne. -->
+    <svg id="plan" viewBox="0 0 660 372" preserveAspectRatio="xMidYMid meet" role="img"
          aria-label="Le réchaud à pétrole, sa flamme et la marmite"></svg>
     <div id="etat-flamme" hidden></div>
     <button id="btn-mesures" hidden>📊 <span>Voir le bilan</span></button>
@@ -1618,18 +1711,62 @@ function dessiner() {
   // le mur de la cuisine, qui se couvre de noir de fumée lui aussi
   refs.mur = el('rect', { x:0, y:0, width:660, height:G.sol, fill:'#8D6E63', 'fill-opacity':.08 });
   plan.appendChild(refs.mur);
-  refs.suieMur = el('rect', { x:G.cx - 130, y:0, width:260, height:G.mur + 60, fill:'#3A3632', 'fill-opacity':0 });
+  /* Le dépôt de suie sur le mur. C'était un rectangle à bords francs : on
+     voyait une boîte grise posée derrière la marmite, pas une trace de fumée.
+     Un dégradé radial lui donne le bord flou d'un vrai noircissement. */
+  const defs = el('defs');
+  const grad = el('radialGradient', { id:'grad-suie', cx:'50%', cy:'78%', r:'62%' });
+  grad.appendChild(el('stop', { offset:'0%',   'stop-color':'#241F1B', 'stop-opacity':'.95' }));
+  grad.appendChild(el('stop', { offset:'55%',  'stop-color':'#241F1B', 'stop-opacity':'.55' }));
+  grad.appendChild(el('stop', { offset:'100%', 'stop-color':'#241F1B', 'stop-opacity':'0' }));
+  defs.appendChild(grad);
+  plan.appendChild(defs);
+  refs.suieMur = el('ellipse', { cx:G.cx, cy:G.mur + 6, rx:150, ry:118,
+    fill:'url(#grad-suie)', opacity:0 });
   plan.appendChild(refs.suieMur);
-  plan.appendChild(el('rect', { x:0, y:G.sol, width:660, height:330 - G.sol, fill:'#A1887F', 'fill-opacity':.3 }));
+  plan.appendChild(el('rect', { x:0, y:G.sol, width:660, height:372 - G.sol, fill:'#A1887F', 'fill-opacity':.3 }));
 
-  // le réchaud
-  plan.appendChild(el('rect', { x:G.cx - 60, y:G.sol - 46, width:120, height:46, rx:6,
-    fill:'#90A4AE', 'fill-opacity':.7, stroke:'#607D8B', 'stroke-width':2 }));
-  plan.appendChild(el('text', { x:G.cx, y:G.sol + 18, class:'etiq-lieu' }, 'Réchaud à pétrole'));
-  // molette d'arrivée d'air, visible sur le côté
+  /* Le réchaud à pétrole. Avant : un rectangle arrondi gris. Maintenant, les
+     pièces qu'on reconnaît sur un vrai réchaud de cuisine — le réservoir bombé,
+     la couronne du brûleur, les trois pieds, les supports de marmite, et les
+     ouïes d'air qui s'ouvrent réellement avec le curseur. */
+  const yR = G.sol - 46;                       // haut du réservoir
+  const gR = el('g');
+  // ombre portée au sol : le réchaud se pose au lieu de flotter
+  gR.appendChild(el('ellipse', { cx:G.cx, cy:G.sol + 2, rx:74, ry:7,
+    fill:'#3A3632', 'fill-opacity':.16 }));
+  // les trois pieds
+  for (const dx of [-46, 0, 46]) gR.appendChild(el('rect', {
+    x:G.cx + dx - 5, y:G.sol - 12, width:10, height:12, rx:2, fill:'#6E7B85' }));
+  // le réservoir : un corps bombé, plus large en bas
+  gR.appendChild(el('path', {
+    d:`M ${G.cx - 58} ${yR + 6} q 0 -8 8 -8 L ${G.cx + 50} ${yR - 2} q 8 0 8 8 ` +
+      `L ${G.cx + 62} ${G.sol - 14} q 0 6 -8 6 L ${G.cx - 54} ${G.sol - 8} q -8 0 -8 -6 z`,
+    fill:'#8E9BA6', stroke:'#5F6B75', 'stroke-width':2, 'stroke-linejoin':'round' }));
+  // reflet sur le métal
+  gR.appendChild(el('path', {
+    d:`M ${G.cx - 46} ${yR + 4} L ${G.cx - 40} ${G.sol - 12}`,
+    stroke:'#FFFFFF', 'stroke-opacity':.35, 'stroke-width':4, 'stroke-linecap':'round' }));
+  // la couronne du brûleur, sur laquelle sort la mèche
+  gR.appendChild(el('ellipse', { cx:G.cx, cy:yR, rx:26, ry:8,
+    fill:'#5F6B75', stroke:'#48525A', 'stroke-width':1.6 }));
+  gR.appendChild(el('ellipse', { cx:G.cx, cy:yR - 1, rx:14, ry:4.5, fill:'#2F373D' }));
+  // les deux supports de marmite, de part et d'autre du brûleur
+  for (const dx of [-34, 34]) gR.appendChild(el('path', {
+    d:`M ${G.cx + dx} ${yR + 2} l 0 -14 l ${dx > 0 ? -8 : 8} -5`,
+    stroke:'#5F6B75', 'stroke-width':4, fill:'none', 'stroke-linecap':'round',
+    'stroke-linejoin':'round' }));
+  // la molette de réglage de la mèche, sur le flanc droit
+  gR.appendChild(el('circle', { cx:G.cx + 66, cy:G.sol - 26, r:8,
+    fill:'#B9683C', stroke:'#8A4A28', 'stroke-width':2 }));
+  gR.appendChild(el('rect', { x:G.cx + 64, y:G.sol - 33, width:4, height:14, rx:2, fill:'#8A4A28' }));
+  plan.appendChild(gR);
+  plan.appendChild(el('text', { x:G.cx, y:G.sol + 20, class:'etiq-lieu' }, 'Réchaud à pétrole'));
+  // ouïes d'arrivée d'air : elles s'ouvrent réellement avec le curseur
   refs.volets = el('g');
   for (let k = 0; k < 4; k++) refs.volets.appendChild(el('rect', {
-    x:G.cx - 52 + k * 26, y:G.sol - 20, width:16, height:0, rx:2, fill:'#37474F' }));
+    x:G.cx - 44 + k * 24, y:G.sol - 24, width:15, height:0, rx:2,
+    fill:'#2F373D', stroke:'#48525A', 'stroke-width':1 }));
   plan.appendChild(refs.volets);
 
   // la mèche
@@ -1683,11 +1820,11 @@ function animer() {
   refs.meche.setAttribute('y', yBase - hMeche);
   refs.meche.setAttribute('height', Math.max(0, hMeche));
 
-  // volets d'air : ils s'ouvrent avec le curseur
+  // ouïes d'air : elles s'ouvrent avec le curseur
   [...refs.volets.children].forEach((v, k) => {
-    const h = etat.air * 1.3;
+    const h = etat.air * 1.4;
     v.setAttribute('height', h);
-    v.setAttribute('y', G.sol - 12 - h);
+    v.setAttribute('y', G.sol - 14 - h);
   });
 
   // flamme
@@ -1740,37 +1877,66 @@ function animer() {
     c.setAttribute('fill-opacity', String(.35 * (1 - ph)));
   });
 
-  // marmite
+  /* La marmite. Avant : un trapèze gris avec un rectangle bleu dedans. Ici, une
+     vraie marmite d'aluminium — fond arrondi, col rentré, bord roulé et deux
+     anses. La suie est le sujet même de la simulation : elle se dépose au fond,
+     là où lèche la flamme, puis remonte sur les flancs quand ça noircit fort. */
   const yMarmite = yBase - hMeche - 26 - etat.marmite * 5.5;
   refs.marmiteG.textContent = '';
   const noir = Math.min(.92, sim.suieTotale / 2600);
+  const hC = 56, lHaut = 56, lBas = 48;        // hauteur, demi-largeurs haut et bas
+  const yH = yMarmite - hC;                    // haut du corps
+  const corps = `M ${G.cx - lHaut} ${yH} L ${G.cx - lBas} ${yMarmite - 8} ` +
+    `q 0 10 10 10 L ${G.cx + lBas - 10} ${yMarmite + 2} q 10 0 10 -10 ` +
+    `L ${G.cx + lHaut} ${yH} z`;
+
+  // les deux anses, derrière le corps
+  for (const s of [-1, 1]) refs.marmiteG.appendChild(el('path', {
+    d:`M ${G.cx + s * (lHaut - 4)} ${yH + 8} q ${s * 16} 2 ${s * 16} 12 q 0 10 ${-s * 16} 10`,
+    fill:'none', stroke:'#6E7B85', 'stroke-width':5, 'stroke-linecap':'round' }));
+
+  // le corps en aluminium
+  refs.marmiteG.appendChild(el('path', { d:corps,
+    fill:'#C3CBD1', stroke:'#8E9BA6', 'stroke-width':2.5, 'stroke-linejoin':'round' }));
+  // reflet vertical : l'aluminium brille
   refs.marmiteG.appendChild(el('path', {
-    d:`M ${G.cx - 62} ${yMarmite} L ${G.cx - 54} ${yMarmite - 56} L ${G.cx + 54} ${yMarmite - 56} ` +
-      `L ${G.cx + 62} ${yMarmite} q 0 10 -10 10 L ${G.cx - 52} ${yMarmite + 10} q -10 0 -10 -10 z`,
-    fill:'#B0BEC5', 'fill-opacity':.75, stroke:'#78909C', 'stroke-width':2.5, 'stroke-linejoin':'round',
-  }));
-  // le noir de fumée qui s'accumule sous la marmite
+    d:`M ${G.cx - lHaut + 14} ${yH + 8} L ${G.cx - lBas + 12} ${yMarmite - 12}`,
+    stroke:'#FFFFFF', 'stroke-opacity':.5, 'stroke-width':6, 'stroke-linecap':'round' }));
+
+  /* La suie : deux couches. Le fond noircit le premier et à fond ; les flancs
+     ne se salissent qu'ensuite, et moins — c'est ce qu'on observe en cuisine. */
   refs.marmiteG.appendChild(el('path', {
-    d:`M ${G.cx - 62} ${yMarmite} L ${G.cx + 62} ${yMarmite} q 0 10 -10 10 L ${G.cx - 52} ${yMarmite + 10} q -10 0 -10 -10 z`,
-    fill:'#26201C', 'fill-opacity':String(noir),
-  }));
-  // l'eau et sa température
-  const hEau = 34;
-  refs.marmiteG.appendChild(el('rect', { x:G.cx - 50, y:yMarmite - hEau - 6, width:100, height:hEau,
-    fill:'#5BC5F2', 'fill-opacity':.55 }));
+    d:`M ${G.cx - lBas - 2} ${yMarmite - 16} L ${G.cx + lBas + 2} ${yMarmite - 16} ` +
+      `q 0 18 -12 18 L ${G.cx - lBas + 10} ${yMarmite + 2} q -12 0 -12 -18 z`,
+    fill:'#24201D', 'fill-opacity':String(noir) }));
+  if (noir > 0.25) refs.marmiteG.appendChild(el('path', { d:corps,
+    fill:'#24201D', 'fill-opacity':String((noir - 0.25) * 0.72) }));
+
+  // le bord roulé, qui reste clair : une marmite ne noircit pas par le haut
+  refs.marmiteG.appendChild(el('ellipse', { cx:G.cx, cy:yH, rx:lHaut, ry:7,
+    fill:'#D6DCE0', stroke:'#8E9BA6', 'stroke-width':2.5 }));
+
+  // l'eau, vue par l'ouverture
+  const hEau = 30;
+  refs.marmiteG.appendChild(el('path', {
+    d:`M ${G.cx - lHaut + 5} ${yH + 2} L ${G.cx + lHaut - 5} ${yH + 2} ` +
+      `L ${G.cx + lHaut - 11} ${yH + 2 + hEau} L ${G.cx - lHaut + 11} ${yH + 2 + hEau} z`,
+    fill:'#5BC5F2', 'fill-opacity':.62 }));
+  refs.marmiteG.appendChild(el('ellipse', { cx:G.cx, cy:yH + 2, rx:lHaut - 5, ry:5.5,
+    fill:'#7ED0F5', 'fill-opacity':.85 }));
   if (sim.T > T0 + 1) {
-    refs.marmiteG.appendChild(el('text', { x:G.cx, y:yMarmite - hEau + 14, class:'etat-eau',
-      fill:'#0F5C7A' }, Math.round(sim.T) + ' °C'));
+    refs.marmiteG.appendChild(el('text', { x:G.cx, y:yH + 24, class:'etat-eau',
+      fill:'#0B4F69' }, Math.round(sim.T) + ' °C'));
     // bouillonnement à l'approche des 100 °C
     if (sim.T > 92) for (let k = 0; k < 5; k++) refs.marmiteG.appendChild(el('circle', {
-      cx:G.cx - 36 + k * 18, cy:yMarmite - 12 - ((sim.t * 1.6 + k * .3) % 1) * 20,
-      r:3, fill:'#fff', 'fill-opacity':.7 }));
+      cx:G.cx - 34 + k * 17, cy:yH + 26 - ((sim.t * 1.6 + k * .3) % 1) * 18,
+      r:3, fill:'#fff', 'fill-opacity':.75 }));
   }
-  refs.marmiteG.appendChild(el('text', { x:G.cx, y:yMarmite - 66, class:'etiq-lieu' },
+  refs.marmiteG.appendChild(el('text', { x:G.cx, y:yH - 16, class:'etiq-lieu' },
     `${EAU_L} L d’eau`));
 
-  // le mur se salit aussi
-  refs.suieMur.setAttribute('fill-opacity', String(noir * .5));
+  // le mur se salit aussi, en dégradé
+  refs.suieMur.setAttribute('opacity', String(noir * .62));
 
   // bandeau d'état de la flamme
   const z = $('etat-flamme');
@@ -2605,7 +2771,7 @@ function rendreAccueilQuiz() {
       const r = maitriseDe(n.cle), et = etoiles(r);
       return `<button class="qz-niveau" data-niveau="${n.cle}">
         <span class="qz-em">${n.em}</span>
-        <span class="qz-txt"><b>${n.nom}</b><span>${n.quoi}</span></span>
+        <span class="qz-txt"><b data-poids="${n.poids}">${n.nom}</b><span>${n.quoi}</span></span>
         <span class="qz-note">${et || '—'}<span>${r ? Math.round(r * 100) + ' %' : 'jamais fait'}</span></span>
       </button>`;
     }).join('')}
