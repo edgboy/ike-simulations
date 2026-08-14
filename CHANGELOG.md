@@ -5,6 +5,66 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v4.45.0 — 2026-08-14
+
+📐 **Les mathématiques entrent vraiment au catalogue : « La hauteur de l'obélisque », 3ᵉ SA1.**
+
+Quatorze missions sur la SA « Triangles », lues à la source dans le guide officiel de 3ᵉ plutôt
+que devinées. Le guide découpe cette SA en neuf semaines ; la simulation couvre les cinq séquences
+géométriques : propriété de Pythagore et sa réciproque, hauteur relative à l'hypoténuse et ses
+relations métriques, propriété de Thalès et sa réciproque, triangles semblables, rapports
+trigonométriques. Elle emprunte aussi sa **situation de départ** au guide : Baké veut connaître la
+hauteur de l'obélisque, et n'a qu'un bâton et son ombre.
+
+### Ce que la simulation fait mieux qu'un manuel
+
+- **Le piège de la réciproque de Thalès.** Le guide y insiste : l'égalité des rapports ne suffit
+  pas, il faut *en plus* que M occupe par rapport à A et B la même position que N par rapport à A
+  et C. Sur le papier, cette condition ressemble à une formalité. Ici l'élève fait passer N de
+  l'autre côté de A, voit les deux rapports **rester égaux** pendant que les droites se croisent,
+  et la condition cesse d'être un détail à recopier.
+- **Le carnet de mesures écrit la propriété avec les nombres de l'élève**, les deux membres l'un en
+  face de l'autre, en vert quand l'égalité tombe juste. Les trois relations métriques du triangle
+  rectangle se lisent d'un coup d'œil et bougent ensemble quand on déforme la figure.
+- **Les carrés de Pythagore portent la longueur et l'aire ensemble** : « AB = 6 » puis « AB² = 36 »
+  l'un sous l'autre, dans le carré lui-même.
+- **√2 naît de Pythagore**, comme dans la séquence 1 du guide : un triangle d'un carreau sur un
+  carreau, et un nombre qui n'est aucune fraction.
+
+### Le geste, et ce qu'il garantit
+
+Un seul : saisir un sommet et le faire glisser. Les sommets se posent sur les croisements du
+quadrillage — les longueurs restent des nombres simples — tandis que M et N coulissent le long de
+leur droite par vingtièmes. Les flèches du clavier font la même chose, pour les appareils sans
+écran tactile. Un triangle aplati est refusé plutôt qu'affiché avec des mesures absurdes.
+
+**Le modèle géométrique est testé, et il est testé là où il tourne** :
+`simulations/triangles/test-modele.js` extrait le modèle du fichier livré entre deux marqueurs et
+lui applique 45 vérifications — Pythagore, les trois relations métriques, Thalès et son piège, la
+similitude, les cosinus remarquables, la mesure par les ombres. Le code testé ne peut donc pas
+diverger de celui qui tourne en classe.
+
+### Les repères de programme, corrigés
+
+Les numéros de SA en maths et en SVT étaient inventés. Le catalogue affiche désormais les intitulés
+officiels : les transformations du plan relèvent de la **SA3 « Applications du plan »** aux quatre
+classes, pas d'une SA1 ; l'alimentation est la **SA1 de SVT 6ᵉ**, pas « le peuplement du milieu » ;
+les réactions immunitaires sont la **SA4 de 3ᵉ**. Une SA sans simulation reste affichée et le dit,
+plutôt que de laisser croire à un oubli.
+
+## v4.44.1 — 2026-08-14
+
+🔧 **« M'exercer » revient dans la liste des missions de deux simulations.**
+
+Régression de la passe v4.42. `carteExercer()`, ajoutée aux treize simulations pour rendre le quiz
+atteignable sans sortir, lit `etat.faites` — or `fabrique-glace` et `flamme-bougie` nomment ce champ
+`etat.faits` en mémoire (`faites` est le nom **écrit** dans localStorage, pas celui de la variable).
+L'appel levait un `TypeError` qui interrompait le rendu de la liste : le bouton n'apparaissait pas,
+et le défaut signalé par le testeur restait entier sur ces deux simulations.
+
+Trouvé en **ouvrant** la liste des missions dans les quinze simulations, pas en les chargeant :
+l'exception ne se produit qu'à l'ouverture de la modale.
+
 ## v4.44.0 — 2026-08-13
 
 📐 **Les scènes remplissent enfin le plan de travail.**

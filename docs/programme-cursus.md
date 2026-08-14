@@ -48,9 +48,22 @@ angles, **symétries et transformations du plan** (« applications du plan »), 
 pourcentages, statistiques (« organisation des données »), solides de l'espace, **théorème de Pythagore**,
 **théorème de Thalès**, racines carrées, équations, trigonométrie (3ᵉ).
 
-**Couverture IKE** : 🔺 **Transformations du plan** (v2.8.0) couvre la SA « Applications du plan »
-**des quatre classes** (symétrie axiale, symétrie centrale, translation, rotation).
+**Couverture KONDO LABO — 2 simulations** :
+- 🔺 **Transformations du plan** (v2.8.0) couvre la SA3 « Applications du plan » **des quatre
+  classes** (symétrie axiale, symétrie centrale, translation, rotation).
+- 📏 **La hauteur de l'obélisque** (v4.45.0) couvre la **SA1 « Triangles » de 3ᵉ**, dont le guide
+  détaille neuf semaines. Les cinq séquences géométriques sont traitées : propriété de Pythagore et
+  sa réciproque (séq. 1 et 6), relations métriques du triangle rectangle (séq. 6), propriété de
+  Thalès et sa réciproque (séq. 4), triangles semblables (séq. 5), rapports trigonométriques
+  (séq. 3). Restent hors simulation : la valeur absolue (séq. 2, purement numérique) et les angles
+  et cercles (séq. 7).
+
 Prochaine candidate : *Organisation des données* (SA4, les quatre classes également).
+
+**Attention aux numéros de SA.** Ils étaient faux dans le catalogue jusqu'en v4.45.0 : les
+transformations du plan avaient été rangées en SA1 alors qu'elles relèvent de la SA3. Le repère de
+SA s'affiche dans l'en-tête de chaque simulation — un enseignant s'en sert pour la raccorder à son
+guide. Le vérifier dans le guide officiel avant d'en écrire un nouveau.
 
 ---
 
@@ -68,7 +81,13 @@ compréhension du monde et à l'amélioration des conditions de vie ». Pédagog
 | **4ᵉ** | SA1 **Sol, avenir de l'homme** (13 sem.) · SA2 **Terre, planète active** (11 sem.) | 2 h × 13 / 11 |
 | **3ᵉ** | SA1 **Échanges de matière et d'énergie entre l'organisme et le milieu extérieur** (respiration, digestion, circulation) · SA2 **Commande nerveuse et réactions comportementales** · SA3 **Reproduction humaine** · SA4 **Réactions immunitaires et lutte contre les agressions microbiennes** | 3 h TP/cours |
 
-**Aucune simulation IKE pour l'instant.**
+**Aucune simulation KONDO LABO pour l'instant.** La première en chantier : **6ᵉ SA1, Alimentation
+et besoins nutritionnels de l'Homme** — c'est la porte d'entrée réelle de la discipline au collège,
+et elle se joue au même niveau de langue que les quinze simulations de PCT 6ᵉ.
+
+Les intitulés ci-dessus sont ceux des guides officiels. Le catalogue en affichait d'inventés
+jusqu'en v4.45.0 (« Le peuplement du milieu » en 6ᵉ, « La Terre qui bouge » en 4ᵉ) : ils sont
+corrigés.
 
 ---
 

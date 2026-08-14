@@ -1,0 +1,3150 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>La hauteur de l’obélisque — KONDO LABO</title>
+<meta name="description" content="Maths 3ᵉ, SA1 « Triangles » : propriété de Pythagore, hauteur relative à l’hypoténuse, propriété de Thalès et sa réciproque, triangles semblables, trigonométrie.">
+
+<meta name="theme-color" content="#F7F5F0">
+<link rel="stylesheet" href="../../assets/polices.css">
+<style>
+
+/* ===== Jetons du design system KONDO LABO (intégrés : fichier autonome) ===== */
+:root {
+  --primary:#C4D94E; --accent:#5BC5F2; --accent-doux:#D6F0FB;
+  --tertiary:#F7A430; --destructive:#E83A4B; --success:#2A9D8F;
+  --neutral:#3A3632; --background:#F7F5F0; --surface:#FFFFFF; --surface-muted:#F0EEE9;
+  --border:#D3CFC8; --border-strong:#B0ABA3; --ring:#5BC5F2;
+  --accent-texte:#0F6E93;   /* le bleu d’accent ne passe pas les 4,5 de contraste en texte */
+  --font-display:'Baloo 2','Segoe UI',system-ui,sans-serif;
+  --font-body:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;
+  --radius-sm:8px; --radius-md:12px; --radius-lg:16px; --radius-xl:24px; --radius-full:9999px;
+  --shadow-soft:0 4px 16px rgba(58,54,50,.05);
+  --shadow-raised:0 6px 20px rgba(58,54,50,.06);
+  --ease:cubic-bezier(.4,0,.2,1);
+  --metal:#B0ABA3; --cuivre:#C9885A;
+}
+body.sombre {
+  --neutral:#ECEFF1; --background:#14181C; --surface:#1C232A; --surface-muted:#232C34;
+  --border:#333E47; --border-strong:#4A5762; --accent-doux:#17323F; --accent-texte:#7FD4F5;
+  --shadow-soft:0 4px 16px rgba(0,0,0,.28); --shadow-raised:0 6px 20px rgba(0,0,0,.34);
+  --metal:#8A9299;
+}
+
+*,*::before,*::after { box-sizing:border-box; }
+body {
+  margin:0; font-family:var(--font-body); font-size:16px; color:var(--neutral);
+  background:var(--background); overflow:hidden;
+  height:100dvh; display:flex; flex-direction:column;
+  -webkit-tap-highlight-color:transparent; -webkit-text-size-adjust:100%;
+}
+h1,h2,h3,h4 { font-family:var(--font-display); margin:0; line-height:1.2; }
+p { margin:0; }
+:focus-visible { outline:2px solid var(--ring); outline-offset:2px; border-radius:var(--radius-sm); }
+
+/* ============================ En-tête ============================ */
+header {
+  display:flex; align-items:center; gap:8px; flex:none;
+  padding:6px 10px; background:var(--surface); border-bottom:1px solid var(--border);
+}
+header h1 { font-size:15px; font-weight:800; line-height:1.15; }
+header .sous { font-size:10.5px; opacity:.6; }
+.icone-btn {
+  width:40px; height:40px; flex:none; display:grid; place-items:center;
+  border:none; background:none; border-radius:var(--radius-md);
+  font-size:18px; color:inherit; cursor:pointer; text-decoration:none;
+}
+.icone-btn:hover { background:var(--surface-muted); }
+.tete-fin { margin-left:auto; display:flex; gap:2px; align-items:center; }
+
+/* ===================== Bandeau de mission (EN HAUT) ===================== */
+#mission {
+  flex:none; background:var(--surface); border-bottom:1px solid var(--border);
+  padding:8px 12px 9px;
+}
+.m-haut { display:flex; align-items:center; gap:9px; }
+.m-pastille {
+  width:30px; height:30px; flex:none; border-radius:var(--radius-sm);
+  display:grid; place-items:center; background:var(--accent-doux);
+  font-family:var(--font-display); font-weight:800; font-size:13px;
+}
+.m-titres { flex:1; min-width:0; }
+.m-titres b { display:block; font-size:14px; font-weight:600; line-height:1.2; }
+.m-titres span { font-size:11.5px; opacity:.65; line-height:1.35; display:block; }
+.m-rang {
+  font-size:10.5px !important; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--accent-texte); opacity:1 !important; margin-bottom:1px;
+}
+.m-plier {
+  width:34px; height:34px; flex:none; border:none; background:none; cursor:pointer;
+  border-radius:var(--radius-sm); font-size:14px; color:inherit;
+  transition:transform .2s var(--ease);
+}
+.m-plier:hover { background:var(--surface-muted); }
+#mission.ouvert .m-plier { transform:rotate(180deg); }
+/* Replié, on ne montre que l'étape en cours : la lampe reste visible */
+#mission:not(.ouvert) .etape:not(.a-montrer) { display:none; }
+#mission:not(.ouvert) .m-indice { display:none; }
+.m-jauge { height:5px; border-radius:var(--radius-full); background:var(--surface-muted); margin-top:8px; overflow:hidden; }
+.m-jauge i { display:block; height:100%; background:var(--accent); transition:width .4s var(--ease); }
+
+/* ---- Liste des étapes : le guidage pas à pas ---- */
+#etapes { margin-top:9px; }
+.etape {
+  display:flex; align-items:flex-start; gap:9px; padding:5px 0;
+  font-size:13px; line-height:1.4;
+}
+.etape .coche {
+  width:21px; height:21px; flex:none; margin-top:1px; border-radius:var(--radius-full);
+  display:grid; place-items:center; font-size:11px; font-weight:700;
+  border:2px solid var(--border-strong); color:transparent; background:none;
+}
+.etape.faite .coche { background:var(--success); border-color:var(--success); color:#fff; }
+.etape.faite .t { opacity:.5; text-decoration:line-through; }
+.etape.courante .coche { border-color:var(--accent-texte); animation:pulseCoche 1.5s infinite; }
+.etape.courante .t { font-weight:600; }
+@keyframes pulseCoche { 50% { box-shadow:0 0 0 5px var(--accent-doux); } }
+.etape .t { flex:1; }
+.m-indice {
+  margin-top:8px; padding:9px 11px; border-radius:var(--radius-md);
+  background:var(--accent-doux); font-size:12.5px; line-height:1.5;
+}
+.m-indice b { font-weight:600; }
+.m-indice[hidden] { display:none; }
+/* Le bouton d'indice. `display` explicite l'emporte sur l'attribut `hidden` :
+   il faut le redire, sinon le bouton reste visible une fois masqué. */
+.m-actions { display:flex; gap:8px; margin-top:10px; }
+.m-actions .btn { flex:1; min-height:40px; padding:0 12px; font-size:13px; }
+.m-actions[hidden], .m-actions .btn[hidden] { display:none; }
+#btn-indice.appelle { animation:appelleIndice 1.3s infinite; }
+@keyframes appelleIndice { 50% { box-shadow:0 0 0 6px rgba(91,197,242,.32); } }
+
+/* ============================ Atelier ============================ */
+main { flex:1; min-height:0; display:flex; flex-direction:column; }
+#atelier { flex:1; min-height:0; position:relative; display:flex; }
+#plan { flex:1; min-height:0; width:100%; display:block; touch-action:manipulation; }
+
+/* Emplacements sur la lampe */
+.slot { cursor:pointer; }
+.slot .zone {
+  fill:var(--surface); fill-opacity:.5; stroke:var(--border-strong); stroke-width:2;
+  stroke-dasharray:6 5; rx:7;
+}
+.slot:hover .zone, .slot:focus-visible .zone { stroke:var(--accent); fill:var(--accent-doux); fill-opacity:1; }
+.slot.plein .zone { display:none; }
+/* Surbrillance de l'emplacement attendu par l'étape en cours */
+.slot.vise .zone { stroke:var(--accent); stroke-width:3; stroke-dasharray:none;
+  fill:var(--accent-doux); fill-opacity:1; animation:viseur 1.5s infinite; }
+@keyframes viseur { 50% { stroke-opacity:.35; } }
+.slot.vise .etiq-slot { opacity:1; font-weight:700; }
+.etiq-slot {
+  font-family:var(--font-body); font-size:11px; font-weight:600;
+  fill:var(--neutral); opacity:.55; text-anchor:middle; pointer-events:none;
+}
+.txt-piece {
+  font-family:var(--font-body); font-size:11px; font-weight:700;
+  fill:var(--neutral); text-anchor:middle; pointer-events:none;
+}
+.retirer { cursor:pointer; }
+.retirer circle { fill:var(--border-strong); transition:fill .15s var(--ease); }
+.retirer:hover circle, .retirer:focus-visible circle { fill:var(--destructive); }
+.retirer text { fill:#fff; font-size:13px; font-weight:700; text-anchor:middle; font-family:var(--font-body); }
+
+/* ============ Bouton d'accès aux mesures, sur le plan de travail ============ */
+#btn-mesures {
+  position:absolute; right:12px; bottom:12px; z-index:5;
+  display:flex; align-items:center; gap:7px;
+  min-height:44px; padding:0 16px;
+  background:var(--surface); color:var(--neutral);
+  border:2px solid var(--border-strong); border-radius:var(--radius-full);
+  box-shadow:var(--shadow-raised);
+  font-family:var(--font-body); font-size:13.5px; font-weight:600; cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+#btn-mesures:hover { background:var(--surface-muted); border-color:var(--neutral); }
+#btn-mesures[hidden] { display:none; }
+#btn-mesures.appelle { border-color:var(--accent-texte); animation:appelleMesures 1.4s infinite; }
+@keyframes appelleMesures { 50% { box-shadow:0 0 0 8px var(--accent-doux), var(--shadow-raised); } }
+
+/* ============================ Bilan ============================ */
+#bilan {
+  position:absolute; left:8px; right:8px; bottom:8px; z-index:6;
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-raised); padding:13px 15px;
+  display:none; max-width:520px; margin:0 auto;
+}
+#bilan.visible { display:block; animation:monte .3s var(--ease); }
+#atelier.avec-bilan #plan { align-self:flex-start; max-height:48%; }
+@keyframes monte { from { opacity:0; transform:translateY(10px); } }
+#bilan .verdict { display:flex; align-items:center; gap:9px; margin-bottom:4px; }
+#bilan .verdict .em { font-size:23px; line-height:1; }
+#bilan .verdict h3 { font-size:16px; flex:1; }
+#bilan .reduire {
+  width:32px; height:32px; flex:none; margin:-4px -6px 0 0;
+  border:none; background:none; border-radius:var(--radius-sm);
+  font-size:17px; color:inherit; cursor:pointer; opacity:.6;
+}
+#bilan .reduire:hover { background:var(--surface-muted); opacity:1; }
+#bilan .objectif {
+  margin-top:10px; padding:9px 11px; border-radius:var(--radius-md);
+  background:var(--accent-doux); font-size:12.5px; line-height:1.5;
+}
+#bilan .phrase { font-size:12.5px; opacity:.78; line-height:1.5; margin:0 0 10px; }
+.jauges { display:grid; grid-template-columns:repeat(auto-fit,minmax(115px,1fr)); gap:8px 14px; }
+.jauge .haut { display:flex; justify-content:space-between; font-size:11.5px; margin-bottom:3px; }
+.jauge .haut b { font-weight:600; }
+.jauge .haut span { opacity:.65; }
+.barre { height:7px; border-radius:var(--radius-full); background:var(--surface-muted); overflow:hidden; }
+.barre i { display:block; height:100%; background:var(--accent); border-radius:inherit; transition:width .5s var(--ease); }
+.barre.faible i { background:var(--tertiary); }
+.barre.mauvais i { background:var(--destructive); }
+#bilan .actions { display:flex; gap:8px; margin-top:11px; }
+
+/* ============================ Barre d'action ============================ */
+#actions {
+  flex:none; display:flex; gap:8px; align-items:center; justify-content:flex-end;
+  padding:8px 12px calc(8px + env(safe-area-inset-bottom));
+  background:var(--surface); border-top:1px solid var(--border);
+}
+.btn {
+  display:inline-flex; align-items:center; justify-content:center; gap:7px;
+  min-height:44px; padding:0 18px; border:none; border-radius:var(--radius-lg);
+  font-family:var(--font-body); font-size:14px; font-weight:600;
+  color:var(--neutral); background:var(--primary); cursor:pointer;
+  transition:filter .15s var(--ease);
+}
+.btn:hover { filter:brightness(.94); }
+.btn:active { filter:brightness(.88); }
+.btn[disabled] { opacity:.45; cursor:not-allowed; filter:none; }
+.btn-contour { background:var(--surface); border:2px solid var(--neutral); }
+.btn-contour:hover { background:var(--surface-muted); filter:none; }
+.btn-fantome { background:transparent; }
+.btn-fantome:hover { background:var(--surface-muted); filter:none; }
+.btn-large { width:100%; }
+#btn-tester.appelle { animation:appelle 1.3s infinite; }
+@keyframes appelle { 50% { box-shadow:0 0 0 7px rgba(196,217,78,.35); } }
+
+/* ================== Feuille de choix d'un composant ================== */
+#feuille {
+  position:fixed; inset:0; z-index:35; display:none;
+  background:rgba(38,50,56,.5);
+}
+#feuille.visible { display:block; }
+.f-carte {
+  position:absolute; left:0; right:0; bottom:0;
+  max-height:82dvh; overflow-y:auto;
+  background:var(--surface); border-radius:var(--radius-xl) var(--radius-xl) 0 0;
+  padding:8px 16px calc(18px + env(safe-area-inset-bottom));
+  box-shadow:var(--shadow-raised);
+  animation:glisse .28s var(--ease);
+}
+@keyframes glisse { from { transform:translateY(100%); } }
+.f-poignee { width:40px; height:4px; border-radius:2px; background:var(--border); margin:2px auto 12px; }
+.f-tete { display:flex; align-items:center; gap:9px; margin-bottom:4px; }
+.f-tete h2 { font-size:18px; flex:1; }
+.f-role { font-size:12.5px; line-height:1.5; opacity:.75; margin-bottom:13px; }
+.f-liste { display:grid; gap:9px; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); }
+.option {
+  display:flex; flex-direction:column; gap:3px; text-align:left; position:relative;
+  padding:12px 13px; min-height:62px;
+  background:var(--surface); border:2px solid var(--border); border-radius:var(--radius-md);
+  font-family:var(--font-body); color:var(--neutral); cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+.option:hover { border-color:var(--border-strong); background:var(--surface-muted); }
+.option.pose { border-color:var(--accent-texte); background:var(--accent-doux); }
+.option.conseil { border-color:var(--primary); }
+.option.conseil::after {
+  content:'conseillé'; position:absolute; top:-9px; right:9px;
+  padding:1px 8px; border-radius:var(--radius-full);
+  background:var(--primary); color:var(--neutral);
+  font-size:9.5px; font-weight:700; letter-spacing:.04em; text-transform:uppercase;
+}
+.option b { font-size:13.5px; font-weight:600; }
+.option span { font-size:11.5px; opacity:.68; line-height:1.4; }
+.option[disabled] { opacity:.42; cursor:not-allowed; }
+.f-vide { text-align:center; padding:18px 0; font-size:13px; opacity:.6; }
+
+/* ============================ Voiles ============================ */
+.voile {
+  position:fixed; inset:0; z-index:40; display:none;
+  background:rgba(14,18,23,.93); padding:14px; overflow-y:auto;
+}
+.voile.visible { display:flex; align-items:center; justify-content:center; }
+.carte-modale {
+  position:relative; width:100%; max-width:470px; margin:auto;
+  background:var(--surface); border-radius:var(--radius-lg); padding:22px 20px;
+  box-shadow:var(--shadow-raised);
+}
+.carte-modale h2 { font-size:20px; margin-bottom:9px; padding-right:34px; }
+.carte-modale > p { font-size:13.5px; line-height:1.6; opacity:.8; margin-bottom:10px; }
+.fermer-x {
+  position:absolute; top:8px; right:10px; width:36px; height:36px;
+  border:none; background:none; font-size:20px; color:inherit; cursor:pointer;
+  border-radius:var(--radius-md);
+}
+.fermer-x:hover { background:var(--surface-muted); }
+
+/* Cartes de mission */
+.d-carte {
+  display:flex; align-items:center; gap:11px; width:100%; text-align:left;
+  padding:11px 13px; margin-bottom:8px;
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md);
+  font-family:var(--font-body); color:inherit; cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+.d-carte:hover:not([disabled]) { border-color:var(--border-strong); background:var(--surface-muted); }
+.d-carte[disabled] { opacity:.5; cursor:not-allowed; }
+.d-carte .num {
+  width:30px; height:30px; flex:none; border-radius:var(--radius-sm);
+  display:grid; place-items:center; background:var(--accent-doux);
+  font-family:var(--font-display); font-weight:800; font-size:13px;
+}
+.d-carte.fait .num { background:var(--success); color:#fff; }
+.d-carte .txt { flex:1; min-width:0; }
+.d-carte .txt b { display:block; font-size:13.5px; font-weight:600; }
+.d-carte .txt span { font-size:11.5px; opacity:.65; line-height:1.4; }
+
+/* Guide d'accueil */
+.g-etape { display:flex; gap:11px; margin-bottom:13px; }
+.g-etape .num {
+  width:26px; height:26px; flex:none; border-radius:var(--radius-full);
+  display:grid; place-items:center; background:var(--accent-doux);
+  font-family:var(--font-display); font-weight:800; font-size:12.5px;
+}
+.g-etape .t { font-size:13.5px; line-height:1.5; opacity:.85; flex:1; }
+.g-etape .t b { opacity:1; }
+
+/* Lexique */
+.lex-entree {
+  padding:11px 0; border-bottom:1px solid var(--border);
+}
+.lex-entree:last-child { border-bottom:none; }
+.lex-entree b { display:block; font-size:14px; font-weight:600; margin-bottom:2px; }
+.lex-entree span { font-size:12.5px; line-height:1.55; opacity:.78; }
+.lex-entree em { font-style:normal; color:var(--accent-texte); font-weight:600; }
+
+/* Écran de passage d'une mission à la suivante */
+.p-fanion {
+  display:flex; align-items:center; gap:10px; margin-bottom:12px;
+}
+.p-fanion .rond {
+  width:44px; height:44px; flex:none; border-radius:var(--radius-full);
+  display:grid; place-items:center; background:var(--success); font-size:22px;
+}
+.p-fanion b { display:block; font-size:17px; font-family:var(--font-display); font-weight:800; }
+.p-fanion span { font-size:12px; opacity:.65; }
+.p-acquis {
+  padding:12px 14px; border-radius:var(--radius-md); background:var(--accent-doux);
+  font-size:13px; line-height:1.55; margin-bottom:14px;
+}
+.p-acquis b { font-weight:600; }
+.p-suite {
+  border:2px dashed var(--border-strong); border-radius:var(--radius-md);
+  padding:12px 14px; margin-bottom:14px;
+}
+.p-suite .etiq {
+  font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--accent-texte); margin-bottom:3px;
+}
+.p-suite b { display:block; font-size:15px; font-family:var(--font-display); font-weight:800; }
+.p-suite span { font-size:12.5px; opacity:.7; line-height:1.45; }
+.p-neuf { font-size:12px; opacity:.6; text-align:center; margin-top:9px; line-height:1.45; }
+
+/* QCM */
+.q-question { font-size:15px; font-weight:600; line-height:1.4; margin-bottom:12px; }
+/* Le questionnaire. Ici, « q-choix » est le conteneur et « q-rep » chaque
+   proposition : le style s'appliquait au mauvais élément, si bien que les
+   réponses s'affichaient en boutons bruts du navigateur. */
+.q-choix { display:block; }
+.q-rep {
+  display:block; width:100%; text-align:left; margin-bottom:8px;
+  padding:12px 14px; min-height:46px;
+  background:var(--surface); border:2px solid var(--border); border-radius:var(--radius-md);
+  font-family:var(--font-body); font-size:13.5px; line-height:1.45; color:var(--neutral);
+  cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+.q-rep:hover:not([disabled]) { border-color:var(--border-strong); background:var(--surface-muted); }
+.q-rep.juste { border-color:var(--success); background:rgba(42,157,143,.12); font-weight:600; }
+.q-rep.faux { border-color:var(--destructive); background:rgba(232,58,75,.1); }
+.q-rep[disabled] { cursor:default; }
+.q-rep.juste::before { content:'✔️ '; }
+.q-rep.faux::before { content:'❌ '; }
+/* Le mot de la fin, après la réponse */
+.q-mot {
+  margin-top:4px; margin-bottom:12px; padding:11px 13px; border-radius:var(--radius-md);
+  font-size:12.5px; line-height:1.55; background:var(--accent-doux);
+}
+.q-mot.ok { background:rgba(42,157,143,.14); }
+.q-mot.non { background:var(--accent-doux); }
+.q-expl {
+  margin-top:4px; padding:11px 13px; border-radius:var(--radius-md);
+  background:var(--accent-doux); font-size:12.5px; line-height:1.55;
+  display:none;
+}
+.q-expl.visible { display:block; }
+.q-avance { font-size:11.5px; opacity:.55; margin-bottom:10px; letter-spacing:.04em; text-transform:uppercase; font-weight:600; }
+
+/* ============================ Toast ============================ */
+#toast {
+  position:fixed; left:50%; bottom:calc(70px + env(safe-area-inset-bottom));
+  transform:translateX(-50%);
+  max-width:calc(100vw - 28px); padding:10px 16px; z-index:45;
+  background:var(--neutral); color:var(--background);
+  border-radius:var(--radius-full); font-size:13px; font-weight:600;
+  opacity:0; pointer-events:none; transition:opacity .2s var(--ease); text-align:center;
+}
+#toast.visible { opacity:1; }
+#toast.alerte { background:var(--destructive); color:#fff; }
+
+/* ================= Adaptations d'écran ================= */
+
+/* Paysage sur téléphone : chaque pixel de hauteur compte */
+@media (orientation:landscape) and (max-height:520px) {
+  header { padding:3px 8px; }
+  header h1 { font-size:13px; }
+  header .sous { display:none; }
+  .icone-btn { width:34px; height:34px; font-size:16px; }
+  #mission { padding:5px 10px 6px; }
+  .m-pastille { width:24px; height:24px; font-size:11px; }
+  .m-titres b { font-size:12.5px; }
+  .m-titres span { display:none; }
+  #mission.ouvert .m-titres span { display:block; }
+  .m-jauge { margin-top:5px; }
+  #actions { padding:5px 10px calc(5px + env(safe-area-inset-bottom)); }
+  .btn { min-height:38px; padding:0 14px; font-size:13px; }
+  #atelier.avec-bilan #plan { max-height:none; }
+  #bilan { max-width:none; right:8px; left:auto; width:min(58%,420px); bottom:6px; }
+  .f-carte { max-height:96dvh; }
+}
+
+/* Écran large : la mission passe en colonne, l'atelier prend le reste */
+@media (min-width:880px) {
+  body { flex-direction:row; }
+  #colonne {
+    width:330px; flex:none; display:flex; flex-direction:column;
+    background:var(--surface); border-right:1px solid var(--border);
+    overflow-y:auto;
+  }
+  /* la colonne est étroite : les icônes passent sous le titre au lieu de l'écraser */
+  header { border-bottom:1px solid var(--border); flex-wrap:wrap; }
+  header h1 { font-size:16px; }
+  .tete-fin { width:100%; justify-content:flex-end; }
+  #mission { border-bottom:none; padding:12px 16px; }
+  /* la place ne manque pas : toutes les étapes restent visibles */
+  #mission:not(.ouvert) .etape:not(.a-montrer) { display:flex; }
+  #mission:not(.ouvert) .m-indice { display:block; }
+  .m-plier { display:none; }
+  main { flex:1; min-width:0; }
+  #actions { justify-content:center; }
+  #bilan { left:16px; right:16px; }
+  .f-carte {
+    position:absolute; top:50%; left:50%; right:auto; bottom:auto;
+    transform:translate(-50%,-50%); width:min(560px,92vw);
+    border-radius:var(--radius-lg); max-height:86dvh;
+    animation:apparait .2s var(--ease);
+  }
+  @keyframes apparait { from { opacity:0; } }
+  .f-poignee { display:none; }
+}
+
+@media (prefers-reduced-motion:reduce) {
+  *,*::before,*::after { animation-duration:.01ms !important; transition-duration:.01ms !important; }
+}
+
+/* ===================== Propre à la hauteur de l'obélisque ===================== */
+
+/* Les couleurs de la figure. Chaque côté garde SA couleur d'un bout à l'autre
+   de la simulation : le côté [AB] est bleu partout, son carré aussi, son
+   rapport aussi. C'est ce qui permet de suivre une longueur des yeux entre la
+   figure, le carnet de mesures et la formule. */
+:root {
+  --cote-ab:#2F80C7;  --cote-ab-doux:rgba(47,128,199,.16);
+  --cote-ac:#C77A2F;  --cote-ac-doux:rgba(199,122,47,.16);
+  --cote-bc:#7A4FBF;  --cote-bc-doux:rgba(122,79,191,.16);
+  --trait-fig:#3A3632;
+  --quadrillage:rgba(58,54,50,.10);
+  --quadrillage-fort:rgba(58,54,50,.22);
+  --aide-trait:rgba(58,54,50,.40);
+}
+body.sombre {
+  --cote-ab:#6FB4EE;  --cote-ab-doux:rgba(111,180,238,.20);
+  --cote-ac:#F0A860;  --cote-ac-doux:rgba(240,168,96,.20);
+  --cote-bc:#B79BEA;  --cote-bc-doux:rgba(183,155,234,.20);
+  --trait-fig:#ECEFF1;
+  --quadrillage:rgba(236,239,241,.10);
+  --quadrillage-fort:rgba(236,239,241,.20);
+  --aide-trait:rgba(236,239,241,.38);
+}
+
+/* ---- La figure ---- */
+.pt {                                   /* un sommet qu'on peut saisir */
+  cursor:grab; touch-action:none;
+}
+.pt:active { cursor:grabbing; }
+.pt .halo { fill:transparent; }         /* la cible du doigt, bien plus large que le rond */
+.pt .rond {
+  fill:var(--surface); stroke:var(--trait-fig); stroke-width:2.5;
+  transition:r .12s var(--ease);
+}
+.pt.tenu .rond, .pt:hover .rond { stroke:var(--accent-texte); }
+.pt.fixe .rond { fill:var(--trait-fig); }
+.pt.fixe { cursor:default; }
+.pt.appelle .rond { animation:appelPoint 1.4s infinite; }
+@keyframes appelPoint {
+  0%,100% { stroke-width:2.5; }
+  55%     { stroke-width:6; }
+}
+.nom-pt {
+  font-family:var(--font-display); font-size:15px; font-weight:800;
+  fill:var(--trait-fig); text-anchor:middle; pointer-events:none; user-select:none;
+}
+.etiq-lg {                              /* une longueur posée le long d'un côté */
+  font-family:var(--font-body); font-size:11.5px; font-weight:700;
+  text-anchor:middle; pointer-events:none; user-select:none;
+}
+.etiq-aire {                            /* l'aire écrite au centre d'un carré */
+  font-family:var(--font-display); font-size:13px; font-weight:800;
+  text-anchor:middle; pointer-events:none; user-select:none;
+}
+.etiq-note {                            /* une remarque posée sur la figure */
+  font-family:var(--font-body); font-size:11px; font-weight:600;
+  fill:var(--accent-texte); text-anchor:middle; pointer-events:none; user-select:none;
+}
+
+/* ---- Le carnet de mesures : la formule avec les nombres de l'élève ---- */
+#mesures {
+  position:absolute; top:8px; left:8px; width:212px; max-width:46%;
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--radius-md); box-shadow:var(--shadow-soft);
+  padding:9px 11px; pointer-events:none; z-index:3;
+}
+#mesures .me-titre {
+  font-size:10px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--accent-texte); margin-bottom:5px;
+}
+.me-ligne {
+  display:flex; align-items:baseline; justify-content:space-between; gap:8px;
+  font-size:12.5px; line-height:1.7;
+}
+.me-ligne .nom { font-weight:700; }
+.me-ligne .val { font-family:var(--font-display); font-weight:800; font-size:14px; }
+.me-sep { height:1px; background:var(--border); margin:6px 0 5px; }
+/* Le verdict d'une égalité : les deux membres, et si l'on tombe juste */
+.me-egalite {
+  display:flex; align-items:center; gap:6px; flex-wrap:wrap;
+  font-size:12px; margin-top:3px; line-height:1.5;
+}
+.me-egalite .memb { font-family:var(--font-display); font-weight:800; }
+.me-egalite .signe { font-weight:800; opacity:.6; }
+.me-egalite.juste { color:var(--success); }
+.me-egalite.faux  { color:var(--destructive); }
+#mesures .me-quoi { font-size:11.5px; line-height:1.45; opacity:.75; margin-top:6px; }
+
+/* ---- La barre d'outils : ce qu'on choisit de faire apparaître ---- */
+#outils {
+  flex:none; border-top:1px solid var(--border); background:var(--surface);
+  padding:8px 12px 9px; display:flex; gap:7px; align-items:center; flex-wrap:wrap;
+}
+.ot-titre { font-size:11.5px; opacity:.7; flex:none; margin-right:2px; }
+/* Les boutons sont des flex : sans conteneur flex, ils s'empilaient chacun sur
+   sa ligne et la barre d'outils mangeait 130 px de hauteur. */
+#liste-outils { display:flex; gap:6px; flex-wrap:wrap; min-width:0; }
+.ot {
+  flex:none; display:flex; align-items:center; gap:5px; cursor:pointer;
+  padding:6px 11px 6px 9px; border-radius:var(--radius-full);
+  border:2px solid var(--border); background:var(--surface-muted);
+  font-family:inherit; font-size:12px; font-weight:600; color:var(--neutral);
+  min-height:40px;                      /* cible au doigt */
+  transition:background .16s var(--ease), border-color .16s var(--ease);
+}
+.ot .em { font-size:15px; line-height:1; }
+.ot[aria-pressed="true"] { border-color:var(--accent); background:var(--accent-doux); }
+.ot:disabled { opacity:.42; cursor:not-allowed; }
+.ot.appelle, .btn.appelle { animation:appelOutil 1.4s infinite; }
+@keyframes appelOutil {
+  0%,100% { box-shadow:0 0 0 0 rgba(91,197,242,.55); }
+  60%     { box-shadow:0 0 0 8px rgba(91,197,242,0); }
+}
+
+/* Sur téléphone, le carnet de mesures couvrait le quart du plan de travail et
+   la figure se retrouvait à l'étroit. Il devient un bandeau au-dessus de la
+   scène — même règle que les thermomètres de la fabrique de glace. */
+@media (max-width:560px) {
+  #atelier { display:flex; flex-direction:column; }
+  #mesures {
+    position:static; width:auto; max-width:none; order:-1; flex:none;
+    border:none; border-bottom:1px solid var(--border); border-radius:0;
+    box-shadow:none; padding:6px 10px 7px;
+  }
+  #mesures .me-titre { margin-bottom:2px; font-size:9.5px; }
+  .me-ligne { display:inline-flex; margin-right:12px; font-size:11.5px; line-height:1.5; }
+  .me-ligne .val { font-size:13px; }
+  .me-sep { display:none; }
+  #mesures .me-quoi { font-size:10.5px; margin-top:2px; }
+  .me-egalite { font-size:11.5px; }
+  /* les outils tiennent sur une ligne, qui défile au doigt. C'est #liste-outils
+     qui porte les boutons : mettre le défilement sur #outils ne servait à rien,
+     et ils s'empilaient sur trois rangées. */
+  #outils { flex-wrap:nowrap; padding:6px 10px 7px; gap:6px; }
+  #liste-outils { flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; padding-bottom:2px; }
+  #liste-outils::-webkit-scrollbar { display:none; }
+  .ot-titre { display:none; }
+  .ot { padding:5px 10px 5px 8px; font-size:11.5px; min-height:38px; }
+  .nom-pt { font-size:14px; }
+}
+@media (max-height:430px) and (orientation:landscape) {
+  #mesures .me-quoi { display:none; }
+  #outils { padding:5px 10px 6px; }
+  #actions { padding:6px 8px; }
+}
+
+
+.g-titre { font-family:var(--font-display); font-weight:800; font-size:14px;
+  margin:14px 0 7px; color:var(--accent-texte); }
+
+/* ===================== L'accueil : « Que veux-tu faire ? » ===================== */
+#v-accueil .carte-modale { max-width:520px; }
+.ac-intro { font-size:13.5px; line-height:1.6; opacity:.8; margin-bottom:14px; }
+.ac-choix {
+  display:flex; align-items:center; gap:13px; width:100%; text-align:left;
+  padding:15px 16px; margin-bottom:11px;
+  background:var(--surface); border:2px solid var(--border); border-radius:var(--radius-lg);
+  font-family:var(--font-body); color:inherit; cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+.ac-choix:hover:not([disabled]) { border-color:var(--accent); background:var(--accent-doux); }
+.ac-choix[disabled] { opacity:.55; cursor:not-allowed; }
+.ac-choix .ac-em {
+  width:46px; height:46px; flex:none; border-radius:var(--radius-md);
+  display:grid; place-items:center; background:var(--surface-muted); font-size:25px;
+}
+.ac-choix .ac-txt { flex:1; min-width:0; }
+.ac-choix .ac-txt b { display:block; font-family:var(--font-display); font-size:17px; font-weight:800; }
+.ac-choix .ac-txt span { display:block; font-size:12.5px; opacity:.7; line-height:1.45; margin-top:1px; }
+.ac-choix .ac-etat { font-size:11.5px; font-weight:700; opacity:.75; flex:none; text-align:right; max-width:34%; }
+.ac-pied { font-size:12px; opacity:.6; line-height:1.5; margin-top:2px; }
+
+/* ===================== La visite guidée de l'interface =====================
+   Un halo encadre la zone dont on parle et assombrit tout le reste ; la carte
+   se pose à côté. Une liste écrite ne montrait rien : ici, on regarde. */
+#visite { position:fixed; inset:0; z-index:48; display:none; }
+#visite.visible { display:block; }
+#visite-halo {
+  position:absolute; border-radius:var(--radius-md);
+  border:3px solid var(--primary);
+  box-shadow:0 0 0 9999px rgba(12,16,20,.91);
+  transition:left .3s var(--ease), top .3s var(--ease),
+             width .3s var(--ease), height .3s var(--ease);
+  pointer-events:none;
+}
+#visite-carte {
+  position:absolute; background:var(--surface); border-radius:var(--radius-lg);
+  padding:15px 16px 13px; width:min(320px, calc(100vw - 24px));
+  box-shadow:0 12px 44px rgba(0,0,0,.34);
+  transition:left .3s var(--ease), top .3s var(--ease);
+}
+.v-titre { font-family:var(--font-display); font-size:16px; font-weight:800; margin-bottom:5px; }
+.v-texte { font-size:13px; line-height:1.55; opacity:.85; }
+.v-texte b { opacity:1; }
+.v-bas { display:flex; align-items:center; gap:8px; margin-top:13px; }
+.v-prog { flex:1; font-size:11.5px; font-weight:700; opacity:.5; letter-spacing:.04em; }
+#visite-passer {
+  background:none; border:none; color:inherit; opacity:.6;
+  font-family:var(--font-body); font-size:12.5px; text-decoration:underline;
+  cursor:pointer; padding:6px;
+}
+#visite-passer:hover { opacity:1; }
+#visite-suivant {
+  border:none; background:var(--primary); color:var(--neutral);
+  font-family:var(--font-body); font-weight:700; font-size:13.5px;
+  padding:10px 18px; border-radius:var(--radius-md); cursor:pointer; min-height:40px;
+}
+
+/* ===================== Le quiz libre : m'exercer =====================
+   Refonte : les trois niveaux se ressemblaient trait pour trait — même carte
+   blanche, même texte, et trois médailles que rien ne distingue à cette taille.
+   Rien ne disait qu'il s'agit d'une échelle de difficulté, ni qu'un niveau pèse
+   plus lourd qu'un autre. Chacun reçoit donc sa teinte (bronze, argent, or),
+   portée par un rail à gauche et par le disque de la médaille, et son poids est
+   écrit. Le score de maîtrise devient le personnage principal de l'écran. */
+#v-quiz .carte-modale { max-width:520px; }
+
+/* ---- Le bandeau de maîtrise : c'est LE chiffre qu'on vient voir ---- */
+.qz-maitrise {
+  margin:4px 0 18px; padding:15px 16px; border-radius:var(--radius-lg);
+  background:linear-gradient(135deg, var(--accent-doux), var(--surface-muted));
+  border:1px solid var(--border);
+}
+.qz-m-haut { display:flex; align-items:center; justify-content:space-between; gap:10px; font-size:12.5px; }
+.qz-m-haut span { opacity:.75; font-weight:600; }
+.qz-m-haut b {
+  font-family:var(--font-display); font-size:34px; font-weight:800; line-height:1;
+  letter-spacing:-.02em;
+}
+.qz-m-barre {
+  height:12px; border-radius:var(--radius-full); background:var(--surface);
+  overflow:hidden; margin-top:10px; border:1px solid var(--border);
+}
+.qz-m-barre i {
+  display:block; height:100%; border-radius:inherit;
+  background:linear-gradient(90deg, #B87333 0%, #8A9BA8 45%, var(--primary) 100%);
+  transition:width .6s var(--ease);
+}
+.qz-m-mot {
+  font-size:11px; font-weight:800; opacity:.7; margin-top:7px;
+  letter-spacing:.08em; text-transform:uppercase;
+}
+
+/* ---- Les trois niveaux : une échelle, pas une liste ---- */
+.qz-niveau {
+  position:relative; display:flex; align-items:center; gap:13px;
+  width:100%; text-align:left; padding:14px 15px 14px 22px; margin-bottom:10px;
+  background:var(--surface); border:2px solid var(--border); border-radius:var(--radius-lg);
+  font-family:var(--font-body); color:inherit; cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease),
+             transform .15s var(--ease);
+}
+/* le rail coloré : on lit le niveau avant même d'avoir lu son nom */
+.qz-niveau::before {
+  content:''; position:absolute; left:0; top:0; bottom:0; width:7px;
+  background:var(--qz-teinte); border-radius:var(--radius-lg) 0 0 var(--radius-lg);
+}
+.qz-niveau:hover { border-color:var(--qz-teinte); background:var(--surface-muted); }
+.qz-niveau:active { transform:scale(.99); }
+.qz-niveau[data-niveau="souviens"]  { --qz-teinte:#C08A4A; }   /* bronze */
+.qz-niveau[data-niveau="comprends"] { --qz-teinte:#8E9BA6; }   /* argent */
+.qz-niveau[data-niveau="pieges"]    { --qz-teinte:#D9A520; }   /* or     */
+body.sombre .qz-niveau[data-niveau="souviens"]  { --qz-teinte:#D19A5C; }
+body.sombre .qz-niveau[data-niveau="comprends"] { --qz-teinte:#A6B3BE; }
+body.sombre .qz-niveau[data-niveau="pieges"]    { --qz-teinte:#EBBB3A; }
+
+.qz-niveau .qz-em {
+  width:46px; height:46px; flex:none; border-radius:var(--radius-full);
+  display:grid; place-items:center; font-size:23px;
+  background:color-mix(in srgb, var(--qz-teinte) 20%, var(--surface));
+  border:2px solid var(--qz-teinte);
+}
+.qz-niveau .qz-txt { flex:1; min-width:0; }
+.qz-niveau .qz-txt b {
+  display:block; font-family:var(--font-display); font-size:16px; font-weight:800;
+}
+.qz-niveau .qz-txt span {
+  display:block; font-size:12px; opacity:.7; line-height:1.4; margin-top:2px;
+}
+/* Le poids du niveau, écrit : c'est l'information qui manquait le plus. */
+.qz-niveau .qz-txt b::after {
+  content:'×' attr(data-poids); margin-left:8px;
+  padding:2px 7px; border-radius:var(--radius-full); vertical-align:2px;
+  background:var(--qz-teinte); color:#fff;
+  font-family:var(--font-body); font-size:10px; font-weight:700; letter-spacing:.02em;
+}
+.qz-niveau .qz-note { flex:none; text-align:right; font-size:15px; line-height:1.2; }
+.qz-niveau .qz-note span {
+  display:block; font-size:10.5px; font-weight:600; opacity:.55; margin-top:3px;
+}
+.qz-pied { font-size:12px; opacity:.65; line-height:1.5; margin-top:6px; }
+
+/* ---- Le fil des questions ---- */
+.qz-jauge {
+  height:8px; border-radius:var(--radius-full); background:var(--surface-muted);
+  overflow:hidden; margin:0 0 14px; border:1px solid var(--border);
+}
+.qz-jauge i {
+  display:block; height:100%; border-radius:inherit;
+  background:var(--accent); transition:width .3s var(--ease);
+}
+
+/* ---- L'écran de résultat : le score et les étoiles font la une ---- */
+.qz-fin {
+  display:flex; align-items:center; gap:14px; margin-bottom:12px;
+  padding:14px 15px; border-radius:var(--radius-lg);
+  background:var(--surface-muted);
+}
+.qz-fin-em { font-size:40px; line-height:1; flex:none; }
+.qz-fin b { display:block; font-family:var(--font-display); font-size:19px; font-weight:800; line-height:1.15; }
+.qz-fin span { font-size:12.5px; opacity:.68; }
+.qz-fin-et { margin-left:auto; font-size:20px; letter-spacing:2px; white-space:nowrap; }
+.qz-mieux { font-size:12.5px; font-weight:600; color:var(--vert-fonce); margin:0 0 12px; }
+.qz-mieux.discret { color:inherit; opacity:.55; font-weight:400; }
+.qz-revoir {
+  padding:12px 14px; border-radius:var(--radius-md);
+  background:var(--accent-doux); font-size:12.5px; line-height:1.65; margin-bottom:14px;
+}
+.qz-revoir span { display:block; }
+.qz-boutons { display:flex; gap:8px; }
+.qz-boutons .btn { flex:1; }
+
+/* ---- Les propositions de réponse, ici comme dans le QCM de fin de mission ----
+   Elles ressemblaient à des champs de saisie : un trait fin, du texte, rien qui
+   dise « on me choisit ». Chacune reçoit sa lettre — on peut alors la désigner à
+   l'oral, « la B » — et une cible au doigt franchement plus grande. */
+#qz-choix, #q-choix { counter-reset:choix; }
+#qz-choix .q-choix, #q-choix .q-choix {
+  position:relative; display:flex; align-items:center;
+  padding:13px 14px 13px 48px; min-height:54px; line-height:1.4;
+}
+#qz-choix .q-choix::before, #q-choix .q-choix::before {
+  counter-increment:choix; content:counter(choix, upper-alpha);
+  position:absolute; left:12px; top:50%; transform:translateY(-50%);
+  width:27px; height:27px; border-radius:var(--radius-full);
+  display:grid; place-items:center;
+  background:var(--surface-muted); border:1.5px solid var(--border);
+  font-family:var(--font-display); font-size:12.5px; font-weight:800;
+}
+#qz-choix .q-choix:hover:not([disabled])::before,
+#q-choix .q-choix:hover:not([disabled])::before { border-color:var(--border-strong); }
+#qz-choix .q-choix.bon::before, #q-choix .q-choix.bon::before {
+  background:var(--success); border-color:var(--success); color:#fff;
+}
+#qz-choix .q-choix.mauvais::before, #q-choix .q-choix.mauvais::before {
+  background:var(--destructive); border-color:var(--destructive); color:#fff;
+}
+
+/* ---- La carte de la visite guidée : elle ne doit ressembler à rien d'autre ----
+   Retour d'usage : l'œil hésitait entre la zone montrée et la carte qui
+   l'explique, surtout quand la zone contient beaucoup de texte — les deux
+   avaient le même fond blanc et le même style. La carte prend donc une couleur
+   qui n'existe nulle part ailleurs dans l'interface : c'est « le guide qui
+   parle », pas un panneau de l'application. Même identité en clair et en
+   sombre, pour qu'on la reconnaisse d'un thème à l'autre.
+   Contrastes vérifiés : 5,7 (clair) et 7,7 (sombre) pour le texte plein ;
+   l'opacité des textes secondaires ne descend pas sous 0,85, plancher mesuré
+   en dessous duquel on passe sous le seuil AA. */
+:root { --visite-fond:#0F6E93; --visite-encre:#FFFFFF; }
+body.sombre { --visite-fond:#0B5674; --visite-encre:#F2FAFE; }
+
+#visite-carte {
+  background:var(--visite-fond); color:var(--visite-encre);
+  border:2px solid rgba(255,255,255,.16);
+  box-shadow:0 14px 46px rgba(0,0,0,.45);
+}
+#visite-carte .v-titre, #visite-carte .vtitre { color:var(--visite-encre); }
+#visite-carte .v-texte, #visite-carte .vtexte { color:var(--visite-encre); opacity:.92; }
+#visite-carte .v-texte b, #visite-carte .vtexte b { color:var(--visite-encre); opacity:1; }
+#visite-carte .v-prog, #visite-carte .vprog { color:var(--visite-encre); opacity:.85; }
+#visite-carte .vmarque { color:var(--visite-encre); opacity:.85; }
+#visite-passer { color:var(--visite-encre); opacity:.85; }
+#visite-passer:hover { opacity:1; }
+/* Le bouton garde le lime de la plateforme : c'est l'action, elle doit sauter aux yeux */
+#visite-suivant { background:var(--primary); color:#3A3632; }
+
+/* ---- Lisibilité des boutons lime en thème sombre ----
+   Le lime (--primary) est une couleur claire dans les DEUX thèmes : son encre
+   doit donc rester sombre dans les deux. Elle suivait le jeton --neutral, qui passe au
+   blanc en sombre : le texte tombait à 1,36 de contraste, illisible. Un jeton
+   dédié fige l'encre posée sur le lime, à 7,6 de contraste. */
+:root, body.sombre { --sur-primary:#3A3632; }
+.btn, #visite-suivant, .go, #btn-continuer, #btn-suivante, #btn-suiv2, #btn-commencer {
+  color:var(--sur-primary);
+}
+.btn-contour, .btn-fantome { color:var(--neutral); }
+</style>
+</head>
+<body>
+<div id="colonne">
+  <header>
+    <a class="icone-btn" href="../../index.html#/maths/3e" title="Retour au catalogue" aria-label="Retour">←</a>
+    <div>
+      <h1>La hauteur de l’obélisque</h1>
+      <div class="sous">Maths · 3ᵉ · SA1</div>
+    </div>
+    <div class="tete-fin">
+      <button class="icone-btn" id="btn-missions" title="Les missions" aria-label="Missions">🎯</button>
+      <button class="icone-btn" id="btn-lexique" title="Lexique" aria-label="Lexique">📖</button>
+      <button class="icone-btn" id="btn-aide" title="Comment jouer" aria-label="Aide">❓</button>
+      <button class="icone-btn" id="btn-theme" title="Thème" aria-label="Thème">🌙</button>
+    </div>
+  </header>
+  <section id="mission">
+    <div class="m-haut">
+      <span class="m-pastille" id="m-num">1</span>
+      <div class="m-titres">
+        <span class="m-rang" id="m-rang">Mission 1 sur 13</span>
+        <b id="m-titre">—</b>
+        <span id="m-but"></span>
+      </div>
+      <button class="m-plier" id="m-plier" aria-label="Afficher toutes les étapes" aria-expanded="false">▼</button>
+    </div>
+    <div class="m-jauge"><i id="m-jauge" style="width:0"></i></div>
+    <div id="etapes"></div>
+    <div class="m-actions" id="m-actions" hidden>
+      <button class="btn btn-contour btn-large" id="btn-indice">💡 Indice</button>
+    </div>
+    <div class="m-indice" id="m-indice" hidden></div>
+  </section>
+</div>
+
+<main>
+  <div id="atelier">
+    <svg id="plan" preserveAspectRatio="xMidYMid meet" role="img"
+         aria-label="Un triangle dont on peut déplacer les sommets sur un quadrillage"></svg>
+    <div id="mesures">
+      <div class="me-titre">Mon carnet de mesures</div>
+      <div id="me-corps"></div>
+      <div class="me-quoi" id="me-quoi">Déplace un sommet : les longueurs suivent.</div>
+    </div>
+    <div id="bilan" role="status" aria-live="polite"></div>
+  </div>
+
+  <div id="outils">
+    <span class="ot-titre">Faire apparaître :</span>
+    <div class="rg-choix" id="liste-outils"></div>
+  </div>
+
+  <div id="actions"></div>
+</main>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<div id="visite">
+  <div id="visite-halo"></div>
+  <div id="visite-carte">
+    <div class="v-titre" id="visite-titre"></div>
+    <div class="v-texte" id="visite-texte"></div>
+    <div class="v-bas">
+      <span class="v-prog" id="visite-prog"></span>
+      <button id="visite-passer" type="button">Passer</button>
+      <button id="visite-suivant" type="button">Suivant</button>
+    </div>
+  </div>
+</div>
+
+<div class="voile" id="v-quiz">
+  <div class="carte-modale" id="quiz-carte"></div>
+</div>
+
+<div class="voile" id="v-accueil">
+  <div class="carte-modale">
+    <h2>Que veux-tu faire ?</h2>
+    <p class="ac-intro">Baké veut connaître la <b>hauteur de l’obélisque</b> sans y monter.
+       Tu vas apprendre à mesurer ce qu’on ne peut pas atteindre.</p>
+    <button class="ac-choix" id="ac-apprendre">
+      <span class="ac-em">🎓</span>
+      <span class="ac-txt"><b>Apprendre</b><span>Le parcours guidé, mission après mission.</span></span>
+      <span class="ac-etat" id="ac-etat-app"></span>
+    </button>
+    <button class="ac-choix" id="ac-experimenter">
+      <span class="ac-em">🧪</span>
+      <span class="ac-txt"><b>Expérimenter</b><span>La figure libre, tous les outils de mesure.</span></span>
+      <span class="ac-etat" id="ac-etat-exp"></span>
+    </button>
+    <button class="ac-choix" id="ac-exercer">
+      <span class="ac-em">🏅</span>
+      <span class="ac-txt"><b>M’exercer</b><span>Trois séries de questions, et un score de maîtrise.</span></span>
+      <span class="ac-etat" id="ac-etat-ex"></span>
+    </button>
+    <p class="ac-pied" id="ac-pied"></p>
+  </div>
+</div>
+
+<div class="voile" id="v-lexique">
+  <div class="carte-modale">
+    <button class="fermer-x" data-ferme="v-lexique" aria-label="Fermer">✕</button>
+    <h2>📖 Les mots du triangle</h2>
+    <p>Le vocabulaire exact du programme, avec des exemples pris sur ta figure.</p>
+    <div id="liste-lexique"></div>
+  </div>
+</div>
+
+<div class="voile" id="v-missions">
+  <div class="carte-modale">
+    <button class="fermer-x" data-ferme="v-missions" aria-label="Fermer">✕</button>
+    <h2>🎯 Les missions</h2>
+    <p>Elles se suivent : termine l’une pour ouvrir la suivante.</p>
+    <div id="liste-missions"></div>
+    <button class="btn btn-fantome btn-large" id="btn-rezero"
+            style="margin-top:6px;color:var(--destructive)">↺ Recommencer tout le parcours</button>
+  </div>
+</div>
+
+<div class="voile" id="v-aide">
+  <div class="carte-modale">
+    <button class="fermer-x" data-ferme="v-aide" aria-label="Fermer">✕</button>
+    <h2>📏 Mesurer ce qu’on ne peut pas atteindre</h2>
+    <p>Personne ne monte au sommet d’un obélisque avec un mètre ruban. On mesure
+       au sol, et le triangle fait le reste du travail.</p>
+    <div class="g-titre">Comment on s’y prend</div>
+    <div class="g-etape"><span class="num">1</span><span class="t">
+      <b>Déplace les sommets</b> de la figure avec le doigt. Ils se posent sur les
+      croisements du quadrillage, pour que les longueurs restent des nombres simples.</span></div>
+    <div class="g-etape"><span class="num">2</span><span class="t">
+      <b>Allume les outils</b> dont tu as besoin : les carrés des côtés, la hauteur,
+      les rapports, les angles. Ils se débloquent au fil des missions.</span></div>
+    <div class="g-etape"><span class="num">3</span><span class="t">
+      Lis ton <b>carnet de mesures</b> : il écrit la propriété du cours avec
+      <b>tes</b> nombres, et te dit si l’égalité tombe juste.</span></div>
+    <button class="btn btn-contour btn-large" id="btn-revoir-visite"
+            style="margin-bottom:8px">🔍 Revoir la visite guidée</button>
+    <button class="btn btn-large" data-ferme="v-aide">Ouvrir la figure</button>
+  </div>
+</div>
+
+<div class="voile" id="v-qcm"><div class="carte-modale" id="qcm-carte"></div></div>
+<div class="voile" id="v-passage"><div class="carte-modale" id="passage-carte"></div></div>
+
+<script>
+'use strict';
+/* =====================================================================
+   La hauteur de l'obélisque — Mathématiques 3ᵉ, SA1 « Triangles »
+
+   Couvre les séquences géométriques de la SA telle que le guide officiel
+   la découpe : propriété de Pythagore et sa réciproque (séq. 1 et 6),
+   relations métriques du triangle rectangle (séq. 6), propriété de Thalès
+   et sa réciproque (séq. 4), triangles semblables (séq. 5), rapports
+   trigonométriques (séq. 3).
+
+   Vocabulaire du programme béninois : on dit « propriété de Pythagore » et
+   « propriété de Thalès », jamais « théorème ».
+
+   Le modèle ci-dessous est vérifié par test-triangles.js, qui l'extrait de
+   ce fichier même entre les deux marqueurs : ce qui est testé est donc
+   exactement ce qui est livré.
+   ===================================================================== */
+
+const $ = id => document.getElementById(id);
+const el = (nom, attrs, texte) => {
+  const n = document.createElementNS('http://www.w3.org/2000/svg', nom);
+  for (const k in attrs) n.setAttribute(k, attrs[k]);
+  if (texte != null) n.textContent = texte;
+  return n;
+};
+
+/*__DEBUT MODELE__*/
+const dist = (P, Q) => Math.hypot(Q.x - P.x, Q.y - P.y);
+
+// Produit scalaire des vecteurs BA et BC : son signe dit si l'angle en B est
+// aigu (positif), droit (nul) ou obtus (négatif).
+const scal = (A, B, C) => (A.x - B.x) * (C.x - B.x) + (A.y - B.y) * (C.y - B.y);
+
+// Mesure de l'angle ABC, en degrés.
+function angle(A, B, C) {
+  const a = dist(B, A), c = dist(B, C);
+  if (a === 0 || c === 0) return 0;
+  // on borne le cosinus : l'arrondi machine peut le pousser à 1,0000000002
+  const cos = Math.max(-1, Math.min(1, scal(A, B, C) / (a * c)));
+  return Math.acos(cos) * 180 / Math.PI;
+}
+
+/* Le triangle est-il rectangle en B ? On compare des produits de longueurs,
+   donc la tolérance doit être RELATIVE : sur un grand triangle, un dixième de
+   carreau d'écart au sommet pèse bien plus qu'un dixième de carreau de côté. */
+function estRectangleEn(A, B, C, tol = 0.02) {
+  const a = dist(B, A), c = dist(B, C);
+  if (a === 0 || c === 0) return false;
+  return Math.abs(scal(A, B, C)) <= tol * a * c;
+}
+
+// Où le triangle a-t-il son angle droit ? Renvoie 'A', 'B', 'C' ou null.
+function sommetDroit(A, B, C, tol = 0.02) {
+  if (estRectangleEn(B, A, C, tol)) return 'A';
+  if (estRectangleEn(A, B, C, tol)) return 'B';
+  if (estRectangleEn(A, C, B, tol)) return 'C';
+  return null;
+}
+
+/* Propriété de Pythagore. On renvoie les trois carrés séparément, et pas
+   seulement le verdict : ce sont eux que la simulation dessine et écrit.
+   C'est en les voyant s'additionner qu'on comprend la propriété. */
+function pythagore(A, B, C) {
+  const ab = dist(A, B), ac = dist(A, C), bc = dist(B, C);
+  return {
+    ab, ac, bc,
+    carreAB: ab * ab, carreAC: ac * ac, carreBC: bc * bc,
+    somme: ab * ab + ac * ac,
+    ecart: Math.abs(ab * ab + ac * ac - bc * bc),
+  };
+}
+
+// Réciproque : si BC² = AB² + AC², alors le triangle est rectangle en A.
+function reciproquePythagore(A, B, C, tol = 0.02) {
+  const p = pythagore(A, B, C);
+  return p.carreBC > 0 && p.ecart <= tol * p.carreBC;
+}
+
+// Le projeté orthogonal de A sur la droite (BC) : le pied de la hauteur.
+function projete(A, B, C) {
+  const bx = C.x - B.x, by = C.y - B.y;
+  const l2 = bx * bx + by * by;
+  if (l2 === 0) return { x: B.x, y: B.y, t: 0 };
+  const t = ((A.x - B.x) * bx + (A.y - B.y) * by) / l2;
+  return { x: B.x + t * bx, y: B.y + t * by, t };
+}
+
+/* Les trois relations métriques du triangle rectangle (séquence 6), avec ABC
+   rectangle en A et H pied de la hauteur relative à l'hypoténuse :
+       AB · AC = AH · BC        AH² = BH · HC        AB² = BH · BC
+   On renvoie les deux membres de chaque égalité : la simulation les affiche
+   côte à côte, avec les nombres de l'élève. */
+function relationsMetriques(A, B, C) {
+  const H = projete(A, B, C);
+  const ab = dist(A, B), ac = dist(A, C), bc = dist(B, C);
+  const ah = dist(A, H), bh = dist(B, H), ch = dist(C, H);
+  return {
+    H, ab, ac, bc, ah, bh, ch,
+    produit:    { gauche: ab * ac, droite: ah * bc },
+    moyenne:    { gauche: ah * ah, droite: bh * ch },
+    projection: { gauche: ab * ab, droite: bh * bc },
+  };
+}
+
+/* Position d'un point M de la droite (AB), comptée en multiples de AB depuis A :
+   0 en A, 1 en B, négative de l'autre côté de A. C'est ce nombre — et non le
+   rapport des longueurs — qui porte l'information de POSITION que la réciproque
+   de Thalès exige. */
+function abscisse(M, A, B) {
+  const bx = B.x - A.x, by = B.y - A.y;
+  const l2 = bx * bx + by * by;
+  if (l2 === 0) return 0;
+  return ((M.x - A.x) * bx + (M.y - A.y) * by) / l2;
+}
+
+const paralleles = (P, Q, R, S, tol = 0.02) => {
+  const u = Math.hypot(Q.x - P.x, Q.y - P.y), v = Math.hypot(S.x - R.x, S.y - R.y);
+  if (u === 0 || v === 0) return false;
+  const croix = (Q.x - P.x) * (S.y - R.y) - (Q.y - P.y) * (S.x - R.x);
+  return Math.abs(croix) <= tol * u * v;
+};
+
+/* Propriété de Thalès relative au triangle : ABC triangle, M sur (AB),
+   N sur (AC). Si (MN) ∥ (BC), alors AM/AB = AN/AC = MN/BC.
+
+   Sa réciproque demande DEUX conditions, et c'est tout l'enjeu de la séquence :
+   l'égalité des rapports de longueurs NE SUFFIT PAS. Il faut aussi que M occupe
+   par rapport à A et B la même position que N par rapport à A et C — donc que
+   les deux abscisses soient de même signe. On renvoie les deux conditions
+   séparément, pour pouvoir montrer le cas piège : rapports égaux, droites non
+   parallèles. */
+function thales(A, B, C, M, N, tol = 0.02) {
+  const kM = abscisse(M, A, B), kN = abscisse(N, A, C);
+  const rapportM = Math.abs(kM), rapportN = Math.abs(kN);
+  const ref = Math.max(rapportM, rapportN, 1e-9);
+  return {
+    kM, kN,
+    am: dist(A, M), ab: dist(A, B), an: dist(A, N), ac: dist(A, C),
+    mn: dist(M, N), bc: dist(B, C),
+    rapportM, rapportN,
+    rapportsEgaux: Math.abs(rapportM - rapportN) <= tol * ref,
+    memePosition: kM * kN > 0,
+    paralleles: paralleles(M, N, B, C, tol),
+  };
+}
+
+/* Deux triangles sont semblables lorsque les longueurs des côtés de l'un sont
+   proportionnelles à celles de l'autre. On compare les côtés HOMOLOGUES dans
+   l'ordre donné : (AB, BC, CA) contre (IJ, JK, KI). */
+function semblables(T1, T2, tol = 0.02) {
+  const c1 = [dist(T1[0], T1[1]), dist(T1[1], T1[2]), dist(T1[2], T1[0])];
+  const c2 = [dist(T2[0], T2[1]), dist(T2[1], T2[2]), dist(T2[2], T2[0])];
+  if (c1.some(x => x === 0) || c2.some(x => x === 0)) return { ok:false, rapport:0, cotes1:c1, cotes2:c2 };
+  const r = c2.map((x, i) => x / c1[i]);
+  const moy = (r[0] + r[1] + r[2]) / 3;
+  return { ok: r.every(x => Math.abs(x - moy) <= tol * moy),
+           rapport: moy, rapports: r, cotes1: c1, cotes2: c2 };
+}
+
+/* Rapports trigonométriques de l'angle aigu en B, dans le triangle ABC
+   rectangle en A. Le programme demande cosinus, sinus, tangente et cotangente. */
+function trigo(A, B, C) {
+  const adj = dist(A, B), opp = dist(A, C), hyp = dist(B, C);
+  if (hyp === 0) return { cos:0, sin:0, tan:0, cotan:0, mesure:0, adj:0, opp:0, hyp:0 };
+  return {
+    cos: adj / hyp, sin: opp / hyp,
+    tan: adj === 0 ? Infinity : opp / adj,
+    cotan: opp === 0 ? Infinity : adj / opp,
+    mesure: angle(A, B, C), adj, opp, hyp,
+  };
+}
+
+/* La mesure indirecte, celle que cherche Baké : le bâton de hauteur hB projette
+   une ombre oB ; l'obélisque projette au même moment une ombre oO. Le soleil
+   éclaire les deux sous le même angle, donc les deux triangles sont semblables
+   et hO / oO = hB / oB. */
+const hauteurParOmbre = (hBaton, ombreBaton, ombreObjet) =>
+  ombreBaton === 0 ? 0 : hBaton * ombreObjet / ombreBaton;
+/*__FIN MODELE__*/
+
+/* ====================== Le terrain et ses conventions ======================
+   Tout se compte en CARREAUX. Un carreau vaut 1 cm sur la figure libre, et
+   1 m sur le terrain de l'obélisque : c'est la même géométrie, à l'échelle
+   près, et c'est précisément ce que la SA enseigne. */
+const COLS = 20, LIGNES = 13;
+const SOL = 11;                      // la ligne de sol, pour la scène du terrain
+
+// L'obélisque et le bâton de Baké, en mètres. Les ombres se déduisent de
+// l'inclinaison du soleil, la même pour les deux.
+const OMBRE_PAR_HAUTEUR = 4 / 3;
+const OBELISQUE = { x:2, hauteur:9 };
+const BATON = { x:16, hauteurMin:.5, hauteurMax:3 };
+
+const nb = (v, d = 1) => {
+  if (!isFinite(v)) return '—';
+  const s = Math.abs(v) < 5e-3 ? 0 : v;
+  return s.toFixed(d).replace('.', ',').replace(/,0+$/, '').replace(/(,\d*[1-9])0+$/, '$1');
+};
+const nb2 = v => nb(v, 2);
+
+/* ============================ Les outils ============================
+   Ce que l'élève peut faire apparaître sur la figure. Ils s'ouvrent au fil des
+   missions : montrer les rapports de Thalès avant d'avoir vu Pythagore ne
+   servirait à rien. */
+const OUTILS = {
+  longueurs: { nom:'Longueurs', em:'📏' },
+  angles:    { nom:'Angles',    em:'📐' },
+  carres:    { nom:'Carrés',    em:'🟦' },
+  hauteur:   { nom:'Hauteur',   em:'📉' },
+  rapports:  { nom:'Rapports',  em:'➗' },
+  trigo:     { nom:'Cosinus',   em:'🧭' },
+};
+
+/* ============================ Les missions ============================ */
+
+// Les trois côtés du triangle, rangés du plus court au plus long : c'est sous
+// cette forme qu'on reconnaît « le 3-4-5 » quel que soit le sens de la figure.
+const cotesTriees = () => calc.pyth
+  ? [calc.pyth.ab, calc.pyth.ac, calc.pyth.bc].sort((a, b) => a - b) : [0, 0, 0];
+const cotesSont = (...v) => {
+  const c = cotesTriees(), att = v.slice().sort((a, b) => a - b);
+  return c.every((x, i) => Math.abs(x - att[i]) < .06);
+};
+const aDeuxCotes = (u, v) => {
+  const c = cotesTriees();
+  return c.some(x => Math.abs(x - u) < .06) && c.some(x => Math.abs(x - v) < .06);
+};
+
+const MISSIONS = [
+  { titre:'Reconnaître l’angle droit',
+    but:'Déplace les sommets du triangle jusqu’à ce que l’angle en A soit droit.',
+    outils:['angles'], allumes:['angles'],
+    depart:{ A:{x:6,y:9}, B:{x:13,y:9}, C:{x:6,y:4} },
+    etapes:[
+      { t:'Déplace un sommet avec le doigt', ok:e => e.bouges >= 3 },
+      { t:'Rends l’angle en A droit : l’équerre apparaît', ok:() => calc.droit === 'A' },
+      { t:'Garde l’angle droit et change la forme du triangle',
+        ok:e => Object.keys(e.vus.rect).length >= 2 },
+    ],
+    gagne:e => Object.keys(e.vus.rect).length >= 2,
+    indice:'Amène B sur la même ligne que A, et C sur la même colonne que A : les deux côtés sont alors perpendiculaires. Ensuite, éloigne ou rapproche B sans quitter la ligne.',
+    retenir:'Un triangle est <b>rectangle</b> quand il a un angle droit. Le côté opposé à l’angle droit s’appelle l’<b>hypoténuse</b> : c’est toujours le plus long. Les deux autres sont les <b>côtés de l’angle droit</b>.',
+    qcm:{ q:'Dans un triangle rectangle, qui est l’hypoténuse ?',
+      r:['Le côté opposé à l’angle droit, le plus long',
+         'Le côté le plus court',
+         'N’importe lequel des trois côtés'], bonne:0,
+      pourquoi:'L’hypoténuse est le côté qui ne touche pas l’angle droit : il lui fait face. Comme il s’oppose au plus grand angle du triangle, c’est aussi le plus long des trois côtés.' } },
+
+  { titre:'Les trois carrés',
+    but:'Construis un carré sur chaque côté et compare leurs aires.',
+    outils:['angles','longueurs','carres'], allumes:['carres','longueurs'],
+    depart:{ A:{x:6,y:9}, B:{x:12,y:9}, C:{x:6,y:5} },
+    etapes:[
+      { t:'Fais apparaître les carrés des côtés', cible:'ot-carres', ok:e => e.outils.carres },
+      { t:'Rends le triangle rectangle en A', ok:() => calc.droit === 'A' },
+      { t:'Compare : le grand carré vaut-il les deux petits ?', ok:e => e.vus.pythLu },
+      { t:'Recommence avec trois autres formes', ok:e => Object.keys(e.vus.pyth).length >= 3 },
+    ],
+    gagne:e => e.vus.pythLu && Object.keys(e.vus.pyth).length >= 3,
+    indice:'Le carré posé sur l’hypoténuse est le plus grand. Lis les trois aires dans ton carnet : additionne les deux petites, et compare à la grande.',
+    retenir:'<b>Propriété de Pythagore</b> — dans un triangle rectangle, le carré de la longueur de l’hypoténuse est égal à la somme des carrés des longueurs des deux autres côtés. Si le triangle <i>ABC</i> est rectangle en <i>A</i>, alors <b>BC² = AB² + AC²</b>.',
+    qcm:{ q:'Le triangle ABC est rectangle en A. Quelle égalité est vraie ?',
+      r:['BC² = AB² + AC²', 'AB² = BC² + AC²', 'BC = AB + AC'], bonne:0,
+      pourquoi:'C’est le carré de l’HYPOTÉNUSE qui vaut la somme des deux autres carrés. Ici l’angle droit est en A, donc l’hypoténuse est [BC], le côté qui lui fait face. Et attention : ce sont les carrés qui s’ajoutent, pas les longueurs.' } },
+
+  { titre:'La corde à treize nœuds',
+    but:'Les maçons tracent un angle droit avec une corde. Retrouve leur triangle.',
+    outils:['angles','longueurs','carres'], allumes:['longueurs'],
+    depart:{ A:{x:6,y:9}, B:{x:11,y:9}, C:{x:6,y:6} },
+    etapes:[
+      { t:'Fais un côté de 3 carreaux et un de 4', ok:() => aDeuxCotes(3, 4) },
+      { t:'Ferme le triangle : le troisième côté doit mesurer 5', ok:() => cotesSont(3, 4, 5) },
+      { t:'Vérifie que l’angle obtenu est bien droit', ok:e => cotesSont(3, 4, 5) && calc.droit && e.vus.corde },
+    ],
+    gagne:e => cotesSont(3, 4, 5) && e.vus.corde,
+    indice:'Pose A, puis B à 3 carreaux de A sur la même ligne, puis C à 4 carreaux de A sur la même colonne. Le côté [BC] tombera tout seul sur 5.',
+    retenir:'Un triangle de côtés <b>3, 4 et 5</b> est rectangle, car 3² + 4² = 9 + 16 = 25 = 5². Avec une corde marquée de 13 nœuds, on forme ce triangle et on obtient un <b>angle droit parfait</b> sans équerre : c’est ainsi qu’on trace les fondations d’une maison.',
+    qcm:{ q:'Pourquoi la corde à treize nœuds donne-t-elle un angle droit ?',
+      r:['Parce que 3² + 4² = 5², donc le triangle formé est rectangle',
+         'Parce que 3 + 4 + 5 = 12',
+         'Parce que la corde est bien tendue'], bonne:0,
+      pourquoi:'Les treize nœuds découpent douze intervalles, qu’on répartit en 3, 4 et 5. Comme 9 + 16 = 25, la réciproque de la propriété de Pythagore garantit que ce triangle est rectangle — quelle que soit la tension de la corde.' } },
+
+  { titre:'Le côté qui manque',
+    but:'Connaissant deux côtés, trouve le troisième sans le mesurer.',
+    outils:['angles','longueurs','carres'], allumes:['longueurs','carres'],
+    depart:{ A:{x:5,y:10}, B:{x:11,y:10}, C:{x:5,y:6} },
+    etapes:[
+      { t:'Fais un triangle rectangle de côtés 6 et 8', ok:e => e.vus.a68 },
+      { t:'Lis l’hypoténuse : elle doit valoir 10', ok:e => e.vus.a6810 },
+      { t:'Fais maintenant un triangle rectangle de côtés 5 et 12', ok:e => e.vus.a512 },
+      { t:'Son hypoténuse vaut 13', ok:e => e.vus.a51213 },
+    ],
+    gagne:e => e.vus.a6810 && e.vus.a51213,
+    indice:'Garde l’angle droit en A. Place B à 6 carreaux de A, C à 8 carreaux : l’hypoténuse se calcule toute seule. 6² + 8² = 36 + 64 = 100, et 100 = 10².',
+    retenir:'La propriété de Pythagore sert à <b>calculer une longueur qu’on ne peut pas mesurer</b>. Si le triangle est rectangle en <i>A</i> avec AB = 5 et AC = 12, alors BC² = 25 + 144 = 169, donc BC = √169 = <b>13</b>.',
+    qcm:{ q:'Un triangle est rectangle, ses côtés de l’angle droit mesurent 9 et 12. Que vaut l’hypoténuse ?',
+      r:['15', '21', '11'], bonne:0,
+      pourquoi:'On calcule 9² + 12² = 81 + 144 = 225. L’hypoténuse est le nombre dont le carré vaut 225 : c’est 15, puisque 15 × 15 = 225. Ajouter 9 et 12 donnerait 21, ce qui est faux : ce sont les carrés qui s’ajoutent.' } },
+
+  { titre:'Reconnaître un triangle rectangle',
+    but:'Un triangle quelconque : Pythagore permet de dire s’il a un angle droit.',
+    outils:['angles','longueurs','carres'], allumes:['longueurs','carres'],
+    depart:{ A:{x:5,y:10}, B:{x:12,y:10}, C:{x:8,y:5} },
+    etapes:[
+      { t:'Fais un triangle de côtés 6, 8 et 10', ok:e => e.vus.a6810 },
+      { t:'Constate qu’il est rectangle', cible:'btn-tester', ok:e => e.vus.reciVrai },
+      { t:'Déplace un sommet d’un carreau : le triangle change', ok:e => e.vus.pasRect },
+      { t:'Constate que l’égalité devient fausse', cible:'btn-tester', ok:e => e.vus.reciFaux },
+    ],
+    gagne:e => e.vus.reciVrai && e.vus.reciFaux,
+    indice:'Fais d’abord le 6-8-10 et appuie sur Conclure. Puis fais glisser un seul sommet d’un carreau : la somme des deux petits carrés ne tombe plus sur le grand, et l’angle droit a disparu.',
+    retenir:'<b>Réciproque de la propriété de Pythagore</b> — si, dans un triangle, le carré du plus grand côté est égal à la somme des carrés des deux autres, alors ce triangle est <b>rectangle</b>, et l’angle droit est opposé au plus grand côté. Si l’égalité est fausse, le triangle n’est pas rectangle.',
+    qcm:{ q:'Un triangle a pour côtés 7, 24 et 25. Est-il rectangle ?',
+      r:['Oui, car 7² + 24² = 25²', 'Non, car 7 + 24 ≠ 25', 'On ne peut pas le savoir sans mesurer l’angle'], bonne:0,
+      pourquoi:'On calcule 7² + 24² = 49 + 576 = 625, et 25² = 625. Les deux sont égaux : la réciproque de la propriété de Pythagore garantit que le triangle est rectangle, sans avoir besoin de mesurer quoi que ce soit.' } },
+
+  { titre:'Le nombre √2',
+    but:'Un triangle tout petit va faire apparaître un nombre d’un genre nouveau.',
+    outils:['angles','longueurs','carres'], allumes:['longueurs','carres'],
+    grille:{ cols:10, lignes:7 },
+    depart:{ A:{x:4,y:5}, B:{x:6,y:5}, C:{x:4,y:3} },
+    etapes:[
+      { t:'Fais un triangle rectangle dont les deux côtés de l’angle droit valent 1',
+        ok:() => calc.droit === 'A' && cotesSont(1, 1, Math.SQRT2) },
+      { t:'Lis le carré de l’hypoténuse : il vaut 2', ok:e => e.vus.racine },
+    ],
+    gagne:e => e.vus.racine,
+    indice:'Place B à un seul carreau de A, sur la même ligne. Place C à un seul carreau de A, sur la même colonne. Regarde ensuite l’aire du grand carré dans ton carnet.',
+    retenir:'BC² = 1 + 1 = 2. La longueur BC est donc le nombre dont le carré vaut 2 : on le note <b>√2</b> et on lit « racine carrée de 2 ». Ce nombre <b>n’est aucune fraction</b> : ce n’est pas un nombre rationnel. Avec √3, √5, √6 et tous les autres, il complète les nombres connus pour former l’ensemble des <b>nombres réels</b>, noté ℝ.',
+    qcm:{ q:'Que vaut exactement la diagonale d’un carré de côté 1 ?',
+      r:['√2, un nombre qui n’est pas une fraction', '1,41 exactement', '2'], bonne:0,
+      pourquoi:'La diagonale coupe le carré en deux triangles rectangles de côtés 1 et 1. Son carré vaut donc 1 + 1 = 2, et la diagonale vaut √2. On écrit souvent 1,41 pour aller vite, mais 1,41 × 1,41 = 1,9881 : ce n’est qu’une valeur approchée.' } },
+
+  { titre:'La hauteur de l’hypoténuse',
+    but:'Depuis l’angle droit, descends la hauteur jusqu’à l’hypoténuse.',
+    outils:['angles','longueurs','hauteur'], allumes:['hauteur','longueurs'],
+    depart:{ A:{x:6,y:5}, B:{x:4,y:10}, C:{x:14,y:10} },
+    etapes:[
+      { t:'Rends le triangle rectangle en A', ok:() => calc.droit === 'A' },
+      { t:'Fais apparaître la hauteur issue de A', cible:'ot-hauteur', ok:e => e.outils.hauteur },
+      { t:'Observe le pied H : il tombe sur l’hypoténuse', ok:e => e.vus.hauteurLue },
+      { t:'Déplace un sommet : H suit le mouvement',
+        ok:e => Object.keys(e.vus.hauteur).length >= 3 },
+    ],
+    gagne:e => e.vus.hauteurLue && Object.keys(e.vus.hauteur).length >= 3,
+    indice:'La hauteur part du sommet de l’angle droit et tombe perpendiculairement sur le côté d’en face. Son pied s’appelle H, et il découpe l’hypoténuse en deux morceaux : [BH] et [HC].',
+    retenir:'La <b>hauteur relative à l’hypoténuse</b> part du sommet de l’angle droit et rejoint l’hypoténuse perpendiculairement. Son pied <i>H</i> partage l’hypoténuse en deux segments : BH + HC = BC. Elle découpe aussi le triangle en <b>deux triangles rectangles</b>.',
+    qcm:{ q:'Où tombe le pied de la hauteur issue de l’angle droit ?',
+      r:['Sur l’hypoténuse, qu’il partage en deux morceaux',
+         'Toujours au milieu de l’hypoténuse',
+         'Sur l’un des côtés de l’angle droit'], bonne:0,
+      pourquoi:'La hauteur issue de A rejoint le côté opposé, c’est-à-dire l’hypoténuse [BC]. Elle ne tombe au milieu que si le triangle est isocèle : dans tous les autres cas, les deux morceaux BH et HC sont de longueurs différentes.' } },
+
+  { titre:'AH² = BH × HC',
+    but:'La hauteur est la moyenne proportionnelle des deux morceaux qu’elle découpe.',
+    outils:['angles','longueurs','hauteur'], allumes:['hauteur','longueurs'],
+    depart:{ A:{x:6,y:5}, B:{x:4,y:10}, C:{x:14,y:10} },
+    etapes:[
+      { t:'Rends le triangle rectangle en A', ok:() => calc.droit === 'A' },
+      { t:'Compare AH × AH et BH × HC dans ton carnet', ok:e => e.vus.moyenneLue },
+      { t:'Vérifie l’égalité sur trois formes différentes',
+        ok:e => Object.keys(e.vus.moyenne).length >= 3 },
+    ],
+    gagne:e => e.vus.moyenneLue && Object.keys(e.vus.moyenne).length >= 3,
+    indice:'Ton carnet écrit les deux membres l’un sous l’autre. Déplace B ou C, et regarde les deux nombres bouger ensemble : ils restent égaux.',
+    retenir:'Dans un triangle rectangle, la longueur de la <b>hauteur relative à l’hypoténuse</b> est <b>moyenne proportionnelle</b> entre les longueurs des deux segments qu’elle détermine sur l’hypoténuse : <b>AH² = BH × HC</b>.',
+    qcm:{ q:'Dans un triangle rectangle en A, H est le pied de la hauteur issue de A. Si BH = 2 et HC = 8, que vaut AH ?',
+      r:['4, car AH² = 2 × 8 = 16', '5, car c’est la moitié de 2 + 8', '10, car AH = 2 + 8'], bonne:0,
+      pourquoi:'La relation donne AH² = BH × HC = 2 × 8 = 16. AH est donc le nombre dont le carré vaut 16, c’est-à-dire 4. Attention : on multiplie les deux morceaux, on ne les additionne pas.' } },
+
+  { titre:'AB² = BH × BC',
+    but:'Chaque côté de l’angle droit se lit sur l’hypoténuse.',
+    outils:['angles','longueurs','hauteur'], allumes:['hauteur','longueurs'],
+    depart:{ A:{x:6,y:5}, B:{x:4,y:10}, C:{x:14,y:10} },
+    etapes:[
+      { t:'Rends le triangle rectangle en A', ok:() => calc.droit === 'A' },
+      { t:'Compare AB × AB et BH × BC', ok:e => e.vus.projLue },
+      { t:'Vérifie aussi que AB × AC = AH × BC', ok:e => e.vus.produitLu },
+      { t:'Contrôle les deux égalités sur trois formes',
+        ok:e => Object.keys(e.vus.proj).length >= 3 },
+    ],
+    gagne:e => e.vus.projLue && e.vus.produitLu && Object.keys(e.vus.proj).length >= 3,
+    indice:'BH est le morceau d’hypoténuse situé du côté de B — c’est le projeté de [AB] sur l’hypoténuse. Le carnet écrit les deux produits : compare-les.',
+    retenir:'Dans un triangle rectangle, le carré d’un côté de l’angle droit est égal au produit de l’hypoténuse par le projeté de ce côté sur elle : <b>AB² = BH × BC</b> et <b>AC² = CH × BC</b>. Et le produit des côtés de l’angle droit vaut celui de l’hypoténuse par la hauteur : <b>AB × AC = AH × BC</b>.',
+    qcm:{ q:'À quoi sert la relation AB × AC = AH × BC ?',
+      r:['À calculer la hauteur AH quand on connaît les trois côtés',
+         'À calculer l’aire du triangle',
+         'À vérifier que le triangle est isocèle'], bonne:0,
+      pourquoi:'Les deux produits valent le double de l’aire du triangle, ce qui explique l’égalité. En pratique, on l’utilise dans l’autre sens : connaissant AB, AC et BC, on en tire AH = AB × AC ÷ BC sans rien mesurer.' } },
+
+  { titre:'La propriété de Thalès',
+    but:'Coupe le triangle par une droite parallèle à un côté, et compare les rapports.',
+    outils:['longueurs','rapports'], allumes:['rapports'],
+    points:'MN',
+    depart:{ A:{x:4,y:10}, B:{x:16,y:10}, C:{x:8,y:3}, M:{x:10,y:10}, N:{x:6,y:6.5} },
+    etapes:[
+      { t:'Fais glisser M sur le côté [AB]', ok:e => e.bougesM >= 2 },
+      { t:'Place N pour que la droite (MN) soit parallèle à (BC)', ok:() => calc.th && calc.th.paralleles },
+      { t:'Lis les deux rapports : ils sont égaux', ok:e => e.vus.thalesLu },
+      { t:'Recommence à trois endroits différents',
+        ok:e => Object.keys(e.vus.thales).length >= 3 },
+    ],
+    gagne:e => e.vus.thalesLu && Object.keys(e.vus.thales).length >= 3,
+    indice:'Quand (MN) devient parallèle à (BC), la droite change de couleur et une double flèche apparaît. Fais glisser N le long de [AC] jusqu’à ce moment-là.',
+    retenir:'<b>Propriété de Thalès relative au triangle</b> — <i>ABC</i> est un triangle, <i>M</i> un point de la droite (<i>AB</i>) et <i>N</i> un point de la droite (<i>AC</i>). Si les droites (<i>MN</i>) et (<i>BC</i>) sont <b>parallèles</b>, alors <b>AM/AB = AN/AC = MN/BC</b>.',
+    qcm:{ q:'Dans un triangle ABC, M est sur [AB] et N sur [AC], et (MN) est parallèle à (BC). Si AM/AB = 1/3, que vaut AN/AC ?',
+      r:['1/3', '3', '2/3'], bonne:0,
+      pourquoi:'La propriété de Thalès dit que les deux rapports sont égaux : le point N occupe sur [AC] la même position relative que M sur [AB]. Si M est au tiers de [AB] en partant de A, alors N est au tiers de [AC].' } },
+
+  { titre:'Le piège de la réciproque',
+    but:'Deux rapports égaux suffisent-ils pour que les droites soient parallèles ?',
+    outils:['longueurs','rapports'], allumes:['rapports'],
+    points:'MN',
+    depart:{ A:{x:9,y:7}, B:{x:16,y:10}, C:{x:14,y:3}, M:{x:12.5,y:8.5}, N:{x:11.5,y:5} },
+    etapes:[
+      { t:'Place M et N pour que (MN) soit parallèle à (BC)', ok:() => calc.th && calc.th.paralleles },
+      { t:'Fais passer N de l’autre côté de A, en gardant le même rapport',
+        ok:e => e.vus.piege },
+      { t:'Constate : les rapports sont égaux, les droites ne le sont pas',
+        ok:e => e.vus.piegeLu },
+      { t:'Remets N du même côté que M : le parallélisme revient',
+        ok:e => e.vus.piegeLu && calc.th && calc.th.paralleles },
+    ],
+    gagne:e => e.vus.piegeLu,
+    indice:'Traverse le point A avec N et continue au-delà : le rapport AN/AC repasse par les mêmes valeurs, mais N n’est plus du même côté de A que M ne l’est de B.',
+    retenir:'<b>Réciproque de la propriété de Thalès</b> — l’égalité des rapports ne suffit pas. Il faut <b>en plus</b> que la position de <i>M</i> par rapport à <i>A</i> et <i>B</i> soit la même que celle de <i>N</i> par rapport à <i>A</i> et <i>C</i>. Sous ces deux conditions, si AM/AB = AN/AC, alors (<i>MN</i>) est parallèle à (<i>BC</i>).',
+    qcm:{ q:'AM/AB = AN/AC. Peut-on en conclure que (MN) est parallèle à (BC) ?',
+      r:['Seulement si M et N sont placés du même côté de A',
+         'Oui, toujours',
+         'Non, jamais'], bonne:0,
+      pourquoi:'Tu l’as vu sur ta figure : en faisant passer N de l’autre côté de A, les deux rapports de longueurs restent égaux alors que les droites se croisent. La condition de position fait partie de la propriété, elle n’est pas un détail.' } },
+
+  { titre:'Les triangles semblables',
+    but:'La parallèle découpe un petit triangle. Compare-le au grand.',
+    outils:['longueurs','rapports'], allumes:['rapports'],
+    points:'MN',
+    depart:{ A:{x:4,y:10}, B:{x:16,y:10}, C:{x:8,y:3}, M:{x:10,y:10}, N:{x:6,y:6.5} },
+    etapes:[
+      { t:'Rends (MN) parallèle à (BC)', ok:() => calc.th && calc.th.paralleles },
+      { t:'Lis le rapport de similitude dans ton carnet', ok:e => e.vus.simLu },
+      { t:'Vérifie que les trois côtés sont dans le même rapport',
+        ok:e => Object.keys(e.vus.sim).length >= 3 },
+    ],
+    gagne:e => e.vus.simLu && Object.keys(e.vus.sim).length >= 3,
+    indice:'Le petit triangle est AMN, le grand est ABC. Leurs côtés homologues sont [AM] et [AB], [MN] et [BC], [AN] et [AC].',
+    retenir:'Deux triangles sont <b>semblables</b> lorsque les longueurs des côtés de l’un sont proportionnelles à celles de l’autre. Le nombre par lequel on multiplie s’appelle le <b>rapport de similitude</b>. Deux triangles semblables ont leurs <b>angles homologues de même mesure</b> : ils ont exactement la même forme, à la taille près.',
+    qcm:{ q:'Deux triangles semblables ont un rapport de similitude de 3. Que peut-on dire de leurs angles ?',
+      r:['Ils ont les mêmes mesures dans les deux triangles',
+         'Ils sont trois fois plus grands dans le second',
+         'On ne peut rien en dire'], bonne:0,
+      pourquoi:'Le rapport de similitude agit sur les LONGUEURS, pas sur les angles. Un triangle agrandi trois fois garde exactement la même forme : ses angles ne bougent pas. C’est même ce qui définit deux figures semblables.' } },
+
+  { titre:'La hauteur de l’obélisque',
+    but:'Baké veut la hauteur de l’obélisque. Il n’a qu’un bâton et son ombre.',
+    scene:'obelisque',
+    outils:['longueurs','rapports'], allumes:['longueurs','rapports'],
+    etapes:[
+      { t:'Change la hauteur du bâton : son ombre suit', ok:e => Object.keys(e.vus.baton).length >= 3 },
+      { t:'Constate que hauteur ÷ ombre ne change jamais', ok:e => e.vus.rapportSoleil },
+      { t:'Place le repère à la hauteur de l’obélisque', ok:e => Math.abs(e.estimation - OBELISQUE.hauteur) < .01 },
+    ],
+    gagne:e => e.vus.rapportSoleil && Math.abs(e.estimation - OBELISQUE.hauteur) < .01,
+    indice:'Le soleil éclaire le bâton et l’obélisque sous le même angle : les deux triangles sont semblables. Calcule hauteur ÷ ombre sur le bâton, puis multiplie l’ombre de l’obélisque par ce nombre.',
+    retenir:'Le soleil éclaire tout le terrain sous le <b>même angle</b> : le bâton et son ombre forment un triangle <b>semblable</b> à celui de l’obélisque et de son ombre. On a donc <b>hauteur ÷ ombre</b> identique pour les deux. Avec un bâton d’un mètre et demi qui donne deux mètres d’ombre, et douze mètres d’ombre pour l’obélisque : 1,5 ÷ 2 = 0,75, puis 12 × 0,75 = <b>9 mètres</b>.',
+    qcm:{ q:'Un poteau de 2 m donne une ombre de 3 m. Au même moment, un arbre donne une ombre de 12 m. Quelle est sa hauteur ?',
+      r:['8 m', '18 m', '12 m'], bonne:0,
+      pourquoi:'Le rapport hauteur ÷ ombre vaut 2 ÷ 3 pour le poteau, et le soleil est le même pour l’arbre. On calcule donc 12 × 2 ÷ 3 = 8 m. On peut aussi le voir ainsi : l’ombre de l’arbre est quatre fois celle du poteau, donc sa hauteur aussi, soit 4 × 2 = 8 m.' } },
+
+  { titre:'Le cosinus ne dépend que de l’angle',
+    but:'Éloigne un point sur le côté : le rapport, lui, ne bouge pas.',
+    outils:['angles','longueurs','trigo'], allumes:['trigo','angles'],
+    depart:{ A:{x:6,y:9}, B:{x:14,y:9}, C:{x:6,y:4} },
+    etapes:[
+      { t:'Rends le triangle rectangle en A', ok:() => calc.droit === 'A' },
+      { t:'Règle l’angle en B sur 45°', ok:e => e.vus.vu45 },
+      { t:'Agrandis le triangle sans changer l’angle : le cosinus reste le même',
+        ok:e => Object.keys(e.vus.cos).length >= 3 },
+      { t:'Trouve maintenant un angle d’environ 60°', ok:e => e.vus.vu60 },
+    ],
+    gagne:e => Object.keys(e.vus.cos).length >= 3 && e.vus.vu60,
+    indice:'Pour 45°, fais un triangle dont les deux côtés de l’angle droit sont égaux. Pour l’agrandir sans changer l’angle, augmente les deux en même temps : 3 et 3, puis 4 et 4, puis 5 et 5. Pour approcher 60°, essaie 7 carreaux et 12 carreaux.',
+    retenir:'Dans un triangle rectangle en <i>A</i>, les rapports <b>cos B = AB/BC</b>, <b>sin B = AC/BC</b> et <b>tan B = AC/AB</b> ne dépendent <b>que de la mesure de l’angle</b>, pas de la taille du triangle. C’est ce qui permet de les mettre en table : cos 60° = 0,5 et cos 45° = √2/2, quel que soit le triangle.',
+    qcm:{ q:'On agrandit un triangle rectangle deux fois. Que devient le cosinus de son angle aigu ?',
+      r:['Il ne change pas', 'Il double', 'Il est divisé par deux'], bonne:0,
+      pourquoi:'Le cosinus est un RAPPORT de deux longueurs. Si les deux doublent, le rapport reste identique : 6/10 vaut autant que 3/5. C’est pour cela qu’une seule table de cosinus suffit pour tous les triangles du monde.' } },
+];
+
+const LEXIQUE = [
+  ['Hypoténuse', 'Dans un triangle rectangle, le côté opposé à l’angle droit. C’est toujours le plus long des trois.'],
+  ['Propriété de Pythagore', 'Dans un triangle rectangle, le carré de l’hypoténuse égale la somme des carrés des deux autres côtés : BC² = AB² + AC².'],
+  ['Réciproque', 'La propriété lue à l’envers : si l’égalité des carrés est vraie, alors le triangle est rectangle. Elle sert à reconnaître, quand la propriété sert à calculer.'],
+  ['Nombre réel', 'Tous les nombres de la droite graduée, fractions comprises, plus ceux comme √2 qui ne sont aucune fraction. On note leur ensemble ℝ.'],
+  ['Hauteur relative à l’hypoténuse', 'Le segment qui part du sommet de l’angle droit et tombe perpendiculairement sur l’hypoténuse. Son pied la partage en deux morceaux.'],
+  ['Moyenne proportionnelle', 'Un nombre dont le carré vaut le produit de deux autres. La hauteur AH est moyenne proportionnelle entre BH et HC : AH² = BH × HC.'],
+  ['Projeté orthogonal', 'L’endroit où un point tombe sur une droite quand on descend perpendiculairement. Le pied H est le projeté orthogonal de A sur (BC).'],
+  ['Propriété de Thalès', 'Si (MN) est parallèle à (BC) dans le triangle ABC, alors AM/AB = AN/AC = MN/BC.'],
+  ['Triangles semblables', 'Deux triangles dont les côtés sont proportionnels. Ils ont la même forme et les mêmes angles, à la taille près.'],
+  ['Rapport de similitude', 'Le nombre par lequel on multiplie les côtés d’un triangle pour obtenir ceux de son semblable.'],
+  ['Côtés homologues', 'Les côtés qui se correspondent dans deux triangles semblables : [AM] avec [AB], [MN] avec [BC], [AN] avec [AC].'],
+  ['Cosinus d’un angle aigu', 'Dans un triangle rectangle, le rapport du côté adjacent à l’angle sur l’hypoténuse. Il ne dépend que de l’angle.'],
+  ['Sinus d’un angle aigu', 'Le rapport du côté opposé à l’angle sur l’hypoténuse.'],
+  ['Tangente d’un angle aigu', 'Le rapport du côté opposé sur le côté adjacent. C’est elle qui relie une hauteur à son ombre.'],
+];
+
+/* ============================ L’état du jeu ============================ */
+const CLE = 'ike-triangles-progression';
+
+// Ce que l'élève a déjà constaté. Les prédicats des missions s'appuient dessus :
+// « recommence avec trois autres formes » se vérifie en comptant des
+// configurations DISTINCTES, pas des allers-retours sur la même.
+const vusVierge = () => ({
+  rect:{}, pyth:{}, hauteur:{}, moyenne:{}, proj:{}, thales:{}, sim:{}, baton:{}, cos:{},
+  pythLu:false, corde:false, reciVrai:false, reciFaux:false, racine:false,
+  a68:false, a6810:false, pasRect:false, a512:false, a51213:false, vu45:false, vu60:false,
+  hauteurLue:false, moyenneLue:false, projLue:false, produitLu:false,
+  thalesLu:false, piege:false, piegeLu:false, simLu:false, rapportSoleil:false,
+});
+
+const vierge = () => ({
+  scene:'triangle', grille:{ cols:COLS, lignes:LIGNES },
+  pts:{ A:{x:6,y:9}, B:{x:13,y:9}, C:{x:6,y:4} },
+  outils:{}, vus:vusVierge(),
+  bouges:0, bougesM:0,
+  hBaton:1.5, estimation:0,
+});
+let etat = Object.assign({ mission:0, faits:[], libre:false }, vierge());
+let calc = {};
+
+function sauver() {
+  try { localStorage.setItem(CLE, JSON.stringify({ maitrise:etat.maitrise, mission:etat.mission,
+    faites:etat.faits, libre:etat.libre })); }
+  catch (e) {}
+}
+function charger() {
+  try {
+    const d = JSON.parse(localStorage.getItem(CLE) || '{}');
+    if (d.maitrise) etat.maitrise = d.maitrise;
+    if (typeof d.mission === 'number') etat.mission = Math.min(d.mission, MISSIONS.length - 1);
+    if (Array.isArray(d.faites || d.faits)) etat.faits = d.faites || d.faits;
+    etat.libre = !!d.libre;
+  } catch (e) {}
+}
+
+/* Remet la figure dans l'état de départ de la mission en cours, et n'ouvre que
+   les outils qu'elle autorise. On repart d'une figure propre à chaque entrée en
+   mission : une figure héritée de la mission précédente coche des étapes que
+   l'élève n'a pas faites. */
+function reprendre() {
+  const enLibre = etat.libre === true;
+  const M = enLibre ? null : MISSIONS[etat.mission];
+  const neuf = vierge();
+  etat.scene = (M && M.scene) || 'triangle';
+  etat.grille = (M && M.grille) ? { cols:M.grille.cols, lignes:M.grille.lignes }
+                                : { cols:COLS, lignes:LIGNES };
+  etat.pts = {};
+  const depart = (M && M.depart) || neuf.pts;
+  for (const k in depart) etat.pts[k] = { x:depart[k].x, y:depart[k].y };
+  if (enLibre) etat.pts.M = { x:9.5, y:9 }, etat.pts.N = { x:6, y:6.5 };
+  etat.outils = {};
+  const ouverts = enLibre ? Object.keys(OUTILS) : (M.allumes || []);
+  for (const o of ouverts) etat.outils[o] = true;
+  etat.vus = vusVierge();
+  etat.bouges = 0; etat.bougesM = 0;
+  // le repère part à mi-hauteur, pas au sol : posé sur la ligne de terre il se
+  // confondait avec l'ombre et ne se voyait pas comme une chose à déplacer
+  etat.hBaton = 1.5; etat.estimation = 4;
+}
+
+const enLibre = () => etat.libre === true;
+function passerEnLibre() {
+  etat.libre = true;
+  reprendre(); sauver();
+  demarrerMission(); rendreListeMissions();
+}
+
+// Les outils utilisables ici : tous en exploration libre, ceux de la mission sinon.
+const outilsAutorises = () => enLibre() ? Object.keys(OUTILS)
+  : (MISSIONS[etat.mission].outils || []);
+
+/* ======================= Le plan de travail (SVG) ======================= */
+let Wp = 660, Hp = 340, pas = 30, ox = 0, oy = 0;
+const refs = {};
+const nuit = () => document.body.classList.contains('sombre');
+
+/* Le repère se recalcule en pixels depuis le conteneur : la figure occupe donc
+   toute la place disponible, quelle que soit la forme de l'écran. Un viewBox
+   fixe laisserait des bandes vides en haut et en bas sur un téléphone. */
+/* Ce que le dessin occupe, en carreaux. Le quadrillage d'abord — il doit
+   toujours tenir en entier — puis les carrés des côtés, qui sortent largement
+   du triangle et se faisaient rogner par le bord de l'écran. */
+function etendueDessin() {
+  const g = etat.grille;
+  const e = { x1:0, y1:0, x2:g.cols, y2:g.lignes };
+  if (etat.scene === 'triangle' && etat.outils.carres && etat.pts.A) {
+    const p = etat.pts;
+    for (const [P, Q, R] of [[p.A, p.B, p.C], [p.A, p.C, p.B], [p.B, p.C, p.A]]) {
+      const n = normaleExterieure(P, Q, R), L = dist(P, Q);
+      for (const S of [{ x:P.x + n.nx * L, y:P.y + n.ny * L },
+                       { x:Q.x + n.nx * L, y:Q.y + n.ny * L }]) {
+        e.x1 = Math.min(e.x1, S.x); e.y1 = Math.min(e.y1, S.y);
+        e.x2 = Math.max(e.x2, S.x); e.y2 = Math.max(e.y2, S.y);
+      }
+    }
+  }
+  return e;
+}
+
+/* Le cadre ne fait que s'élargir tant qu'on reste dans la même mission :
+   sinon l'échelle sauterait à chaque déplacement de sommet, et l'élève verrait
+   sa figure grandir et rétrécir sous son doigt au lieu de comparer des
+   longueurs. Il repart du quadrillage à l'entrée en mission. */
+let cadre = null;
+function reinitialiserCadre() { cadre = null; }
+
+function mesurerPlan() {
+  const r = refs.plan.getBoundingClientRect();
+  Wp = Math.max(260, Math.round(r.width));
+  Hp = Math.max(180, Math.round(r.height));
+  refs.plan.setAttribute('viewBox', '0 0 ' + Wp + ' ' + Hp);
+  const e = etendueDessin();
+  if (!cadre) cadre = e;
+  else {
+    cadre.x1 = Math.min(cadre.x1, e.x1); cadre.y1 = Math.min(cadre.y1, e.y1);
+    cadre.x2 = Math.max(cadre.x2, e.x2); cadre.y2 = Math.max(cadre.y2, e.y2);
+  }
+  // une demi-marge de carreau tout autour, pour que les étiquettes des sommets
+  // du bord ne soient pas coupées
+  const L = cadre.x2 - cadre.x1, H = cadre.y2 - cadre.y1;
+  pas = Math.min(Wp / (L + 1), Hp / (H + 1.4));
+  ox = (Wp - L * pas) / 2 - cadre.x1 * pas;
+  oy = (Hp - H * pas) / 2 - cadre.y1 * pas;
+  dessiner();
+}
+const X = u => ox + u * pas;
+const Y = v => oy + v * pas;
+
+/* ---- Les couleurs, lues sur le thème en cours ---- */
+function T() {
+  const s = getComputedStyle(document.body);
+  const v = n => s.getPropertyValue(n).trim();
+  return {
+    ab:v('--cote-ab'), abDoux:v('--cote-ab-doux'),
+    ac:v('--cote-ac'), acDoux:v('--cote-ac-doux'),
+    bc:v('--cote-bc'), bcDoux:v('--cote-bc-doux'),
+    trait:v('--trait-fig'), grille:v('--quadrillage'), grilleF:v('--quadrillage-fort'),
+    aide:v('--aide-trait'), accent:v('--accent-texte'), surface:v('--surface'),
+    ok:v('--success'), non:v('--destructive'),
+  };
+}
+
+function dessiner() {
+  const plan = refs.plan;
+  plan.textContent = '';
+  if (etat.scene === 'obelisque') { dessinerTerrain(); }
+  else { dessinerQuadrillage(); dessinerTriangle(); }
+  cadrerRien();
+}
+// Le repère est déjà calé sur le conteneur : rien à recadrer ici. La fonction
+// existe pour que le point d'entrée reste le même dans les deux scènes.
+function cadrerRien() {}
+
+function dessinerQuadrillage() {
+  const t = T(), g = etat.grille, plan = refs.plan;
+  const gg = el('g');
+  for (let i = 0; i <= g.cols; i++)
+    gg.appendChild(el('line', { x1:X(i), y1:Y(0), x2:X(i), y2:Y(g.lignes),
+      stroke:i % 5 === 0 ? t.grilleF : t.grille, 'stroke-width':1 }));
+  for (let j = 0; j <= g.lignes; j++)
+    gg.appendChild(el('line', { x1:X(0), y1:Y(j), x2:X(g.cols), y2:Y(j),
+      stroke:j % 5 === 0 ? t.grilleF : t.grille, 'stroke-width':1 }));
+  plan.appendChild(gg);
+  // l'unité, écrite une fois : sans elle, « 3 carreaux » ne veut rien dire
+  // le style en ligne, pas l'attribut : la classe .etiq-note impose
+  // text-anchor:middle, et une règle CSS l'emporte sur un attribut de présentation
+  plan.appendChild(el('text', { x:X(0), y:Y(g.lignes) + 16, class:'etiq-note',
+    style:'text-anchor:start' }, '1 carreau = 1 cm'));
+}
+
+// Le vecteur normal unitaire à [PQ], dirigé du côté opposé au point R : c'est
+// de ce côté-là qu'on construit le carré, pour qu'il ne recouvre pas le triangle.
+function normaleExterieure(P, Q, R) {
+  const dx = Q.x - P.x, dy = Q.y - P.y, L = Math.hypot(dx, dy) || 1;
+  let nx = -dy / L, ny = dx / L;
+  if ((R.x - P.x) * nx + (R.y - P.y) * ny > 0) { nx = -nx; ny = -ny; }
+  return { nx, ny };
+}
+
+/* Le carré construit sur un côté, avec son aire écrite au centre — et, si
+   l'outil des longueurs est allumé, la longueur du côté juste au-dessus.
+   Les deux nombres vont ensemble : c'est en lisant « AB = 6 » puis
+   « AB² = 36 » l'un sous l'autre qu'on comprend ce que le carré représente.
+   Les écrire séparément, la longueur le long du côté, les entassait toutes
+   les trois au milieu d'un petit triangle. */
+function carreSurCote(P, Q, R, couleur, doux, nom, aire, avecLongueur) {
+  const g = el('g');
+  const { nx, ny } = normaleExterieure(P, Q, R);
+  const L = dist(P, Q);
+  const P2 = { x:P.x + nx * L, y:P.y + ny * L }, Q2 = { x:Q.x + nx * L, y:Q.y + ny * L };
+  g.appendChild(el('polygon', {
+    points:[[P.x, P.y], [Q.x, Q.y], [Q2.x, Q2.y], [P2.x, P2.y]]
+      .map(([u, v]) => X(u) + ',' + Y(v)).join(' '),
+    fill:doux, stroke:couleur, 'stroke-width':2, 'stroke-linejoin':'round' }));
+  const cx = (P.x + Q.x + P2.x + Q2.x) / 4, cy = (P.y + Q.y + P2.y + Q2.y) / 4;
+  if (L * pas > 34) {
+    const deux = avecLongueur && L * pas > 52;
+    if (deux) g.appendChild(el('text', { x:X(cx), y:Y(cy) - 9, class:'etiq-lg', fill:couleur },
+      nom + ' = ' + nb(L)));
+    g.appendChild(el('text', { x:X(cx), y:Y(cy) + (deux ? 11 : 2), class:'etiq-aire', fill:couleur },
+      nom + '² = ' + nb(aire, 2)));
+  }
+  return g;
+}
+
+function marqueAngle(S, U, V, droit, couleur) {
+  const g = el('g');
+  const a1 = Math.atan2(U.y - S.y, U.x - S.x), a2 = Math.atan2(V.y - S.y, V.x - S.x);
+  const r = Math.min(.9, dist(S, U) * .32, dist(S, V) * .32);
+  if (droit) {
+    const p1 = { x:S.x + Math.cos(a1) * r, y:S.y + Math.sin(a1) * r };
+    const p2 = { x:S.x + Math.cos(a2) * r, y:S.y + Math.sin(a2) * r };
+    const p3 = { x:p1.x + p2.x - S.x, y:p1.y + p2.y - S.y };
+    g.appendChild(el('polyline', {
+      points:[p1, p3, p2].map(p => X(p.x) + ',' + Y(p.y)).join(' '),
+      fill:'none', stroke:couleur, 'stroke-width':2 }));
+    g.appendChild(el('circle', { cx:X(p3.x), cy:Y(p3.y), r:1.6, fill:couleur }));
+  } else {
+    let d = a2 - a1;
+    while (d <= -Math.PI) d += 2 * Math.PI;
+    while (d > Math.PI) d -= 2 * Math.PI;
+    const grand = 0, sens = d > 0 ? 1 : 0;
+    g.appendChild(el('path', {
+      d:'M ' + X(S.x + Math.cos(a1) * r) + ' ' + Y(S.y + Math.sin(a1) * r) +
+        ' A ' + (r * pas) + ' ' + (r * pas) + ' 0 ' + grand + ' ' + sens + ' ' +
+        X(S.x + Math.cos(a2) * r) + ' ' + Y(S.y + Math.sin(a2) * r),
+      fill:'none', stroke:couleur, 'stroke-width':2 }));
+  }
+  return g;
+}
+
+/* Une longueur écrite le long d'un côté, posée du côté INTÉRIEUR au triangle.
+   À l'extérieur, elle tombait au milieu du carré construit sur ce côté et
+   recouvrait l'aire qui y est écrite. */
+function etiquetteCote(P, Q, R, couleur, texte) {
+  const { nx, ny } = normaleExterieure(P, Q, R);
+  const mx = (P.x + Q.x) / 2 - nx * .45, my = (P.y + Q.y) / 2 - ny * .45;
+  return el('text', { x:X(mx), y:Y(my) + 4, class:'etiq-lg', fill:couleur }, texte);
+}
+
+function pointGlissable(nom, p, classe) {
+  const g = el('g', { class:'pt ' + (classe || ''), 'data-pt':nom,
+    role:'button', tabindex:'0', 'aria-label':'Sommet ' + nom });
+  g.appendChild(el('circle', { class:'halo', cx:X(p.x), cy:Y(p.y), r:Math.max(22, pas * .55) }));
+  g.appendChild(el('circle', { class:'rond', cx:X(p.x), cy:Y(p.y), r:6.5 }));
+  return g;
+}
+
+function dessinerTriangle() {
+  const t = T(), plan = refs.plan, p = etat.pts;
+  const A = p.A, B = p.B, C = p.C, M = p.M, N = p.N;
+  const o = etat.outils;
+
+  // 1. Les carrés des côtés, tout au fond
+  if (o.carres) {
+    plan.appendChild(carreSurCote(A, B, C, t.ab, t.abDoux, 'AB', calc.pyth.carreAB, o.longueurs));
+    plan.appendChild(carreSurCote(A, C, B, t.ac, t.acDoux, 'AC', calc.pyth.carreAC, o.longueurs));
+    plan.appendChild(carreSurCote(B, C, A, t.bc, t.bcDoux, 'BC', calc.pyth.carreBC, o.longueurs));
+  }
+
+  // 2. Le triangle lui-même
+  plan.appendChild(el('polygon', {
+    points:[A, B, C].map(q => X(q.x) + ',' + Y(q.y)).join(' '),
+    fill:t.abDoux, 'fill-opacity':.5, stroke:'none' }));
+  const cote = (P, Q, couleur, large) => el('line', {
+    x1:X(P.x), y1:Y(P.y), x2:X(Q.x), y2:Y(Q.y),
+    stroke:couleur, 'stroke-width':large || 3.5, 'stroke-linecap':'round' });
+  plan.appendChild(cote(A, B, t.ab));
+  plan.appendChild(cote(A, C, t.ac));
+  plan.appendChild(cote(B, C, t.bc));
+
+  // 3. La hauteur relative à l'hypoténuse
+  if (o.hauteur && calc.rm) {
+    const H = calc.rm.H;
+    plan.appendChild(el('line', { x1:X(A.x), y1:Y(A.y), x2:X(H.x), y2:Y(H.y),
+      stroke:t.accent, 'stroke-width':2.5, 'stroke-dasharray':'6 4' }));
+    plan.appendChild(marqueAngle(H, A, B, true, t.accent));
+    plan.appendChild(el('circle', { cx:X(H.x), cy:Y(H.y), r:5, fill:t.accent }));
+    plan.appendChild(el('text', { x:X(H.x), y:Y(H.y) + 20, class:'nom-pt', fill:t.accent }, 'H'));
+    if (dist(A, H) * pas > 30)
+      plan.appendChild(el('text', { x:X((A.x + H.x) / 2) + 20, y:Y((A.y + H.y) / 2) + 4,
+        class:'etiq-lg', fill:t.accent }, 'AH = ' + nb(calc.rm.ah)));
+  }
+
+  // 4. La droite (MN) et le côté (BC), pour la propriété de Thalès
+  if (M && N) {
+    const par = calc.th && calc.th.paralleles;
+    plan.appendChild(el('line', { x1:X(M.x), y1:Y(M.y), x2:X(N.x), y2:Y(N.y),
+      stroke:par ? t.ok : t.aide, 'stroke-width':3, 'stroke-linecap':'round' }));
+    if (par) {
+      // deux chevrons, la notation du parallélisme
+      for (const [P, Q] of [[M, N], [B, C]]) {
+        const mx = (P.x + Q.x) / 2, my = (P.y + Q.y) / 2;
+        const a = Math.atan2(Q.y - P.y, Q.x - P.x);
+        const d = .26;
+        plan.appendChild(el('polyline', {
+          points:[[mx - Math.cos(a) * d + Math.cos(a - 2.2) * d, my - Math.sin(a) * d + Math.sin(a - 2.2) * d],
+                  [mx, my],
+                  [mx - Math.cos(a) * d + Math.cos(a + 2.2) * d, my - Math.sin(a) * d + Math.sin(a + 2.2) * d]]
+            .map(([u, v]) => X(u) + ',' + Y(v)).join(' '),
+          fill:'none', stroke:t.ok, 'stroke-width':2.4, 'stroke-linecap':'round' }));
+      }
+    }
+    if (calc.th && calc.th.rapportsEgaux && !calc.th.memePosition)
+      plan.appendChild(el('text', { x:X(etat.grille.cols / 2), y:Y(.5), class:'etiq-note',
+        fill:t.non }, 'Rapports égaux, mais N est du mauvais côté de A'));
+  }
+
+  // 5. Les marques d'angle
+  if (o.angles) {
+    for (const [S, U, V] of [[A, B, C], [B, A, C], [C, A, B]]) {
+      const d = estRectangleEn(U, S, V);
+      plan.appendChild(marqueAngle(S, U, V, d, d ? t.accent : t.aide));
+    }
+    if (calc.tg && calc.tg.mesure > 4)
+      plan.appendChild(el('text', { x:X(B.x) - 26, y:Y(B.y) - 14, class:'etiq-lg', fill:t.aide },
+        nb(calc.tg.mesure) + '°'));
+  }
+
+  // 6. Les longueurs — sauf quand les carrés sont là : elles y sont déjà écrites
+  if (o.longueurs && !o.carres) {
+    plan.appendChild(etiquetteCote(A, B, C, t.ab, 'AB = ' + nb(calc.pyth.ab)));
+    plan.appendChild(etiquetteCote(A, C, B, t.ac, 'AC = ' + nb(calc.pyth.ac)));
+    plan.appendChild(etiquetteCote(B, C, A, t.bc, 'BC = ' + nb(calc.pyth.bc)));
+  }
+
+  // 7. Les rapports de Thalès, écrits sur les segments concernés
+  if (o.rapports && calc.th) {
+    const th = calc.th;
+    // décalées perpendiculairement à leur segment, chacune de son côté : posées
+    // simplement au-dessus du milieu, les deux se rejoignaient près de A
+    const pose = (P, Q, cote) => {
+      const dx = Q.x - P.x, dy = Q.y - P.y, L = Math.hypot(dx, dy) || 1;
+      return { x:(P.x + Q.x) / 2 - dy / L * cote * .7, y:(P.y + Q.y) / 2 + dx / L * cote * .7 };
+    };
+    const pM = pose(A, M, 1), pN = pose(A, N, -1);
+    plan.appendChild(el('text', { x:X(pM.x), y:Y(pM.y) + 4, class:'etiq-lg', fill:t.ab },
+      'AM/AB = ' + nb2(th.rapportM)));
+    plan.appendChild(el('text', { x:X(pN.x), y:Y(pN.y) + 4, class:'etiq-lg', fill:t.ac },
+      'AN/AC = ' + nb2(th.rapportN)));
+  }
+
+  // 8. Le triangle du cosinus
+  if (o.trigo && calc.tg) {
+    plan.appendChild(el('text', { x:X(etat.grille.cols / 2), y:Y(.5), class:'etiq-note' },
+      'cos ' + nb(calc.tg.mesure) + '° = AB/BC = ' + nb2(calc.tg.cos)));
+  }
+
+  // 9. Les sommets, par-dessus tout
+  const bouge = nomPointsMobiles();
+  for (const nom of ['A', 'B', 'C', 'M', 'N']) {
+    const q = p[nom]; if (!q) continue;
+    const mobile = bouge.indexOf(nom) >= 0;
+    plan.appendChild(pointGlissable(nom, q, mobile ? '' : 'fixe'));
+    const dec = nom === 'C' || nom === 'N' ? -14 : 20;
+    plan.appendChild(el('text', { x:X(q.x) + (nom === 'B' ? 14 : nom === 'A' ? -14 : 0),
+      y:Y(q.y) + dec, class:'nom-pt' }, nom));
+  }
+}
+
+// Quels points l'élève peut saisir dans la mission en cours
+function nomPointsMobiles() {
+  if (etat.scene === 'obelisque') return [];
+  const M = enLibre() ? null : MISSIONS[etat.mission];
+  if (M && M.points === 'MN') return ['M', 'N'];
+  return ['A', 'B', 'C'];
+}
+
+/* ---- La scène du terrain : l'obélisque, le bâton, et leurs ombres ---- */
+function dessinerTerrain() {
+  const t = T(), plan = refs.plan, g = etat.grille;
+  const encreOmbre = nuit() ? '#C9B896' : '#6B5E45';
+  const hb = etat.hBaton, ob = hb * OMBRE_PAR_HAUTEUR;
+  const oo = OBELISQUE.hauteur * OMBRE_PAR_HAUTEUR;
+
+  // le ciel et le sol
+  plan.appendChild(el('rect', { x:X(0), y:Y(0), width:g.cols * pas, height:SOL * pas,
+    fill:nuit() ? '#16222E' : '#DCEEF8' }));
+  plan.appendChild(el('rect', { x:X(0), y:Y(SOL), width:g.cols * pas, height:(g.lignes - SOL) * pas,
+    fill:nuit() ? '#2A2419' : '#E8DCC0' }));
+  plan.appendChild(el('line', { x1:X(0), y1:Y(SOL), x2:X(g.cols), y2:Y(SOL),
+    stroke:t.trait, 'stroke-width':2 }));
+  // le soleil, en haut à gauche : c'est lui qui fixe l'inclinaison des rayons
+  plan.appendChild(el('circle', { cx:X(.9), cy:Y(.9), r:pas * .5, fill:'#F7C948' }));
+
+  // le graduation du sol, en mètres
+  for (let i = 0; i <= g.cols; i++) {
+    plan.appendChild(el('line', { x1:X(i), y1:Y(SOL), x2:X(i), y2:Y(SOL) + (i % 5 ? 4 : 8),
+      stroke:t.aide, 'stroke-width':1 }));
+    if (i % 5 === 0 && i > 0)
+      plan.appendChild(el('text', { x:X(i), y:Y(SOL) + 20, class:'etiq-lg', fill:t.aide }, i + ' m'));
+  }
+
+  const ombre = (x0, longueur) => el('polygon', {
+    points:[[x0, SOL], [x0 + longueur, SOL], [x0, SOL]].map(([u, v]) => X(u) + ',' + Y(v)).join(' '),
+    fill:'none' });
+
+  // l'obélisque, son ombre, son rayon
+  const ox0 = OBELISQUE.x, oh = OBELISQUE.hauteur;
+  plan.appendChild(el('rect', { x:X(ox0) - pas * .28, y:Y(SOL - oh), width:pas * .56, height:oh * pas,
+    fill:nuit() ? '#8C8272' : '#B9AE97', stroke:t.trait, 'stroke-width':2 }));
+  plan.appendChild(el('polygon', {
+    points:[[ox0 - .28, SOL - oh], [ox0, SOL - oh - .7], [ox0 + .28, SOL - oh]]
+      .map(([u, v]) => X(u) + ',' + Y(v)).join(' '),
+    fill:nuit() ? '#8C8272' : '#B9AE97', stroke:t.trait, 'stroke-width':2 }));
+  plan.appendChild(el('line', { x1:X(ox0), y1:Y(SOL), x2:X(ox0 + oo), y2:Y(SOL),
+    stroke:'#6B5E45', 'stroke-width':7, 'stroke-linecap':'round', opacity:.55 }));
+  plan.appendChild(el('line', { x1:X(ox0), y1:Y(SOL - oh - .7), x2:X(ox0 + oo), y2:Y(SOL),
+    stroke:'#F7C948', 'stroke-width':2, 'stroke-dasharray':'7 5' }));
+  // décalée vers la droite : au milieu de l'ombre, elle passait derrière le
+  // repère de hauteur que l'élève fait glisser le long de l'obélisque
+  plan.appendChild(el('text', { x:X(ox0 + oo * .72), y:Y(SOL) - 8, class:'etiq-lg', fill:encreOmbre },
+    'ombre = ' + nb(oo) + ' m'));
+
+  // le bâton de Baké, dont on peut saisir le sommet
+  const bx = BATON.x;
+  plan.appendChild(el('line', { x1:X(bx), y1:Y(SOL), x2:X(bx + ob), y2:Y(SOL),
+    stroke:'#6B5E45', 'stroke-width':6, 'stroke-linecap':'round', opacity:.55 }));
+  plan.appendChild(el('line', { x1:X(bx), y1:Y(SOL), x2:X(bx), y2:Y(SOL - hb),
+    stroke:nuit() ? '#C9A227' : '#8A6520', 'stroke-width':5, 'stroke-linecap':'round' }));
+  plan.appendChild(el('line', { x1:X(bx), y1:Y(SOL - hb), x2:X(bx + ob), y2:Y(SOL),
+    stroke:'#F7C948', 'stroke-width':2, 'stroke-dasharray':'7 5' }));
+  // au-dessus de la ligne de sol, comme celle de l'obélisque : en dessous, elle
+  // se cognait à la graduation en mètres et sortait du plan
+  plan.appendChild(el('text', { x:X(bx + ob / 2), y:Y(SOL) - 8, class:'etiq-lg', fill:encreOmbre },
+    'ombre = ' + nb(ob) + ' m'));
+  // au-dessus du sommet du bâton : à mi-hauteur, elle recouvrait l'étiquette de
+  // l'ombre dès que le bâton était court
+  plan.appendChild(el('text', { x:X(bx), y:Y(SOL - hb) - 16, class:'etiq-lg',
+    fill:nuit() ? '#E0C15A' : '#8A6520' }, 'bâton = ' + nb(hb) + ' m'));
+  const gb = el('g', { class:'pt', 'data-terrain':'baton', role:'button', tabindex:'0',
+    'aria-label':'Hauteur du bâton' });
+  gb.appendChild(el('circle', { class:'halo', cx:X(bx), cy:Y(SOL - hb), r:Math.max(24, pas * .6) }));
+  gb.appendChild(el('circle', { class:'rond', cx:X(bx), cy:Y(SOL - hb), r:7 }));
+  refs.plan.appendChild(gb);
+
+  // le repère de hauteur que l'élève pose sur l'obélisque
+  const he = etat.estimation;
+  const gr = el('g', { class:'pt', 'data-terrain':'repere', role:'button', tabindex:'0',
+    'aria-label':'Repère de hauteur' });
+  gr.appendChild(el('line', { x1:X(ox0 - 1.1), y1:Y(SOL - he), x2:X(ox0 + 1.1), y2:Y(SOL - he),
+    stroke:t.accent, 'stroke-width':3 }));
+  gr.appendChild(el('circle', { class:'halo', cx:X(ox0 + 1.1), cy:Y(SOL - he), r:Math.max(24, pas * .6) }));
+  gr.appendChild(el('circle', { class:'rond', cx:X(ox0 + 1.1), cy:Y(SOL - he), r:7 }));
+  plan.appendChild(gr);
+  plan.appendChild(el('text', { x:X(ox0 + 1.5), y:Y(SOL - he) - 8, class:'etiq-lg',
+    fill:t.accent, style:'text-anchor:start' }, 'mon repère : ' + nb(he) + ' m'));
+}
+
+/* ==================== Ce que la figure permet de calculer ==================== */
+function resoudre() {
+  const p = etat.pts;
+  calc = {};
+  if (etat.scene === 'obelisque') {
+    const hb = etat.hBaton, ob = hb * OMBRE_PAR_HAUTEUR;
+    const oo = OBELISQUE.hauteur * OMBRE_PAR_HAUTEUR;
+    calc.ombre = { hb, ob, oo, ho:hauteurParOmbre(hb, ob, oo), rapport:hb / ob };
+  } else {
+    const A = p.A, B = p.B, C = p.C;
+    calc.droit = sommetDroit(A, B, C);
+    calc.pyth = pythagore(A, B, C);
+    if (calc.droit === 'A') { calc.rm = relationsMetriques(A, B, C); calc.tg = trigo(A, B, C); }
+    if (p.M && p.N) {
+      calc.th = thales(A, B, C, p.M, p.N);
+      calc.sim = semblables([A, p.M, p.N], [A, B, C]);
+    }
+  }
+  memoriser();
+  // mesurerPlan() plutôt que dessiner() : c'est lui qui élargit le cadre quand
+  // les carrés débordent, et il redessine dans la foulée.
+  mesurerPlan(); majCarnet(); rendreEtapes(); rendreActions(); verifierProgres();
+}
+
+// La signature d'une configuration : ses trois côtés au dixième près. Deux
+// figures de mêmes côtés comptent pour une seule — sinon un aller-retour du
+// doigt suffirait à cocher « recommence trois fois ».
+function signature() {
+  if (!calc.pyth) return '';
+  return [calc.pyth.ab, calc.pyth.ac, calc.pyth.bc].map(x => x.toFixed(1)).sort().join('|');
+}
+
+function memoriser() {
+  const v = etat.vus;
+  if (etat.scene === 'obelisque') { v.baton[nb(etat.hBaton)] = 1; return; }
+  const sig = signature();
+  if (!sig) return;
+  if (calc.droit) v.rect[sig] = 1;
+  if (calc.droit === 'A' && etat.outils.carres) v.pyth[sig] = 1;
+  if (calc.droit === 'A' && etat.outils.hauteur && calc.rm.ah > .2) {
+    v.hauteur[sig] = 1; v.moyenne[sig] = 1; v.proj[sig] = 1;
+  }
+  if (calc.th) {
+    if (calc.th.paralleles && calc.th.rapportM > .08) { v.thales[sig + '/' + nb2(calc.th.rapportM)] = 1;
+      v.sim[sig + '/' + nb2(calc.th.rapportM)] = 1; }
+    if (calc.th.rapportsEgaux && !calc.th.memePosition && !calc.th.paralleles) v.piege = true;
+  }
+  if (calc.tg && calc.droit === 'A' && Math.abs(calc.tg.mesure - 45) < .6) v.cos[nb(calc.tg.hyp)] = 1;
+
+  /* Certaines missions demandent DEUX figures différentes l'une après l'autre :
+     le 6-8-10 puis un triangle qui n'en est pas un, 45° puis 60°. Leurs étapes
+     ne peuvent donc pas porter sur la figure du moment — la seconde effacerait
+     la première et l'élève verrait ses étapes se décocher. On retient ici ce
+     qu'il a construit ; les étapes lisent cette mémoire. */
+  if (calc.droit && aDeuxCotes(6, 8)) v.a68 = true;
+  if (cotesSont(6, 8, 10)) v.a6810 = true;
+  if (!calc.droit) v.pasRect = true;
+  if (calc.droit && aDeuxCotes(5, 12)) v.a512 = true;
+  if (cotesSont(5, 12, 13)) v.a51213 = true;
+  if (calc.tg && calc.droit === 'A') {
+    if (Math.abs(calc.tg.mesure - 45) < .6) v.vu45 = true;
+    // 45° tombe juste sur le quadrillage — deux côtés égaux. 60° non : sa
+    // tangente vaut √3, qui n'est le quotient d'aucun couple d'entiers. On
+    // accepte donc l'approche à un degré et demi, ce que 7 et 12 réalisent.
+    if (Math.abs(calc.tg.mesure - 60) < 1.5) v.vu60 = true;
+  }
+}
+
+/* ========================= Le carnet de mesures =========================
+   C'est ici que la propriété du cours s'écrit avec les nombres de l'élève,
+   les deux membres l'un en face de l'autre. Le guide de création en fait la
+   meilleure façon d'apprendre à SE SERVIR d'une formule. */
+function ligneMesure(nom, valeur) {
+  return '<div class="me-ligne"><span class="nom">' + nom + '</span>' +
+         '<span class="val">' + valeur + '</span></div>';
+}
+function ligneEgalite(gauche, droite, texteG, texteD) {
+  const juste = Math.abs(gauche - droite) <= .02 * Math.max(Math.abs(gauche), Math.abs(droite), 1e-9);
+  return '<div class="me-egalite ' + (juste ? 'juste' : 'faux') + '">' +
+    '<span class="memb">' + texteG + ' = ' + nb2(gauche) + '</span>' +
+    '<span class="signe">' + (juste ? '=' : '≠') + '</span>' +
+    '<span class="memb">' + texteD + ' = ' + nb2(droite) + '</span></div>';
+}
+
+function majCarnet() {
+  const z = $('me-corps'), o = etat.outils;
+  let h = '';
+  if (etat.scene === 'obelisque') {
+    const c = calc.ombre;
+    h += ligneMesure('Bâton', nb(c.hb) + ' m');
+    h += ligneMesure('Son ombre', nb(c.ob) + ' m');
+    h += '<div class="me-sep"></div>';
+    h += ligneMesure('hauteur ÷ ombre', nb2(c.rapport));
+    h += ligneMesure('Ombre de l’obélisque', nb(c.oo) + ' m');
+    h += '<div class="me-egalite juste"><span class="memb">' + nb(c.oo) + ' × ' + nb2(c.rapport) +
+         ' = ' + nb(c.ho) + ' m</span></div>';
+    $('me-quoi').textContent = 'Le même soleil pour les deux : le rapport ne change pas.';
+    z.innerHTML = h;
+    return;
+  }
+  h += ligneMesure('AB', nb(calc.pyth.ab) + ' cm');
+  h += ligneMesure('AC', nb(calc.pyth.ac) + ' cm');
+  h += ligneMesure('BC', nb(calc.pyth.bc) + ' cm');
+  if (o.carres) {
+    h += '<div class="me-sep"></div>';
+    h += ligneEgalite(calc.pyth.somme, calc.pyth.carreBC, 'AB² + AC²', 'BC²');
+    if (Math.abs(calc.pyth.carreBC - 2) < .02)
+      h += '<div class="me-egalite juste"><span class="memb">BC = √2 ≈ 1,414…</span></div>';
+  }
+  if (o.hauteur && calc.rm) {
+    h += '<div class="me-sep"></div>';
+    h += ligneMesure('AH', nb(calc.rm.ah) + ' cm');
+    h += ligneMesure('BH · HC', nb(calc.rm.bh) + ' · ' + nb(calc.rm.ch));
+    h += ligneEgalite(calc.rm.moyenne.gauche, calc.rm.moyenne.droite, 'AH²', 'BH × HC');
+    h += ligneEgalite(calc.rm.projection.gauche, calc.rm.projection.droite, 'AB²', 'BH × BC');
+    h += ligneEgalite(calc.rm.produit.gauche, calc.rm.produit.droite, 'AB × AC', 'AH × BC');
+  }
+  if (o.rapports && calc.th) {
+    h += '<div class="me-sep"></div>';
+    h += ligneEgalite(calc.th.rapportM, calc.th.rapportN, 'AM/AB', 'AN/AC');
+    h += ligneMesure('MN / BC', nb2(calc.th.mn / calc.th.bc));
+    if (calc.sim && calc.sim.ok)
+      h += ligneMesure('Rapport de similitude', nb2(calc.sim.rapport));
+  }
+  if (o.trigo && calc.tg) {
+    h += '<div class="me-sep"></div>';
+    h += ligneMesure('Angle en B', nb(calc.tg.mesure) + '°');
+    h += ligneMesure('cos B = AB/BC', nb2(calc.tg.cos));
+    h += ligneMesure('sin B = AC/BC', nb2(calc.tg.sin));
+    h += ligneMesure('tan B = AC/AB', nb2(calc.tg.tan));
+  }
+  z.innerHTML = h;
+  // La phrase du bas dit ce qui compte POUR CETTE MISSION : parler de l'angle
+  // droit pendant une mission sur Thalès n'apprend rien et brouille la lecture.
+  $('me-quoi').textContent = calc.th
+    ? (calc.th.paralleles ? '(MN) est parallèle à (BC).'
+                          : '(MN) n’est pas encore parallèle à (BC).')
+    : calc.droit ? 'Le triangle est rectangle en ' + calc.droit + '.'
+                 : 'Ce triangle n’a pas d’angle droit.';
+}
+
+/* ============================== Les outils ============================== */
+function rendreOutils() {
+  const z = $('liste-outils'), permis = outilsAutorises();
+  z.innerHTML = '';
+  for (const cle of Object.keys(OUTILS)) {
+    if (permis.indexOf(cle) < 0) continue;
+    const o = OUTILS[cle];
+    const b = document.createElement('button');
+    b.className = 'ot'; b.id = 'ot-' + cle; b.type = 'button';
+    b.setAttribute('aria-pressed', etat.outils[cle] ? 'true' : 'false');
+    b.innerHTML = '<span class="em">' + o.em + '</span>' + o.nom;
+    b.onclick = () => {
+      etat.outils[cle] = !etat.outils[cle];
+      rendreOutils(); resoudre();
+    };
+    z.appendChild(b);
+  }
+  $('outils').hidden = z.children.length === 0;
+}
+
+/* ====================== Les boutons du bas de l’écran ====================== */
+function rendreActions() {
+  const z = $('actions');
+  z.innerHTML = '';
+  const bouton = (id, txt, cls, act) => {
+    const b = document.createElement('button');
+    b.className = 'btn ' + (cls || ''); b.id = id; b.textContent = txt; b.onclick = act;
+    z.appendChild(b); return b;
+  };
+  bouton('btn-replacer', '↺ Replacer la figure', 'btn-fantome', () => {
+    const gardeVus = etat.vus;
+    reprendre();
+    etat.vus = gardeVus;                 // on ne rend pas à l'élève ce qu'il a déjà constaté
+    resoudre(); rendreOutils(); rendreMission();
+    toast('Figure remise en place.');
+  });
+  if (!enLibre()) bouton('btn-tester', '✅ Conclure', '', conclure);
+  surbrillerCible();
+}
+
+/* ====================== Le bilan : « que conclure ? » ====================== */
+
+/* Un bilan par mission. Il refuse quand la figure n'est pas dans l'état voulu —
+   avec le geste qui manque — et sinon il note ce que l'élève vient de constater.
+   C'est ce constat, et non une case à cocher, qui fait avancer la mission. */
+const BILANS = [
+  () => calc.droit === 'A'
+    ? ['📐', 'L’angle droit est là', 'Le petit carré marque l’angle en A.',
+       'Le côté opposé à l’angle droit — ici [BC] — est l’<b>hypoténuse</b>. C’est toujours le plus long des trois côtés.']
+    : ['🤔', 'Pas encore d’angle droit', '',
+       'Amène B sur la même ligne horizontale que A, et C sur la même colonne verticale. La marque d’angle droit apparaîtra en A.'],
+
+  () => {
+    if (calc.droit !== 'A') return ['🤔', 'Rends d’abord le triangle rectangle en A', '',
+      'Les carrés sont dessinés sur les trois côtés, mais la propriété de Pythagore ne vaut que pour un triangle <b>rectangle</b>.'];
+    etat.vus.pythLu = true;
+    return ['🟦', 'Le grand carré vaut les deux petits',
+      nb2(calc.pyth.carreAB) + ' + ' + nb2(calc.pyth.carreAC) + ' = ' + nb2(calc.pyth.carreBC),
+      'C’est la <b>propriété de Pythagore</b> : dans un triangle rectangle, le carré de l’hypoténuse est égal à la somme des carrés des deux autres côtés. Déforme le triangle : tant que l’angle reste droit, l’égalité tient.'];
+  },
+
+  () => {
+    if (!cotesSont(3, 4, 5)) return ['🧵', 'Ce n’est pas encore le 3-4-5', '',
+      'Il te faut des côtés de <b>3</b> et <b>4</b> carreaux autour du sommet A, sur une ligne et sur une colonne. Le troisième côté vaudra 5 tout seul.'];
+    etat.vus.corde = true;
+    return ['🧵', 'La corde des maçons', '3² + 4² = 9 + 16 = 25 = 5²',
+      'Avec treize nœuds régulièrement espacés, on obtient douze intervalles qu’on répartit en 3, 4 et 5. Le triangle obtenu est <b>forcément rectangle</b> : c’est ainsi qu’on trace un angle droit sur un chantier, sans équerre.'];
+  },
+
+  () => cotesSont(5, 12, 13)
+    ? ['🔢', 'Calculé, pas mesuré', '5² + 12² = 25 + 144 = 169 = 13²',
+       'Tu n’as pas eu besoin de mesurer l’hypoténuse : la propriété de Pythagore l’a donnée. C’est ce qui permet de trouver une distance qu’on ne peut pas parcourir.']
+    : ['🔢', 'Continue', '',
+       'Fais un triangle rectangle en A avec un côté de <b>5</b> et un de <b>12</b> carreaux. Regarde ensuite ce que vaut l’hypoténuse.'],
+
+  () => {
+    const c = cotesTriees();
+    if (cotesSont(6, 8, 10)) { etat.vus.reciVrai = true;
+      return ['✅', 'Celui-là est rectangle', '6² + 8² = 36 + 64 = 100 = 10²',
+        'L’égalité est vraie, donc le triangle <b>est</b> rectangle : c’est la <b>réciproque</b> de la propriété de Pythagore. Elle sert à reconnaître un angle droit sans le mesurer.']; }
+    if (!calc.droit) { etat.vus.reciFaux = true;
+      return ['❌', 'Celui-là ne l’est pas',
+        nb2(c[0] * c[0]) + ' + ' + nb2(c[1] * c[1]) + ' = ' + nb2(c[0] * c[0] + c[1] * c[1]) +
+        ', alors que le grand côté au carré vaut ' + nb2(c[2] * c[2]),
+        'Les deux nombres ne sont pas égaux : le triangle <b>n’est pas rectangle</b>. La réciproque tranche dans les deux sens — elle sert autant à écarter qu’à confirmer.']; }
+    return ['🤔', 'Il te manque un triangle', '',
+      'Fais d’abord celui de côtés <b>6, 8 et 10</b> et appuie sur Conclure. Puis déplace un sommet pour sortir de l’angle droit.'];
+  },
+
+  () => {
+    if (!(calc.droit === 'A' && cotesSont(1, 1, Math.SQRT2)))
+      return ['🔍', 'Le triangle n’y est pas encore', '',
+        'Place B à <b>un seul carreau</b> de A sur la même ligne, et C à <b>un seul carreau</b> de A sur la même colonne.'];
+    etat.vus.racine = true;
+    return ['√', 'Un nombre d’un genre nouveau', 'BC² = 1 + 1 = 2',
+      'La longueur BC est le nombre dont le carré vaut 2. On le note <b>√2</b>. Ce n’est <b>aucune fraction</b> : aucun quotient de deux entiers ne donne exactement 2 une fois élevé au carré. Avec √3, √5 et leurs semblables, ces nombres complètent les rationnels pour former les <b>nombres réels</b>.'];
+  },
+
+  () => {
+    if (calc.droit !== 'A') return ['🤔', 'Rends le triangle rectangle en A', '',
+      'La hauteur relative à l’hypoténuse part du sommet de l’<b>angle droit</b>.'];
+    etat.vus.hauteurLue = true;
+    return ['📉', 'Le pied de la hauteur',
+      'BH = ' + nb(calc.rm.bh) + ' · HC = ' + nb(calc.rm.ch) + ' · BC = ' + nb(calc.rm.bc),
+      'La hauteur issue de A tombe perpendiculairement sur l’hypoténuse, en un point <i>H</i> qui la partage en deux : <b>BH + HC = BC</b>. Elle découpe aussi le triangle en deux triangles rectangles, semblables au premier.'];
+  },
+
+  () => {
+    if (calc.droit !== 'A') return ['🤔', 'Rends le triangle rectangle en A', '',
+      'La relation ne vaut que dans un triangle rectangle.'];
+    etat.vus.moyenneLue = true;
+    return ['📏', 'AH est moyenne proportionnelle',
+      'AH² = ' + nb2(calc.rm.moyenne.gauche) + ' · BH × HC = ' + nb2(calc.rm.moyenne.droite),
+      'Dans un triangle rectangle, la hauteur relative à l’hypoténuse est <b>moyenne proportionnelle</b> entre les deux segments qu’elle détermine : <b>AH² = BH × HC</b>. Déforme le triangle : les deux nombres bougent ensemble.'];
+  },
+
+  () => {
+    if (calc.droit !== 'A') return ['🤔', 'Rends le triangle rectangle en A', '',
+      'Les deux relations ne valent que dans un triangle rectangle.'];
+    etat.vus.projLue = true; etat.vus.produitLu = true;
+    return ['📐', 'Chaque côté se lit sur l’hypoténuse',
+      'AB² = ' + nb2(calc.rm.projection.gauche) + ' · BH × BC = ' + nb2(calc.rm.projection.droite),
+      'Le carré d’un côté de l’angle droit vaut le produit de l’hypoténuse par le <b>projeté</b> de ce côté sur elle : <b>AB² = BH × BC</b>. Et le produit des côtés de l’angle droit vaut celui de l’hypoténuse par la hauteur : <b>AB × AC = AH × BC</b> — c’est elle qui donne AH quand on connaît les trois côtés.'];
+  },
+
+  () => {
+    if (!(calc.th && calc.th.paralleles)) return ['🤔', '(MN) n’est pas encore parallèle à (BC)', '',
+      'Fais glisser N le long de [AC] : quand le parallélisme est atteint, la droite change de couleur et les chevrons apparaissent.'];
+    etat.vus.thalesLu = true;
+    return ['➗', 'Les deux rapports sont égaux',
+      'AM/AB = ' + nb2(calc.th.rapportM) + ' · AN/AC = ' + nb2(calc.th.rapportN) +
+      ' · MN/BC = ' + nb2(calc.th.mn / calc.th.bc),
+      '<b>Propriété de Thalès relative au triangle</b> : si (<i>MN</i>) est parallèle à (<i>BC</i>), alors AM/AB = AN/AC = MN/BC. Les trois rapports sont le même nombre : le petit triangle est une réduction du grand.'];
+  },
+
+  () => {
+    if (!etat.vus.piege) return ['🤔', 'Le piège n’est pas encore sous tes yeux', '',
+      'Fais passer N <b>de l’autre côté de A</b>, puis ajuste-le jusqu’à ce que les deux rapports du carnet redeviennent égaux. Regarde alors les droites.'];
+    etat.vus.piegeLu = true;
+    return ['⚠️', 'L’égalité des rapports ne suffit pas',
+      'AM/AB = ' + nb2(calc.th.rapportM) + ' et AN/AC = ' + nb2(calc.th.rapportN) + ', pourtant (MN) coupe (BC)',
+      'Les deux rapports de <b>longueurs</b> sont égaux, et les droites ne sont pourtant pas parallèles. Il manque la condition de <b>position</b> : M doit occuper par rapport à A et B la même place que N par rapport à A et C. C’est cette condition, et l’égalité des rapports, qui donnent ensemble la réciproque.'];
+  },
+
+  () => {
+    if (!(calc.th && calc.th.paralleles)) return ['🤔', 'Rends d’abord (MN) parallèle à (BC)', '',
+      'C’est le parallélisme qui fabrique le petit triangle semblable.'];
+    etat.vus.simLu = true;
+    return ['🔺', 'Deux triangles de même forme',
+      'Rapport de similitude : ' + nb2(calc.sim.rapport),
+      'Les triangles <i>AMN</i> et <i>ABC</i> sont <b>semblables</b> : leurs côtés sont proportionnels, dans le même rapport. Leurs angles homologues ont la <b>même mesure</b> — le petit est le grand vu de plus loin.'];
+  },
+
+  () => {
+    if (Object.keys(etat.vus.baton).length < 3) return ['🤔', 'Essaie d’abord plusieurs bâtons', '',
+      'Fais glisser le sommet du bâton pour changer sa hauteur, au moins trois fois, et regarde le rapport hauteur ÷ ombre dans ton carnet.'];
+    etat.vus.rapportSoleil = true;
+    if (Math.abs(etat.estimation - OBELISQUE.hauteur) >= .01)
+      return ['☀️', 'Le rapport ne bouge jamais',
+        'hauteur ÷ ombre = ' + nb2(calc.ombre.rapport) + ' pour n’importe quel bâton',
+        'Le soleil éclaire tout le terrain sous le même angle. Applique donc ce rapport à l’ombre de l’obélisque : ' +
+        nb(calc.ombre.oo) + ' × ' + nb2(calc.ombre.rapport) + ' = <b>' + nb(calc.ombre.ho) +
+        ' m</b>. Place maintenant ton repère à cette hauteur.'];
+    return ['🏛️', 'Baké a sa réponse',
+      'L’obélisque mesure ' + nb(OBELISQUE.hauteur) + ' mètres.',
+      'Le bâton et l’obélisque forment deux triangles <b>semblables</b>, parce que les rayons du soleil arrivent sous le même angle. Le rapport hauteur ÷ ombre est donc le même pour les deux, et une simple multiplication donne une hauteur que personne ne peut mesurer directement.'];
+  },
+
+  () => {
+    if (!(calc.tg && calc.droit === 'A')) return ['🤔', 'Rends le triangle rectangle en A', '',
+      'Les rapports trigonométriques se lisent dans un triangle <b>rectangle</b>.'];
+    const n = Object.keys(etat.vus.cos).length;
+    if (n < 3) return ['🧭', 'Agrandis encore',
+      'Angle : ' + nb(calc.tg.mesure) + '° · cos = ' + nb2(calc.tg.cos),
+      'Fais des triangles de tailles différentes en gardant l’angle à 45° : côtés 3 et 3, puis 4 et 4, puis 5 et 5. Surveille le cosinus.'];
+    return ['🧭', 'Le cosinus n’a pas bougé',
+      'cos ' + nb(calc.tg.mesure) + '° = ' + nb2(calc.tg.cos),
+      'Le cosinus est un <b>rapport</b> de deux longueurs. Quand le triangle grandit, les deux grandissent ensemble et le rapport reste identique. Il ne dépend donc que de la <b>mesure de l’angle</b> — c’est pourquoi une seule table suffit : cos 45° = √2/2 ≈ 0,71, cos 60° = 0,5.'];
+  },
+];
+
+function conclure() {
+  const b = $('btn-tester'); if (b) b.classList.remove('appelle');
+  const f = BILANS[etat.mission];
+  if (!f) return;
+  const [em, titre, objectif, phrase] = f();
+  montrerBilan(em, titre, objectif, phrase);
+  resoudre();
+}
+
+/* ============================== Le geste ==============================
+   Un seul geste : saisir un point et le faire glisser. Les sommets se posent
+   sur les croisements du quadrillage, pour que les longueurs restent des
+   nombres simples ; M et N, eux, coulissent le long de leur droite. */
+let saisi = null;
+
+function versGrille(ev) {
+  const r = refs.plan.getBoundingClientRect();
+  const sx = r.width ? Wp / r.width : 1, sy = r.height ? Hp / r.height : 1;
+  return { x:((ev.clientX - r.left) * sx - ox) / pas,
+           y:((ev.clientY - r.top) * sy - oy) / pas };
+}
+
+const borner = (v, min, max) => Math.max(min, Math.min(max, v));
+
+// Un point M de la droite (AB), repéré par son abscisse k depuis A
+const surLaDroite = (A, B, k) => ({ x:A.x + (B.x - A.x) * k, y:A.y + (B.y - A.y) * k });
+
+function deplacerSommet(nom, g) {
+  const p = etat.pts, gr = etat.grille;
+  const nx = borner(Math.round(g.x), 0, gr.cols), ny = borner(Math.round(g.y), 0, gr.lignes);
+  const avant = { x:p[nom].x, y:p[nom].y };
+  p[nom] = { x:nx, y:ny };
+  // Un triangle aplati n'a plus de sens : on refuse le déplacement plutôt que
+  // d'afficher des mesures absurdes.
+  const aire = Math.abs((p.B.x - p.A.x) * (p.C.y - p.A.y) - (p.B.y - p.A.y) * (p.C.x - p.A.x));
+  if (aire < .5) { p[nom] = avant; return false; }
+  return avant.x !== nx || avant.y !== ny;
+}
+
+function deplacerCoulissant(nom, g) {
+  const p = etat.pts;
+  const A = p.A, autre = nom === 'M' ? p.B : p.C;
+  let k = abscisse(g, A, autre);
+  k = Math.round(k / .05) * .05;                 // vingtièmes : les rapports restent lisibles
+  k = borner(k, -1.3, 1.3);
+  if (Math.abs(k) < .1) k = k < 0 ? -.1 : .1;    // jamais confondu avec A
+  const avant = p[nom];
+  p[nom] = surLaDroite(A, autre, k);
+  return Math.abs(avant.x - p[nom].x) > 1e-9 || Math.abs(avant.y - p[nom].y) > 1e-9;
+}
+
+function deplacerTerrain(quoi, g) {
+  const h = Math.round((SOL - g.y) / .5) * .5;
+  if (quoi === 'baton') {
+    const v = borner(h, BATON.hauteurMin, BATON.hauteurMax);
+    if (v === etat.hBaton) return false;
+    etat.hBaton = v; return true;
+  }
+  const v = borner(h, 0, 12);
+  if (v === etat.estimation) return false;
+  etat.estimation = v; return true;
+}
+
+function brancherGestes() {
+  const plan = refs.plan;
+  plan.addEventListener('pointerdown', ev => {
+    const cible = ev.target.closest('[data-pt], [data-terrain]');
+    if (!cible) return;
+    if (cible.dataset.pt && nomPointsMobiles().indexOf(cible.dataset.pt) < 0) return;
+    saisi = cible.dataset.pt
+      ? { type:'pt', nom:cible.dataset.pt }
+      : { type:'terrain', quoi:cible.dataset.terrain };
+    cible.classList.add('tenu');
+    try { plan.setPointerCapture(ev.pointerId); } catch (e) {}
+    ev.preventDefault();
+  });
+  plan.addEventListener('pointermove', ev => {
+    if (!saisi) return;
+    const g = versGrille(ev);
+    let bouge = false;
+    if (saisi.type === 'terrain') bouge = deplacerTerrain(saisi.quoi, g);
+    else if (saisi.nom === 'M' || saisi.nom === 'N') {
+      bouge = deplacerCoulissant(saisi.nom, g);
+      if (bouge && saisi.nom === 'M') etat.bougesM++;
+    } else {
+      bouge = deplacerSommet(saisi.nom, g);
+      if (bouge) etat.bouges++;
+    }
+    if (bouge) resoudre();
+    ev.preventDefault();
+  });
+  const lacher = ev => {
+    if (!saisi) return;
+    saisi = null;
+    plan.querySelectorAll('.tenu').forEach(n => n.classList.remove('tenu'));
+    try { plan.releasePointerCapture(ev.pointerId); } catch (e) {}
+  };
+  plan.addEventListener('pointerup', lacher);
+  plan.addEventListener('pointercancel', lacher);
+
+  /* Au clavier : les flèches déplacent le point sélectionné. Sans cela, la
+     simulation serait inutilisable sur un ordinateur sans écran tactile pour
+     qui ne peut pas se servir d'une souris. */
+  plan.addEventListener('keydown', ev => {
+    const cible = ev.target.closest('[data-pt], [data-terrain]');
+    if (!cible) return;
+    const d = { ArrowLeft:[-1, 0], ArrowRight:[1, 0], ArrowUp:[0, -1], ArrowDown:[0, 1] }[ev.key];
+    if (!d) return;
+    ev.preventDefault();
+    if (cible.dataset.terrain) {
+      const q = cible.dataset.terrain;
+      const h = (q === 'baton' ? etat.hBaton : etat.estimation) - d[1] * .5;
+      deplacerTerrain(q, { y:SOL - h });
+    } else {
+      const nom = cible.dataset.pt;
+      if (nomPointsMobiles().indexOf(nom) < 0) return;
+      const p = etat.pts[nom];
+      if (nom === 'M' || nom === 'N') {
+        const A = etat.pts.A, autre = nom === 'M' ? etat.pts.B : etat.pts.C;
+        const k = abscisse(p, A, autre) + (d[0] + d[1]) * .05;
+        deplacerCoulissant(nom, surLaDroite(A, autre, k));
+        etat.bougesM++;
+      } else {
+        if (deplacerSommet(nom, { x:p.x + d[0], y:p.y + d[1] })) etat.bouges++;
+      }
+    }
+    resoudre();
+  });
+}
+
+/* ---- L'indice, appelé à la demande ---- */
+function montrerIndice() {
+  const M = enLibre() ? null : MISSIONS[etat.mission];
+  if (!M || !M.indice) return;
+  // le plan replié cacherait l'indice : on le rouvre avant de l'écrire
+  $('mission').classList.add('ouvert');
+  $('m-plier').setAttribute('aria-expanded', 'true');
+  $('m-indice').innerHTML = '<b>💡 Indice :</b> ' + M.indice;
+  $('m-indice').hidden = false;
+  $('btn-indice').classList.remove('appelle');
+  mesurerPlan();
+}
+
+function demarrerMission() {
+  cacherBilan();
+  // On repart de la figure de départ de la mission et de ses seuls outils.
+  // Le socle appelle parfois reprendre() juste avant : le refaire ici ne coûte
+  // rien, et garantit que l'entrée en mission passe toujours par là — au
+  // premier chargement, personne d'autre ne s'en charge.
+  reprendre();
+  reinitialiserCadre();
+  $('m-indice').hidden = true;
+  $('m-indice').innerHTML = '';
+  const M = enLibre() ? null : MISSIONS[etat.mission];
+  $('m-actions').hidden = !(M && M.indice);
+  rendreMission(); rendreOutils(); resoudre();
+}
+
+/* ====================== Le bilan : « que conclure ? » ====================== */
+function cacherBilan() {
+  $('bilan').classList.remove('visible');
+  $('atelier').classList.remove('avec-bilan');
+}
+let qcmEnAttente = false;
+// Referme le bilan, et enchaîne sur le questionnaire s'il attendait son tour
+function fermerBilan() {
+  cacherBilan();
+  if (qcmEnAttente) { qcmEnAttente = false; setTimeout(ouvrirQcm, 180); }
+}
+function montrerBilan(em, titre, objectif, phrase, suite) {
+  const b = $('bilan');
+  b.innerHTML =
+    '<div class="verdict"><span class="em">' + em + '</span><h3>' + titre + '</h3>' +
+    '<button class="reduire" id="bilan-x" aria-label="Réduire">✕</button></div>' +
+    (objectif ? '<div class="objectif">' + objectif + '</div>' : '') +
+    '<p class="phrase">' + phrase + '</p>' +
+    // C'est la seule action de la modale : elle doit ressembler à un bouton.
+    // En `btn-fantome`, fond transparent sur le fond du bilan, elle passait
+    // pour du texte cliquable — pas pour un appel à agir.
+    '<div class="actions"><button class="btn" id="bilan-ok">' +
+      (suite || 'Continuer') + '</button></div>';
+  b.classList.add('visible');
+  $('atelier').classList.add('avec-bilan');
+  $('bilan-x').onclick = fermerBilan;
+  $('bilan-ok').onclick = fermerBilan;
+}
+
+/* ============================== Les missions ============================== */
+function rendreMission() {
+  if (enLibre()) {
+    $('m-num').textContent = '∞';
+    $('m-rang').textContent = 'Exploration libre';
+    $('m-titre').textContent = 'Fabrique ce que tu veux';
+    $('m-but').textContent = 'Tout le sel, tous les isolants, aucune consigne : essaie et compare.';
+    $('etapes').innerHTML = '';
+    $('m-jauge').style.width = '100%';
+    surbrillerCible();
+    return;
+  }
+  const M = MISSIONS[etat.mission];
+  $('m-num').textContent = etat.mission + 1;
+  $('m-rang').textContent = 'Mission ' + (etat.mission + 1) + ' sur ' + MISSIONS.length;
+  $('m-titre').textContent = M.titre;
+  $('m-but').textContent = M.but;
+  rendreEtapes();
+}
+function rendreEtapes() {
+  // en exploration libre il n'y a pas d'étapes : le panneau reste vide
+  if (enLibre()) { $('etapes').innerHTML = ''; $('m-jauge').style.width = '100%'; surbrillerCible(); return; }
+  const M = MISSIONS[etat.mission], z = $('etapes');
+  z.innerHTML = '';
+  let courante = -1;
+  const faites = M.etapes.map(e => !!e.ok(etat));
+  for (let i = 0; i < faites.length; i++) if (!faites[i]) { courante = i; break; }
+  // Panneau replié, seule l'étape en cours s'affiche : le chevron déploie le reste.
+  const iMontrer = courante >= 0 ? courante : faites.length - 1;
+  M.etapes.forEach((e, i) => {
+    const d = document.createElement('div');
+    d.className = 'etape' + (faites[i] ? ' faite' : '') + (i === courante ? ' courante' : '')
+      + (i === iMontrer ? ' a-montrer' : '');
+    d.innerHTML = '<span class="coche">' + (faites[i] ? '✓' : i + 1) +
+      '</span><span class="t">' + e.t + '</span>';
+    z.appendChild(d);
+  });
+  const n = faites.filter(Boolean).length;
+  $('m-jauge').style.width = Math.round(n / M.etapes.length * 100) + '%';
+  surbrillerCible();
+}
+// L’élément à montrer du doigt : celui de la première étape non franchie
+function cibleEffective() {
+  if (enLibre()) return null;              // rien à montrer du doigt : l'élève explore
+  const M = MISSIONS[etat.mission];
+  for (const e of M.etapes) if (!e.ok(etat)) return e.cible || null;
+  return null;
+}
+function surbrillerCible() {
+  document.querySelectorAll('.appelle').forEach(n => n.classList.remove('appelle'));
+  const c = cibleEffective();
+  if (c && $(c)) $(c).classList.add('appelle');
+}
+
+function verifierProgres() {
+  if (enLibre()) return;                   // aucune mission à gagner ici
+  const M = MISSIONS[etat.mission];
+  if (!M.gagne(etat)) { rendreEtapes(); return; }
+  if (etat.faits.includes(etat.mission)) { rendreEtapes(); return; }
+  etat.faits.push(etat.mission); sauver(); rendreEtapes();
+  // Si un bilan est ouvert, on ne le recouvre pas : c'est le bouton du bilan
+  // qui enchaîne sur le questionnaire, quand l'élève a fini de lire.
+  if ($('bilan').classList.contains('visible')) {
+    qcmEnAttente = true;
+    const ok = $('bilan-ok'); if (ok) ok.textContent = '🎓 Mission réussie — continuer';
+  } else setTimeout(ouvrirQcm, 620);
+}
+
+/* ================================ Le QCM ================================ */
+
+// Mélange les propositions : sans cela, la bonne réponse resterait toujours en
+// tête de liste et l'élève finirait par cliquer sans lire.
+function melangerQuestion(q) {
+  const ordre = q.r.map((_, i) => i);
+  for (let i = ordre.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = ordre[i]; ordre[i] = ordre[j]; ordre[j] = t;
+  }
+  return Object.assign({}, q, {
+    r: ordre.map(k => q.r[k]),
+    bonne: ordre.indexOf(q.bonne),
+  });
+}
+function ouvrirQcm() {
+  const M = MISSIONS[etat.mission], q = melangerQuestion(M.qcm);
+  qcmCourant = q;
+  const c = $('qcm-carte');
+  c.innerHTML = '<h2>🎓 Mission réussie !</h2><p class="q-question">' + q.q + '</p>' +
+    '<div class="q-choix" id="q-choix"></div><div id="q-retour"></div>';
+  const zc = $('q-choix');
+  q.r.forEach((txt, i) => {
+    const b = document.createElement('button');
+    b.className = 'q-rep'; b.type = 'button'; b.textContent = txt;
+    b.onclick = () => repondre(i, b);
+    zc.appendChild(b);
+  });
+  ouvrir('v-qcm');
+}
+let qcmCourant = null;
+function repondre(i, bouton) {
+  const q = qcmCourant;
+  const juste = i === q.bonne;
+  bouton.classList.add(juste ? 'juste' : 'faux');
+  document.querySelectorAll('.q-rep').forEach(b => b.disabled = true);
+  if (!juste) document.querySelectorAll('.q-rep')[q.bonne].classList.add('juste');
+  $('q-retour').innerHTML =
+    '<div class="q-mot ' + (juste ? 'ok' : 'non') + '">' +
+      (juste ? '✅ Bien vu.' : '💡 Regarde plutôt la bonne réponse.') + ' ' + q.pourquoi + '</div>' +
+    '<button class="btn btn-large" id="q-suite">Continuer</button>';
+  $('q-suite').onclick = () => { fermer('v-qcm'); ouvrirPassage(); };
+}
+
+/* ===================== L’écran de passage entre missions ===================== */
+function ouvrirPassage() {
+  const M = MISSIONS[etat.mission], suivante = MISSIONS[etat.mission + 1];
+  const c = $('passage-carte');
+  c.innerHTML =
+    '<div class="p-fanion"><span class="rond">🏅</span><div>' +
+      '<b>Mission ' + (etat.mission + 1) + ' terminée</b>' +
+      '<span>' + M.titre + '</span></div></div>' +
+    '<div class="p-acquis"><b>Ce que tu retiens :</b><br>' + M.retenir + '</div>' +
+    (suivante
+      ? '<div class="p-suite"><div class="etiq">Mission suivante</div><b>' + suivante.titre +
+        '</b><span>' + suivante.but + '</span></div>' +
+        '<button class="btn btn-large" id="p-go">Commencer la mission ' + (etat.mission + 2) + '</button>' +
+        '<p class="p-neuf">La paillasse est remise en ordre pour la nouvelle expérience.</p>'
+      : '<div class="p-suite"><div class="etiq">Parcours terminé</div><b>Tu sais fabriquer de la glace</b>' +
+        '<span>Le mélange réfrigérant, le rôle de l’isolant, le palier de solidification et l’origine du givre.</span></div>' +
+        '<button class="btn btn-large" id="p-go">Explorer librement →</button>' +
+        '<p class="p-neuf">Le sel et les quatre isolants s’ouvrent : essaie les mélanges que tu veux.</p>');
+  $('p-go').onclick = () => {
+    fermer('v-passage');
+    if (suivante) { etat.mission++; sauver(); reprendre(); demarrerMission(); }
+    else passerEnLibre();
+  };
+  ouvrir('v-passage');
+}
+
+/* ============================== Les fenêtres ============================== */
+function ouvrir(id) { $(id).classList.add('visible'); }
+function fermer(id) { $(id).classList.remove('visible'); }
+
+let minuteurToast = null;
+function toast(txt, alerte) {
+  const t = $('toast');
+  t.textContent = txt;
+  t.classList.toggle('alerte', !!alerte);
+  t.classList.add('visible');
+  clearTimeout(minuteurToast);
+  minuteurToast = setTimeout(() => t.classList.remove('visible'), 2600);
+}
+
+function rendreLexique() {
+  $('liste-lexique').innerHTML = LEXIQUE.map(([m, d]) =>
+    // le mot et sa définition sur deux lignes : « em » les collait l'un à l'autre
+    '<div class="lex-entree"><b>' + m + '</b><span>' + d + '</span></div>').join('');
+}
+
+/* Le quiz doit rester atteignable SANS quitter la simulation : il n'apparaissait
+   que sur l'écran d'accueil, au lancement. Une fois le parcours terminé, l'élève
+   devait sortir de la simulation et y revenir pour le retrouver. */
+function carteExercer() {
+  // etat.faits, pas etat.faites : ici le champ mémoire s'appelle « faits ».
+  // C'est « faites » qu'on ÉCRIT dans localStorage, pas ce qu'on lit en mémoire.
+  const ouvert = etat.faits.length >= MISSIONS.length;
+  return '<button class="d-carte" data-mission="exercer"' + (ouvert ? '' : ' disabled') + '>' +
+    '<span class="num">' + (ouvert ? '🏅' : '🔒') + '</span>' +
+    '<span class="txt"><b>M’exercer</b><span>' + (ouvert
+      ? 'Trois séries de questions, et un score de maîtrise.'
+      : 'Termine le parcours pour l’ouvrir.') + '</span></span></button>';
+}
+
+function rendreListeMissions() {
+  $('liste-missions').innerHTML = MISSIONS.map((m, i) => {
+    const fait = etat.faits.includes(i), ouverte = i <= etat.mission || fait;
+    return '<button class="d-carte' + (fait ? ' fait' : '') + '" data-mission="' + i + '"' +
+      (ouverte ? '' : ' disabled') + '>' +
+      '<span class="num">' + (fait ? '✓' : ouverte ? i + 1 : '🔒') + '</span>' +
+      '<div class="txt"><b>' + m.titre + '</b><span>' +
+      (ouverte ? m.but : 'Termine la mission précédente pour l’ouvrir.') +
+      '</span></div></button>';
+  }).join('') + carteLibre();
+  $('liste-missions').insertAdjacentHTML('beforeend', carteExercer());
+  // une mission déjà ouverte se rejoue d'un clic, comme dans les autres simulations
+  $('liste-missions').querySelectorAll('[data-mission]').forEach(b => {
+    if (b.disabled) return;
+    b.onclick = () => {
+      if (b.dataset.mission === 'exercer') { fermer('v-missions'); ouvrirQuiz(); return; }
+      fermer('v-missions');
+      etat.libre = false; etat.mission = +b.dataset.mission;
+      sauver(); reprendre(); demarrerMission(); rendreListeMissions();
+    };
+  });
+  const c = $('carte-libre');
+  if (c && !c.disabled) c.onclick = () => { fermer('v-missions'); passerEnLibre(); };
+}
+
+// La carte d'exploration libre, en bas de la liste des missions
+function carteLibre() {
+  const tout = etat.faits.length >= MISSIONS.length;
+  return '<button class="d-carte' + (tout ? '' : ' verrou') + '" id="carte-libre"' +
+    (tout ? '' : ' disabled') + '><span class="num">' + (tout ? '∞' : '🔒') + '</span>' +
+    '<div class="txt"><b>Exploration libre</b><span>' + (tout
+      ? 'Tout le sel, les quatre isolants, aucune consigne.'
+      : 'Termine les ' + MISSIONS.length + ' missions pour l’ouvrir.') +
+    '</span></div></button>';
+}
+
+/* ================================ Le thème ================================ */
+function appliquerTheme(t) {
+  document.body.classList.toggle('sombre', t === 'sombre');
+  $('btn-theme').textContent = t === 'sombre' ? '☀️' : '🌙';
+  try { localStorage.setItem('ike-theme', t); } catch (e) {}
+}
+
+/* ================== Repli du panneau sur les petits écrans ================== */
+function replierSiPetitEcran() {
+  const petit = window.innerHeight < 620 || window.innerWidth < 560;
+  $('mission').classList.toggle('ouvert', !petit);
+  $('m-plier').setAttribute('aria-expanded', petit ? 'false' : 'true');
+}
+
+/* Ici, rien ne se passe tout seul : la figure ne change que si l'élève déplace
+   un point. Il n'y a donc pas de boucle d'animation — resoudre() recalcule et
+   redessine après chaque geste, ce qui suffit et coûte bien moins cher sur les
+   appareils du terrain. */
+
+/* ============================== Le démarrage ============================== */
+function init() {
+  refs.plan = $('plan');
+  charger();
+  mesurerPlan();
+
+  let th = 'clair';
+  try { th = localStorage.getItem('ike-theme') || 'clair'; } catch (e) {}
+  appliquerTheme(th);
+  $('btn-theme').onclick = () =>
+    appliquerTheme(document.body.classList.contains('sombre') ? 'clair' : 'sombre');
+
+  $('btn-lexique').onclick = () => { rendreLexique(); ouvrir('v-lexique'); };
+  $('btn-missions').onclick = () => { rendreListeMissions(); ouvrir('v-missions'); };
+  $('btn-aide').onclick = () => ouvrir('v-aide');
+  document.querySelectorAll('[data-ferme]').forEach(b =>
+    b.onclick = () => fermer(b.getAttribute('data-ferme')));
+  document.querySelectorAll('.voile').forEach(v =>
+    v.addEventListener('click', ev => { if (ev.target === v) v.classList.remove('visible'); }));
+  document.addEventListener('keydown', ev => {
+    if (ev.key === 'Escape') document.querySelectorAll('.voile.visible')
+      .forEach(v => v.classList.remove('visible'));
+  });
+
+  $('btn-rezero').onclick = () => {
+    try { localStorage.removeItem(CLE); } catch (e) {}
+    etat.mission = 0; etat.faits = []; reprendre();
+    fermer('v-missions'); demarrerMission();
+    toast('Parcours remis à zéro.');
+  };
+
+  $('m-plier').onclick = () => {
+    const o = $('mission').classList.toggle('ouvert');
+    $('m-plier').setAttribute('aria-expanded', o ? 'true' : 'false');
+    mesurerPlan();
+  };
+
+  $('btn-indice').onclick = montrerIndice;
+  brancherGestes();
+  replierSiPetitEcran();
+  window.addEventListener('resize', () => { replierSiPetitEcran(); mesurerPlan(); });
+  window.addEventListener('orientationchange', () => { replierSiPetitEcran(); mesurerPlan(); });
+
+  demarrerMission();
+  /* ============================================================================
+   L'accueil — « Que veux-tu faire ? »
+   Deux portes d'entrée : le parcours guidé, et le plan de travail libre. La
+   seconde reste fermée tant que le parcours n'est pas terminé. L'écran se
+   présente à chaque ouverture de la simulation, et indique où l'on en est.
+   ========================================================================== */
+function accueilFaites() { return (etat.faits || []).length; }
+function accueilOuvert() { return accueilFaites() >= MISSIONS.length; }
+
+function rendreAccueil() {
+  const n = accueilFaites(), total = MISSIONS.length;
+  $('ac-etat-app').textContent = n === 0 ? 'Commencer'
+    : n >= total ? 'Terminé ✓' : 'Reprendre · ' + n + '/' + total;
+  const ouvert = accueilOuvert();
+  $('ac-experimenter').disabled = !ouvert;
+  $('ac-etat-exp').textContent = ouvert ? 'Ouvert' : '🔒 Verrouillé';
+  $('ac-exercer').disabled = !ouvert;
+  $('ac-etat-ex').textContent = ouvert ? (scoreMaitrise() + ' %') : '🔒 Verrouillé';
+  $('ac-pied').innerHTML = ouvert
+    ? 'Tu as terminé le parcours : les deux portes sont ouvertes.'
+    : 'Termine les <b>' + total + ' missions</b> d’Apprendre pour ouvrir Expérimenter.';
+}
+
+function ouvrirAccueil() {
+  rendreAccueil();
+  ouvrir('v-accueil');
+}
+
+$('ac-apprendre').addEventListener('click', () => {
+  fermer('v-accueil');
+  etat.libre = false; sauver(); reprendre(); demarrerMission();
+  // le repérage de l'interface reste proposé tant que la première mission n'est pas gagnée
+  if (accueilFaites() === 0) lancerVisite();
+});
+$('ac-experimenter').addEventListener('click', () => {
+  if (!accueilOuvert()) return;
+  fermer('v-accueil');
+  passerEnLibre();
+});
+
+/* ============================================================================
+   La visite guidée — on montre l'écran au lieu de le décrire
+   ========================================================================== */
+const VISITE = [
+  { cible:'#mission', titre:'🎯 Le plan de mission', texte:"Ton but du moment et les étapes à cocher. Le chevron <b>▼</b> le replie quand tu veux de la place pour travailler." },
+  { cible:'#mesures', titre:'📒 Ton carnet de mesures', texte:"Les longueurs de ta figure, et la propriété du cours <b>écrite avec tes nombres</b>. Quand une égalité tombe juste, elle passe au vert." },
+  { cible:'#plan', titre:'📐 La figure', texte:"Attrape un sommet avec le doigt et fais-le glisser : il se pose sur les croisements du quadrillage. Toutes les mesures suivent." },
+  { cible:'#outils', titre:'🧰 Les outils', texte:"Ce que tu fais apparaître sur la figure : les <b>carrés</b> des côtés, la <b>hauteur</b>, les <b>rapports</b>, les <b>angles</b>. Ils s'ouvrent au fil des missions." },
+  { cible:'#actions', titre:'✅ Conclure', texte:"« Conclure » te dit ce que ta figure démontre — ou ce qu'il manque pour y arriver. « Replacer » remet la figure de départ." },
+  { cible:'.tete-fin', titre:'🎓 Les boutons du haut', texte:"Les missions, le lexique des mots difficiles, ce guide, et le thème clair ou sombre." },
+];
+let visiteIdx = -1, visiteEtapes = [];
+
+function cibleVisible(sel) {
+  const e = document.querySelector(sel);
+  if (!e) return null;
+  const r = e.getBoundingClientRect();
+  return (r.width > 4 && r.height > 4) ? r : null;
+}
+
+function lancerVisite() {
+  for (const v of document.querySelectorAll('.voile.visible')) v.classList.remove('visible');
+  // on ne montre que ce qui est réellement à l'écran en ce moment
+  visiteEtapes = VISITE.filter(e => !e.cible || cibleVisible(e.cible));
+  if (!visiteEtapes.length) return;
+  visiteIdx = 0;
+  $('visite').classList.add('visible');
+  montrerVisite();
+}
+
+function montrerVisite() {
+  const et = visiteEtapes[visiteIdx];
+  const halo = $('visite-halo');
+  const r = et.cible ? cibleVisible(et.cible) : null;
+  if (r) {
+    halo.style.display = 'block';
+    halo.style.left = (r.left - 5) + 'px';
+    halo.style.top = (r.top - 5) + 'px';
+    halo.style.width = (r.width + 10) + 'px';
+    halo.style.height = (r.height + 10) + 'px';
+  } else halo.style.display = 'none';
+  $('visite-titre').textContent = et.titre;
+  $('visite-texte').innerHTML = et.texte;
+  $('visite-prog').textContent = (visiteIdx + 1) + ' / ' + visiteEtapes.length;
+  $('visite-suivant').textContent =
+    visiteIdx === visiteEtapes.length - 1 ? 'C’est parti !' : 'Suivant';
+  placerCarteVisite(r);
+}
+
+// La carte cherche une place libre autour de la zone montrée : dessous, dessus,
+// à droite, à gauche. Quand la zone occupe presque tout l'écran — le plan de
+// travail, par exemple — aucune place n'est libre : elle se pose alors dans un
+// coin, en couvrant le moins possible.
+function placerCarteVisite(r) {
+  const c = $('visite-carte');
+  c.style.visibility = 'hidden';
+  const cw = c.offsetWidth, ch = c.offsetHeight;
+  const W = window.innerWidth, H = window.innerHeight;
+  const poser = (x, y) => {
+    c.style.left = Math.round(Math.max(8, Math.min(W - cw - 8, x))) + 'px';
+    c.style.top = Math.round(Math.max(8, Math.min(H - ch - 8, y))) + 'px';
+    c.style.visibility = 'visible';
+  };
+  if (!r) { poser((W - cw) / 2, (H - ch) / 2); return; }
+  const m = 14, cx = r.left + r.width / 2 - cw / 2, cy = r.top + r.height / 2 - ch / 2;
+  const essais = [[cx, r.bottom + m], [cx, r.top - ch - m],
+                  [r.right + m, cy], [r.left - cw - m, cy]];
+  for (const [ex, ey] of essais) {
+    const x = Math.max(8, Math.min(W - cw - 8, ex));
+    const y = Math.max(8, Math.min(H - ch - 8, ey));
+    // retenue seulement si la carte ne recouvre pas ce qu'on montre
+    if (x + cw < r.left || x > r.right || y + ch < r.top || y > r.bottom) { poser(x, y); return; }
+  }
+  // dernier recours : le coin bas droit, loin du centre de la zone
+  poser(W - cw - 12, H - ch - 12);
+}
+
+function fermerVisite() {
+  visiteIdx = -1;
+  $('visite').classList.remove('visible');
+}
+
+$('visite-suivant').addEventListener('click', () => {
+  if (visiteIdx >= visiteEtapes.length - 1) { fermerVisite(); return; }
+  visiteIdx++; montrerVisite();
+});
+$('visite-passer').addEventListener('click', fermerVisite);
+window.addEventListener('resize', () => { if (visiteIdx >= 0) montrerVisite(); });
+document.addEventListener('keydown', e => {
+  if (visiteIdx >= 0 && e.key === 'Escape') fermerVisite();
+});
+const btnRevoir = $('btn-revoir-visite');
+if (btnRevoir) btnRevoir.addEventListener('click', () => { fermer('v-aide'); lancerVisite(); });
+
+const NIVEAUX_QUIZ = [
+  { cle:'souviens', em:'🥉', nom:'Je me souviens', poids:1,
+    quoi:'Les mots et les propriétés que tu as rencontrés sur la figure.' },
+  { cle:'jutilise', em:'🥈', nom:'Je m’en sers', poids:2,
+    quoi:'Des longueurs à calculer, comme dans un devoir.' },
+  { cle:'pieges', em:'🥇', nom:'On ne me piège plus', poids:3,
+    quoi:'Les erreurs que presque tout le monde fait. C’est là que tout se joue.' },
+];
+const PAR_SERIE = 6;
+
+const BANQUE = {
+  souviens: [
+    { q:'Dans un triangle rectangle, comment appelle-t-on le côté opposé à l’angle droit ?',
+      choix:['L’hypoténuse', 'La hauteur', 'La médiane'], bonne:0, mission:0,
+      expl:"C’est l’<b>hypoténuse</b>. Comme elle fait face au plus grand angle du triangle, c’est aussi le plus long des trois côtés." },
+    { q:'Le triangle ABC est rectangle en A. Quelle égalité traduit la propriété de Pythagore ?',
+      choix:['BC² = AB² + AC²', 'AB² = AC² + BC²', 'BC = AB + AC'], bonne:0, mission:1,
+      expl:"L’angle droit est en A, donc l’hypoténuse est [BC]. C’est <b>son</b> carré qui vaut la somme des deux autres carrés." },
+    { q:'À quoi sert la réciproque de la propriété de Pythagore ?',
+      choix:['À reconnaître si un triangle est rectangle',
+             'À calculer l’aire d’un triangle',
+             'À tracer une parallèle'], bonne:0, mission:4,
+      expl:"La propriété sert à <b>calculer</b> une longueur dans un triangle qu’on sait rectangle ; sa réciproque sert à <b>reconnaître</b> qu’un triangle l’est, à partir de ses trois longueurs." },
+    { q:'D’où part la hauteur relative à l’hypoténuse ?',
+      choix:['Du sommet de l’angle droit', 'Du milieu de l’hypoténuse',
+             'Du sommet du plus petit angle'], bonne:0, mission:6,
+      expl:"Elle part du sommet de l’<b>angle droit</b> et rejoint l’hypoténuse perpendiculairement. Son pied H partage l’hypoténuse en deux morceaux." },
+    { q:'Dans le triangle ABC, M est sur (AB) et N sur (AC). Que dit la propriété de Thalès ?',
+      choix:['Si (MN) ∥ (BC), alors AM/AB = AN/AC',
+             'Si AM = AN, alors (MN) ∥ (BC)',
+             'Si (MN) ∥ (BC), alors AM = AN'], bonne:0, mission:9,
+      expl:"C’est le <b>parallélisme</b> qui donne l’égalité des <b>rapports</b> — pas l’égalité des longueurs. Le petit triangle est une réduction du grand." },
+    { q:'Que veut dire « deux triangles sont semblables » ?',
+      choix:['Les longueurs de leurs côtés sont proportionnelles',
+             'Ils ont exactement la même taille',
+             'Ils sont tous les deux rectangles'], bonne:0, mission:11,
+      expl:"Semblables signifie <b>même forme, taille différente</b> : chaque côté de l’un s’obtient en multipliant son homologue par un même nombre, le rapport de similitude." },
+    { q:'Dans un triangle rectangle en A, à quoi est égal le cosinus de l’angle en B ?',
+      choix:['AB/BC', 'AC/BC', 'AC/AB'], bonne:0, mission:13,
+      expl:"Le cosinus est le rapport du côté <b>adjacent</b> à l’angle sur l’<b>hypoténuse</b>. Vu de B, le côté adjacent est [AB] et l’hypoténuse est [BC]. AC/BC serait le sinus." },
+    { q:'Le nombre √2 est :',
+      choix:['Un nombre réel qui n’est aucune fraction', 'Égal à 1,41',
+             'Un nombre entier'], bonne:0, mission:5,
+      expl:"√2 est le nombre dont le carré vaut exactement 2. Aucune fraction ne convient : c’est un nombre <b>irrationnel</b>. 1,41 n’en est qu’une valeur approchée, car 1,41 × 1,41 = 1,9881." },
+    { q:'Que vaut BH + HC, si H est le pied de la hauteur issue de l’angle droit ?',
+      choix:['BC, l’hypoténuse entière', 'AH', 'AB + AC'], bonne:0, mission:6,
+      expl:"H est un point de l’hypoténuse : il la coupe en deux morceaux [BH] et [HC] qui, mis bout à bout, la reconstituent entièrement." },
+  ],
+
+  jutilise: [
+    { q:'Un triangle est rectangle, ses côtés de l’angle droit mesurent 3 cm et 4 cm. Que vaut l’hypoténuse ?',
+      choix:['5 cm', '7 cm', '12 cm'], bonne:0, mission:2,
+      expl:"3² + 4² = 9 + 16 = 25. L’hypoténuse est le nombre dont le carré vaut 25, soit <b>5 cm</b>. C’est le triangle de la corde à treize nœuds." },
+    { q:'Un triangle rectangle a une hypoténuse de 13 cm et un côté de 5 cm. Que vaut le troisième côté ?',
+      choix:['12 cm', '8 cm', '18 cm'], bonne:0, mission:3,
+      expl:"Ici on cherche un côté de l’angle droit : on <b>soustrait</b>. 13² − 5² = 169 − 25 = 144, et 144 = 12². Le côté vaut 12 cm." },
+    { q:'Dans un triangle rectangle en A, BH = 4 et HC = 9. Que vaut la hauteur AH ?',
+      choix:['6', '13', '36'], bonne:0, mission:7,
+      expl:"AH² = BH × HC = 4 × 9 = 36, donc AH = 6. Attention : 36 est le CARRÉ de la hauteur, pas la hauteur." },
+    { q:'ABC est un triangle, M sur [AB], N sur [AC], (MN) ∥ (BC). AB = 12, AM = 3, AC = 8. Que vaut AN ?',
+      choix:['2', '4', '5'], bonne:0, mission:9,
+      expl:"AM/AB = 3/12 = 1/4. La propriété de Thalès donne AN/AC = 1/4 aussi, donc AN = 8 × 1/4 = <b>2</b>." },
+    { q:'Un bâton de 1 m donne une ombre de 4 m. Au même moment, un arbre donne une ombre de 20 m. Quelle est sa hauteur ?',
+      choix:['5 m', '20 m', '80 m'], bonne:0, mission:12,
+      expl:"Le rapport hauteur ÷ ombre vaut 1 ÷ 4 pour le bâton, et le soleil est le même pour l’arbre : 20 × 1 ÷ 4 = <b>5 m</b>. L’ombre est ici quatre fois la hauteur." },
+    { q:'Deux triangles semblables ont un rapport de similitude de 2,5. Un côté du petit mesure 4 cm. Son homologue dans le grand mesure :',
+      choix:['10 cm', '6,5 cm', '1,6 cm'], bonne:0, mission:11,
+      expl:"On multiplie chaque longueur par le rapport de similitude : 4 × 2,5 = <b>10 cm</b>. Le rapport multiplie, il ne s’ajoute pas." },
+    { q:'Dans un triangle rectangle en A : AB = 6, AC = 8, BC = 10. Que vaut la hauteur AH ?',
+      choix:['4,8', '7', '4'], bonne:0, mission:8,
+      expl:"On utilise AB × AC = AH × BC, donc 6 × 8 = AH × 10, soit AH = 48 ÷ 10 = <b>4,8</b>. Cette relation donne la hauteur sans aucune mesure." },
+    { q:'Un triangle a pour côtés 9, 12 et 15. Est-il rectangle ?',
+      choix:['Oui, car 9² + 12² = 15²', 'Non', 'Seulement si on le dessine bien'], bonne:0, mission:4,
+      expl:"81 + 144 = 225, et 15² = 225. La réciproque de la propriété de Pythagore garantit qu’il est rectangle : c’est le triangle 3-4-5 agrandi trois fois." },
+    { q:'Dans un triangle rectangle, l’angle aigu mesure 60° et l’hypoténuse 10 cm. Que vaut le côté adjacent à cet angle ?',
+      choix:['5 cm', '8,7 cm', '20 cm'], bonne:0, mission:13,
+      expl:"cos 60° = 0,5, et cos = adjacent ÷ hypoténuse. Donc adjacent = 10 × 0,5 = <b>5 cm</b>. 8,7 cm serait le côté opposé, avec sin 60° ≈ 0,87." },
+  ],
+
+  pieges: [
+    { q:'Un triangle a pour côtés 5, 6 et 8. Peut-on écrire 5² + 6² = 8² ?',
+      choix:['Non : 25 + 36 = 61, alors que 8² = 64 — il n’est pas rectangle',
+             'Oui, puisqu’il y a trois côtés',
+             'Oui, car 5 + 6 > 8'], bonne:0, mission:4,
+      expl:"On ne peut écrire l’égalité de Pythagore que si le triangle EST rectangle. Ici 61 ≠ 64 : il ne l’est pas, il s’en faut de peu. Vérifier avant d’appliquer, toujours." },
+    { q:'AM/AB = AN/AC dans le triangle ABC. Les droites (MN) et (BC) sont-elles parallèles ?',
+      choix:['Seulement si M et N sont du même côté de A',
+             'Oui, c’est la réciproque de Thalès',
+             'Non, jamais'], bonne:0, mission:10,
+      expl:"C’est le piège que tu as vu sur ta figure : en plaçant N de l’autre côté de A, les rapports de longueurs restent égaux et les droites se croisent. La condition de <b>position</b> fait partie de la réciproque." },
+    { q:'On double toutes les longueurs d’un triangle rectangle. Que devient le sinus de son angle aigu ?',
+      choix:['Il ne change pas', 'Il double', 'Il est multiplié par quatre'], bonne:0, mission:13,
+      expl:"Le sinus est un <b>rapport</b>. Si les deux longueurs doublent, le quotient reste le même. Les rapports trigonométriques ne dépendent que de l’angle — c’est tout leur intérêt." },
+    { q:'Dans un triangle rectangle en A, on écrit AH² = BH + HC. Où est l’erreur ?',
+      choix:['C’est un produit, pas une somme : AH² = BH × HC',
+             'Il faut écrire AH = BH + HC',
+             'Il n’y a pas d’erreur'], bonne:0, mission:7,
+      expl:"La hauteur est <b>moyenne proportionnelle</b> entre les deux segments : son carré vaut leur PRODUIT. Avec BH = 2 et HC = 8, on trouve AH = 4, et non 10." },
+    { q:'Un élève écrit : « le triangle a des côtés 6, 8 et 10, donc 6 + 8 = 10 prouve qu’il est rectangle ». Qu’en penses-tu ?',
+      choix:['C’est faux : ce sont les carrés qui interviennent, pas les longueurs',
+             'C’est juste',
+             'C’est juste, mais seulement pour 6, 8 et 10'], bonne:0, mission:4,
+      expl:"6 + 8 = 14, pas 10 — et de toute façon ce n’est pas le bon critère. Il faut comparer 6² + 8² = 100 avec 10² = 100. L’égalité des <b>carrés</b> est ce qui compte." },
+    { q:'Le bâton de Baké mesure 1,5 m et son ombre 2 m. Un élève conclut que l’obélisque, dont l’ombre fait 12 m, mesure 12 − 2 + 1,5 = 11,5 m. Où est l’erreur ?',
+      choix:['Les longueurs sont proportionnelles, pas décalées d’une même quantité',
+             'Il fallait ajouter 2 au lieu de le retirer',
+             'Il n’y a pas d’erreur'], bonne:0, mission:12,
+      expl:"Les triangles sont <b>semblables</b> : on passe de l’un à l’autre en MULTIPLIANT, pas en ajoutant. 12 × 1,5 ÷ 2 = 9 m. Confondre proportionnalité et écart constant est l’erreur la plus fréquente." },
+    { q:'Dans un triangle rectangle en B, quelle égalité est vraie ?',
+      choix:['AC² = AB² + BC²', 'AB² = AC² + BC²', 'BC² = AB² + AC²'], bonne:0, mission:1,
+      expl:"L’angle droit est en <b>B</b> : l’hypoténuse est donc [AC], le côté qui lui fait face. On applique la propriété à l’hypoténuse, quelle que soit la lettre qui la nomme." },
+    { q:'Deux triangles ont les mêmes angles. Sont-ils forcément superposables ?',
+      choix:['Non : ils sont semblables, mais peuvent être de tailles différentes',
+             'Oui, toujours',
+             'Non, ils n’ont même aucun rapport'], bonne:0, mission:11,
+      expl:"Mêmes angles signifie <b>même forme</b> : les triangles sont semblables. Mais l’un peut être un agrandissement de l’autre. Superposables demanderait en plus un rapport de similitude égal à 1." },
+    { q:'Un élève trace la hauteur issue de A dans un triangle rectangle en A, et affirme qu’elle tombe au milieu de [BC]. Est-ce vrai ?',
+      choix:['Seulement si le triangle est isocèle en A',
+             'Oui, toujours',
+             'Non, jamais'], bonne:0, mission:6,
+      expl:"BH et HC sont égaux uniquement quand AB = AC. Dès que les deux côtés de l’angle droit diffèrent, le pied H se rapproche du côté le plus court. Déplace un sommet sur ta figure pour t’en convaincre." },
+  ],
+};
+/* ---- L'état de maîtrise : le meilleur résultat obtenu à chaque niveau ---- */
+function maitriseDe(cle) { return (etat.maitrise && etat.maitrise[cle]) || 0; }
+
+// Les niveaux difficiles pèsent plus lourd : réussir le premier seul plafonne
+// à 17 %, il faut affronter les pièges pour dépasser 80 %.
+function scoreMaitrise() {
+  // chaque niveau porte son poids : les simulations n'en ont pas toutes trois
+  let p = 0, total = 0;
+  for (const n of NIVEAUX_QUIZ) { p += maitriseDe(n.cle) * n.poids; total += n.poids; }
+  return total ? Math.round(p / total * 100) : 0;
+}
+function motMaitrise(p) {
+  return p >= 85 ? 'Maîtrisée' : p >= 60 ? 'Solide' : p >= 30 ? 'En bonne voie' : 'Découverte';
+}
+function etoiles(r) {
+  return r >= 1 ? '⭐⭐⭐' : r >= .8 ? '⭐⭐' : r >= .5 ? '⭐' : '';
+}
+
+// Le quiz mélange ses propres propositions : les simulations n'ont pas toutes
+// la même structure de question, et emprunter la leur cassait ici.
+function melangerQuiz(q) {
+  const ordre = q.choix.map((_, i) => i);
+  for (let i = ordre.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = ordre[i]; ordre[i] = ordre[j]; ordre[j] = t;
+  }
+  return Object.assign({}, q, { choix:ordre.map(k => q.choix[k]), bonne:ordre.indexOf(q.bonne) });
+}
+
+let quiz = null;
+
+/* Le quiz vit dans le périmètre de init() ; la liste des missions, elle, est
+   dessinée par une fonction globale. On expose donc l’ouverture du quiz pour
+   que la carte « M’exercer » puisse l’appeler. */
+function ouvrirQuiz() {
+  if (!accueilOuvert()) { toast('Termine les ' + MISSIONS.length + ' missions pour t’exercer.'); return; }
+  quiz = null;
+  rendreAccueilQuiz();
+  ouvrir('v-quiz');
+}
+window.ouvrirQuiz = ouvrirQuiz;
+
+function rendreAccueilQuiz() {
+  const p = scoreMaitrise();
+  $('quiz-carte').innerHTML = `
+    <button class="fermer-x" data-ferme="v-quiz" aria-label="Fermer">✕</button>
+    <h2>🏅 M’exercer</h2>
+    <p>Trois séries de ${PAR_SERIE} questions. Tu peux les refaire autant de fois que tu veux :
+       c’est ton <b>meilleur</b> résultat qui compte.</p>
+    <div class="qz-maitrise">
+      <div class="qz-m-haut"><span>Ma maîtrise de la notion</span><b>${p} %</b></div>
+      <div class="qz-m-barre"><i style="width:${p}%"></i></div>
+      <div class="qz-m-mot">${motMaitrise(p)}</div>
+    </div>
+    ${NIVEAUX_QUIZ.map(n => {
+      const r = maitriseDe(n.cle), et = etoiles(r);
+      return `<button class="qz-niveau" data-niveau="${n.cle}">
+        <span class="qz-em">${n.em}</span>
+        <span class="qz-txt"><b data-poids="${n.poids}">${n.nom}</b><span>${n.quoi}</span></span>
+        <span class="qz-note">${et || '—'}<span>${r ? Math.round(r * 100) + ' %' : 'jamais fait'}</span></span>
+      </button>`;
+    }).join('')}
+    <p class="qz-pied">Les questions difficiles comptent <b>trois fois plus</b> que les faciles :
+       c’est en les affrontant qu’on prouve qu’on a compris.</p>`;
+}
+
+function lancerSerie(cle) {
+  const banque = BANQUE[cle].slice();
+  for (let i = banque.length - 1; i > 0; i--) {           // tirage sans remise
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = banque[i]; banque[i] = banque[j]; banque[j] = t;
+  }
+  quiz = { niveau:cle, liste:banque.slice(0, PAR_SERIE).map(melangerQuiz),
+           n:0, justes:0, ratees:[] };
+  rendreQuestionQuiz();
+}
+
+function rendreQuestionQuiz() {
+  const q = quiz.liste[quiz.n];
+  const niv = NIVEAUX_QUIZ.find(n => n.cle === quiz.niveau);
+  $('quiz-carte').innerHTML = `
+    <button class="fermer-x" data-ferme="v-quiz" aria-label="Fermer">✕</button>
+    <div class="q-avance">${niv.em} ${niv.nom} · question ${quiz.n + 1} sur ${quiz.liste.length}</div>
+    <div class="qz-jauge"><i style="width:${quiz.n / quiz.liste.length * 100}%"></i></div>
+    <div class="q-question">${q.q}</div>
+    <div id="qz-choix">${q.choix.map((c, i) =>
+      `<button class="q-choix" data-qz="${i}">${c}</button>`).join('')}</div>
+    <div class="q-expl" id="qz-expl"></div><div id="qz-suite"></div>`;
+}
+
+function repondreQuiz(i) {
+  const q = quiz.liste[quiz.n];
+  const juste = i === q.bonne;
+  if (juste) quiz.justes++; else quiz.ratees.push(q);
+  $('qz-choix').querySelectorAll('.q-choix').forEach((b, k) => {
+    b.disabled = true;
+    if (k === q.bonne) { b.classList.add('bon'); b.textContent = '✔️ ' + b.textContent; }
+    else if (k === i) { b.classList.add('mauvais'); b.textContent = '❌ ' + b.textContent; }
+  });
+  const e = $('qz-expl');
+  e.innerHTML = q.expl;
+  e.classList.add('visible');
+  const dernier = quiz.n === quiz.liste.length - 1;
+  $('qz-suite').innerHTML = `<button class="btn btn-large" style="margin-top:12px" id="qz-continuer">${
+    dernier ? 'Voir mon résultat →' : 'Question suivante →'}</button>`;
+  $('qz-continuer').addEventListener('click', () => {
+    if (dernier) finirSerie(); else { quiz.n++; rendreQuestionQuiz(); }
+  });
+}
+
+function finirSerie() {
+  const r = quiz.justes / quiz.liste.length;
+  const niv = NIVEAUX_QUIZ.find(n => n.cle === quiz.niveau);
+  const avant = maitriseDe(quiz.niveau);
+  etat.maitrise = etat.maitrise || {};
+  etat.maitrise[quiz.niveau] = Math.max(avant, r);
+  sauver();
+  // Les questions ratées renvoient à leur mission : le quiz ramène au parcours.
+  const revoir = [];
+  for (const q of quiz.ratees) if (revoir.indexOf(q.mission) === -1) revoir.push(q.mission);
+  revoir.sort((a, b) => a - b);
+  const p = scoreMaitrise();
+  $('quiz-carte').innerHTML = `
+    <button class="fermer-x" data-ferme="v-quiz" aria-label="Fermer">✕</button>
+    <div class="qz-fin">
+      <div class="qz-fin-em">${r >= 1 ? '🎉' : r >= .5 ? '👏' : '💪'}</div>
+      <div><b>${quiz.justes} bonnes réponses sur ${quiz.liste.length}</b>
+        <span>${niv.em} ${niv.nom}</span></div>
+      <div class="qz-fin-et">${etoiles(r) || '—'}</div>
+    </div>
+    ${r > avant
+      ? `<p class="qz-mieux">✨ C’est ton meilleur résultat à ce niveau.</p>`
+      : `<p class="qz-mieux discret">Ton meilleur reste ${Math.round(avant * 100)} %.</p>`}
+    <div class="qz-maitrise">
+      <div class="qz-m-haut"><span>Ma maîtrise de la notion</span><b>${p} %</b></div>
+      <div class="qz-m-barre"><i style="width:${p}%"></i></div>
+      <div class="qz-m-mot">${motMaitrise(p)}</div>
+    </div>
+    ${revoir.length ? `<div class="qz-revoir"><b>📘 À revoir :</b>${revoir.map(i =>
+        `<span>Mission ${i + 1} — ${MISSIONS[i].titre}</span>`).join('')}</div>` : ''}
+    <div class="qz-boutons">
+      <button class="btn btn-contour" id="qz-refaire">↻ Refaire cette série</button>
+      <button class="btn" id="qz-retour">Les niveaux →</button>
+    </div>`;
+  $('qz-refaire').addEventListener('click', () => lancerSerie(quiz.niveau));
+  $('qz-retour').addEventListener('click', rendreAccueilQuiz);
+}
+
+$('v-quiz').addEventListener('click', e => {
+  const n = e.target.closest('[data-niveau]');
+  if (n) { lancerSerie(n.dataset.niveau); return; }
+  const b = e.target.closest('[data-qz]');
+  if (b && !b.disabled) repondreQuiz(+b.dataset.qz);
+});
+$('ac-exercer').addEventListener('click', () => {
+  if (!accueilOuvert()) return;
+  fermer('v-accueil');
+  ouvrirQuiz();
+});
+
+ouvrirAccueil();
+}
+init();
+
+</script>
+</body>
+</html>

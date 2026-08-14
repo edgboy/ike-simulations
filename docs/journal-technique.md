@@ -396,3 +396,62 @@ Options gardées ouvertes par le format « un fichier autonome » :
 2. **Iframe + postMessage** : la simulation émet des événements (score, actions) que la plateforme écoute — traçabilité.
 3. **SCORM / H5P** (si Moodle) : envelopper le HTML dans un paquet SCORM ; le fichier unique rend l'emballage trivial.
 4. **PWA hors-ligne** : un service worker au niveau de la plateforme met en cache les simulations déjà visitées.
+
+---
+
+## Une simulation de mathématiques : ce qui change (v4.45.0)
+
+Première simulation bâtie sur un **guide officiel lu à la source** plutôt que sur un résumé. Le PDF
+du programme de 3ᵉ donne le découpage de la SA1 semaine par semaine, l'énoncé exact des propriétés,
+et jusqu'à la situation de départ — l'obélisque de Baké. Extraire ce texte coûte cinq minutes
+(`pypdf`) et évite de deviner. **À faire pour chaque nouvelle SA.**
+
+Le vocabulaire compte : le programme béninois dit « **propriété** de Pythagore » et « **propriété**
+de Thalès », pas « théorème ». Un mot faux dans l'en-tête décrédibilise le reste.
+
+### Les prédicats de mission ne peuvent pas tous porter sur la figure du moment
+
+Trois missions demandent **deux figures successives** : le 6-8-10 puis un triangle qui n'en est pas
+un, 45° puis 60°. Écrites sur l'état courant, leurs étapes se décochaient dès que l'élève
+construisait la seconde — il voyait son travail s'effacer. Les prédicats lisent donc une **mémoire
+de ce qui a été construit** (`etat.vus`), alimentée à chaque recalcul. Même mécanisme pour
+« recommence avec trois autres formes » : on compte des **signatures distinctes** (les trois côtés
+au dixième près), sinon un aller-retour du doigt suffirait à cocher l'étape.
+
+### Ce qu'un quadrillage entier permet, et ce qu'il interdit
+
+Poser les sommets sur les croisements garde les longueurs simples — mais interdit certaines figures.
+Un triangle de côtés exactement 6 et 8 qui ne serait pas rectangle **n'existe pas** sur un
+quadrillage entier : les seules positions à distance 8 d'un point sont sur les axes. La mission a été
+réécrite (« déplace un sommet d'un carreau ») au lieu de forcer une figure impossible. De même,
+60° n'a pas de tangente rationnelle : on accepte l'approche à 1,5° près, que 7 et 12 réalisent.
+**Vérifier qu'une consigne est constructible avant de l'écrire.**
+
+### Le modèle est testé là où il tourne
+
+`simulations/triangles/test-modele.js` extrait le modèle du fichier livré entre `/*__DEBUT MODELE__*/`
+et `/*__FIN MODELE__*/`, puis lui applique 45 vérifications. Une copie de travail testée séparément
+peut diverger du code publié ; celle-ci ne le peut pas. **Modèle à reprendre pour les prochaines
+simulations.**
+
+### Pièges d'assemblage rencontrés en repartant d'un donneur
+
+| Piège | Ce qu'il produit |
+|---|---|
+| `el()` n'a pas la même signature partout | Celui de `fabrique-glace` ne prend que deux arguments ; les autres en acceptent trois, dont le texte. **Tous les textes SVG étaient muets** sans qu'aucune erreur ne soit levée. Vérifier la signature des utilitaires empruntés, pas seulement leur nom. |
+| Une classe CSS l'emporte sur un attribut de présentation | `text-anchor="start"` sur un élément de classe `.etiq-note { text-anchor:middle }` est ignoré : l'étiquette d'unité sortait à moitié de l'écran. Passer par `style:` en ligne. |
+| Une classe du donneur supprimée mais toujours référencée | `.rg-choix` avait disparu avec le CSS de la fabrique de glace ; le conteneur des outils n'était plus un flex, et les boutons s'empilaient — **130 px de hauteur** volés à la scène en paysage. Chercher les classes du corps qui n'ont plus de règle. |
+| `reprendre()` n'est appelé que par le socle | Au tout premier chargement, personne ne l'appelle : la mission 1 s'ouvrait avec la figure par défaut et sans ses outils. `demarrerMission()` s'en charge désormais lui-même. |
+
+### Le cadre s'élargit, il ne rétrécit pas
+
+Les carrés de Pythagore sortent largement du quadrillage et se faisaient rogner. Le cadrage suit
+donc l'étendue réellement dessinée — mais **monotone à l'intérieur d'une mission** : recalculé à
+chaque geste, l'échelle sautait sous le doigt et l'élève voyait sa figure grandir et rétrécir au
+lieu de comparer des longueurs. Il repart du quadrillage à l'entrée en mission.
+
+### Un rappel sur le paysage téléphone
+
+À 740 × 380, la scène tombe à 23 % de l'écran ici — mieux que `premiers-pas` (18 %) et bien mieux que
+`tam-tam` (6 %), mais l'étranglement reste un travers de la plateforme, pas d'une simulation. Le
+chantier « rendre la scène tenable en paysage » reste ouvert pour tout le catalogue.

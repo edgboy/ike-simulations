@@ -122,6 +122,9 @@
   .sa-tete h3 { flex: 1; font-size: 17px; }
   .sa-tete .heures { font-size: 12px; opacity: .55; white-space: nowrap; }
   .sa-liste { display: grid; gap: var(--space-2); }
+  /* Une SA sans simulation reste affichée : elle situe le programme, et dit
+     honnêtement ce qui manque plutôt que de laisser croire à un oubli. */
+  .sa-vide { margin: 0; font-size: .9rem; font-style: italic; color: var(--neutral); opacity: .55; }
 
   .sim {
     display: flex; align-items: center; gap: var(--space-3);
@@ -250,7 +253,7 @@
 </main>
 
 <footer class="enveloppe pied">
-  <span>KONDO LABO · <span class="ver">v4.44.0</span></span>
+  <span>KONDO LABO · <span class="ver">v4.45.0</span></span>
   <span>·</span>
   <span>Programme officiel du Bénin (APC)</span>
   <span>·</span>
@@ -286,6 +289,7 @@ const LIVREES = {
   'optique':            { cle: 'ike-optique-progression',    missions: 12 },
   'molecules-3d':       { cle: 'ike-mol3d-progression',      missions: 14 },
   'transformations':    { cle: 'ike-transfo-progression',    missions: 12 },
+  'triangles':          { cle: 'ike-triangles-progression',  missions: 14 },
 };
 
 const CATALOGUE = [
@@ -457,47 +461,84 @@ const CATALOGUE = [
     classes: [
       { id: '6e', nom: '6ᵉ', desc: "Symétries, figures, fractions et premières statistiques.",
         sa: [
-          { n: 1, titre: 'Transformations du plan', heures: '', cd: '',
+          { n: 3, titre: 'Applications du plan', heures: '', cd: 'CD2',
             sims: [{ dos: 'transformations', ico: '📐', nom: 'Transformations du plan',
               quoi: "Symétrie axiale et centrale, translation, rotation." }] },
-          { n: 2, titre: 'Organisation des données', heures: '', cd: '',
+          { n: 4, titre: 'Organisation des données', heures: '', cd: 'CD3',
             sims: [{ ico: '📊', nom: 'Tableaux et diagrammes',
               quoi: "Effectifs, fréquences, moyenne et représentations graphiques." }] },
         ] },
       { id: '5e', nom: '5ᵉ', desc: "Symétrie centrale, triangles, proportionnalité.",
-        sa: [{ n: 1, titre: 'Symétrie centrale et figures', heures: '', cd: '',
-          sims: [{ dos: 'transformations', ico: '📐', nom: 'Transformations du plan',
-            quoi: "Construire l'image d'une figure par symétrie." }] }] },
-      { id: '4e', nom: '4ᵉ', desc: "Translation, théorème de Pythagore, calcul littéral.",
-        sa: [{ n: 1, titre: 'Translation et vecteurs', heures: '', cd: '',
-          sims: [{ dos: 'transformations', ico: '📐', nom: 'Transformations du plan',
-            quoi: "Translation et composition de transformations." }] }] },
-      { id: '3e', nom: '3ᵉ', desc: "Rotation, trigonométrie, fonctions.",
-        sa: [{ n: 1, titre: 'Rotation et configurations', heures: '', cd: '',
-          sims: [{ dos: 'transformations', ico: '📐', nom: 'Transformations du plan',
-            quoi: "Rotation, angles et invariants." }] }] },
+        sa: [
+          { n: 3, titre: 'Applications du plan', heures: '', cd: 'CD2',
+            sims: [{ dos: 'transformations', ico: '📐', nom: 'Transformations du plan',
+              quoi: "Construire l'image d'une figure par symétrie." }] },
+          { n: 4, titre: 'Organisation des données', heures: '', cd: 'CD3',
+            sims: [{ ico: '📊', nom: 'Tableaux et diagrammes',
+              quoi: "Effectifs, fréquences, moyenne et représentations graphiques." }] },
+        ] },
+      { id: '4e', nom: '4ᵉ', desc: "Translation, propriété de Pythagore, calcul littéral.",
+        sa: [
+          { n: 3, titre: 'Applications du plan', heures: '', cd: 'CD2',
+            sims: [{ dos: 'transformations', ico: '📐', nom: 'Transformations du plan',
+              quoi: "Translation et composition de transformations." }] },
+          { n: 4, titre: 'Organisation des données', heures: '', cd: 'CD3',
+            sims: [{ ico: '📊', nom: 'Tableaux et diagrammes',
+              quoi: "Effectifs, fréquences, moyenne et représentations graphiques." }] },
+        ] },
+      { id: '3e', nom: '3ᵉ', desc: "Triangles, Thalès, trigonométrie, calcul littéral.",
+        sa: [
+          { n: 1, titre: 'Triangles', heures: '9 sem.', cd: 'CD2',
+            sims: [{ dos: 'triangles', ico: '📏', nom: "La hauteur de l'obélisque",
+              quoi: "Pythagore, hauteur relative à l'hypoténuse, propriété de Thalès et sa réciproque, triangles semblables, trigonométrie." }] },
+          { n: 3, titre: 'Applications du plan', heures: '', cd: 'CD2',
+            sims: [{ dos: 'transformations', ico: '📐', nom: 'Transformations du plan',
+              quoi: "Rotation, angles et invariants." }] },
+          { n: 4, titre: 'Organisation des données', heures: '', cd: 'CD3',
+            sims: [{ ico: '📊', nom: 'Tableaux et diagrammes',
+              quoi: "Effectifs, fréquences, moyenne et représentations graphiques." }] },
+        ] },
     ],
   },
   {
     id: 'svt', nom: 'Sciences de la Vie et de la Terre', court: 'SVT', emoji: '🌱',
     desc: "Le vivant, le corps humain, l'environnement et les ressources naturelles.",
     classes: [
-      { id: '6e', nom: '6ᵉ', desc: "Le monde vivant qui nous entoure.",
-        sa: [{ n: 1, titre: 'Le peuplement du milieu', heures: '', cd: '',
-          sims: [{ ico: '🐾', nom: 'Qui vit ici ?',
-            quoi: "Observer un milieu et classer ceux qui l'habitent." }] }] },
-      { id: '5e', nom: '5ᵉ', desc: "Nutrition des plantes, respiration, sols.",
-        sa: [{ n: 1, titre: 'Les besoins des végétaux', heures: '', cd: '',
-          sims: [{ ico: '🌿', nom: 'Besoins des végétaux',
-            quoi: "Lumière, eau, sels minéraux : réussir à faire pousser une plante." }] }] },
-      { id: '4e', nom: '4ᵉ', desc: "Reproduction, géologie, activité interne du globe.",
-        sa: [{ n: 1, titre: 'La Terre qui bouge', heures: '', cd: '',
-          sims: [{ ico: '🌋', nom: 'Séismes et volcans',
-            quoi: "Plaques, failles et éruptions." }] }] },
-      { id: '3e', nom: '3ᵉ', desc: "Immunité, hérédité, santé.",
-        sa: [{ n: 1, titre: 'Réactions immunitaires', heures: '', cd: '',
-          sims: [{ ico: '🦠', nom: 'Réactions immunitaires',
-            quoi: "Microbes, barrières, phagocytose, anticorps et vaccination." }] }] },
+      { id: '6e', nom: '6ᵉ', desc: "Ce qu'on mange, et ce que le corps en fait.",
+        sa: [
+          { n: 1, titre: "Alimentation et besoins nutritionnels de l'Homme", heures: '', cd: 'CD1',
+            sims: [{ ico: '🍽️', nom: 'Le repas de la journée',
+              quoi: "Nature et origine des aliments, valeur nutritive, besoins selon l'âge et l'activité, digestion." }] },
+          { n: 2, titre: 'Environnement', heures: '', cd: 'CD2',
+            sims: [{ ico: '🐾', nom: 'Qui vit ici ?',
+              quoi: "Observer un milieu et classer ceux qui l'habitent." }] },
+        ] },
+      { id: '5e', nom: '5ᵉ', desc: "Nutrition des plantes, milieux de vie, reproduction.",
+        sa: [
+          { n: 1, titre: 'Besoins nutritifs des végétaux', heures: '', cd: 'CD1',
+            sims: [{ ico: '🌿', nom: 'Besoins des végétaux',
+              quoi: "Lumière, eau, sels minéraux : réussir à faire pousser une plante." }] },
+          { n: 2, titre: 'Relations entre les êtres vivants et leur milieu de vie', heures: '', cd: 'CD2', sims: [] },
+          { n: 3, titre: 'Reproduction et développement', heures: '', cd: 'CD1', sims: [] },
+        ] },
+      { id: '4e', nom: '4ᵉ', desc: "Le sol comme ressource, et la Terre qui bouge.",
+        sa: [
+          { n: 1, titre: "Sol, avenir de l'homme", heures: '13 sem.', cd: 'CD2', sims: [] },
+          { n: 2, titre: 'Terre, planète active', heures: '11 sem.', cd: 'CD1',
+            sims: [{ ico: '🌋', nom: 'Séismes et volcans',
+              quoi: "Plaques, failles et éruptions." }] },
+        ] },
+      { id: '3e', nom: '3ᵉ', desc: "Échanges, commande nerveuse, reproduction, immunité.",
+        sa: [
+          { n: 1, titre: "Échanges de matière et d'énergie entre l'organisme et le milieu extérieur",
+            heures: '', cd: 'CD1', sims: [] },
+          { n: 2, titre: 'Commande nerveuse et réactions comportementales', heures: '', cd: 'CD1', sims: [] },
+          { n: 3, titre: 'Reproduction humaine', heures: '', cd: 'CD1', sims: [] },
+          { n: 4, titre: 'Réactions immunitaires et lutte contre les agressions microbiennes',
+            heures: '', cd: 'CD2',
+            sims: [{ ico: '🦠', nom: 'Réactions immunitaires',
+              quoi: "Microbes, barrières, phagocytose, anticorps et vaccination." }] },
+        ] },
     ],
   },
 ];
@@ -661,7 +702,8 @@ function rendreClasse(mat, classe) {
           <h3>${echapper(sa.titre)}</h3>
           ${notes ? `<span class="heures">${notes}</span>` : ''}
         </div>
-        <div class="sa-liste">${sa.sims.map(s => ligneSim(s)).join('')}</div>
+        <div class="sa-liste">${sa.sims.length ? sa.sims.map(s => ligneSim(s)).join('')
+          : '<p class="sa-vide">Aucune simulation pour l’instant — la SA est là pour situer le programme.</p>'}</div>
       </section>`;
   }).join('');
 }
