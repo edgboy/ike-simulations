@@ -2002,7 +2002,9 @@ function rendreLexique() {
    que sur l'écran d'accueil, au lancement. Une fois le parcours terminé, l'élève
    devait sortir de la simulation et y revenir pour le retrouver. */
 function carteExercer() {
-  const ouvert = etat.faites.length >= MISSIONS.length;
+  // etat.faits, pas etat.faites : ici le champ mémoire s'appelle « faits ».
+  // C'est « faites » qu'on ÉCRIT dans localStorage, pas ce qu'on lit en mémoire.
+  const ouvert = etat.faits.length >= MISSIONS.length;
   return '<button class="d-carte" data-mission="exercer"' + (ouvert ? '' : ' disabled') + '>' +
     '<span class="num">' + (ouvert ? '🏅' : '🔒') + '</span>' +
     '<span class="txt"><b>M’exercer</b><span>' + (ouvert
