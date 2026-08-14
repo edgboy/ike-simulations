@@ -455,3 +455,45 @@ lieu de comparer des longueurs. Il repart du quadrillage à l'entrée en mission
 À 740 × 380, la scène tombe à 23 % de l'écran ici — mieux que `premiers-pas` (18 %) et bien mieux que
 `tam-tam` (6 %), mais l'étranglement reste un travers de la plateforme, pas d'une simulation. Le
 chantier « rendre la scène tenable en paysage » reste ouvert pour tout le catalogue.
+
+---
+
+## Le paysage sur téléphone, enfin traité (v4.47.0)
+
+Le journal signalait depuis longtemps que « chaque pixel de hauteur compte » en paysage. La mesure
+systématique a montré bien pire que de l'inconfort : **deux simulations affichaient une scène de
+zéro pixel**, et huit étaient sous 25 % de l'écran.
+
+### Une intention juste, appliquée sans regarder la hauteur
+
+Six simulations ouvrent le plan de mission à chaque début de mission, puis le replient dès la
+première action de l'élève. C'est bon sur un écran haut. La fonction ne consultait que la
+**largeur** :
+
+```js
+if (etat.repliFait || window.innerWidth >= 880) return;   // la hauteur n'entre jamais en jeu
+```
+
+En paysage, le plan garde 300 px sur 380. L'élève ne voit rien, donc n'agit pas, donc le plan ne se
+replie jamais : **le déblocage dépendait de l'action que le blocage empêchait**. C'est le genre de
+boucle qu'une mesure trouve et qu'une relecture manque.
+
+### La règle retenue
+
+| Décision | Pourquoi |
+|---|---|
+| **Un seuil de hauteur partagé** — `placePourLePlan()`, 500 px | La contrainte du paysage est la hauteur. Une règle en largeur ne la voit pas. |
+| **Le plan ne s'ouvre pas tout seul sous le seuil**, mais le chevron l'ouvre toujours | On ne retire rien à l'élève : on change ce qui se passe *par défaut*. Le défaut doit protéger ce qu'il faut regarder. |
+| **Le repli s'impose au redimensionnement**, pas seulement au chargement | Tourner l'appareil est le geste même qui crée le problème. |
+| **La compaction est proportionnée** : ce qui s'efface en paysage est ce qui est disponible ailleurs (le but de la mission est dans la modale des missions) | Compacter ne doit pas faire disparaître une information unique. |
+
+### Le rappel qui revient une troisième fois
+
+Le socle avait **deux versions divergentes** de la même fonction : les quatre simulations récentes
+avaient la bonne, les six anciennes la mauvaise. Même famille que le contrat de progression
+(v4.40) et que `carteExercer()` (v4.44.1).
+
+**Quand une fonction du socle est corrigée dans une simulation, la corriger dans toutes le jour
+même** — sinon la divergence se découvre des mois plus tard, par une mesure, et sur du travail déjà
+entre les mains des élèves. Un contrôle transversal existe (`console.js`, `modalemissions.js`,
+`paysage.js` dans le bac à sable) : le lancer après toute retouche du socle.

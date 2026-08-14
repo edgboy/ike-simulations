@@ -5,6 +5,50 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v4.47.0 — 2026-08-15
+
+📱 **Le téléphone en paysage : deux simulations n'affichaient aucune scène.**
+
+Mesure faite sur les dix-sept simulations à 740 × 380, le format d'une main qui tourne l'appareil
+pour mieux voir. `lampe-de-poche` et `marmites-noircies` affichaient **zéro pixel** de scène ;
+`tam-tam` 22 px, `alambic` 41 px. Huit simulations sous 25 % de l'écran.
+
+### La cause, et pourquoi elle avait échappé
+
+Six simulations ouvrent le plan de mission au début de chaque mission — « l'élève doit voir le
+plan » — puis le replient dès qu'il agit. L'intention est juste sur un écran haut. Mais la fonction
+ne regardait que la **largeur** (`innerWidth >= 880`), jamais la hauteur. En paysage, le plan garde
+ses 300 px sur 380 et il ne reste rien. L'élève ne pouvait pas agir, puisqu'il ne voyait pas de quoi
+agir — et c'est justement son action qui aurait replié le plan. Un blocage parfait.
+
+Les quatre simulations récentes utilisaient déjà une version corrigée de la même fonction. Le socle
+avait dérivé en deux versions divergentes, comme le contrat de progression avant la v4.40 et
+`carteExercer()` avant la v4.44.1.
+
+### Ce qui change
+
+- **Un seuil de hauteur partagé** : sous 500 px de haut, le plan ne s'ouvre pas tout seul. Le
+  chevron ▼ l'ouvre toujours à la demande — l'élève n'est privé de rien, c'est le défaut qui change.
+- **Le repli s'impose au redimensionnement** et au changement d'orientation, plus seulement au
+  premier affichage.
+- **Un bloc de compaction en paysage**, ajouté aux dix-sept : le but de la mission et le rang
+  s'effacent (ils sont dans la modale des missions), les pastilles et les boutons rétrécissent.
+- **Les trois curseurs des marmites** s'empilaient sur trois rangées — 135 px — alors que l'écran
+  fait 740 px de large. Ils tiennent maintenant en rang.
+
+| | avant | après |
+|---|---|---|
+| `lampe-de-poche` | 0 % | **54 %** |
+| `tam-tam` | 6 % | **54 %** |
+| `marmites-noircies` | 0 % | **30 %** |
+| `alambic` | 11 % | **54 %** |
+| `pollution-air` | 19 % | **54 %** |
+| `premiers-pas` | 18 % | **44 %** |
+| plancher du catalogue | 0 % | **29 %** |
+
+Aucune régression en portrait : les mesures y sont identiques à l'octet près, et le plan s'ouvre
+toujours au début d'une mission. Les dix-sept simulations rechargent sans erreur console.
+
 ## v4.46.0 — 2026-08-15
 
 🍽️ **La SVT entre au catalogue : « Le repas de la journée », 6ᵉ SA1.**

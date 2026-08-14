@@ -432,6 +432,27 @@ main { flex:1; min-height:0; display:flex; flex-direction:column; }
   .f-poignee { display:none; }
 }
 
+/* Paysage sur téléphone : la scène passe avant tout le reste.
+   Replié, le plan de mission occupe encore une centaine de pixels, et les
+   barres de commandes autant. Sur 380 px de haut, chaque bloc doit rendre ce
+   qu'il peut — sinon il ne reste rien à regarder, ce qui était le cas.
+   Le but de la mission et le rang disparaissent : ils sont dans la modale des
+   missions, et l'étape en cours suffit à savoir quoi faire. */
+@media (orientation:landscape) and (max-height:520px) {
+  #mission { padding:4px 10px 5px; }
+  #mission:not(.ouvert) #m-but { display:none; }
+  #mission:not(.ouvert) .m-rang { font-size:9.5px; }
+  #mission .m-haut { gap:8px; }
+  .m-pastille { width:26px; height:26px; font-size:12px; }
+  .m-jauge { margin-top:4px; }
+  #etapes { margin-top:5px; }
+  .etape { padding:3px 0; font-size:12px; }
+  .m-actions { margin-top:6px; }
+  .m-actions .btn { min-height:32px; font-size:12px; }
+  #actions { padding:5px 8px; }
+  #actions .btn { min-height:36px; }
+}
+
 @media (prefers-reduced-motion:reduce) {
   *,*::before,*::after { animation-duration:.01ms !important; transition-duration:.01ms !important; }
 }
@@ -1748,10 +1769,31 @@ function nouvelleMission() {
   etat.teste = false; etat.resultat = null;
   etat.repliFait = false;
   cacherBilan();
-  $('mission').classList.add('ouvert');
-  $('m-plier').setAttribute('aria-expanded', 'true');
+  ouvrirLePlan();
   majTout();
 }
+/* ---- Le paysage sur téléphone : la scène passe avant le plan ----
+   Le plan de mission occupe environ 300 px. Sur un écran de 380 px de haut, il
+   ne laisse rien à regarder — deux simulations affichaient une scène de zéro
+   pixel, et l'élève ne pouvait pas agir puisqu'il ne voyait pas de quoi agir.
+   Au-dessous de ce seuil, le plan reste donc replié ; le chevron ▼ l'ouvre à
+   la demande, et le referme. */
+const placePourLePlan = () => window.innerHeight >= 500;
+
+// Ouvre le plan — mais seulement s'il reste de la place pour la scène.
+function ouvrirLePlan() {
+  const ok = placePourLePlan();
+  $('mission').classList.toggle('ouvert', ok);
+  $('m-plier').setAttribute('aria-expanded', ok ? 'true' : 'false');
+}
+
+// À chaque changement de taille : si la place a disparu, le plan se replie.
+function imposerRepli() {
+  if (placePourLePlan()) return;
+  $('mission').classList.remove('ouvert');
+  $('m-plier').setAttribute('aria-expanded', 'false');
+}
+
 function replierSiPetitEcran() {
   if (etat.repliFait || window.innerWidth >= 880) return;
   etat.repliFait = true;
@@ -1803,8 +1845,7 @@ function montrerIndice(forcer) {
   const el = $('m-indice');
   el.hidden = forcer === true ? false : !el.hidden;
   if (!el.hidden) {
-    $('mission').classList.add('ouvert');
-    $('m-plier').setAttribute('aria-expanded', 'true');
+    ouvrirLePlan();
   }
   $('btn-indice').classList.remove('appelle');
 }
@@ -2138,7 +2179,7 @@ $('visite-suivant').addEventListener('click', () => {
   visiteIdx++; montrerVisite();
 });
 $('visite-passer').addEventListener('click', fermerVisite);
-window.addEventListener('resize', () => { if (visiteIdx >= 0) montrerVisite(); });
+window.addEventListener('resize', () => { imposerRepli(); if (visiteIdx >= 0) montrerVisite(); });
 document.addEventListener('keydown', e => {
   if (visiteIdx >= 0 && e.key === 'Escape') fermerVisite();
 });

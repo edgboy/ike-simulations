@@ -413,6 +413,27 @@ canvas#scene { position:absolute; inset:0; width:100%; height:100%; touch-action
   main { flex:1; min-width:0; }
 }
 
+/* Paysage sur téléphone : la scène passe avant tout le reste.
+   Replié, le plan de mission occupe encore une centaine de pixels, et les
+   barres de commandes autant. Sur 380 px de haut, chaque bloc doit rendre ce
+   qu'il peut — sinon il ne reste rien à regarder, ce qui était le cas.
+   Le but de la mission et le rang disparaissent : ils sont dans la modale des
+   missions, et l'étape en cours suffit à savoir quoi faire. */
+@media (orientation:landscape) and (max-height:520px) {
+  #mission { padding:4px 10px 5px; }
+  #mission:not(.ouvert) #m-but { display:none; }
+  #mission:not(.ouvert) .m-rang { font-size:9.5px; }
+  #mission .m-haut { gap:8px; }
+  .m-pastille { width:26px; height:26px; font-size:12px; }
+  .m-jauge { margin-top:4px; }
+  #etapes { margin-top:5px; }
+  .etape { padding:3px 0; font-size:12px; }
+  .m-actions { margin-top:6px; }
+  .m-actions .btn { min-height:32px; font-size:12px; }
+  #actions { padding:5px 8px; }
+  #actions .btn { min-height:36px; }
+}
+
 @media (prefers-reduced-motion:reduce) {
   *,*::before,*::after { animation-duration:.01ms !important; transition-duration:.01ms !important; }
 }
