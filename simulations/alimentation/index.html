@@ -1,0 +1,2779 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Le repas de la journée — KONDO LABO</title>
+<meta name="description" content="SVT 6ᵉ, SA1 « Alimentation et besoins nutritionnels de l’Homme » : reconnaître les aliments par des tests, composer un repas équilibré, suivre la digestion jusqu’au sang.">
+
+<meta name="theme-color" content="#F7F5F0">
+<link rel="stylesheet" href="../../assets/polices.css">
+<style>
+
+/* ===== Jetons du design system KONDO LABO (intégrés : fichier autonome) ===== */
+:root {
+  --primary:#C4D94E; --accent:#5BC5F2; --accent-doux:#D6F0FB;
+  --tertiary:#F7A430; --destructive:#E83A4B; --success:#2A9D8F;
+  --neutral:#3A3632; --background:#F7F5F0; --surface:#FFFFFF; --surface-muted:#F0EEE9;
+  --border:#D3CFC8; --border-strong:#B0ABA3; --ring:#5BC5F2;
+  --accent-texte:#0F6E93;   /* le bleu d’accent ne passe pas les 4,5 de contraste en texte */
+  --font-display:'Baloo 2','Segoe UI',system-ui,sans-serif;
+  --font-body:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;
+  --radius-sm:8px; --radius-md:12px; --radius-lg:16px; --radius-xl:24px; --radius-full:9999px;
+  --shadow-soft:0 4px 16px rgba(58,54,50,.05);
+  --shadow-raised:0 6px 20px rgba(58,54,50,.06);
+  --ease:cubic-bezier(.4,0,.2,1);
+  --metal:#B0ABA3; --cuivre:#C9885A;
+}
+body.sombre {
+  --neutral:#ECEFF1; --background:#14181C; --surface:#1C232A; --surface-muted:#232C34;
+  --border:#333E47; --border-strong:#4A5762; --accent-doux:#17323F; --accent-texte:#7FD4F5;
+  --shadow-soft:0 4px 16px rgba(0,0,0,.28); --shadow-raised:0 6px 20px rgba(0,0,0,.34);
+  --metal:#8A9299;
+}
+
+*,*::before,*::after { box-sizing:border-box; }
+body {
+  margin:0; font-family:var(--font-body); font-size:16px; color:var(--neutral);
+  background:var(--background); overflow:hidden;
+  height:100dvh; display:flex; flex-direction:column;
+  -webkit-tap-highlight-color:transparent; -webkit-text-size-adjust:100%;
+}
+h1,h2,h3,h4 { font-family:var(--font-display); margin:0; line-height:1.2; }
+p { margin:0; }
+:focus-visible { outline:2px solid var(--ring); outline-offset:2px; border-radius:var(--radius-sm); }
+
+/* ============================ En-tête ============================ */
+header {
+  display:flex; align-items:center; gap:8px; flex:none;
+  padding:6px 10px; background:var(--surface); border-bottom:1px solid var(--border);
+}
+header h1 { font-size:15px; font-weight:800; line-height:1.15; }
+header .sous { font-size:10.5px; opacity:.6; }
+.icone-btn {
+  width:40px; height:40px; flex:none; display:grid; place-items:center;
+  border:none; background:none; border-radius:var(--radius-md);
+  font-size:18px; color:inherit; cursor:pointer; text-decoration:none;
+}
+.icone-btn:hover { background:var(--surface-muted); }
+.tete-fin { margin-left:auto; display:flex; gap:2px; align-items:center; }
+
+/* ===================== Bandeau de mission (EN HAUT) ===================== */
+#mission {
+  flex:none; background:var(--surface); border-bottom:1px solid var(--border);
+  padding:8px 12px 9px;
+}
+.m-haut { display:flex; align-items:center; gap:9px; }
+.m-pastille {
+  width:30px; height:30px; flex:none; border-radius:var(--radius-sm);
+  display:grid; place-items:center; background:var(--accent-doux);
+  font-family:var(--font-display); font-weight:800; font-size:13px;
+}
+.m-titres { flex:1; min-width:0; }
+.m-titres b { display:block; font-size:14px; font-weight:600; line-height:1.2; }
+.m-titres span { font-size:11.5px; opacity:.65; line-height:1.35; display:block; }
+.m-rang {
+  font-size:10.5px !important; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--accent-texte); opacity:1 !important; margin-bottom:1px;
+}
+.m-plier {
+  width:34px; height:34px; flex:none; border:none; background:none; cursor:pointer;
+  border-radius:var(--radius-sm); font-size:14px; color:inherit;
+  transition:transform .2s var(--ease);
+}
+.m-plier:hover { background:var(--surface-muted); }
+#mission.ouvert .m-plier { transform:rotate(180deg); }
+/* Replié, on ne montre que l'étape en cours : la lampe reste visible */
+#mission:not(.ouvert) .etape:not(.a-montrer) { display:none; }
+#mission:not(.ouvert) .m-indice { display:none; }
+.m-jauge { height:5px; border-radius:var(--radius-full); background:var(--surface-muted); margin-top:8px; overflow:hidden; }
+.m-jauge i { display:block; height:100%; background:var(--accent); transition:width .4s var(--ease); }
+
+/* ---- Liste des étapes : le guidage pas à pas ---- */
+#etapes { margin-top:9px; }
+.etape {
+  display:flex; align-items:flex-start; gap:9px; padding:5px 0;
+  font-size:13px; line-height:1.4;
+}
+.etape .coche {
+  width:21px; height:21px; flex:none; margin-top:1px; border-radius:var(--radius-full);
+  display:grid; place-items:center; font-size:11px; font-weight:700;
+  border:2px solid var(--border-strong); color:transparent; background:none;
+}
+.etape.faite .coche { background:var(--success); border-color:var(--success); color:#fff; }
+.etape.faite .t { opacity:.5; text-decoration:line-through; }
+.etape.courante .coche { border-color:var(--accent-texte); animation:pulseCoche 1.5s infinite; }
+.etape.courante .t { font-weight:600; }
+@keyframes pulseCoche { 50% { box-shadow:0 0 0 5px var(--accent-doux); } }
+.etape .t { flex:1; }
+.m-indice {
+  margin-top:8px; padding:9px 11px; border-radius:var(--radius-md);
+  background:var(--accent-doux); font-size:12.5px; line-height:1.5;
+}
+.m-indice b { font-weight:600; }
+.m-indice[hidden] { display:none; }
+/* Le bouton d'indice. `display` explicite l'emporte sur l'attribut `hidden` :
+   il faut le redire, sinon le bouton reste visible une fois masqué. */
+.m-actions { display:flex; gap:8px; margin-top:10px; }
+.m-actions .btn { flex:1; min-height:40px; padding:0 12px; font-size:13px; }
+.m-actions[hidden], .m-actions .btn[hidden] { display:none; }
+#btn-indice.appelle { animation:appelleIndice 1.3s infinite; }
+@keyframes appelleIndice { 50% { box-shadow:0 0 0 6px rgba(91,197,242,.32); } }
+
+/* ============================ Atelier ============================ */
+main { flex:1; min-height:0; display:flex; flex-direction:column; }
+#atelier { flex:1; min-height:0; position:relative; display:flex; }
+#plan { flex:1; min-height:0; width:100%; display:block; touch-action:manipulation; }
+
+/* Emplacements sur la lampe */
+.slot { cursor:pointer; }
+.slot .zone {
+  fill:var(--surface); fill-opacity:.5; stroke:var(--border-strong); stroke-width:2;
+  stroke-dasharray:6 5; rx:7;
+}
+.slot:hover .zone, .slot:focus-visible .zone { stroke:var(--accent); fill:var(--accent-doux); fill-opacity:1; }
+.slot.plein .zone { display:none; }
+/* Surbrillance de l'emplacement attendu par l'étape en cours */
+.slot.vise .zone { stroke:var(--accent); stroke-width:3; stroke-dasharray:none;
+  fill:var(--accent-doux); fill-opacity:1; animation:viseur 1.5s infinite; }
+@keyframes viseur { 50% { stroke-opacity:.35; } }
+.slot.vise .etiq-slot { opacity:1; font-weight:700; }
+.etiq-slot {
+  font-family:var(--font-body); font-size:11px; font-weight:600;
+  fill:var(--neutral); opacity:.55; text-anchor:middle; pointer-events:none;
+}
+.txt-piece {
+  font-family:var(--font-body); font-size:11px; font-weight:700;
+  fill:var(--neutral); text-anchor:middle; pointer-events:none;
+}
+.retirer { cursor:pointer; }
+.retirer circle { fill:var(--border-strong); transition:fill .15s var(--ease); }
+.retirer:hover circle, .retirer:focus-visible circle { fill:var(--destructive); }
+.retirer text { fill:#fff; font-size:13px; font-weight:700; text-anchor:middle; font-family:var(--font-body); }
+
+/* ============ Bouton d'accès aux mesures, sur le plan de travail ============ */
+#btn-mesures {
+  position:absolute; right:12px; bottom:12px; z-index:5;
+  display:flex; align-items:center; gap:7px;
+  min-height:44px; padding:0 16px;
+  background:var(--surface); color:var(--neutral);
+  border:2px solid var(--border-strong); border-radius:var(--radius-full);
+  box-shadow:var(--shadow-raised);
+  font-family:var(--font-body); font-size:13.5px; font-weight:600; cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+#btn-mesures:hover { background:var(--surface-muted); border-color:var(--neutral); }
+#btn-mesures[hidden] { display:none; }
+#btn-mesures.appelle { border-color:var(--accent-texte); animation:appelleMesures 1.4s infinite; }
+@keyframes appelleMesures { 50% { box-shadow:0 0 0 8px var(--accent-doux), var(--shadow-raised); } }
+
+/* ============================ Bilan ============================ */
+#bilan {
+  position:absolute; left:8px; right:8px; bottom:8px; z-index:6;
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-raised); padding:13px 15px;
+  display:none; max-width:520px; margin:0 auto;
+}
+#bilan.visible { display:block; animation:monte .3s var(--ease); }
+#atelier.avec-bilan #plan { align-self:flex-start; max-height:48%; }
+@keyframes monte { from { opacity:0; transform:translateY(10px); } }
+#bilan .verdict { display:flex; align-items:center; gap:9px; margin-bottom:4px; }
+#bilan .verdict .em { font-size:23px; line-height:1; }
+#bilan .verdict h3 { font-size:16px; flex:1; }
+#bilan .reduire {
+  width:32px; height:32px; flex:none; margin:-4px -6px 0 0;
+  border:none; background:none; border-radius:var(--radius-sm);
+  font-size:17px; color:inherit; cursor:pointer; opacity:.6;
+}
+#bilan .reduire:hover { background:var(--surface-muted); opacity:1; }
+#bilan .objectif {
+  margin-top:10px; padding:9px 11px; border-radius:var(--radius-md);
+  background:var(--accent-doux); font-size:12.5px; line-height:1.5;
+}
+#bilan .phrase { font-size:12.5px; opacity:.78; line-height:1.5; margin:0 0 10px; }
+.jauges { display:grid; grid-template-columns:repeat(auto-fit,minmax(115px,1fr)); gap:8px 14px; }
+.jauge .haut { display:flex; justify-content:space-between; font-size:11.5px; margin-bottom:3px; }
+.jauge .haut b { font-weight:600; }
+.jauge .haut span { opacity:.65; }
+.barre { height:7px; border-radius:var(--radius-full); background:var(--surface-muted); overflow:hidden; }
+.barre i { display:block; height:100%; background:var(--accent); border-radius:inherit; transition:width .5s var(--ease); }
+.barre.faible i { background:var(--tertiary); }
+.barre.mauvais i { background:var(--destructive); }
+#bilan .actions { display:flex; gap:8px; margin-top:11px; }
+
+/* ============================ Barre d'action ============================ */
+#actions {
+  flex:none; display:flex; gap:8px; align-items:center; justify-content:flex-end;
+  padding:8px 12px calc(8px + env(safe-area-inset-bottom));
+  background:var(--surface); border-top:1px solid var(--border);
+}
+.btn {
+  display:inline-flex; align-items:center; justify-content:center; gap:7px;
+  min-height:44px; padding:0 18px; border:none; border-radius:var(--radius-lg);
+  font-family:var(--font-body); font-size:14px; font-weight:600;
+  color:var(--neutral); background:var(--primary); cursor:pointer;
+  transition:filter .15s var(--ease);
+}
+.btn:hover { filter:brightness(.94); }
+.btn:active { filter:brightness(.88); }
+.btn[disabled] { opacity:.45; cursor:not-allowed; filter:none; }
+.btn-contour { background:var(--surface); border:2px solid var(--neutral); }
+.btn-contour:hover { background:var(--surface-muted); filter:none; }
+.btn-fantome { background:transparent; }
+.btn-fantome:hover { background:var(--surface-muted); filter:none; }
+.btn-large { width:100%; }
+#btn-tester.appelle { animation:appelle 1.3s infinite; }
+@keyframes appelle { 50% { box-shadow:0 0 0 7px rgba(196,217,78,.35); } }
+
+/* ================== Feuille de choix d'un composant ================== */
+#feuille {
+  position:fixed; inset:0; z-index:35; display:none;
+  background:rgba(38,50,56,.5);
+}
+#feuille.visible { display:block; }
+.f-carte {
+  position:absolute; left:0; right:0; bottom:0;
+  max-height:82dvh; overflow-y:auto;
+  background:var(--surface); border-radius:var(--radius-xl) var(--radius-xl) 0 0;
+  padding:8px 16px calc(18px + env(safe-area-inset-bottom));
+  box-shadow:var(--shadow-raised);
+  animation:glisse .28s var(--ease);
+}
+@keyframes glisse { from { transform:translateY(100%); } }
+.f-poignee { width:40px; height:4px; border-radius:2px; background:var(--border); margin:2px auto 12px; }
+.f-tete { display:flex; align-items:center; gap:9px; margin-bottom:4px; }
+.f-tete h2 { font-size:18px; flex:1; }
+.f-role { font-size:12.5px; line-height:1.5; opacity:.75; margin-bottom:13px; }
+.f-liste { display:grid; gap:9px; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); }
+.option {
+  display:flex; flex-direction:column; gap:3px; text-align:left; position:relative;
+  padding:12px 13px; min-height:62px;
+  background:var(--surface); border:2px solid var(--border); border-radius:var(--radius-md);
+  font-family:var(--font-body); color:var(--neutral); cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+.option:hover { border-color:var(--border-strong); background:var(--surface-muted); }
+.option.pose { border-color:var(--accent-texte); background:var(--accent-doux); }
+.option.conseil { border-color:var(--primary); }
+.option.conseil::after {
+  content:'conseillé'; position:absolute; top:-9px; right:9px;
+  padding:1px 8px; border-radius:var(--radius-full);
+  background:var(--primary); color:var(--neutral);
+  font-size:9.5px; font-weight:700; letter-spacing:.04em; text-transform:uppercase;
+}
+.option b { font-size:13.5px; font-weight:600; }
+.option span { font-size:11.5px; opacity:.68; line-height:1.4; }
+.option[disabled] { opacity:.42; cursor:not-allowed; }
+.f-vide { text-align:center; padding:18px 0; font-size:13px; opacity:.6; }
+
+/* ============================ Voiles ============================ */
+.voile {
+  position:fixed; inset:0; z-index:40; display:none;
+  background:rgba(14,18,23,.93); padding:14px; overflow-y:auto;
+}
+.voile.visible { display:flex; align-items:center; justify-content:center; }
+.carte-modale {
+  position:relative; width:100%; max-width:470px; margin:auto;
+  background:var(--surface); border-radius:var(--radius-lg); padding:22px 20px;
+  box-shadow:var(--shadow-raised);
+}
+.carte-modale h2 { font-size:20px; margin-bottom:9px; padding-right:34px; }
+.carte-modale > p { font-size:13.5px; line-height:1.6; opacity:.8; margin-bottom:10px; }
+.fermer-x {
+  position:absolute; top:8px; right:10px; width:36px; height:36px;
+  border:none; background:none; font-size:20px; color:inherit; cursor:pointer;
+  border-radius:var(--radius-md);
+}
+.fermer-x:hover { background:var(--surface-muted); }
+
+/* Cartes de mission */
+.d-carte {
+  display:flex; align-items:center; gap:11px; width:100%; text-align:left;
+  padding:11px 13px; margin-bottom:8px;
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md);
+  font-family:var(--font-body); color:inherit; cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+.d-carte:hover:not([disabled]) { border-color:var(--border-strong); background:var(--surface-muted); }
+.d-carte[disabled] { opacity:.5; cursor:not-allowed; }
+.d-carte .num {
+  width:30px; height:30px; flex:none; border-radius:var(--radius-sm);
+  display:grid; place-items:center; background:var(--accent-doux);
+  font-family:var(--font-display); font-weight:800; font-size:13px;
+}
+.d-carte.fait .num { background:var(--success); color:#fff; }
+.d-carte .txt { flex:1; min-width:0; }
+.d-carte .txt b { display:block; font-size:13.5px; font-weight:600; }
+.d-carte .txt span { font-size:11.5px; opacity:.65; line-height:1.4; }
+
+/* Guide d'accueil */
+.g-etape { display:flex; gap:11px; margin-bottom:13px; }
+.g-etape .num {
+  width:26px; height:26px; flex:none; border-radius:var(--radius-full);
+  display:grid; place-items:center; background:var(--accent-doux);
+  font-family:var(--font-display); font-weight:800; font-size:12.5px;
+}
+.g-etape .t { font-size:13.5px; line-height:1.5; opacity:.85; flex:1; }
+.g-etape .t b { opacity:1; }
+
+/* Lexique */
+.lex-entree {
+  padding:11px 0; border-bottom:1px solid var(--border);
+}
+.lex-entree:last-child { border-bottom:none; }
+.lex-entree b { display:block; font-size:14px; font-weight:600; margin-bottom:2px; }
+.lex-entree span { font-size:12.5px; line-height:1.55; opacity:.78; }
+.lex-entree em { font-style:normal; color:var(--accent-texte); font-weight:600; }
+
+/* Écran de passage d'une mission à la suivante */
+.p-fanion {
+  display:flex; align-items:center; gap:10px; margin-bottom:12px;
+}
+.p-fanion .rond {
+  width:44px; height:44px; flex:none; border-radius:var(--radius-full);
+  display:grid; place-items:center; background:var(--success); font-size:22px;
+}
+.p-fanion b { display:block; font-size:17px; font-family:var(--font-display); font-weight:800; }
+.p-fanion span { font-size:12px; opacity:.65; }
+.p-acquis {
+  padding:12px 14px; border-radius:var(--radius-md); background:var(--accent-doux);
+  font-size:13px; line-height:1.55; margin-bottom:14px;
+}
+.p-acquis b { font-weight:600; }
+.p-suite {
+  border:2px dashed var(--border-strong); border-radius:var(--radius-md);
+  padding:12px 14px; margin-bottom:14px;
+}
+.p-suite .etiq {
+  font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--accent-texte); margin-bottom:3px;
+}
+.p-suite b { display:block; font-size:15px; font-family:var(--font-display); font-weight:800; }
+.p-suite span { font-size:12.5px; opacity:.7; line-height:1.45; }
+.p-neuf { font-size:12px; opacity:.6; text-align:center; margin-top:9px; line-height:1.45; }
+
+/* QCM */
+.q-question { font-size:15px; font-weight:600; line-height:1.4; margin-bottom:12px; }
+/* Le questionnaire. Ici, « q-choix » est le conteneur et « q-rep » chaque
+   proposition : le style s'appliquait au mauvais élément, si bien que les
+   réponses s'affichaient en boutons bruts du navigateur. */
+.q-choix { display:block; }
+.q-rep {
+  display:block; width:100%; text-align:left; margin-bottom:8px;
+  padding:12px 14px; min-height:46px;
+  background:var(--surface); border:2px solid var(--border); border-radius:var(--radius-md);
+  font-family:var(--font-body); font-size:13.5px; line-height:1.45; color:var(--neutral);
+  cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+.q-rep:hover:not([disabled]) { border-color:var(--border-strong); background:var(--surface-muted); }
+.q-rep.juste { border-color:var(--success); background:rgba(42,157,143,.12); font-weight:600; }
+.q-rep.faux { border-color:var(--destructive); background:rgba(232,58,75,.1); }
+.q-rep[disabled] { cursor:default; }
+.q-rep.juste::before { content:'✔️ '; }
+.q-rep.faux::before { content:'❌ '; }
+/* Le mot de la fin, après la réponse */
+.q-mot {
+  margin-top:4px; margin-bottom:12px; padding:11px 13px; border-radius:var(--radius-md);
+  font-size:12.5px; line-height:1.55; background:var(--accent-doux);
+}
+.q-mot.ok { background:rgba(42,157,143,.14); }
+.q-mot.non { background:var(--accent-doux); }
+.q-expl {
+  margin-top:4px; padding:11px 13px; border-radius:var(--radius-md);
+  background:var(--accent-doux); font-size:12.5px; line-height:1.55;
+  display:none;
+}
+.q-expl.visible { display:block; }
+.q-avance { font-size:11.5px; opacity:.55; margin-bottom:10px; letter-spacing:.04em; text-transform:uppercase; font-weight:600; }
+
+/* ============================ Toast ============================ */
+#toast {
+  position:fixed; left:50%; bottom:calc(70px + env(safe-area-inset-bottom));
+  transform:translateX(-50%);
+  max-width:calc(100vw - 28px); padding:10px 16px; z-index:45;
+  background:var(--neutral); color:var(--background);
+  border-radius:var(--radius-full); font-size:13px; font-weight:600;
+  opacity:0; pointer-events:none; transition:opacity .2s var(--ease); text-align:center;
+}
+#toast.visible { opacity:1; }
+#toast.alerte { background:var(--destructive); color:#fff; }
+
+/* ================= Adaptations d'écran ================= */
+
+/* Paysage sur téléphone : chaque pixel de hauteur compte */
+@media (orientation:landscape) and (max-height:520px) {
+  header { padding:3px 8px; }
+  header h1 { font-size:13px; }
+  header .sous { display:none; }
+  .icone-btn { width:34px; height:34px; font-size:16px; }
+  #mission { padding:5px 10px 6px; }
+  .m-pastille { width:24px; height:24px; font-size:11px; }
+  .m-titres b { font-size:12.5px; }
+  .m-titres span { display:none; }
+  #mission.ouvert .m-titres span { display:block; }
+  .m-jauge { margin-top:5px; }
+  #actions { padding:5px 10px calc(5px + env(safe-area-inset-bottom)); }
+  .btn { min-height:38px; padding:0 14px; font-size:13px; }
+  #atelier.avec-bilan #plan { max-height:none; }
+  #bilan { max-width:none; right:8px; left:auto; width:min(58%,420px); bottom:6px; }
+  .f-carte { max-height:96dvh; }
+}
+
+/* Écran large : la mission passe en colonne, l'atelier prend le reste */
+@media (min-width:880px) {
+  body { flex-direction:row; }
+  #colonne {
+    width:330px; flex:none; display:flex; flex-direction:column;
+    background:var(--surface); border-right:1px solid var(--border);
+    overflow-y:auto;
+  }
+  /* la colonne est étroite : les icônes passent sous le titre au lieu de l'écraser */
+  header { border-bottom:1px solid var(--border); flex-wrap:wrap; }
+  header h1 { font-size:16px; }
+  .tete-fin { width:100%; justify-content:flex-end; }
+  #mission { border-bottom:none; padding:12px 16px; }
+  /* la place ne manque pas : toutes les étapes restent visibles */
+  #mission:not(.ouvert) .etape:not(.a-montrer) { display:flex; }
+  #mission:not(.ouvert) .m-indice { display:block; }
+  .m-plier { display:none; }
+  main { flex:1; min-width:0; }
+  #actions { justify-content:center; }
+  #bilan { left:16px; right:16px; }
+  .f-carte {
+    position:absolute; top:50%; left:50%; right:auto; bottom:auto;
+    transform:translate(-50%,-50%); width:min(560px,92vw);
+    border-radius:var(--radius-lg); max-height:86dvh;
+    animation:apparait .2s var(--ease);
+  }
+  @keyframes apparait { from { opacity:0; } }
+  .f-poignee { display:none; }
+}
+
+@media (prefers-reduced-motion:reduce) {
+  *,*::before,*::after { animation-duration:.01ms !important; transition-duration:.01ms !important; }
+}
+
+/* ===================== Propre au repas de la journée ===================== */
+
+.titre-scene {
+  font-family:var(--font-body); font-size:12.5px; font-weight:600;
+  fill:var(--neutral); text-anchor:middle; pointer-events:none; opacity:.8;
+}
+.etiq-scene {
+  font-family:var(--font-body); font-size:11.5px; font-weight:600;
+  fill:var(--neutral); text-anchor:middle; pointer-events:none;
+}
+.etiq-jauge {
+  font-family:var(--font-display); font-size:13.5px; font-weight:800;
+  fill:var(--neutral); text-anchor:middle; pointer-events:none;
+}
+.nom-test {
+  font-family:var(--font-display); font-size:12.5px; font-weight:800;
+  fill:var(--neutral); text-anchor:middle; pointer-events:none;
+}
+.em-assiette { font-size:26px; text-anchor:middle; pointer-events:none; }
+
+/* La zone d'un test : elle ne s'éclaire que si l'élève tient un aliment —
+   sinon rien n'indique qu'il faut d'abord en choisir un. */
+.zone-test { cursor:default; }
+.zone-test.active { cursor:pointer; }
+.zone-test.active:hover rect:first-child { fill:var(--accent-doux); }
+
+/* Les parties de la dent : chacune se touche pour être reconnue */
+.part-dent { cursor:pointer; }
+.part-dent path { transition:stroke-width .12s var(--ease); }
+.part-dent.vue path { stroke:var(--accent-texte); stroke-width:3.5; }
+
+/* ---- Le carnet d'observation ---- */
+#mesures {
+  position:absolute; top:8px; left:8px; width:214px; max-width:46%;
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--radius-md); box-shadow:var(--shadow-soft);
+  padding:9px 11px; pointer-events:none; z-index:3;
+}
+#mesures .me-titre {
+  font-size:10px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--accent-texte); margin-bottom:5px;
+}
+.me-ligne {
+  display:flex; align-items:baseline; justify-content:space-between; gap:8px;
+  font-size:12.5px; line-height:1.7;
+}
+.me-ligne .nom { font-weight:700; }
+.me-ligne .val { font-family:var(--font-display); font-weight:800; font-size:14px; }
+.me-sep { height:1px; background:var(--border); margin:6px 0 5px; }
+.me-egalite {
+  display:flex; align-items:center; gap:6px; flex-wrap:wrap;
+  font-size:12px; margin-top:3px; line-height:1.5;
+}
+.me-egalite .memb { font-family:var(--font-display); font-weight:800; }
+.me-egalite.juste { color:var(--success); }
+.me-egalite.faux  { color:var(--destructive); }
+#mesures .me-quoi { font-size:11.5px; line-height:1.45; opacity:.75; margin-top:6px; }
+
+/* ---- L'étal : les aliments et les commandes de la scène ---- */
+#outils {
+  flex:none; border-top:1px solid var(--border); background:var(--surface);
+  padding:8px 12px 9px; display:flex; gap:7px; align-items:center; flex-wrap:wrap;
+}
+.ot-titre { font-size:11.5px; opacity:.7; flex:none; margin-right:2px; }
+/* Les boutons sont des flex : sans conteneur flex, ils s'empilent chacun sur
+   sa ligne et la barre mange la hauteur de la scène. */
+#liste-outils { display:flex; gap:6px; flex-wrap:wrap; min-width:0; }
+.ot {
+  flex:none; display:flex; align-items:center; gap:5px; cursor:pointer;
+  padding:6px 11px 6px 9px; border-radius:var(--radius-full);
+  border:2px solid var(--border); background:var(--surface-muted);
+  font-family:inherit; font-size:12px; font-weight:600; color:var(--neutral);
+  min-height:40px;
+  transition:background .16s var(--ease), border-color .16s var(--ease);
+}
+.ot .em { font-size:15px; line-height:1; }
+.ot .compte {
+  margin-left:3px; background:var(--accent); color:var(--sur-primary);
+  border-radius:var(--radius-full); padding:0 6px; font-size:11.5px;
+}
+.ot[aria-pressed="true"] { border-color:var(--accent); background:var(--accent-doux); }
+.ot:disabled { opacity:.42; cursor:not-allowed; }
+.ot.appelle, .btn.appelle { animation:appelOutil 1.4s infinite; }
+@keyframes appelOutil {
+  0%,100% { box-shadow:0 0 0 0 rgba(91,197,242,.55); }
+  60%     { box-shadow:0 0 0 8px rgba(91,197,242,0); }
+}
+
+/* Sur téléphone, le carnet devient un bandeau au-dessus de la scène et l'étal
+   défile sur une seule ligne — même règle que dans les autres simulations. */
+@media (max-width:560px) {
+  #atelier { display:flex; flex-direction:column; }
+  #mesures {
+    position:static; width:auto; max-width:none; order:-1; flex:none;
+    border:none; border-bottom:1px solid var(--border); border-radius:0;
+    box-shadow:none; padding:6px 10px 7px;
+  }
+  #mesures .me-titre { margin-bottom:2px; font-size:9.5px; }
+  .me-ligne { display:inline-flex; margin-right:12px; font-size:11.5px; line-height:1.5; }
+  .me-ligne .val { font-size:13px; }
+  .me-sep { display:none; }
+  #mesures .me-quoi { font-size:10.5px; margin-top:2px; }
+  .me-egalite { font-size:11.5px; }
+  #outils { flex-wrap:nowrap; padding:6px 10px 7px; gap:6px; }
+  #liste-outils { flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; padding-bottom:2px; }
+  #liste-outils::-webkit-scrollbar { display:none; }
+  .ot-titre { display:none; }
+  .ot { padding:5px 10px 5px 8px; font-size:11.5px; min-height:38px; }
+  .em-assiette { font-size:21px; }
+}
+@media (max-height:430px) and (orientation:landscape) {
+  #mesures .me-quoi { display:none; }
+  #outils { padding:5px 10px 6px; }
+  #actions { padding:6px 8px; }
+}
+
+
+.g-titre { font-family:var(--font-display); font-weight:800; font-size:14px;
+  margin:14px 0 7px; color:var(--accent-texte); }
+
+/* ===================== L'accueil : « Que veux-tu faire ? » ===================== */
+#v-accueil .carte-modale { max-width:520px; }
+.ac-intro { font-size:13.5px; line-height:1.6; opacity:.8; margin-bottom:14px; }
+.ac-choix {
+  display:flex; align-items:center; gap:13px; width:100%; text-align:left;
+  padding:15px 16px; margin-bottom:11px;
+  background:var(--surface); border:2px solid var(--border); border-radius:var(--radius-lg);
+  font-family:var(--font-body); color:inherit; cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+.ac-choix:hover:not([disabled]) { border-color:var(--accent); background:var(--accent-doux); }
+.ac-choix[disabled] { opacity:.55; cursor:not-allowed; }
+.ac-choix .ac-em {
+  width:46px; height:46px; flex:none; border-radius:var(--radius-md);
+  display:grid; place-items:center; background:var(--surface-muted); font-size:25px;
+}
+.ac-choix .ac-txt { flex:1; min-width:0; }
+.ac-choix .ac-txt b { display:block; font-family:var(--font-display); font-size:17px; font-weight:800; }
+.ac-choix .ac-txt span { display:block; font-size:12.5px; opacity:.7; line-height:1.45; margin-top:1px; }
+.ac-choix .ac-etat { font-size:11.5px; font-weight:700; opacity:.75; flex:none; text-align:right; max-width:34%; }
+.ac-pied { font-size:12px; opacity:.6; line-height:1.5; margin-top:2px; }
+
+/* ===================== La visite guidée de l'interface =====================
+   Un halo encadre la zone dont on parle et assombrit tout le reste ; la carte
+   se pose à côté. Une liste écrite ne montrait rien : ici, on regarde. */
+#visite { position:fixed; inset:0; z-index:48; display:none; }
+#visite.visible { display:block; }
+#visite-halo {
+  position:absolute; border-radius:var(--radius-md);
+  border:3px solid var(--primary);
+  box-shadow:0 0 0 9999px rgba(12,16,20,.91);
+  transition:left .3s var(--ease), top .3s var(--ease),
+             width .3s var(--ease), height .3s var(--ease);
+  pointer-events:none;
+}
+#visite-carte {
+  position:absolute; background:var(--surface); border-radius:var(--radius-lg);
+  padding:15px 16px 13px; width:min(320px, calc(100vw - 24px));
+  box-shadow:0 12px 44px rgba(0,0,0,.34);
+  transition:left .3s var(--ease), top .3s var(--ease);
+}
+.v-titre { font-family:var(--font-display); font-size:16px; font-weight:800; margin-bottom:5px; }
+.v-texte { font-size:13px; line-height:1.55; opacity:.85; }
+.v-texte b { opacity:1; }
+.v-bas { display:flex; align-items:center; gap:8px; margin-top:13px; }
+.v-prog { flex:1; font-size:11.5px; font-weight:700; opacity:.5; letter-spacing:.04em; }
+#visite-passer {
+  background:none; border:none; color:inherit; opacity:.6;
+  font-family:var(--font-body); font-size:12.5px; text-decoration:underline;
+  cursor:pointer; padding:6px;
+}
+#visite-passer:hover { opacity:1; }
+#visite-suivant {
+  border:none; background:var(--primary); color:var(--neutral);
+  font-family:var(--font-body); font-weight:700; font-size:13.5px;
+  padding:10px 18px; border-radius:var(--radius-md); cursor:pointer; min-height:40px;
+}
+
+/* ===================== Le quiz libre : m'exercer =====================
+   Refonte : les trois niveaux se ressemblaient trait pour trait — même carte
+   blanche, même texte, et trois médailles que rien ne distingue à cette taille.
+   Rien ne disait qu'il s'agit d'une échelle de difficulté, ni qu'un niveau pèse
+   plus lourd qu'un autre. Chacun reçoit donc sa teinte (bronze, argent, or),
+   portée par un rail à gauche et par le disque de la médaille, et son poids est
+   écrit. Le score de maîtrise devient le personnage principal de l'écran. */
+#v-quiz .carte-modale { max-width:520px; }
+
+/* ---- Le bandeau de maîtrise : c'est LE chiffre qu'on vient voir ---- */
+.qz-maitrise {
+  margin:4px 0 18px; padding:15px 16px; border-radius:var(--radius-lg);
+  background:linear-gradient(135deg, var(--accent-doux), var(--surface-muted));
+  border:1px solid var(--border);
+}
+.qz-m-haut { display:flex; align-items:center; justify-content:space-between; gap:10px; font-size:12.5px; }
+.qz-m-haut span { opacity:.75; font-weight:600; }
+.qz-m-haut b {
+  font-family:var(--font-display); font-size:34px; font-weight:800; line-height:1;
+  letter-spacing:-.02em;
+}
+.qz-m-barre {
+  height:12px; border-radius:var(--radius-full); background:var(--surface);
+  overflow:hidden; margin-top:10px; border:1px solid var(--border);
+}
+.qz-m-barre i {
+  display:block; height:100%; border-radius:inherit;
+  background:linear-gradient(90deg, #B87333 0%, #8A9BA8 45%, var(--primary) 100%);
+  transition:width .6s var(--ease);
+}
+.qz-m-mot {
+  font-size:11px; font-weight:800; opacity:.7; margin-top:7px;
+  letter-spacing:.08em; text-transform:uppercase;
+}
+
+/* ---- Les trois niveaux : une échelle, pas une liste ---- */
+.qz-niveau {
+  position:relative; display:flex; align-items:center; gap:13px;
+  width:100%; text-align:left; padding:14px 15px 14px 22px; margin-bottom:10px;
+  background:var(--surface); border:2px solid var(--border); border-radius:var(--radius-lg);
+  font-family:var(--font-body); color:inherit; cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease),
+             transform .15s var(--ease);
+}
+/* le rail coloré : on lit le niveau avant même d'avoir lu son nom */
+.qz-niveau::before {
+  content:''; position:absolute; left:0; top:0; bottom:0; width:7px;
+  background:var(--qz-teinte); border-radius:var(--radius-lg) 0 0 var(--radius-lg);
+}
+.qz-niveau:hover { border-color:var(--qz-teinte); background:var(--surface-muted); }
+.qz-niveau:active { transform:scale(.99); }
+.qz-niveau[data-niveau="souviens"]  { --qz-teinte:#C08A4A; }   /* bronze */
+.qz-niveau[data-niveau="comprends"] { --qz-teinte:#8E9BA6; }   /* argent */
+.qz-niveau[data-niveau="pieges"]    { --qz-teinte:#D9A520; }   /* or     */
+body.sombre .qz-niveau[data-niveau="souviens"]  { --qz-teinte:#D19A5C; }
+body.sombre .qz-niveau[data-niveau="comprends"] { --qz-teinte:#A6B3BE; }
+body.sombre .qz-niveau[data-niveau="pieges"]    { --qz-teinte:#EBBB3A; }
+
+.qz-niveau .qz-em {
+  width:46px; height:46px; flex:none; border-radius:var(--radius-full);
+  display:grid; place-items:center; font-size:23px;
+  background:color-mix(in srgb, var(--qz-teinte) 20%, var(--surface));
+  border:2px solid var(--qz-teinte);
+}
+.qz-niveau .qz-txt { flex:1; min-width:0; }
+.qz-niveau .qz-txt b {
+  display:block; font-family:var(--font-display); font-size:16px; font-weight:800;
+}
+.qz-niveau .qz-txt span {
+  display:block; font-size:12px; opacity:.7; line-height:1.4; margin-top:2px;
+}
+/* Le poids du niveau, écrit : c'est l'information qui manquait le plus. */
+.qz-niveau .qz-txt b::after {
+  content:'×' attr(data-poids); margin-left:8px;
+  padding:2px 7px; border-radius:var(--radius-full); vertical-align:2px;
+  background:var(--qz-teinte); color:#fff;
+  font-family:var(--font-body); font-size:10px; font-weight:700; letter-spacing:.02em;
+}
+.qz-niveau .qz-note { flex:none; text-align:right; font-size:15px; line-height:1.2; }
+.qz-niveau .qz-note span {
+  display:block; font-size:10.5px; font-weight:600; opacity:.55; margin-top:3px;
+}
+.qz-pied { font-size:12px; opacity:.65; line-height:1.5; margin-top:6px; }
+
+/* ---- Le fil des questions ---- */
+.qz-jauge {
+  height:8px; border-radius:var(--radius-full); background:var(--surface-muted);
+  overflow:hidden; margin:0 0 14px; border:1px solid var(--border);
+}
+.qz-jauge i {
+  display:block; height:100%; border-radius:inherit;
+  background:var(--accent); transition:width .3s var(--ease);
+}
+
+/* ---- L'écran de résultat : le score et les étoiles font la une ---- */
+.qz-fin {
+  display:flex; align-items:center; gap:14px; margin-bottom:12px;
+  padding:14px 15px; border-radius:var(--radius-lg);
+  background:var(--surface-muted);
+}
+.qz-fin-em { font-size:40px; line-height:1; flex:none; }
+.qz-fin b { display:block; font-family:var(--font-display); font-size:19px; font-weight:800; line-height:1.15; }
+.qz-fin span { font-size:12.5px; opacity:.68; }
+.qz-fin-et { margin-left:auto; font-size:20px; letter-spacing:2px; white-space:nowrap; }
+.qz-mieux { font-size:12.5px; font-weight:600; color:var(--vert-fonce); margin:0 0 12px; }
+.qz-mieux.discret { color:inherit; opacity:.55; font-weight:400; }
+.qz-revoir {
+  padding:12px 14px; border-radius:var(--radius-md);
+  background:var(--accent-doux); font-size:12.5px; line-height:1.65; margin-bottom:14px;
+}
+.qz-revoir span { display:block; }
+.qz-boutons { display:flex; gap:8px; }
+.qz-boutons .btn { flex:1; }
+
+/* ---- Les propositions de réponse, ici comme dans le QCM de fin de mission ----
+   Elles ressemblaient à des champs de saisie : un trait fin, du texte, rien qui
+   dise « on me choisit ». Chacune reçoit sa lettre — on peut alors la désigner à
+   l'oral, « la B » — et une cible au doigt franchement plus grande. */
+#qz-choix, #q-choix { counter-reset:choix; }
+#qz-choix .q-choix, #q-choix .q-choix {
+  position:relative; display:flex; align-items:center;
+  padding:13px 14px 13px 48px; min-height:54px; line-height:1.4;
+}
+#qz-choix .q-choix::before, #q-choix .q-choix::before {
+  counter-increment:choix; content:counter(choix, upper-alpha);
+  position:absolute; left:12px; top:50%; transform:translateY(-50%);
+  width:27px; height:27px; border-radius:var(--radius-full);
+  display:grid; place-items:center;
+  background:var(--surface-muted); border:1.5px solid var(--border);
+  font-family:var(--font-display); font-size:12.5px; font-weight:800;
+}
+#qz-choix .q-choix:hover:not([disabled])::before,
+#q-choix .q-choix:hover:not([disabled])::before { border-color:var(--border-strong); }
+#qz-choix .q-choix.bon::before, #q-choix .q-choix.bon::before {
+  background:var(--success); border-color:var(--success); color:#fff;
+}
+#qz-choix .q-choix.mauvais::before, #q-choix .q-choix.mauvais::before {
+  background:var(--destructive); border-color:var(--destructive); color:#fff;
+}
+
+/* ---- La carte de la visite guidée : elle ne doit ressembler à rien d'autre ----
+   Retour d'usage : l'œil hésitait entre la zone montrée et la carte qui
+   l'explique, surtout quand la zone contient beaucoup de texte — les deux
+   avaient le même fond blanc et le même style. La carte prend donc une couleur
+   qui n'existe nulle part ailleurs dans l'interface : c'est « le guide qui
+   parle », pas un panneau de l'application. Même identité en clair et en
+   sombre, pour qu'on la reconnaisse d'un thème à l'autre.
+   Contrastes vérifiés : 5,7 (clair) et 7,7 (sombre) pour le texte plein ;
+   l'opacité des textes secondaires ne descend pas sous 0,85, plancher mesuré
+   en dessous duquel on passe sous le seuil AA. */
+:root { --visite-fond:#0F6E93; --visite-encre:#FFFFFF; }
+body.sombre { --visite-fond:#0B5674; --visite-encre:#F2FAFE; }
+
+#visite-carte {
+  background:var(--visite-fond); color:var(--visite-encre);
+  border:2px solid rgba(255,255,255,.16);
+  box-shadow:0 14px 46px rgba(0,0,0,.45);
+}
+#visite-carte .v-titre, #visite-carte .vtitre { color:var(--visite-encre); }
+#visite-carte .v-texte, #visite-carte .vtexte { color:var(--visite-encre); opacity:.92; }
+#visite-carte .v-texte b, #visite-carte .vtexte b { color:var(--visite-encre); opacity:1; }
+#visite-carte .v-prog, #visite-carte .vprog { color:var(--visite-encre); opacity:.85; }
+#visite-carte .vmarque { color:var(--visite-encre); opacity:.85; }
+#visite-passer { color:var(--visite-encre); opacity:.85; }
+#visite-passer:hover { opacity:1; }
+/* Le bouton garde le lime de la plateforme : c'est l'action, elle doit sauter aux yeux */
+#visite-suivant { background:var(--primary); color:#3A3632; }
+
+/* ---- Lisibilité des boutons lime en thème sombre ----
+   Le lime (--primary) est une couleur claire dans les DEUX thèmes : son encre
+   doit donc rester sombre dans les deux. Elle suivait le jeton --neutral, qui passe au
+   blanc en sombre : le texte tombait à 1,36 de contraste, illisible. Un jeton
+   dédié fige l'encre posée sur le lime, à 7,6 de contraste. */
+:root, body.sombre { --sur-primary:#3A3632; }
+.btn, #visite-suivant, .go, #btn-continuer, #btn-suivante, #btn-suiv2, #btn-commencer {
+  color:var(--sur-primary);
+}
+.btn-contour, .btn-fantome { color:var(--neutral); }
+</style>
+</head>
+<body>
+<div id="colonne">
+  <header>
+    <a class="icone-btn" href="../../index.html#/svt/6e" title="Retour au catalogue" aria-label="Retour">←</a>
+    <div>
+      <h1>Le repas de la journée</h1>
+      <div class="sous">SVT · 6ᵉ · SA1</div>
+    </div>
+    <div class="tete-fin">
+      <button class="icone-btn" id="btn-missions" title="Les missions" aria-label="Missions">🎯</button>
+      <button class="icone-btn" id="btn-lexique" title="Lexique" aria-label="Lexique">📖</button>
+      <button class="icone-btn" id="btn-aide" title="Comment jouer" aria-label="Aide">❓</button>
+      <button class="icone-btn" id="btn-theme" title="Thème" aria-label="Thème">🌙</button>
+    </div>
+  </header>
+  <section id="mission">
+    <div class="m-haut">
+      <span class="m-pastille" id="m-num">1</span>
+      <div class="m-titres">
+        <span class="m-rang" id="m-rang">Mission 1 sur 13</span>
+        <b id="m-titre">—</b>
+        <span id="m-but"></span>
+      </div>
+      <button class="m-plier" id="m-plier" aria-label="Afficher toutes les étapes" aria-expanded="false">▼</button>
+    </div>
+    <div class="m-jauge"><i id="m-jauge" style="width:0"></i></div>
+    <div id="etapes"></div>
+    <div class="m-actions" id="m-actions" hidden>
+      <button class="btn btn-contour btn-large" id="btn-indice">💡 Indice</button>
+    </div>
+    <div class="m-indice" id="m-indice" hidden></div>
+  </section>
+</div>
+
+<main>
+  <div id="atelier">
+    <svg id="plan" preserveAspectRatio="xMidYMid meet" role="img"
+         aria-label="Une paillasse d’analyse des aliments, une assiette, le tube digestif et une dent"></svg>
+    <div id="mesures">
+      <div class="me-titre">Mon carnet d’observation</div>
+      <div id="me-corps"></div>
+      <div class="me-quoi" id="me-quoi">Choisis un aliment, puis un test.</div>
+    </div>
+    <div id="bilan" role="status" aria-live="polite"></div>
+  </div>
+
+  <div id="outils">
+    <span class="ot-titre">L’étal :</span>
+    <div class="rg-choix" id="liste-outils"></div>
+  </div>
+
+  <div id="actions"></div>
+</main>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<div id="visite">
+  <div id="visite-halo"></div>
+  <div id="visite-carte">
+    <div class="v-titre" id="visite-titre"></div>
+    <div class="v-texte" id="visite-texte"></div>
+    <div class="v-bas">
+      <span class="v-prog" id="visite-prog"></span>
+      <button id="visite-passer" type="button">Passer</button>
+      <button id="visite-suivant" type="button">Suivant</button>
+    </div>
+  </div>
+</div>
+
+<div class="voile" id="v-quiz">
+  <div class="carte-modale" id="quiz-carte"></div>
+</div>
+
+<div class="voile" id="v-accueil">
+  <div class="carte-modale">
+    <h2>Que veux-tu faire ?</h2>
+    <p class="ac-intro">Tu vas découvrir <b>ce que contiennent les aliments</b>, composer un repas
+       qui tient debout, et suivre un morceau d’igname jusqu’au sang.</p>
+    <button class="ac-choix" id="ac-apprendre">
+      <span class="ac-em">🎓</span>
+      <span class="ac-txt"><b>Apprendre</b><span>Le parcours guidé, mission après mission.</span></span>
+      <span class="ac-etat" id="ac-etat-app"></span>
+    </button>
+    <button class="ac-choix" id="ac-experimenter">
+      <span class="ac-em">🧪</span>
+      <span class="ac-txt"><b>Expérimenter</b><span>L’étal complet, tous les tests, aucune consigne.</span></span>
+      <span class="ac-etat" id="ac-etat-exp"></span>
+    </button>
+    <button class="ac-choix" id="ac-exercer">
+      <span class="ac-em">🏅</span>
+      <span class="ac-txt"><b>M’exercer</b><span>Trois séries de questions, et un score de maîtrise.</span></span>
+      <span class="ac-etat" id="ac-etat-ex"></span>
+    </button>
+    <p class="ac-pied" id="ac-pied"></p>
+  </div>
+</div>
+
+<div class="voile" id="v-lexique">
+  <div class="carte-modale">
+    <button class="fermer-x" data-ferme="v-lexique" aria-label="Fermer">✕</button>
+    <h2>📖 Les mots de l’alimentation</h2>
+    <p>Le vocabulaire exact du programme, avec des exemples pris à la paillasse.</p>
+    <div id="liste-lexique"></div>
+  </div>
+</div>
+
+<div class="voile" id="v-missions">
+  <div class="carte-modale">
+    <button class="fermer-x" data-ferme="v-missions" aria-label="Fermer">✕</button>
+    <h2>🎯 Les missions</h2>
+    <p>Elles se suivent : termine l’une pour ouvrir la suivante.</p>
+    <div id="liste-missions"></div>
+    <button class="btn btn-fantome btn-large" id="btn-rezero"
+            style="margin-top:6px;color:var(--destructive)">↺ Recommencer tout le parcours</button>
+  </div>
+</div>
+
+<div class="voile" id="v-aide">
+  <div class="carte-modale">
+    <button class="fermer-x" data-ferme="v-aide" aria-label="Fermer">✕</button>
+    <h2>🍽️ Ce que deviennent les aliments</h2>
+    <p>On ne voit pas ce qu’un aliment contient, ni ce qu’il devient une fois avalé.
+       Des tests simples et un schéma du corps le rendent visible.</p>
+    <div class="g-titre">Comment on s’y prend</div>
+    <div class="g-etape"><span class="num">1</span><span class="t">
+      <b>À la paillasse :</b> touche un aliment de l’étal pour le prendre en main,
+      puis touche un test. La couleur te dit ce qu’il contient.</span></div>
+    <div class="g-etape"><span class="num">2</span><span class="t">
+      <b>À l’assiette :</b> touche les aliments pour en ajouter des parts. Les trois
+      jauges disent si tes besoins de la journée sont couverts.</span></div>
+    <div class="g-etape"><span class="num">3</span><span class="t">
+      <b>Dans le corps :</b> fais avancer l’aliment d’un organe au suivant, et regarde
+      où il devient assez petit pour passer dans le <b>sang</b>.</span></div>
+    <button class="btn btn-contour btn-large" id="btn-revoir-visite"
+            style="margin-bottom:8px">🔍 Revoir la visite guidée</button>
+    <button class="btn btn-large" data-ferme="v-aide">Ouvrir la paillasse</button>
+  </div>
+</div>
+
+<div class="voile" id="v-qcm"><div class="carte-modale" id="qcm-carte"></div></div>
+<div class="voile" id="v-passage"><div class="carte-modale" id="passage-carte"></div></div>
+
+<script>
+'use strict';
+/* =====================================================================
+   Le repas de la journée — SVT 6ᵉ, SA1
+   « Alimentation et besoins nutritionnels de l'Homme » (9 semaines)
+
+   La SA se construit autour de quatre questions, que le guide officiel
+   formule ainsi :
+     1. Que sont les aliments de l'Homme et que sait-on de leur composition ?
+     2. Quel est le rôle des aliments dans l'organisme ?
+     3. En quoi consiste la transformation digestive des aliments ?
+     4. Comment faut-il se nourrir pour être en bonne santé ?
+   Les quatre parties du parcours leur répondent dans cet ordre.
+
+   BORNES DU PROGRAMME, posées par le guide et respectées ici :
+   la digestion est présentée comme une simple SOLUBILISATION conduisant à
+   des substances de petite taille — les nutriments — capables de passer dans
+   le sang. Les enzymes, les acides aminés, les acides gras et l'expression
+   « sucre réducteur » sont explicitement HORS PROGRAMME en 6ᵉ. On dit donc
+   « le réactif des sucres », et on ne nomme aucune enzyme.
+
+   Le modèle est vérifié par test-modele.js, qui l'extrait de ce fichier même
+   entre les deux marqueurs.
+   ===================================================================== */
+
+const $ = id => document.getElementById(id);
+const el = (nom, attrs, texte) => {
+  const n = document.createElementNS('http://www.w3.org/2000/svg', nom);
+  for (const k in attrs) n.setAttribute(k, attrs[k]);
+  if (texte != null) n.textContent = texte;
+  return n;
+};
+
+/*__DEBUT MODELE__*/
+/* ---- Les aliments du marché, pour 100 g de la part prête à manger ----
+   amidon, sucres, proteines, lipides en grammes ; energie en kilocalories.
+   « protecteurs » ne compte que les FRUITS ET LÉGUMES : c'est ce qui distingue
+   le troisième groupe d'aliments, et un repas qui en manque doit le montrer.
+   Une part de poisson apporte bien du fer, mais elle ne remplace pas un fruit.
+   Les valeurs sont arrondies : au collège, ce sont les ORDRES DE GRANDEUR
+   qui portent le raisonnement, pas la deuxième décimale. */
+const ALIMENTS = {
+  igname:   { nom:'Igname bouillie', em:'🍠', groupe:'energetique',
+              energie:115, amidon:27, sucres:1,  proteines:2,  lipides:0,  protecteurs:0 },
+  riz:      { nom:'Riz cuit',        em:'🍚', groupe:'energetique',
+              energie:130, amidon:28, sucres:0,  proteines:3,  lipides:0,  protecteurs:0 },
+  gari:     { nom:'Gari (manioc)',   em:'🥣', groupe:'energetique',
+              energie:350, amidon:85, sucres:2,  proteines:2,  lipides:1,  protecteurs:0 },
+  pain:     { nom:'Pain',            em:'🍞', groupe:'energetique',
+              energie:265, amidon:49, sucres:3,  proteines:9,  lipides:3,  protecteurs:0 },
+  niebe:    { nom:'Haricot niébé',   em:'🫘', groupe:'batisseur',
+              energie:116, amidon:19, sucres:2,  proteines:8,  lipides:1,  protecteurs:0 },
+  arachide: { nom:'Arachide',        em:'🥜', groupe:'batisseur',
+              energie:567, amidon:8,  sucres:4,  proteines:26, lipides:49, protecteurs:0 },
+  poisson:  { nom:'Poisson',         em:'🐟', groupe:'batisseur',
+              energie:105, amidon:0,  sucres:0,  proteines:22, lipides:2,  protecteurs:0 },
+  oeuf:     { nom:'Œuf',             em:'🥚', groupe:'batisseur',
+              energie:155, amidon:0,  sucres:1,  proteines:13, lipides:11, protecteurs:0 },
+  huile:    { nom:'Huile de palme',  em:'🫗', groupe:'energetique',
+              energie:884, amidon:0,  sucres:0,  proteines:0,  lipides:100, protecteurs:0 },
+  sucre:    { nom:'Sucre de canne',  em:'🍬', groupe:'energetique',
+              energie:400, amidon:0,  sucres:100, proteines:0, lipides:0,  protecteurs:0 },
+  mangue:   { nom:'Mangue',          em:'🥭', groupe:'protecteur',
+              energie:60,  amidon:0,  sucres:15, proteines:1,  lipides:0,  protecteurs:3 },
+  feuilles: { nom:'Feuilles vertes', em:'🥬', groupe:'protecteur',
+              energie:30,  amidon:1,  sucres:1,  proteines:3,  lipides:0,  protecteurs:3 },
+};
+
+/* ---- Les quatre tests de la paillasse ----
+   Chacun réagit à UNE substance, et le guide en donne les réactifs.
+   Le seuil dit à partir de quelle quantité, pour 100 g, la réaction se voit. */
+const TESTS = {
+  iode:    { nom:'Eau iodée', court:'Eau iodée', em:'💧', cherche:'amidon',    seuil:5,
+             chauffe:false, positif:'bleu-noir',  couleur:'#2B2A5E', repos:'#B8860B',
+             quoi:'L’eau iodée devient bleu-noir en présence d’amidon.' },
+  fehling: { nom:'Réactif des sucres', court:'Sucres', em:'🔥', cherche:'sucres', seuil:4,
+             chauffe:true,  positif:'rouge brique', couleur:'#B34A2A', repos:'#2E86AB',
+             quoi:'Le réactif bleu vire au rouge brique, mais seulement à chaud.' },
+  nitrique:{ nom:'Acide nitrique', court:'Ac. nitrique', em:'🧪', cherche:'proteines', seuil:5,
+             chauffe:false, positif:'jaune',       couleur:'#E8B93A', repos:'#EDEAE3',
+             quoi:'L’acide nitrique colore les protéines en jaune.' },
+  papier:  { nom:'Papier',              em:'📄', cherche:'lipides',   seuil:8,
+             chauffe:false, positif:'tache translucide', couleur:'#D8CFA8', repos:'#F5F1E4',
+             quoi:'Une tache qui laisse passer la lumière trahit les corps gras.' },
+};
+
+// Le test réagit-il à cet aliment ? Et, s'il faut chauffer, a-t-on chauffé ?
+function reaction(cleAliment, cleTest, chauffe) {
+  const a = ALIMENTS[cleAliment], t = TESTS[cleTest];
+  if (!a || !t) return { positif:false, manqueChaleur:false, quantite:0 };
+  const q = a[t.cherche];
+  const assez = q >= t.seuil;
+  return {
+    quantite: q,
+    manqueChaleur: assez && t.chauffe && !chauffe,
+    positif: assez && (!t.chauffe || !!chauffe),
+  };
+}
+
+/* ---- Les besoins d'une journée, pour un élève de 6ᵉ ----
+   Ordres de grandeur usuels pour un enfant de 11 à 13 ans. */
+const BESOINS = { energie:2200, proteines:45, protecteurs:6 };
+
+// Ce qu'apporte une assiette. Chaque part pèse 100 g : au collège, compter en
+// parts vaut mieux que peser, et le calcul reste faisable de tête.
+function apports(parts) {
+  const t = { energie:0, proteines:0, lipides:0, amidon:0, sucres:0, protecteurs:0 };
+  for (const cle in parts) {
+    const a = ALIMENTS[cle], n = parts[cle];
+    if (!a || !n) continue;
+    for (const k in t) t[k] += a[k] * n;
+  }
+  return t;
+}
+
+/* Le diagnostic du repas. Deux manques que le guide nomme explicitement :
+   le KWASHIORKOR, quand l'énergie est là mais les protéines manquent, et le
+   MARASME, quand tout manque à la fois. */
+function diagnostic(parts) {
+  const t = apports(parts);
+  const rE = t.energie / BESOINS.energie;
+  const rP = t.proteines / BESOINS.proteines;
+  const rV = t.protecteurs / BESOINS.protecteurs;
+  if (rE < .55 && rP < .55) return { cle:'marasme', energie:rE, proteines:rP, protecteurs:rV,
+    titre:'Un repas beaucoup trop pauvre',
+    quoi:'Il manque à la fois de l’énergie et des protéines. Un enfant nourri ainsi maigrit sans arrêt : c’est le marasme.' };
+  if (rE >= .7 && rP < .5) return { cle:'kwashiorkor', energie:rE, proteines:rP, protecteurs:rV,
+    titre:'Assez d’énergie, pas assez de protéines',
+    quoi:'Le ventre est plein mais le corps ne peut plus se construire ni se réparer. C’est le kwashiorkor : il touche des enfants qui mangent pourtant à leur faim.' };
+  if (rE >= .8 && rP >= .8 && rV >= .8) return { cle:'equilibre', energie:rE, proteines:rP, protecteurs:rV,
+    titre:'Un repas équilibré',
+    quoi:'Les trois besoins sont couverts : de l’énergie pour bouger, des protéines pour grandir, des vitamines et des sels minéraux pour se défendre.' };
+  if (rV < .5) return { cle:'protecteurs', energie:rE, proteines:rP, protecteurs:rV,
+    titre:'Il manque les protecteurs',
+    quoi:'Ni fruit ni légume : les vitamines et les sels minéraux manquent, et l’organisme se défend moins bien contre les maladies.' };
+  return { cle:'incomplet', energie:rE, proteines:rP, protecteurs:rV,
+    titre:'Le repas n’est pas complet',
+    quoi:'Regarde les trois jauges : celle qui reste la plus basse te dit ce qu’il faut ajouter.' };
+}
+
+/* ---- La digestion, telle que la 6ᵉ la présente ----
+   Une SOLUBILISATION progressive : l'aliment devient une bouillie, puis des
+   substances assez petites — les nutriments — pour traverser la paroi de
+   l'intestin grêle et passer dans le sang. Aucune enzyme n'est nommée : le
+   guide les réserve à la 3ᵉ. */
+const ETAPES_DIGESTION = [
+  { cle:'bouche',   nom:'La bouche',        organe:'Bouche',
+    quoi:'Les dents broient l’aliment et la salive le mouille : il devient une bouillie facile à avaler.',
+    solubilise:.15, absorbe:0 },
+  { cle:'oesophage',nom:'L’œsophage',       organe:'Œsophage',
+    quoi:'Un tuyau qui pousse la bouillie vers l’estomac. Rien n’y est transformé.',
+    solubilise:.15, absorbe:0 },
+  { cle:'estomac',  nom:'L’estomac',        organe:'Estomac',
+    quoi:'La bouillie y est brassée pendant des heures et devient de plus en plus liquide.',
+    solubilise:.55, absorbe:0 },
+  { cle:'intestin', nom:'L’intestin grêle', organe:'Intestin grêle',
+    quoi:'La transformation s’achève : les substances sont désormais assez petites pour traverser la paroi. Ces petites substances sont les NUTRIMENTS, et elles passent dans le sang.',
+    solubilise:1, absorbe:1 },
+  { cle:'gros',     nom:'Le gros intestin', organe:'Gros intestin',
+    quoi:'Ce qui n’a pas pu passer dans le sang poursuit sa route et sera rejeté.',
+    solubilise:1, absorbe:1 },
+];
+
+// Où en est l'aliment après une étape donnée ?
+function avancement(indexEtape) {
+  const i = Math.max(0, Math.min(ETAPES_DIGESTION.length - 1, indexEtape));
+  const e = ETAPES_DIGESTION[i];
+  return { etape:e, solubilise:e.solubilise, absorbe:e.absorbe,
+           danssang:e.absorbe > 0, reste:1 - e.absorbe };
+}
+
+/* ---- La dent ----
+   Le guide justifie l'étude de sa structure par l'hygiène : c'est parce qu'il
+   faut comprendre pourquoi une dent se gâte qu'on regarde comment elle est
+   faite. Les sucres qui restent collés nourrissent les microbes de la bouche,
+   qui attaquent l'émail. */
+const PARTIES_DENT = [
+  { cle:'email',   nom:'L’émail',   quoi:'La couche blanche et très dure qui recouvre la couronne. C’est elle que les microbes attaquent.' },
+  { cle:'ivoire',  nom:'L’ivoire',  quoi:'Sous l’émail, moins dur. Quand la carie l’atteint, la dent devient sensible.' },
+  { cle:'pulpe',   nom:'La pulpe',  quoi:'Le cœur vivant de la dent : des vaisseaux et un nerf. Si la carie l’atteint, la dent fait très mal.' },
+  { cle:'racine',  nom:'La racine', quoi:'La partie enfoncée dans la gencive et l’os, qui tient la dent en place.' },
+];
+
+// L'état d'une dent après un certain nombre de jours, selon qu'on la brosse
+// et qu'on mange beaucoup de sucre entre les repas.
+function usureDent(jours, brossage, sucreEntreRepas) {
+  const attaque = (sucreEntreRepas ? 1 : .35) * (brossage ? .18 : 1);
+  const d = Math.min(1, jours * attaque / 60);
+  return {
+    degat: d,
+    etat: d < .2 ? 'saine' : d < .5 ? 'émail attaqué' : d < .8 ? 'carie dans l’ivoire' : 'carie jusqu’à la pulpe',
+  };
+}
+/*__FIN MODELE__*/
+
+/* ============================ Les missions ============================
+   Quatre parties, une par question de la problématique du guide. */
+
+const aTeste = (al, te) => !!(etat.vus.essais[al + '/' + te]);
+const nbEssaisPositifs = te => Object.keys(etat.vus.essais)
+  .filter(k => k.split('/')[1] === te && etat.vus.essais[k] === 'positif').length;
+
+const MISSIONS = [
+  /* ---- 1. Que sont les aliments et que sait-on de leur composition ? ---- */
+  { titre:'L’eau iodée et l’amidon',
+    but:'Verse quelques gouttes d’eau iodée sur un aliment et regarde la couleur.',
+    scene:'paillasse', tests:['iode'],
+    aliments:['igname', 'riz', 'poisson', 'huile'],
+    etapes:[
+      { t:'Choisis un aliment, puis touche l’eau iodée', ok:e => Object.keys(e.vus.essais).length >= 1 },
+      { t:'Trouve un aliment qui fait virer l’eau iodée au bleu-noir',
+        ok:() => nbEssaisPositifs('iode') >= 1 },
+      { t:'Trouve un aliment qui ne la fait pas changer',
+        ok:e => Object.keys(e.vus.essais).some(k => k.split('/')[1] === 'iode' && e.vus.essais[k] === 'negatif') },
+      { t:'Conclus', cible:'btn-tester', ok:e => e.vus.luIode },
+    ],
+    gagne:e => e.vus.luIode,
+    indice:'L’igname et le riz sont des aliments de base : c’est là qu’il faut chercher l’amidon. Le poisson et l’huile n’en contiennent pas.',
+    retenir:'L’<b>eau iodée</b> devient <b>bleu-noir</b> au contact de l’<b>amidon</b>. C’est un <b>test</b> : une expérience simple qui révèle la présence d’une substance qu’on ne voit pas. L’igname, le riz, le manioc et les céréales en sont riches.',
+    qcm:{ q:'On verse de l’eau iodée sur de l’igname : elle devient bleu-noir. Qu’est-ce que cela prouve ?',
+      r:['L’igname contient de l’amidon', 'L’igname contient des protéines', 'L’igname est bien cuite'], bonne:0,
+      pourquoi:'L’eau iodée ne réagit qu’avec l’amidon, et elle vire alors au bleu-noir. Cette couleur est donc la signature de l’amidon — elle ne dit rien des protéines ni de la cuisson.' } },
+
+  { titre:'Le réactif des sucres',
+    but:'Ce test-là ne marche qu’à chaud. Essaie d’abord sans chauffer, pour voir.',
+    scene:'paillasse', tests:['fehling'],
+    aliments:['sucre', 'mangue', 'riz', 'poisson'],
+    etapes:[
+      { t:'Essaie le réactif sur le sucre sans chauffer', ok:e => e.vus.essaiFroid },
+      { t:'Chauffe, puis recommence', cible:'btn-chauffer', ok:() => nbEssaisPositifs('fehling') >= 1 },
+      { t:'Trouve un deuxième aliment qui contient des sucres',
+        ok:() => nbEssaisPositifs('fehling') >= 2 },
+      { t:'Conclus', cible:'btn-tester', ok:e => e.vus.luSucres },
+    ],
+    gagne:e => e.vus.luSucres,
+    indice:'Touche « Chauffer » avant de reposer l’aliment dans le réactif. Le sucre de canne et la mangue contiennent tous les deux des sucres.',
+    retenir:'Le <b>réactif des sucres</b> est bleu. <b>Chauffé</b> en présence de sucres, il vire au <b>rouge brique</b>. Sans chaleur, il ne se passe rien : un test qui échoue ne prouve donc pas toujours l’absence — il faut d’abord vérifier qu’on l’a bien conduit.',
+    qcm:{ q:'Le réactif reste bleu sur un morceau de canne à sucre. Que faut-il en conclure ?',
+      r:['Qu’on a peut-être oublié de chauffer', 'Que la canne ne contient pas de sucre',
+         'Que le réactif est périmé'], bonne:0,
+      pourquoi:'La canne à sucre en est pleine, c’est même son nom. Si le réactif reste bleu, c’est que la condition du test n’est pas remplie : il faut chauffer. Un test mal conduit ne prouve rien du tout.' } },
+
+  { titre:'L’acide nitrique et les protéines',
+    but:'Cherche les aliments qui font grandir : ceux qui contiennent des protéines.',
+    scene:'paillasse', tests:['nitrique'],
+    aliments:['poisson', 'oeuf', 'niebe', 'riz'],
+    etapes:[
+      { t:'Teste le poisson à l’acide nitrique', ok:() => aTeste('poisson', 'nitrique') },
+      { t:'Trouve deux autres aliments qui jaunissent', ok:() => nbEssaisPositifs('nitrique') >= 3 },
+      { t:'Trouve un aliment qui ne jaunit pas',
+        ok:e => Object.keys(e.vus.essais).some(k => k.split('/')[1] === 'nitrique' && e.vus.essais[k] === 'negatif') },
+      { t:'Conclus', cible:'btn-tester', ok:e => e.vus.luProteines },
+    ],
+    gagne:e => e.vus.luProteines,
+    indice:'Le poisson, l’œuf et le haricot niébé sont riches en protéines. Le riz, lui, en contient très peu.',
+    retenir:'L’<b>acide nitrique</b> colore les <b>protéines</b> en <b>jaune</b>. On en trouve dans la viande, le poisson et l’œuf — les meilleures sources — mais aussi dans les <b>légumineuses</b> comme le niébé, et dans les graines oléagineuses comme l’arachide.',
+    qcm:{ q:'Quel aliment est la plus riche source de protéines ?',
+      r:['Le poisson', 'L’igname', 'Le sucre de canne'], bonne:0,
+      pourquoi:'Les viandes, les poissons et les œufs sont les meilleures sources de protéines. L’igname apporte surtout de l’amidon, donc de l’énergie, et le sucre de canne n’apporte que du sucre.' } },
+
+  { titre:'Le papier et les corps gras',
+    but:'Un test sans réactif : il suffit d’une feuille de papier.',
+    scene:'paillasse', tests:['papier'],
+    aliments:['huile', 'arachide', 'riz', 'mangue'],
+    etapes:[
+      { t:'Frotte un aliment sur le papier', ok:() => Object.keys(etat.vus.essais).some(k => k.split('/')[1] === 'papier') },
+      { t:'Trouve deux aliments qui laissent une tache translucide',
+        ok:() => nbEssaisPositifs('papier') >= 2 },
+      { t:'Conclus', cible:'btn-tester', ok:e => e.vus.luLipides },
+    ],
+    gagne:e => e.vus.luLipides,
+    indice:'L’huile de palme et l’arachide sont des corps gras. Regarde le papier par transparence après les avoir frottés.',
+    retenir:'Les <b>corps gras</b> — on dit aussi les <b>lipides</b> — laissent sur le papier une <b>tache translucide</b> qui ne part pas en séchant. L’huile, l’arachide et les graines oléagineuses en sont riches : ce sont les aliments qui apportent le plus d’énergie.',
+    qcm:{ q:'Comment reconnaît-on une tache de corps gras d’une tache d’eau ?',
+      r:['La tache de corps gras reste translucide en séchant',
+         'La tache de corps gras est colorée', 'On ne peut pas les distinguer'], bonne:0,
+      pourquoi:'L’eau s’évapore et le papier redevient comme avant. Le corps gras, lui, reste dans le papier : la tache y demeure et laisse passer la lumière quand on la regarde par transparence.' } },
+
+  { titre:'Un aliment, plusieurs substances',
+    but:'L’arachide passe les quatre tests. Vois combien elle en réussit.',
+    scene:'paillasse', tests:['iode', 'fehling', 'nitrique', 'papier'],
+    aliments:['arachide', 'oeuf', 'igname', 'mangue'],
+    etapes:[
+      { t:'Fais passer les quatre tests à l’arachide',
+        ok:() => ['iode', 'fehling', 'nitrique', 'papier'].every(t => aTeste('arachide', t)) },
+      { t:'Analyse complètement un deuxième aliment',
+        ok:e => ['oeuf', 'igname', 'mangue'].some(a =>
+          ['iode', 'fehling', 'nitrique', 'papier'].every(t => aTeste(a, t))) },
+      { t:'Conclus', cible:'btn-tester', ok:e => e.vus.luMelange },
+    ],
+    gagne:e => e.vus.luMelange,
+    indice:'N’oublie pas de chauffer pour le réactif des sucres, sinon ce test ne dira rien sur l’arachide.',
+    retenir:'Un aliment n’est presque jamais fait d’une seule substance : l’arachide contient à la fois des <b>protéines</b>, des <b>corps gras</b>, un peu d’<b>amidon</b> et de <b>sucres</b>. C’est pour cela qu’on parle de la <b>valeur nutritive</b> d’un aliment — ce qu’il apporte, et en quelle quantité.',
+    qcm:{ q:'Pourquoi dit-on que l’arachide est un aliment complet ?',
+      r:['Parce qu’elle apporte à la fois des protéines et des corps gras',
+         'Parce qu’elle ne contient qu’une seule substance',
+         'Parce qu’elle se mange crue'], bonne:0,
+      pourquoi:'Les quatre tests réagissent sur elle : elle contient des protéines pour construire le corps, beaucoup de corps gras pour l’énergie, et un peu d’amidon et de sucres. Peu d’aliments en font autant.' } },
+
+  /* ---- 2. Quel est le rôle des aliments dans l'organisme ? ---- */
+  { titre:'Les trois groupes d’aliments',
+    but:'Range chaque aliment selon ce qu’il apporte au corps.',
+    scene:'assiette', aliments:'tous',
+    etapes:[
+      { t:'Mets dans l’assiette un aliment énergétique',
+        ok:e => Object.keys(e.parts).some(c => ALIMENTS[c].groupe === 'energetique' && e.parts[c] > 0) },
+      { t:'Ajoute un aliment bâtisseur',
+        ok:e => Object.keys(e.parts).some(c => ALIMENTS[c].groupe === 'batisseur' && e.parts[c] > 0) },
+      { t:'Ajoute un aliment protecteur',
+        ok:e => Object.keys(e.parts).some(c => ALIMENTS[c].groupe === 'protecteur' && e.parts[c] > 0) },
+      { t:'Conclus', cible:'btn-tester', ok:e => e.vus.luGroupes },
+    ],
+    gagne:e => e.vus.luGroupes,
+    indice:'Les énergétiques sont les aliments de base : igname, riz, gari, huile. Les bâtisseurs sont le poisson, l’œuf, le niébé, l’arachide. Les protecteurs sont les fruits et les légumes.',
+    retenir:'Les aliments se rangent en <b>trois groupes</b>, selon leur rôle. Les <b>énergétiques</b> — céréales, tubercules, corps gras — donnent l’énergie pour bouger et travailler. Les <b>bâtisseurs</b> — viandes, poissons, œufs, légumineuses — fournissent la matière pour grandir et se réparer. Les <b>protecteurs</b> — fruits et légumes — apportent les <b>vitamines</b> et les <b>sels minéraux</b> qui aident à se défendre contre les maladies.',
+    qcm:{ q:'À quel groupe appartient le haricot niébé ?',
+      r:['Aux bâtisseurs, car il est riche en protéines',
+         'Aux protecteurs, car c’est un légume sec',
+         'Aux énergétiques uniquement'], bonne:0,
+      pourquoi:'Le niébé est une légumineuse : elle apporte surtout des protéines, comme la viande et le poisson. C’est une source de protéines bien moins chère, et elle pousse ici — d’où son importance dans nos repas.' } },
+
+  { titre:'Le repas d’une journée',
+    but:'Compose ce que tu manges dans une journée, et regarde si tes besoins sont couverts.',
+    scene:'assiette', aliments:'tous',
+    etapes:[
+      { t:'Remplis la jauge d’énergie', ok:() => calc.diag.energie >= .8 },
+      { t:'Remplis la jauge des protéines', ok:() => calc.diag.proteines >= .8 },
+      { t:'Remplis la jauge des protecteurs', ok:() => calc.diag.protecteurs >= .8 },
+      { t:'Conclus', cible:'btn-tester', ok:e => e.vus.luEquilibre },
+    ],
+    gagne:e => e.vus.luEquilibre,
+    indice:'Il faut plusieurs parts : compte ce que tu manges du matin au soir. Une part d’aliment de base à chaque repas, du poisson ou du niébé, et des feuilles ou un fruit.',
+    retenir:'Un repas est <b>équilibré</b> quand il apporte des aliments des <b>trois groupes</b>, en quantité suffisante. Pour un élève de ton âge, il faut environ <b>2200 kilocalories</b> et <b>45 grammes de protéines</b> par jour, plus des fruits et des légumes. Manger équilibré ne coûte pas forcément cher : le niébé et les feuilles vertes y suffisent.',
+    qcm:{ q:'Qu’est-ce qu’un repas équilibré ?',
+      r:['Un repas qui contient des aliments des trois groupes en quantité suffisante',
+         'Un repas où l’on mange beaucoup', 'Un repas composé d’aliments coûteux'], bonne:0,
+      pourquoi:'Ce n’est ni une question de quantité seule, ni de prix. Un plat de riz énorme reste déséquilibré s’il n’apporte ni protéines ni légumes ; un plat de niébé aux feuilles, bien moins cher, est bien plus équilibré.' } },
+
+  { titre:'Le kwashiorkor',
+    but:'Un enfant mange à sa faim et tombe pourtant malade. Reproduis son repas.',
+    scene:'assiette', aliments:'tous',
+    etapes:[
+      { t:'Remplis la jauge d’énergie sans mettre de bâtisseur', ok:e => e.vus.vuKwash },
+      { t:'Lis le diagnostic', cible:'btn-tester', ok:e => e.vus.luKwash },
+      { t:'Corrige le repas en ajoutant des protéines', ok:() => calc.diag.proteines >= .8 },
+    ],
+    gagne:e => e.vus.luKwash && calc.diag.proteines >= .8,
+    indice:'Mets beaucoup de gari ou de riz, et de l’huile — mais aucun poisson, aucun œuf, aucun niébé. Puis regarde la jauge des protéines.',
+    retenir:'Le <b>kwashiorkor</b> frappe un enfant qui reçoit assez d’<b>énergie</b> mais pas assez de <b>protéines</b>. Il mange à sa faim, son ventre est plein — mais son corps ne peut plus se construire ni se réparer. Une part de niébé, de poisson ou d’œuf par repas suffit à l’éviter.',
+    qcm:{ q:'Un enfant nourri uniquement de bouillie de maïs mange à sa faim mais reste malade. Pourquoi ?',
+      r:['Il manque de protéines : le corps ne peut pas se construire',
+         'Il mange trop', 'Il manque d’énergie'], bonne:0,
+      pourquoi:'La bouillie apporte de l’amidon, donc de l’énergie : la faim est calmée. Mais sans protéines, le corps n’a pas la matière pour fabriquer ses muscles et se réparer. C’est le kwashiorkor.' } },
+
+  { titre:'Le marasme',
+    but:'Cette fois, c’est tout qui manque. Compare avec le cas précédent.',
+    scene:'assiette', aliments:'tous',
+    etapes:[
+      { t:'Compose un repas où tout manque', ok:e => e.vus.vuMarasme },
+      { t:'Lis le diagnostic', cible:'btn-tester', ok:e => e.vus.luMarasme },
+      { t:'Refais un repas correct', ok:() => calc.diag.cle === 'equilibre' },
+    ],
+    gagne:e => e.vus.luMarasme && calc.diag.cle === 'equilibre',
+    indice:'Une seule petite part suffit pour montrer le marasme. Ensuite, reprends le repas équilibré de la mission précédente.',
+    retenir:'Le <b>marasme</b> vient d’un manque de <b>tout</b> : ni assez d’énergie, ni assez de protéines. L’enfant maigrit sans arrêt. La différence avec le kwashiorkor est utile à retenir : dans le kwashiorkor, la quantité est là mais la <b>qualité</b> manque ; dans le marasme, c’est la <b>quantité</b> elle-même qui manque.',
+    qcm:{ q:'Quelle est la différence entre le marasme et le kwashiorkor ?',
+      r:['Dans le marasme tout manque ; dans le kwashiorkor, seules les protéines manquent',
+         'Ce sont deux noms de la même maladie',
+         'Le marasme vient d’un excès d’aliments'], bonne:0,
+      pourquoi:'Les deux sont des maladies de la malnutrition, mais elles ne se soignent pas de la même façon. Dans le kwashiorkor, il faut ajouter des protéines ; dans le marasme, il faut d’abord augmenter la quantité totale de nourriture.' } },
+
+  /* ---- 3. En quoi consiste la transformation digestive des aliments ? ---- */
+  { titre:'Le trajet des aliments',
+    but:'Suis un morceau d’igname depuis la bouche.',
+    scene:'corps',
+    etapes:[
+      { t:'Fais avancer l’aliment jusqu’à l’estomac', cible:'btn-avancer', ok:e => e.etape >= 2 },
+      { t:'Continue jusqu’à l’intestin grêle', ok:e => e.etape >= 3 },
+      { t:'Va jusqu’au bout du trajet', ok:e => e.etape >= 4 },
+      { t:'Conclus', cible:'btn-tester', ok:e => e.vus.luTrajet },
+    ],
+    gagne:e => e.vus.luTrajet,
+    indice:'Touche « Avancer » pour faire passer l’aliment d’un organe au suivant. Lis à chaque fois ce qui s’y passe.',
+    retenir:'Les aliments suivent toujours le même chemin : <b>bouche → œsophage → estomac → intestin grêle → gros intestin</b>. C’est le <b>tube digestif</b>. Chaque organe a son rôle : les dents broient, l’estomac brasse, l’intestin grêle fait passer dans le sang.',
+    qcm:{ q:'Dans quel ordre les aliments traversent-ils le tube digestif ?',
+      r:['Bouche, œsophage, estomac, intestin grêle, gros intestin',
+         'Bouche, estomac, œsophage, intestin grêle',
+         'Bouche, estomac, gros intestin, intestin grêle'], bonne:0,
+      pourquoi:'L’œsophage est le tuyau qui descend de la bouche à l’estomac : il vient donc avant lui. Et l’intestin grêle, long et fin, précède le gros intestin, plus large et plus court.' } },
+
+  { titre:'Rendre soluble',
+    but:'Regarde ce que devient l’aliment le long du trajet.',
+    scene:'corps',
+    etapes:[
+      { t:'Amène l’aliment jusqu’à l’estomac et lis la jauge', cible:'btn-avancer', ok:e => e.etape >= 2 },
+      { t:'Continue jusqu’à ce que la transformation soit complète', ok:e => e.etape >= 3 },
+      { t:'Conclus', cible:'btn-tester', ok:e => e.vus.luSoluble },
+    ],
+    gagne:e => e.vus.luSoluble,
+    indice:'La jauge « transformé » monte à chaque organe. Elle atteint le maximum dans l’intestin grêle.',
+    retenir:'Tout au long du trajet, l’aliment est transformé en substances de plus en plus <b>petites</b> et <b>solubles</b>, c’est-à-dire capables de se dissoudre. C’est la <b>digestion</b>. Elle commence dans la bouche, se poursuit dans l’estomac et s’achève dans l’intestin grêle.',
+    qcm:{ q:'Que signifie « digérer » un aliment ?',
+      r:['Le transformer en substances assez petites pour passer dans le sang',
+         'Le faire disparaître complètement', 'Le réchauffer dans l’estomac'], bonne:0,
+      pourquoi:'Digérer, c’est réduire l’aliment en substances si petites qu’elles peuvent traverser la paroi de l’intestin. Rien ne disparaît : ce qui ne passe pas dans le sang poursuit sa route et sera rejeté.' } },
+
+  { titre:'Le passage dans le sang',
+    but:'C’est dans l’intestin grêle que tout se joue. Regarde ce qui traverse.',
+    scene:'corps',
+    etapes:[
+      { t:'Amène l’aliment jusqu’à l’intestin grêle', cible:'btn-avancer', ok:e => e.etape >= 3 },
+      { t:'Regarde les nutriments passer dans le sang', ok:e => e.etape >= 3 && e.vus.vuAbsorption },
+      { t:'Conclus', cible:'btn-tester', ok:e => e.vus.luAbsorption },
+    ],
+    gagne:e => e.vus.luAbsorption,
+    indice:'Dans l’intestin grêle, les petites substances traversent la paroi. Le sang les emporte ensuite vers tout le corps.',
+    retenir:'Les substances devenues assez petites s’appellent les <b>nutriments</b>. Dans l’<b>intestin grêle</b>, elles traversent la paroi et passent dans le <b>sang</b> : c’est l’<b>absorption intestinale</b>. Le sang les distribue ensuite à tout l’organisme. Ce qui n’a pas pu passer continue vers le gros intestin et sera rejeté.',
+    qcm:{ q:'Où les nutriments passent-ils dans le sang ?',
+      r:['Dans l’intestin grêle', 'Dans l’estomac', 'Dans la bouche'], bonne:0,
+      pourquoi:'L’estomac brasse et transforme, mais rien n’y traverse la paroi. C’est l’intestin grêle, très long et très fin, qui laisse passer les nutriments vers le sang : c’est l’absorption intestinale.' } },
+
+  /* ---- 4. Comment faut-il se nourrir pour être en bonne santé ? ---- */
+  { titre:'La dent et l’hygiène',
+    but:'La digestion commence par les dents. Vois ce qui les abîme.',
+    scene:'dent',
+    etapes:[
+      { t:'Touche chaque partie de la dent pour la reconnaître',
+        ok:e => Object.keys(e.vus.dent).length >= 4 },
+      { t:'Laisse passer un mois sans brossage, avec du sucre entre les repas',
+        ok:e => e.vus.carieVue },
+      { t:'Recommence en te brossant les dents', ok:e => e.vus.brossageVu },
+      { t:'Conclus', cible:'btn-tester', ok:e => e.vus.luDent },
+    ],
+    gagne:e => e.vus.luDent,
+    indice:'Touche l’émail, l’ivoire, la pulpe et la racine sur le schéma. Puis joue sur les deux réglages et fais avancer les jours.',
+    retenir:'Une dent est faite d’<b>émail</b> très dur, d’<b>ivoire</b> en dessous, et d’une <b>pulpe</b> vivante au centre, tenue par sa <b>racine</b>. Les sucres qui restent collés aux dents nourrissent les microbes de la bouche, qui attaquent l’émail : c’est la <b>carie</b>. Se brosser les dents après les repas, et éviter de grignoter du sucre entre eux, la retarde énormément.',
+    qcm:{ q:'Pourquoi le grignotage sucré abîme-t-il les dents ?',
+      r:['Les sucres restés sur les dents nourrissent des microbes qui attaquent l’émail',
+         'Le sucre dissout directement l’émail',
+         'Le sucre rend les dents plus lourdes'], bonne:0,
+      pourquoi:'Ce n’est pas le sucre lui-même qui perce la dent : ce sont les microbes de la bouche, qui s’en nourrissent et produisent de quoi attaquer l’émail. D’où les deux règles : se brosser les dents, et ne pas laisser du sucre traîner dessus toute la journée.' } },
+];
+
+const LEXIQUE = [
+  ['Aliment', 'Tout ce que nous mangeons ou buvons pour vivre, grandir et bouger.'],
+  ['Test', 'Une expérience simple qui révèle la présence d’une substance qu’on ne voit pas : l’eau iodée révèle l’amidon.'],
+  ['Amidon', 'La substance des céréales et des tubercules — riz, igname, manioc. Elle donne de l’énergie. L’eau iodée la colore en bleu-noir.'],
+  ['Protéines', 'Les substances qui servent à construire et réparer le corps. Viandes, poissons, œufs et légumineuses en sont riches. L’acide nitrique les colore en jaune.'],
+  ['Lipides', 'Les corps gras : huile, arachide, graines oléagineuses. Ce sont les aliments les plus riches en énergie. Ils laissent une tache translucide sur le papier.'],
+  ['Valeur nutritive', 'Ce qu’un aliment apporte au corps, et en quelle quantité.'],
+  ['Aliment énergétique', 'Un aliment qui donne surtout de l’énergie : céréales, tubercules, corps gras.'],
+  ['Aliment bâtisseur', 'Un aliment qui fournit la matière pour grandir et se réparer : viande, poisson, œuf, niébé, arachide.'],
+  ['Aliment protecteur', 'Un fruit ou un légume, riche en vitamines et en sels minéraux, qui aide à se défendre contre les maladies.'],
+  ['Vitamines', 'Des substances nécessaires en très petite quantité, mais indispensables. Les fruits et les légumes en apportent.'],
+  ['Sels minéraux', 'Le fer, le calcium et leurs semblables : nécessaires aux os, au sang et au bon fonctionnement du corps.'],
+  ['Ration alimentaire', 'La quantité d’aliments dont une personne a besoin dans une journée. Elle dépend de l’âge et de l’activité.'],
+  ['Kwashiorkor', 'La maladie d’un enfant qui reçoit assez d’énergie mais pas assez de protéines.'],
+  ['Marasme', 'La maladie d’un enfant à qui tout manque : ni assez d’énergie, ni assez de protéines.'],
+  ['Tube digestif', 'Le chemin des aliments : bouche, œsophage, estomac, intestin grêle, gros intestin.'],
+  ['Digestion', 'La transformation des aliments en substances assez petites et solubles pour passer dans le sang.'],
+  ['Nutriment', 'Une substance devenue assez petite pour traverser la paroi de l’intestin et passer dans le sang.'],
+  ['Absorption intestinale', 'Le passage des nutriments à travers la paroi de l’intestin grêle, vers le sang.'],
+  ['Émail', 'La couche blanche et très dure qui recouvre la dent. C’est elle que la carie attaque en premier.'],
+  ['Carie', 'Un trou creusé dans la dent par les microbes qui se nourrissent des sucres restés dessus.'],
+];
+
+/* ============================ L’état du jeu ============================ */
+const CLE = 'ike-alimentation-progression';
+
+const vusVierge = () => ({
+  essais:{},                 // « aliment/test » → 'positif' | 'negatif'
+  dent:{},                   // parties de la dent déjà touchées
+  essaiFroid:false, vuAbsorption:false, carieVue:false, brossageVu:false,
+  vuKwash:false, vuMarasme:false,
+  luIode:false, luSucres:false, luProteines:false, luLipides:false, luMelange:false,
+  luGroupes:false, luEquilibre:false, luKwash:false, luMarasme:false,
+  luTrajet:false, luSoluble:false, luAbsorption:false, luDent:false,
+});
+
+const vierge = () => ({
+  scene:'paillasse',
+  enMain:null,               // l'aliment tenu à la paillasse
+  chauffe:false,
+  dernier:null,              // le dernier essai, pour le carnet
+  resultats:{},              // un résultat par test, pour que les quatre tubes se lisent ensemble
+  parts:{},                  // l'assiette : aliment → nombre de parts
+  etape:0,                   // l'avancée dans le tube digestif
+  jours:0, brossage:false, sucreEntreRepas:true, partieDent:null,
+  vus:vusVierge(),
+});
+let etat = Object.assign({ mission:0, faits:[], libre:false }, vierge());
+let calc = {};
+
+function sauver() {
+  try { localStorage.setItem(CLE, JSON.stringify({ maitrise:etat.maitrise, mission:etat.mission,
+    faites:etat.faits, libre:etat.libre })); }
+  catch (e) {}
+}
+function charger() {
+  try {
+    const d = JSON.parse(localStorage.getItem(CLE) || '{}');
+    if (d.maitrise) etat.maitrise = d.maitrise;
+    if (typeof d.mission === 'number') etat.mission = Math.min(d.mission, MISSIONS.length - 1);
+    if (Array.isArray(d.faites || d.faits)) etat.faits = d.faites || d.faits;
+    etat.libre = !!d.libre;
+  } catch (e) {}
+}
+
+/* La paillasse est remise en ordre à chaque entrée en mission : un essai
+   hérité de la mission précédente cocherait des étapes que l'élève n'a pas
+   faites. Seul le parcours (missions gagnées) survit. */
+function reprendre() {
+  const n = vierge();
+  for (const k in n) etat[k] = n[k];
+  const M = enLibre() ? null : MISSIONS[etat.mission];
+  etat.scene = (M && M.scene) || 'paillasse';
+  if (enLibre()) etat.scene = 'assiette';
+}
+
+const enLibre = () => etat.libre === true;
+function passerEnLibre() {
+  etat.libre = true;
+  reprendre(); sauver();
+  demarrerMission(); rendreListeMissions();
+}
+
+// Les aliments et les tests posés sur la paillasse pour cette mission
+function alimentsDeLaMission() {
+  if (enLibre()) return Object.keys(ALIMENTS);
+  const M = MISSIONS[etat.mission];
+  if (!M.aliments || M.aliments === 'tous') return Object.keys(ALIMENTS);
+  return M.aliments;
+}
+function testsDeLaMission() {
+  if (enLibre()) return Object.keys(TESTS);
+  return MISSIONS[etat.mission].tests || [];
+}
+
+/* ======================= Le plan de travail (SVG) ======================= */
+let Wp = 660, Hp = 340;
+const refs = {};
+const nuit = () => document.body.classList.contains('sombre');
+
+/* Le repère se recalcule en pixels depuis le conteneur : la scène occupe
+   toute la place offerte, quelle que soit la forme de l'écran. */
+function mesurerPlan() {
+  const r = refs.plan.getBoundingClientRect();
+  Wp = Math.max(260, Math.round(r.width));
+  Hp = Math.max(160, Math.round(r.height));
+  refs.plan.setAttribute('viewBox', '0 0 ' + Wp + ' ' + Hp);
+  dessiner();
+}
+
+function T() {
+  const s = getComputedStyle(document.body);
+  const v = n => s.getPropertyValue(n).trim();
+  return { trait:v('--neutral'), bord:v('--border'), surface:v('--surface'),
+           muet:v('--surface-muted'), accent:v('--accent-texte'),
+           ok:v('--success'), non:v('--destructive'), doux:v('--accent-doux') };
+}
+
+function dessiner() {
+  refs.plan.textContent = '';
+  if (etat.scene === 'paillasse') dessinerPaillasse();
+  else if (etat.scene === 'assiette') dessinerAssiette();
+  else if (etat.scene === 'corps') dessinerCorps();
+  else dessinerDent();
+}
+
+/* ---- Scène 1 : la paillasse et ses tests ---- */
+function dessinerPaillasse() {
+  const t = T(), p = refs.plan;
+  const tests = testsDeLaMission();
+  const n = tests.length;
+  const marge = Math.max(12, Wp * .04);
+  const largeur = (Wp - marge * (n + 1)) / n;
+  const hautPail = Math.min(Hp * .62, 210);
+  const yTube = Hp * .5 - hautPail * .5 + 10;
+
+  p.appendChild(el('text', { x:Wp / 2, y:22, class:'titre-scene' },
+    etat.enMain ? 'Touche un test pour y déposer ' + ALIMENTS[etat.enMain].nom.toLowerCase()
+                : 'Choisis d’abord un aliment sous la paillasse'));
+
+  tests.forEach((cle, i) => {
+    const T2 = TESTS[cle];
+    const x = marge + i * (largeur + marge);
+    const r = etat.resultats[cle] || null;
+    const rempli = r ? (r.positif ? T2.couleur : T2.repos) : T2.repos;
+    const g = el('g', { class:'zone-test' + (etat.enMain ? ' active' : ''), 'data-test':cle,
+      role:'button', tabindex:'0', 'aria-label':'Test : ' + T2.nom });
+    // la cible du doigt, généreuse
+    g.appendChild(el('rect', { x, y:yTube, width:largeur, height:hautPail, rx:14,
+      fill:etat.enMain ? t.doux : 'transparent', stroke:etat.enMain ? t.accent : t.bord,
+      'stroke-width':etat.enMain ? 2 : 1.5, 'stroke-dasharray':etat.enMain ? '' : '5 4' }));
+    // le tube à essai, ou la feuille de papier
+    const cx = x + largeur / 2;
+    if (cle === 'papier') {
+      g.appendChild(el('rect', { x:cx - largeur * .28, y:yTube + 34, width:largeur * .56,
+        height:hautPail * .5, rx:3, fill:rempli, stroke:t.bord, 'stroke-width':1.5 }));
+      if (r && r.positif) g.appendChild(el('ellipse', { cx, cy:yTube + 34 + hautPail * .25,
+        rx:largeur * .18, ry:hautPail * .16, fill:'#C8B98A', opacity:.85 }));
+    } else {
+      const lt = Math.min(largeur * .34, 42), ht = hautPail * .52;
+      g.appendChild(el('path', {
+        d:'M ' + (cx - lt / 2) + ' ' + (yTube + 34) + ' L ' + (cx - lt / 2) + ' ' + (yTube + 34 + ht - lt / 2) +
+          ' A ' + (lt / 2) + ' ' + (lt / 2) + ' 0 0 0 ' + (cx + lt / 2) + ' ' + (yTube + 34 + ht - lt / 2) +
+          ' L ' + (cx + lt / 2) + ' ' + (yTube + 34),
+        fill:rempli, stroke:t.trait, 'stroke-width':2, 'stroke-linejoin':'round' }));
+      if (T2.chauffe && etat.chauffe)
+        g.appendChild(el('text', { x:cx, y:yTube + 34 + ht + 24, class:'etiq-scene' }, '🔥 chauffé'));
+    }
+    g.appendChild(el('text', { x:cx, y:yTube + 22, class:'nom-test' }, T2.em + ' ' + (T2.court || T2.nom)));
+    if (r) {
+      const dit = r.positif ? T2.positif
+        : r.manqueChaleur ? 'rien… as-tu chauffé ?' : 'aucun changement';
+      decouper(dit, Math.max(9, Math.round(largeur / 6.4))).forEach((ligne, k) =>
+        g.appendChild(el('text', { x:cx, y:yTube + hautPail - 22 + k * 14,
+          class:'etiq-scene', fill:r.positif ? t.ok : t.trait }, ligne)));
+    }
+    p.appendChild(g);
+  });
+}
+
+/* ---- Scène 2 : l'assiette et les trois jauges ---- */
+function dessinerAssiette() {
+  const t = T(), p = refs.plan;
+  const cx = Wp * .3, cy = Hp * .52, r = Math.min(Wp * .24, Hp * .36);
+  p.appendChild(el('circle', { cx, cy, r, fill:t.surface, stroke:t.bord, 'stroke-width':2.5 }));
+  p.appendChild(el('circle', { cx, cy, r:r * .72, fill:'none', stroke:t.bord, 'stroke-width':1 }));
+
+  // les parts posées dans l'assiette, en couronne
+  const poses = [];
+  for (const cle in etat.parts) for (let k = 0; k < Math.min(etat.parts[cle], 6); k++) poses.push(cle);
+  const m = poses.length;
+  poses.forEach((cle, i) => {
+    const a = m === 1 ? -Math.PI / 2 : -Math.PI / 2 + i / m * 2 * Math.PI;
+    const d = m === 1 ? 0 : r * .42;
+    p.appendChild(el('text', { x:cx + Math.cos(a) * d, y:cy + Math.sin(a) * d + 9,
+      class:'em-assiette' }, ALIMENTS[cle].em));
+  });
+  if (!m) p.appendChild(el('text', { x:cx, y:cy + 5, class:'etiq-scene' }, 'Assiette vide'));
+
+  // les trois jauges
+  const jx = Wp * .58, jl = Wp * .36, jh = 15;
+  const jauges = [
+    ['Énergie', calc.diag.energie, Math.round(calc.total.energie) + ' / ' + BESOINS.energie + ' kcal'],
+    ['Protéines', calc.diag.proteines, Math.round(calc.total.proteines) + ' / ' + BESOINS.proteines + ' g'],
+    ['Protecteurs', calc.diag.protecteurs, 'fruits et légumes'],
+  ];
+  jauges.forEach(([nom, part, sous], i) => {
+    const y = Hp * .22 + i * (jh + 42);
+    p.appendChild(el('text', { x:jx, y:y - 6, class:'etiq-jauge', style:'text-anchor:start' }, nom));
+    p.appendChild(el('rect', { x:jx, y, width:jl, height:jh, rx:jh / 2, fill:t.muet }));
+    const large = Math.max(0, Math.min(1.15, part)) * jl;
+    p.appendChild(el('rect', { x:jx, y, width:large, height:jh, rx:jh / 2,
+      fill:part >= .8 ? t.ok : part >= .5 ? '#E9A23B' : t.non }));
+    // le repère du besoin couvert
+    p.appendChild(el('line', { x1:jx + jl * .87, y1:y - 3, x2:jx + jl * .87, y2:y + jh + 3,
+      stroke:t.trait, 'stroke-width':1.5, 'stroke-dasharray':'3 2' }));
+    p.appendChild(el('text', { x:jx, y:y + jh + 16, class:'etiq-scene',
+      style:'text-anchor:start' }, sous));
+  });
+}
+
+/* ---- Scène 3 : le tube digestif ---- */
+const ORGANES = [
+  { cle:'bouche',    x:.5,  y:.10, r:.055, nom:'Bouche' },
+  { cle:'oesophage', x:.5,  y:.27, r:.045, nom:'Œsophage' },
+  { cle:'estomac',   x:.38, y:.45, r:.085, nom:'Estomac' },
+  { cle:'intestin',  x:.55, y:.68, r:.085, nom:'Intestin grêle' },
+  { cle:'gros',      x:.5,  y:.88, r:.06,  nom:'Gros intestin' },
+];
+function dessinerCorps() {
+  const t = T(), p = refs.plan;
+  const X = u => Wp * .34 + u * Wp * .3, Y = v => Hp * .06 + v * Hp * .86;
+  const R = Math.min(Wp, Hp) * .5;
+  // le tuyau qui relie les organes
+  const d = ORGANES.map((o, i) => (i ? 'L ' : 'M ') + X(o.x) + ' ' + Y(o.y)).join(' ');
+  p.appendChild(el('path', { d, fill:'none', stroke:t.bord, 'stroke-width':Math.max(10, R * .07),
+    'stroke-linecap':'round', 'stroke-linejoin':'round' }));
+  ORGANES.forEach((o, i) => {
+    const atteint = i <= etat.etape;
+    p.appendChild(el('circle', { cx:X(o.x), cy:Y(o.y), r:o.r * R,
+      fill:atteint ? t.doux : t.muet, stroke:i === etat.etape ? t.accent : t.bord,
+      'stroke-width':i === etat.etape ? 3 : 1.5 }));
+    p.appendChild(el('text', { x:X(o.x) + o.r * R + 10, y:Y(o.y) + 4, class:'etiq-scene',
+      style:'text-anchor:start' }, o.nom));
+  });
+  // l'aliment, de moins en moins gros à mesure qu'il est transformé
+  const o = ORGANES[Math.min(etat.etape, ORGANES.length - 1)];
+  const av = avancement(etat.etape);
+  const taille = (1 - av.solubilise * .7) * R * .05;
+  p.appendChild(el('circle', { cx:X(o.x), cy:Y(o.y), r:Math.max(3, taille),
+    fill:'#C98A3B', stroke:t.trait, 'stroke-width':1.5 }));
+  // les nutriments qui passent dans le sang, au niveau de l'intestin grêle
+  if (av.danssang) {
+    const oi = ORGANES[3];
+    for (let k = 0; k < 6; k++) {
+      const a = -Math.PI / 2 + (k - 2.5) * .42;
+      p.appendChild(el('circle', {
+        cx:X(oi.x) + Math.cos(a) * oi.r * R * 1.9, cy:Y(oi.y) + Math.sin(a) * oi.r * R * 1.9,
+        r:Math.max(2.5, R * .012), fill:'#C0392B' }));
+    }
+    p.appendChild(el('text', { x:X(.5), y:Y(.79), class:'etiq-scene', fill:'#C0392B' },
+      'les nutriments passent dans le sang'));
+  }
+  // la jauge de transformation
+  const jx = Wp * .06, jy = Hp * .12, jh = Hp * .6, jl = Math.max(12, Wp * .035);
+  p.appendChild(el('rect', { x:jx, y:jy, width:jl, height:jh, rx:jl / 2, fill:t.muet }));
+  p.appendChild(el('rect', { x:jx, y:jy + jh * (1 - av.solubilise), width:jl,
+    height:jh * av.solubilise, rx:jl / 2, fill:t.accent }));
+  p.appendChild(el('text', { x:jx + jl / 2, y:jy - 8, class:'etiq-scene' }, 'transformé'));
+  p.appendChild(el('text', { x:jx + jl / 2, y:jy + jh + 16, class:'etiq-scene' },
+    Math.round(av.solubilise * 100) + ' %'));
+}
+
+/* ---- Scène 4 : la dent ---- */
+function dessinerDent() {
+  const t = T(), p = refs.plan;
+  const cx = Wp * .34, cy = Hp * .5;
+  const L = Math.min(Wp * .3, Hp * .8), H = L * 1.25;
+  const u = usureDent(etat.jours, etat.brossage, etat.sucreEntreRepas);
+
+  // la gencive
+  p.appendChild(el('rect', { x:cx - L * .9, y:cy + H * .06, width:L * 1.8, height:H * .5,
+    rx:10, fill:'#D98C8C', opacity:.55 }));
+  // la racine
+  const zone = (cle, d, remplissage, trait) => {
+    const g = el('g', { class:'part-dent' + (etat.partieDent === cle ? ' vue' : ''),
+      'data-dent':cle, role:'button', tabindex:'0', 'aria-label':'Partie : ' + cle });
+    g.appendChild(el('path', { d, fill:remplissage, stroke:trait || t.trait, 'stroke-width':2,
+      'stroke-linejoin':'round' }));
+    p.appendChild(g);
+    return g;
+  };
+  zone('racine', 'M ' + (cx - L * .34) + ' ' + (cy + H * .08) +
+    ' L ' + (cx - L * .16) + ' ' + (cy + H * .55) + ' L ' + (cx + L * .02) + ' ' + (cy + H * .12) +
+    ' L ' + (cx + L * .2) + ' ' + (cy + H * .55) + ' L ' + (cx + L * .34) + ' ' + (cy + H * .08) + ' Z',
+    '#E3D9C0');
+  // l'ivoire (la couronne, sous l'émail)
+  zone('ivoire', 'M ' + (cx - L * .42) + ' ' + (cy + H * .1) +
+    ' L ' + (cx - L * .42) + ' ' + (cy - H * .3) +
+    ' Q ' + cx + ' ' + (cy - H * .5) + ' ' + (cx + L * .42) + ' ' + (cy - H * .3) +
+    ' L ' + (cx + L * .42) + ' ' + (cy + H * .1) + ' Z', '#EFE3C6');
+  // l'émail : il s'amincit quand la carie progresse
+  const ep = (1 - u.degat) * L * .12 + L * .02;
+  zone('email', 'M ' + (cx - L * .48) + ' ' + (cy + H * .06) +
+    ' L ' + (cx - L * .48) + ' ' + (cy - H * .32) +
+    ' Q ' + cx + ' ' + (cy - H * .54) + ' ' + (cx + L * .48) + ' ' + (cy - H * .32) +
+    ' L ' + (cx + L * .48) + ' ' + (cy + H * .06) +
+    ' L ' + (cx + L * .48 - ep) + ' ' + (cy + H * .06) +
+    ' L ' + (cx + L * .48 - ep) + ' ' + (cy - H * .28) +
+    ' Q ' + cx + ' ' + (cy - H * .46) + ' ' + (cx - L * .48 + ep) + ' ' + (cy - H * .28) +
+    ' L ' + (cx - L * .48 + ep) + ' ' + (cy + H * .06) + ' Z', '#FFFFFF');
+  // la pulpe
+  zone('pulpe', 'M ' + (cx - L * .1) + ' ' + (cy + H * .3) +
+    ' L ' + (cx - L * .1) + ' ' + (cy - H * .24) +
+    ' Q ' + cx + ' ' + (cy - H * .36) + ' ' + (cx + L * .1) + ' ' + (cy - H * .24) +
+    ' L ' + (cx + L * .1) + ' ' + (cy + H * .3) + ' Z', '#D9707A');
+  // la carie, quand elle est là
+  if (u.degat > .2) {
+    p.appendChild(el('ellipse', { cx:cx + L * .18, cy:cy - H * .28,
+      rx:L * .1 * Math.min(1, u.degat * 1.6), ry:H * .07 * Math.min(1, u.degat * 1.6),
+      fill:'#4A3520', opacity:.85 }));
+  }
+  // l'état, écrit à droite
+  const jx = Wp * .62;
+  p.appendChild(el('text', { x:jx, y:Hp * .3, class:'etiq-jauge', style:'text-anchor:start' },
+    'Après ' + etat.jours + ' jours'));
+  p.appendChild(el('text', { x:jx, y:Hp * .38, class:'etiq-scene', style:'text-anchor:start',
+    fill:u.degat > .45 ? t.non : u.degat > .2 ? '#B8770F' : t.ok }, 'Dent : ' + u.etat));
+  if (etat.partieDent) {
+    const pd = PARTIES_DENT.find(x => x.cle === etat.partieDent);
+    p.appendChild(el('text', { x:jx, y:Hp * .5, class:'etiq-jauge', style:'text-anchor:start' }, pd.nom));
+    decouper(pd.quoi, 30).forEach((ligne, i) =>
+      p.appendChild(el('text', { x:jx, y:Hp * .56 + i * 16, class:'etiq-scene',
+        style:'text-anchor:start' }, ligne)));
+  }
+}
+
+// SVG ne coupe pas les lignes tout seul : on découpe le texte à la main
+function decouper(txt, n) {
+  const mots = txt.split(' '), lignes = [];
+  let l = '';
+  for (const m of mots) {
+    if ((l + ' ' + m).trim().length > n) { lignes.push(l); l = m; }
+    else l = (l + ' ' + m).trim();
+  }
+  if (l) lignes.push(l);
+  return lignes.slice(0, 6);
+}
+
+/* ==================== Ce que la scène permet de calculer ==================== */
+function resoudre() {
+  calc = { total:apports(etat.parts), diag:diagnostic(etat.parts) };
+  memoriser();
+  mesurerPlan(); majCarnet(); rendreEtapes(); rendreActions(); verifierProgres();
+}
+
+function memoriser() {
+  const v = etat.vus;
+  if (calc.diag.cle === 'kwashiorkor') v.vuKwash = true;
+  if (calc.diag.cle === 'marasme') v.vuMarasme = true;
+  if (etat.scene === 'corps' && avancement(etat.etape).danssang) v.vuAbsorption = true;
+  if (etat.scene === 'dent') {
+    const u = usureDent(etat.jours, etat.brossage, etat.sucreEntreRepas);
+    if (u.degat >= .45) v.carieVue = true;
+    if (etat.jours >= 30 && etat.brossage && u.degat < .25) v.brossageVu = true;
+  }
+}
+
+/* ========================= Le carnet d’observation ========================= */
+function majCarnet() {
+  const z = $('me-corps');
+  let h = '';
+  if (etat.scene === 'paillasse') {
+    const d = etat.dernier;
+    h += d
+      ? '<div class="me-ligne"><span class="nom">' + ALIMENTS[d.aliment].nom + '</span>' +
+        '<span class="val">' + TESTS[d.test].em + '</span></div>' +
+        '<div class="me-egalite ' + (d.positif ? 'juste' : 'faux') + '"><span class="memb">' +
+        (d.positif ? TESTS[d.test].positif + ' → ' + motSubstance(TESTS[d.test].cherche)
+                   : d.manqueChaleur ? 'rien : il faut chauffer' : 'aucun changement') + '</span></div>'
+      : '<div class="me-ligne"><span class="nom">Aucun essai</span></div>';
+    const n = Object.keys(etat.vus.essais).length;
+    $('me-quoi').textContent = n ? n + ' essai' + (n > 1 ? 's' : '') + ' au carnet.'
+                                 : 'Choisis un aliment, puis un test.';
+  } else if (etat.scene === 'assiette') {
+    const t = calc.total;
+    h += ligne('Énergie', Math.round(t.energie) + ' kcal');
+    h += ligne('Protéines', Math.round(t.proteines) + ' g');
+    h += ligne('Fruits et légumes', (etat.parts.mangue || 0) + (etat.parts.feuilles || 0) + ' part(s)');
+    h += '<div class="me-sep"></div><div class="me-egalite ' +
+      (calc.diag.cle === 'equilibre' ? 'juste' : 'faux') + '"><span class="memb">' +
+      calc.diag.titre + '</span></div>';
+    $('me-quoi').textContent = calc.diag.quoi;
+  } else if (etat.scene === 'corps') {
+    const av = avancement(etat.etape);
+    h += ligne('Organe', av.etape.organe);
+    h += ligne('Transformé', Math.round(av.solubilise * 100) + ' %');
+    h += ligne('Passé dans le sang', av.danssang ? 'oui' : 'pas encore');
+    $('me-quoi').textContent = av.etape.quoi;
+  } else {
+    const u = usureDent(etat.jours, etat.brossage, etat.sucreEntreRepas);
+    h += ligne('Jours écoulés', etat.jours);
+    h += ligne('Brossage', etat.brossage ? 'oui' : 'non');
+    h += ligne('Sucre entre les repas', etat.sucreEntreRepas ? 'oui' : 'non');
+    h += '<div class="me-sep"></div><div class="me-egalite ' +
+      (u.degat < .2 ? 'juste' : 'faux') + '"><span class="memb">' + u.etat + '</span></div>';
+    $('me-quoi').textContent = 'Touche une partie de la dent pour la reconnaître.';
+  }
+  z.innerHTML = h;
+}
+const ligne = (n, v) => '<div class="me-ligne"><span class="nom">' + n +
+  '</span><span class="val">' + v + '</span></div>';
+const motSubstance = s => ({ amidon:'de l’amidon', sucres:'des sucres',
+  proteines:'des protéines', lipides:'des corps gras' })[s] || s;
+
+/* ============================== La barre du bas ============================== */
+function rendreOutils() {
+  const z = $('liste-outils');
+  z.innerHTML = '';
+  const bouton = (id, txt, actif, act) => {
+    const b = document.createElement('button');
+    b.className = 'ot'; b.id = id; b.type = 'button';
+    b.setAttribute('aria-pressed', actif ? 'true' : 'false');
+    b.innerHTML = txt; b.onclick = act;
+    z.appendChild(b); return b;
+  };
+  if (etat.scene === 'paillasse') {
+    for (const cle of alimentsDeLaMission()) {
+      const a = ALIMENTS[cle];
+      bouton('al-' + cle, '<span class="em">' + a.em + '</span>' + a.nom, etat.enMain === cle,
+        () => { etat.enMain = etat.enMain === cle ? null : cle; rendreOutils(); resoudre(); });
+    }
+    if (testsDeLaMission().some(c => TESTS[c].chauffe))
+      bouton('btn-chauffer', '🔥 Chauffer', etat.chauffe,
+        () => { etat.chauffe = !etat.chauffe; rendreOutils(); resoudre(); });
+  } else if (etat.scene === 'assiette') {
+    for (const cle of alimentsDeLaMission()) {
+      const a = ALIMENTS[cle], n = etat.parts[cle] || 0;
+      bouton('al-' + cle, '<span class="em">' + a.em + '</span>' + a.nom +
+        (n ? ' <b class="compte">' + n + '</b>' : ''), n > 0,
+        () => { etat.parts[cle] = (etat.parts[cle] || 0) + 1; rendreOutils(); resoudre(); });
+    }
+  } else if (etat.scene === 'corps') {
+    bouton('btn-avancer', '➡️ Avancer', false, () => {
+      etat.etape = Math.min(ETAPES_DIGESTION.length - 1, etat.etape + 1);
+      rendreOutils(); resoudre();
+    });
+    bouton('btn-recommencer', '↺ Recommencer', false, () => {
+      etat.etape = 0; rendreOutils(); resoudre();
+    });
+  } else {
+    bouton('btn-brossage', '🪥 Se brosser les dents', etat.brossage,
+      () => { etat.brossage = !etat.brossage; rendreOutils(); resoudre(); });
+    bouton('btn-sucre', '🍬 Sucre entre les repas', etat.sucreEntreRepas,
+      () => { etat.sucreEntreRepas = !etat.sucreEntreRepas; rendreOutils(); resoudre(); });
+    bouton('btn-jours', '📅 Passer un mois', false,
+      () => { etat.jours += 30; rendreOutils(); resoudre(); });
+    bouton('btn-remise', '↺ Dent neuve', false,
+      () => { etat.jours = 0; rendreOutils(); resoudre(); });
+  }
+  $('outils').hidden = z.children.length === 0;
+}
+
+/* ====================== Les boutons du bas de l’écran ====================== */
+function rendreActions() {
+  const z = $('actions');
+  z.innerHTML = '';
+  const bouton = (id, txt, cls, act) => {
+    const b = document.createElement('button');
+    b.className = 'btn ' + (cls || ''); b.id = id; b.textContent = txt; b.onclick = act;
+    z.appendChild(b); return b;
+  };
+  if (etat.scene === 'assiette')
+    bouton('btn-vider', '🗑 Vider l’assiette', 'btn-fantome', () => {
+      etat.parts = {}; rendreOutils(); resoudre();
+    });
+  if (etat.scene === 'paillasse')
+    bouton('btn-effacer', '↺ Rincer les tubes', 'btn-fantome', () => {
+      etat.dernier = null; etat.resultats = {}; etat.enMain = null; rendreOutils(); resoudre();
+    });
+  if (!enLibre()) bouton('btn-tester', '✅ Conclure', '', conclure);
+  surbrillerCible();
+}
+
+/* ============================== Le geste ============================== */
+function brancherGestes() {
+  refs.plan.addEventListener('click', ev => {
+    const zt = ev.target.closest('[data-test]');
+    if (zt) { appliquerTest(zt.dataset.test); return; }
+    const zd = ev.target.closest('[data-dent]');
+    if (zd) {
+      etat.partieDent = zd.dataset.dent;
+      etat.vus.dent[zd.dataset.dent] = 1;
+      resoudre();
+    }
+  });
+  refs.plan.addEventListener('keydown', ev => {
+    if (ev.key !== 'Enter' && ev.key !== ' ') return;
+    const c = ev.target.closest('[data-test], [data-dent]');
+    if (!c) return;
+    ev.preventDefault();
+    c.dispatchEvent(new MouseEvent('click', { bubbles:true }));
+  });
+}
+
+function appliquerTest(cleTest) {
+  if (!etat.enMain) { toast('Choisis d’abord un aliment.'); return; }
+  const r = reaction(etat.enMain, cleTest, etat.chauffe);
+  etat.dernier = Object.assign({ aliment:etat.enMain, test:cleTest }, r);
+  etat.resultats[cleTest] = etat.dernier;
+  if (r.manqueChaleur) etat.vus.essaiFroid = true;
+  // un essai fait à froid sur un test qui exige la chaleur ne compte pas comme
+  // une observation : il n'a rien montré
+  if (!r.manqueChaleur)
+    etat.vus.essais[etat.enMain + '/' + cleTest] = r.positif ? 'positif' : 'negatif';
+  resoudre();
+}
+
+/* ---- L'indice, appelé à la demande ---- */
+function montrerIndice() {
+  const M = enLibre() ? null : MISSIONS[etat.mission];
+  if (!M || !M.indice) return;
+  $('mission').classList.add('ouvert');
+  $('m-plier').setAttribute('aria-expanded', 'true');
+  $('m-indice').innerHTML = '<b>💡 Indice :</b> ' + M.indice;
+  $('m-indice').hidden = false;
+  $('btn-indice').classList.remove('appelle');
+  mesurerPlan();
+}
+
+function demarrerMission() {
+  cacherBilan();
+  reprendre();
+  $('m-indice').hidden = true;
+  $('m-indice').innerHTML = '';
+  const M = enLibre() ? null : MISSIONS[etat.mission];
+  $('m-actions').hidden = !(M && M.indice);
+  rendreMission(); rendreOutils(); resoudre();
+}
+
+/* ====================== Le bilan : « que conclure ? » ====================== */
+const BILANS = [
+  () => { const pos = nbEssaisPositifs('iode');
+    if (!pos) return ['🤔', 'Aucun essai concluant', '',
+      'Verse l’eau iodée sur l’<b>igname</b> ou le <b>riz</b> : ce sont eux qui contiennent de l’amidon.'];
+    etat.vus.luIode = true;
+    return ['💧', 'L’eau iodée révèle l’amidon', '',
+      'L’eau iodée devient <b>bleu-noir</b> au contact de l’<b>amidon</b>, et ne change pas sinon. C’est un <b>test</b> : il rend visible une substance qu’on ne voyait pas.']; },
+
+  () => { if (!nbEssaisPositifs('fehling')) return ['🔥', 'Le réactif est resté bleu', '',
+      etat.vus.essaiFroid ? 'Tu as vu qu’à froid, il ne se passe rien. Touche <b>Chauffer</b>, puis recommence.'
+                          : 'Essaie le réactif sur le <b>sucre</b>, d’abord sans chauffer, puis en chauffant.'];
+    etat.vus.luSucres = true;
+    return ['🔥', 'Le réactif des sucres, à chaud', '',
+      'Le réactif bleu vire au <b>rouge brique</b> en présence de sucres — <b>mais seulement chauffé</b>. Retiens la leçon de méthode : un test qui ne donne rien ne prouve l’absence que si on l’a bien conduit.']; },
+
+  () => { if (nbEssaisPositifs('nitrique') < 2) return ['🧪', 'Continue tes essais', '',
+      'Teste le <b>poisson</b>, l’<b>œuf</b> et le <b>niébé</b> : ce sont eux qui contiennent des protéines.'];
+    etat.vus.luProteines = true;
+    return ['🧪', 'L’acide nitrique révèle les protéines', '',
+      'Les <b>protéines</b> jaunissent au contact de l’acide nitrique. Les viandes, poissons et œufs en sont les meilleures sources, mais les <b>légumineuses</b> comme le niébé en apportent beaucoup, pour bien moins cher.']; },
+
+  () => { if (nbEssaisPositifs('papier') < 1) return ['📄', 'Le papier est encore propre', '',
+      'Frotte l’<b>huile</b> ou l’<b>arachide</b> sur le papier, puis regarde-le par transparence.'];
+    etat.vus.luLipides = true;
+    return ['📄', 'La tache qui ne part pas', '',
+      'Les <b>corps gras</b> laissent une tache <b>translucide</b> qui reste après séchage — c’est ce qui la distingue d’une tache d’eau. Ce sont les aliments les plus riches en énergie.']; },
+
+  () => { const n = ['iode', 'fehling', 'nitrique', 'papier'].filter(t => aTeste('arachide', t)).length;
+    if (n < 4) return ['🥜', 'Il te manque des tests', n + ' test(s) sur 4 faits sur l’arachide',
+      'Fais passer à l’arachide les <b>quatre</b> tests. N’oublie pas de chauffer pour celui des sucres.'];
+    etat.vus.luMelange = true;
+    return ['🥜', 'Un aliment, plusieurs substances', '',
+      'L’arachide contient à la fois des <b>protéines</b>, beaucoup de <b>corps gras</b>, et un peu d’<b>amidon</b> et de <b>sucres</b>. Presque aucun aliment n’est fait d’une seule substance : c’est pourquoi on parle de sa <b>valeur nutritive</b>.']; },
+
+  () => { const g = {};
+    for (const c in etat.parts) if (etat.parts[c]) g[ALIMENTS[c].groupe] = 1;
+    if (Object.keys(g).length < 3) return ['🍽️', 'Il manque un groupe', '',
+      'Il te faut un aliment de chacun des trois groupes : un <b>énergétique</b>, un <b>bâtisseur</b>, un <b>protecteur</b>.'];
+    etat.vus.luGroupes = true;
+    return ['🍽️', 'Les trois groupes', '',
+      'Les <b>énergétiques</b> donnent l’énergie, les <b>bâtisseurs</b> la matière pour grandir, les <b>protecteurs</b> les vitamines et sels minéraux. Un repas complet en contient des trois.']; },
+
+  () => { const d = calc.diag;
+    if (d.cle !== 'equilibre') return ['⚖️', 'Le repas n’est pas encore équilibré',
+      'Énergie ' + Math.round(d.energie * 100) + ' % · protéines ' + Math.round(d.proteines * 100) +
+      ' % · protecteurs ' + Math.round(d.protecteurs * 100) + ' %',
+      'Regarde la jauge la plus basse : c’est elle qui te dit ce qu’il faut ajouter.'];
+    etat.vus.luEquilibre = true;
+    return ['⚖️', 'Un repas équilibré',
+      Math.round(calc.total.energie) + ' kcal et ' + Math.round(calc.total.proteines) + ' g de protéines',
+      'Les trois besoins sont couverts. Un repas équilibré n’est pas forcément cher : du <b>niébé</b> et des <b>feuilles vertes</b> suffisent à remplacer la viande.']; },
+
+  () => { const d = calc.diag;
+    if (d.cle !== 'kwashiorkor' && !etat.vus.luKwash) return ['🤔', 'Ce n’est pas encore ce cas-là',
+      'Énergie ' + Math.round(d.energie * 100) + ' % · protéines ' + Math.round(d.proteines * 100) + ' %',
+      'Il faut <b>beaucoup d’énergie</b> et <b>très peu de protéines</b> : mets du gari ou du riz en quantité, et de l’huile, mais aucun bâtisseur.'];
+    etat.vus.luKwash = true;
+    return ['🩺', 'Le kwashiorkor', '',
+      'Assez d’<b>énergie</b>, pas assez de <b>protéines</b>. L’enfant mange à sa faim, son ventre est plein — et pourtant son corps ne peut plus se construire. Une part de niébé, de poisson ou d’œuf par repas l’évite.']; },
+
+  () => { const d = calc.diag;
+    if (d.cle !== 'marasme' && !etat.vus.luMarasme) return ['🤔', 'Ce n’est pas encore ce cas-là', '',
+      'Vide l’assiette et ne remets presque rien : il faut que <b>tout</b> manque à la fois.'];
+    etat.vus.luMarasme = true;
+    return ['🩺', 'Le marasme', '',
+      'Ici, ni l’énergie ni les protéines ne suffisent : l’enfant maigrit sans arrêt. La différence est utile : dans le <b>kwashiorkor</b>, c’est la <b>qualité</b> qui manque ; dans le <b>marasme</b>, c’est la <b>quantité</b>.']; },
+
+  () => { if (etat.etape < 4) return ['🤔', 'Le trajet n’est pas fini', '',
+      'Touche <b>Avancer</b> jusqu’au gros intestin, et lis à chaque organe ce qui s’y passe.'];
+    etat.vus.luTrajet = true;
+    return ['🫀', 'Le tube digestif', '',
+      'Les aliments suivent toujours le même chemin : <b>bouche → œsophage → estomac → intestin grêle → gros intestin</b>. Chaque organe a son rôle, et l’ordre ne change jamais.']; },
+
+  () => { if (etat.etape < 3) return ['🤔', 'La transformation n’est pas achevée',
+      'Transformé : ' + Math.round(avancement(etat.etape).solubilise * 100) + ' %',
+      'Continue jusqu’à l’<b>intestin grêle</b> : c’est là que la jauge atteint son maximum.'];
+    etat.vus.luSoluble = true;
+    return ['💧', 'Rendre soluble', '',
+      'La <b>digestion</b> transforme l’aliment en substances de plus en plus <b>petites</b> et <b>solubles</b>. Elle commence dans la bouche, se poursuit dans l’estomac, et s’achève dans l’intestin grêle.']; },
+
+  () => { if (etat.etape < 3) return ['🤔', 'Va jusqu’à l’intestin grêle', '',
+      'C’est le seul endroit du trajet où les substances traversent la paroi.'];
+    etat.vus.luAbsorption = true;
+    return ['🩸', 'L’absorption intestinale', '',
+      'Les substances devenues assez petites s’appellent les <b>nutriments</b>. Dans l’<b>intestin grêle</b>, elles traversent la paroi et passent dans le <b>sang</b>, qui les porte à tout le corps. Le reste poursuit sa route et sera rejeté.']; },
+
+  () => { const n = Object.keys(etat.vus.dent).length;
+    if (n < 4) return ['🦷', 'Regarde toute la dent', n + ' partie(s) sur 4 reconnue(s)',
+      'Touche l’<b>émail</b>, l’<b>ivoire</b>, la <b>pulpe</b> et la <b>racine</b> sur le schéma.'];
+    if (!etat.vus.carieVue) return ['🦷', 'Vois d’abord ce qui abîme une dent', '',
+      'Laisse le <b>sucre entre les repas</b> et <b>pas de brossage</b>, puis fais passer les mois.'];
+    etat.vus.luDent = true;
+    return ['🦷', 'Pourquoi une dent se gâte', '',
+      'Les sucres restés collés nourrissent les <b>microbes</b> de la bouche, qui attaquent l’<b>émail</b>, puis l’<b>ivoire</b>, puis la <b>pulpe</b> — et là, la dent fait très mal. Se brosser les dents après les repas et ne pas grignoter du sucre entre eux retarde énormément la <b>carie</b>.']; },
+];
+
+function conclure() {
+  const b = $('btn-tester'); if (b) b.classList.remove('appelle');
+  const f = BILANS[etat.mission];
+  if (!f) return;
+  const [em, titre, objectif, phrase] = f();
+  montrerBilan(em, titre, objectif, phrase);
+  resoudre();
+}
+
+/* ====================== Le bilan : « que conclure ? » ====================== */
+function cacherBilan() {
+  $('bilan').classList.remove('visible');
+  $('atelier').classList.remove('avec-bilan');
+}
+let qcmEnAttente = false;
+// Referme le bilan, et enchaîne sur le questionnaire s'il attendait son tour
+function fermerBilan() {
+  cacherBilan();
+  if (qcmEnAttente) { qcmEnAttente = false; setTimeout(ouvrirQcm, 180); }
+}
+function montrerBilan(em, titre, objectif, phrase, suite) {
+  const b = $('bilan');
+  b.innerHTML =
+    '<div class="verdict"><span class="em">' + em + '</span><h3>' + titre + '</h3>' +
+    '<button class="reduire" id="bilan-x" aria-label="Réduire">✕</button></div>' +
+    (objectif ? '<div class="objectif">' + objectif + '</div>' : '') +
+    '<p class="phrase">' + phrase + '</p>' +
+    // C'est la seule action de la modale : elle doit ressembler à un bouton.
+    // En `btn-fantome`, fond transparent sur le fond du bilan, elle passait
+    // pour du texte cliquable — pas pour un appel à agir.
+    '<div class="actions"><button class="btn" id="bilan-ok">' +
+      (suite || 'Continuer') + '</button></div>';
+  b.classList.add('visible');
+  $('atelier').classList.add('avec-bilan');
+  $('bilan-x').onclick = fermerBilan;
+  $('bilan-ok').onclick = fermerBilan;
+}
+
+/* ============================== Les missions ============================== */
+function rendreMission() {
+  if (enLibre()) {
+    $('m-num').textContent = '∞';
+    $('m-rang').textContent = 'Exploration libre';
+    $('m-titre').textContent = 'Fabrique ce que tu veux';
+    $('m-but').textContent = 'Tout le sel, tous les isolants, aucune consigne : essaie et compare.';
+    $('etapes').innerHTML = '';
+    $('m-jauge').style.width = '100%';
+    surbrillerCible();
+    return;
+  }
+  const M = MISSIONS[etat.mission];
+  $('m-num').textContent = etat.mission + 1;
+  $('m-rang').textContent = 'Mission ' + (etat.mission + 1) + ' sur ' + MISSIONS.length;
+  $('m-titre').textContent = M.titre;
+  $('m-but').textContent = M.but;
+  rendreEtapes();
+}
+function rendreEtapes() {
+  // en exploration libre il n'y a pas d'étapes : le panneau reste vide
+  if (enLibre()) { $('etapes').innerHTML = ''; $('m-jauge').style.width = '100%'; surbrillerCible(); return; }
+  const M = MISSIONS[etat.mission], z = $('etapes');
+  z.innerHTML = '';
+  let courante = -1;
+  const faites = M.etapes.map(e => !!e.ok(etat));
+  for (let i = 0; i < faites.length; i++) if (!faites[i]) { courante = i; break; }
+  // Panneau replié, seule l'étape en cours s'affiche : le chevron déploie le reste.
+  const iMontrer = courante >= 0 ? courante : faites.length - 1;
+  M.etapes.forEach((e, i) => {
+    const d = document.createElement('div');
+    d.className = 'etape' + (faites[i] ? ' faite' : '') + (i === courante ? ' courante' : '')
+      + (i === iMontrer ? ' a-montrer' : '');
+    d.innerHTML = '<span class="coche">' + (faites[i] ? '✓' : i + 1) +
+      '</span><span class="t">' + e.t + '</span>';
+    z.appendChild(d);
+  });
+  const n = faites.filter(Boolean).length;
+  $('m-jauge').style.width = Math.round(n / M.etapes.length * 100) + '%';
+  surbrillerCible();
+}
+// L’élément à montrer du doigt : celui de la première étape non franchie
+function cibleEffective() {
+  if (enLibre()) return null;              // rien à montrer du doigt : l'élève explore
+  const M = MISSIONS[etat.mission];
+  for (const e of M.etapes) if (!e.ok(etat)) return e.cible || null;
+  return null;
+}
+function surbrillerCible() {
+  document.querySelectorAll('.appelle').forEach(n => n.classList.remove('appelle'));
+  const c = cibleEffective();
+  if (c && $(c)) $(c).classList.add('appelle');
+}
+
+function verifierProgres() {
+  if (enLibre()) return;                   // aucune mission à gagner ici
+  const M = MISSIONS[etat.mission];
+  if (!M.gagne(etat)) { rendreEtapes(); return; }
+  if (etat.faits.includes(etat.mission)) { rendreEtapes(); return; }
+  etat.faits.push(etat.mission); sauver(); rendreEtapes();
+  // Si un bilan est ouvert, on ne le recouvre pas : c'est le bouton du bilan
+  // qui enchaîne sur le questionnaire, quand l'élève a fini de lire.
+  if ($('bilan').classList.contains('visible')) {
+    qcmEnAttente = true;
+    const ok = $('bilan-ok'); if (ok) ok.textContent = '🎓 Mission réussie — continuer';
+  } else setTimeout(ouvrirQcm, 620);
+}
+
+/* ================================ Le QCM ================================ */
+
+// Mélange les propositions : sans cela, la bonne réponse resterait toujours en
+// tête de liste et l'élève finirait par cliquer sans lire.
+function melangerQuestion(q) {
+  const ordre = q.r.map((_, i) => i);
+  for (let i = ordre.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = ordre[i]; ordre[i] = ordre[j]; ordre[j] = t;
+  }
+  return Object.assign({}, q, {
+    r: ordre.map(k => q.r[k]),
+    bonne: ordre.indexOf(q.bonne),
+  });
+}
+function ouvrirQcm() {
+  const M = MISSIONS[etat.mission], q = melangerQuestion(M.qcm);
+  qcmCourant = q;
+  const c = $('qcm-carte');
+  c.innerHTML = '<h2>🎓 Mission réussie !</h2><p class="q-question">' + q.q + '</p>' +
+    '<div class="q-choix" id="q-choix"></div><div id="q-retour"></div>';
+  const zc = $('q-choix');
+  q.r.forEach((txt, i) => {
+    const b = document.createElement('button');
+    b.className = 'q-rep'; b.type = 'button'; b.textContent = txt;
+    b.onclick = () => repondre(i, b);
+    zc.appendChild(b);
+  });
+  ouvrir('v-qcm');
+}
+let qcmCourant = null;
+function repondre(i, bouton) {
+  const q = qcmCourant;
+  const juste = i === q.bonne;
+  bouton.classList.add(juste ? 'juste' : 'faux');
+  document.querySelectorAll('.q-rep').forEach(b => b.disabled = true);
+  if (!juste) document.querySelectorAll('.q-rep')[q.bonne].classList.add('juste');
+  $('q-retour').innerHTML =
+    '<div class="q-mot ' + (juste ? 'ok' : 'non') + '">' +
+      (juste ? '✅ Bien vu.' : '💡 Regarde plutôt la bonne réponse.') + ' ' + q.pourquoi + '</div>' +
+    '<button class="btn btn-large" id="q-suite">Continuer</button>';
+  $('q-suite').onclick = () => { fermer('v-qcm'); ouvrirPassage(); };
+}
+
+/* ===================== L’écran de passage entre missions ===================== */
+function ouvrirPassage() {
+  const M = MISSIONS[etat.mission], suivante = MISSIONS[etat.mission + 1];
+  const c = $('passage-carte');
+  c.innerHTML =
+    '<div class="p-fanion"><span class="rond">🏅</span><div>' +
+      '<b>Mission ' + (etat.mission + 1) + ' terminée</b>' +
+      '<span>' + M.titre + '</span></div></div>' +
+    '<div class="p-acquis"><b>Ce que tu retiens :</b><br>' + M.retenir + '</div>' +
+    (suivante
+      ? '<div class="p-suite"><div class="etiq">Mission suivante</div><b>' + suivante.titre +
+        '</b><span>' + suivante.but + '</span></div>' +
+        '<button class="btn btn-large" id="p-go">Commencer la mission ' + (etat.mission + 2) + '</button>' +
+        '<p class="p-neuf">La paillasse est remise en ordre pour la nouvelle expérience.</p>'
+      : '<div class="p-suite"><div class="etiq">Parcours terminé</div><b>Tu sais fabriquer de la glace</b>' +
+        '<span>Le mélange réfrigérant, le rôle de l’isolant, le palier de solidification et l’origine du givre.</span></div>' +
+        '<button class="btn btn-large" id="p-go">Explorer librement →</button>' +
+        '<p class="p-neuf">Le sel et les quatre isolants s’ouvrent : essaie les mélanges que tu veux.</p>');
+  $('p-go').onclick = () => {
+    fermer('v-passage');
+    if (suivante) { etat.mission++; sauver(); reprendre(); demarrerMission(); }
+    else passerEnLibre();
+  };
+  ouvrir('v-passage');
+}
+
+/* ============================== Les fenêtres ============================== */
+function ouvrir(id) { $(id).classList.add('visible'); }
+function fermer(id) { $(id).classList.remove('visible'); }
+
+let minuteurToast = null;
+function toast(txt, alerte) {
+  const t = $('toast');
+  t.textContent = txt;
+  t.classList.toggle('alerte', !!alerte);
+  t.classList.add('visible');
+  clearTimeout(minuteurToast);
+  minuteurToast = setTimeout(() => t.classList.remove('visible'), 2600);
+}
+
+function rendreLexique() {
+  $('liste-lexique').innerHTML = LEXIQUE.map(([m, d]) =>
+    // le mot et sa définition sur deux lignes : « em » les collait l'un à l'autre
+    '<div class="lex-entree"><b>' + m + '</b><span>' + d + '</span></div>').join('');
+}
+
+/* Le quiz doit rester atteignable SANS quitter la simulation : il n'apparaissait
+   que sur l'écran d'accueil, au lancement. Une fois le parcours terminé, l'élève
+   devait sortir de la simulation et y revenir pour le retrouver. */
+function carteExercer() {
+  // etat.faits, pas etat.faites : ici le champ mémoire s'appelle « faits ».
+  // C'est « faites » qu'on ÉCRIT dans localStorage, pas ce qu'on lit en mémoire.
+  const ouvert = etat.faits.length >= MISSIONS.length;
+  return '<button class="d-carte" data-mission="exercer"' + (ouvert ? '' : ' disabled') + '>' +
+    '<span class="num">' + (ouvert ? '🏅' : '🔒') + '</span>' +
+    '<span class="txt"><b>M’exercer</b><span>' + (ouvert
+      ? 'Trois séries de questions, et un score de maîtrise.'
+      : 'Termine le parcours pour l’ouvrir.') + '</span></span></button>';
+}
+
+function rendreListeMissions() {
+  $('liste-missions').innerHTML = MISSIONS.map((m, i) => {
+    const fait = etat.faits.includes(i), ouverte = i <= etat.mission || fait;
+    return '<button class="d-carte' + (fait ? ' fait' : '') + '" data-mission="' + i + '"' +
+      (ouverte ? '' : ' disabled') + '>' +
+      '<span class="num">' + (fait ? '✓' : ouverte ? i + 1 : '🔒') + '</span>' +
+      '<div class="txt"><b>' + m.titre + '</b><span>' +
+      (ouverte ? m.but : 'Termine la mission précédente pour l’ouvrir.') +
+      '</span></div></button>';
+  }).join('') + carteLibre();
+  $('liste-missions').insertAdjacentHTML('beforeend', carteExercer());
+  // une mission déjà ouverte se rejoue d'un clic, comme dans les autres simulations
+  $('liste-missions').querySelectorAll('[data-mission]').forEach(b => {
+    if (b.disabled) return;
+    b.onclick = () => {
+      if (b.dataset.mission === 'exercer') { fermer('v-missions'); ouvrirQuiz(); return; }
+      fermer('v-missions');
+      etat.libre = false; etat.mission = +b.dataset.mission;
+      sauver(); reprendre(); demarrerMission(); rendreListeMissions();
+    };
+  });
+  const c = $('carte-libre');
+  if (c && !c.disabled) c.onclick = () => { fermer('v-missions'); passerEnLibre(); };
+}
+
+// La carte d'exploration libre, en bas de la liste des missions
+function carteLibre() {
+  const tout = etat.faits.length >= MISSIONS.length;
+  return '<button class="d-carte' + (tout ? '' : ' verrou') + '" id="carte-libre"' +
+    (tout ? '' : ' disabled') + '><span class="num">' + (tout ? '∞' : '🔒') + '</span>' +
+    '<div class="txt"><b>Exploration libre</b><span>' + (tout
+      ? 'Tout le sel, les quatre isolants, aucune consigne.'
+      : 'Termine les ' + MISSIONS.length + ' missions pour l’ouvrir.') +
+    '</span></div></button>';
+}
+
+/* ================================ Le thème ================================ */
+function appliquerTheme(t) {
+  document.body.classList.toggle('sombre', t === 'sombre');
+  $('btn-theme').textContent = t === 'sombre' ? '☀️' : '🌙';
+  try { localStorage.setItem('ike-theme', t); } catch (e) {}
+}
+
+/* ================== Repli du panneau sur les petits écrans ================== */
+function replierSiPetitEcran() {
+  const petit = window.innerHeight < 620 || window.innerWidth < 560;
+  $('mission').classList.toggle('ouvert', !petit);
+  $('m-plier').setAttribute('aria-expanded', petit ? 'false' : 'true');
+}
+
+/* Ici, rien ne se passe tout seul : la figure ne change que si l'élève déplace
+   un point. Il n'y a donc pas de boucle d'animation — resoudre() recalcule et
+   redessine après chaque geste, ce qui suffit et coûte bien moins cher sur les
+   appareils du terrain. */
+
+/* ============================== Le démarrage ============================== */
+function init() {
+  refs.plan = $('plan');
+  charger();
+  mesurerPlan();
+
+  let th = 'clair';
+  try { th = localStorage.getItem('ike-theme') || 'clair'; } catch (e) {}
+  appliquerTheme(th);
+  $('btn-theme').onclick = () =>
+    appliquerTheme(document.body.classList.contains('sombre') ? 'clair' : 'sombre');
+
+  $('btn-lexique').onclick = () => { rendreLexique(); ouvrir('v-lexique'); };
+  $('btn-missions').onclick = () => { rendreListeMissions(); ouvrir('v-missions'); };
+  $('btn-aide').onclick = () => ouvrir('v-aide');
+  document.querySelectorAll('[data-ferme]').forEach(b =>
+    b.onclick = () => fermer(b.getAttribute('data-ferme')));
+  document.querySelectorAll('.voile').forEach(v =>
+    v.addEventListener('click', ev => { if (ev.target === v) v.classList.remove('visible'); }));
+  document.addEventListener('keydown', ev => {
+    if (ev.key === 'Escape') document.querySelectorAll('.voile.visible')
+      .forEach(v => v.classList.remove('visible'));
+  });
+
+  $('btn-rezero').onclick = () => {
+    try { localStorage.removeItem(CLE); } catch (e) {}
+    etat.mission = 0; etat.faits = []; reprendre();
+    fermer('v-missions'); demarrerMission();
+    toast('Parcours remis à zéro.');
+  };
+
+  $('m-plier').onclick = () => {
+    const o = $('mission').classList.toggle('ouvert');
+    $('m-plier').setAttribute('aria-expanded', o ? 'true' : 'false');
+    mesurerPlan();
+  };
+
+  $('btn-indice').onclick = montrerIndice;
+  brancherGestes();
+  replierSiPetitEcran();
+  window.addEventListener('resize', () => { replierSiPetitEcran(); mesurerPlan(); });
+  window.addEventListener('orientationchange', () => { replierSiPetitEcran(); mesurerPlan(); });
+
+  demarrerMission();
+  /* ============================================================================
+   L'accueil — « Que veux-tu faire ? »
+   Deux portes d'entrée : le parcours guidé, et le plan de travail libre. La
+   seconde reste fermée tant que le parcours n'est pas terminé. L'écran se
+   présente à chaque ouverture de la simulation, et indique où l'on en est.
+   ========================================================================== */
+function accueilFaites() { return (etat.faits || []).length; }
+function accueilOuvert() { return accueilFaites() >= MISSIONS.length; }
+
+function rendreAccueil() {
+  const n = accueilFaites(), total = MISSIONS.length;
+  $('ac-etat-app').textContent = n === 0 ? 'Commencer'
+    : n >= total ? 'Terminé ✓' : 'Reprendre · ' + n + '/' + total;
+  const ouvert = accueilOuvert();
+  $('ac-experimenter').disabled = !ouvert;
+  $('ac-etat-exp').textContent = ouvert ? 'Ouvert' : '🔒 Verrouillé';
+  $('ac-exercer').disabled = !ouvert;
+  $('ac-etat-ex').textContent = ouvert ? (scoreMaitrise() + ' %') : '🔒 Verrouillé';
+  $('ac-pied').innerHTML = ouvert
+    ? 'Tu as terminé le parcours : les deux portes sont ouvertes.'
+    : 'Termine les <b>' + total + ' missions</b> d’Apprendre pour ouvrir Expérimenter.';
+}
+
+function ouvrirAccueil() {
+  rendreAccueil();
+  ouvrir('v-accueil');
+}
+
+$('ac-apprendre').addEventListener('click', () => {
+  fermer('v-accueil');
+  etat.libre = false; sauver(); reprendre(); demarrerMission();
+  // le repérage de l'interface reste proposé tant que la première mission n'est pas gagnée
+  if (accueilFaites() === 0) lancerVisite();
+});
+$('ac-experimenter').addEventListener('click', () => {
+  if (!accueilOuvert()) return;
+  fermer('v-accueil');
+  passerEnLibre();
+});
+
+/* ============================================================================
+   La visite guidée — on montre l'écran au lieu de le décrire
+   ========================================================================== */
+const VISITE = [
+  { cible:'#mission', titre:'🎯 Le plan de mission', texte:"Ton but du moment et les étapes à cocher. Le chevron <b>▼</b> le replie quand tu veux de la place pour travailler." },
+  { cible:'#mesures', titre:'📒 Ton carnet d’observation', texte:"Ce que ton dernier essai a montré, ou l'état de ton repas. Quand tout est en ordre, la ligne passe au vert." },
+  { cible:'#plan', titre:'🔬 La scène', texte:"Ici, la paillasse et ses tests. Elle changera au fil du parcours : l'assiette, puis le corps, puis une dent." },
+  { cible:'#outils', titre:'🧺 L’étal', texte:"Les aliments du marché. Touche l'un d'eux pour le <b>prendre en main</b>, puis touche un test sur la paillasse." },
+  { cible:'#actions', titre:'✅ Conclure', texte:"« Conclure » te dit ce que ton essai démontre — ou ce qu'il manque pour y arriver." },
+  { cible:'.tete-fin', titre:'🎓 Les boutons du haut', texte:"Les missions, le lexique des mots difficiles, ce guide, et le thème clair ou sombre." },
+];
+let visiteIdx = -1, visiteEtapes = [];
+
+function cibleVisible(sel) {
+  const e = document.querySelector(sel);
+  if (!e) return null;
+  const r = e.getBoundingClientRect();
+  return (r.width > 4 && r.height > 4) ? r : null;
+}
+
+function lancerVisite() {
+  for (const v of document.querySelectorAll('.voile.visible')) v.classList.remove('visible');
+  // on ne montre que ce qui est réellement à l'écran en ce moment
+  visiteEtapes = VISITE.filter(e => !e.cible || cibleVisible(e.cible));
+  if (!visiteEtapes.length) return;
+  visiteIdx = 0;
+  $('visite').classList.add('visible');
+  montrerVisite();
+}
+
+function montrerVisite() {
+  const et = visiteEtapes[visiteIdx];
+  const halo = $('visite-halo');
+  const r = et.cible ? cibleVisible(et.cible) : null;
+  if (r) {
+    halo.style.display = 'block';
+    halo.style.left = (r.left - 5) + 'px';
+    halo.style.top = (r.top - 5) + 'px';
+    halo.style.width = (r.width + 10) + 'px';
+    halo.style.height = (r.height + 10) + 'px';
+  } else halo.style.display = 'none';
+  $('visite-titre').textContent = et.titre;
+  $('visite-texte').innerHTML = et.texte;
+  $('visite-prog').textContent = (visiteIdx + 1) + ' / ' + visiteEtapes.length;
+  $('visite-suivant').textContent =
+    visiteIdx === visiteEtapes.length - 1 ? 'C’est parti !' : 'Suivant';
+  placerCarteVisite(r);
+}
+
+// La carte cherche une place libre autour de la zone montrée : dessous, dessus,
+// à droite, à gauche. Quand la zone occupe presque tout l'écran — le plan de
+// travail, par exemple — aucune place n'est libre : elle se pose alors dans un
+// coin, en couvrant le moins possible.
+function placerCarteVisite(r) {
+  const c = $('visite-carte');
+  c.style.visibility = 'hidden';
+  const cw = c.offsetWidth, ch = c.offsetHeight;
+  const W = window.innerWidth, H = window.innerHeight;
+  const poser = (x, y) => {
+    c.style.left = Math.round(Math.max(8, Math.min(W - cw - 8, x))) + 'px';
+    c.style.top = Math.round(Math.max(8, Math.min(H - ch - 8, y))) + 'px';
+    c.style.visibility = 'visible';
+  };
+  if (!r) { poser((W - cw) / 2, (H - ch) / 2); return; }
+  const m = 14, cx = r.left + r.width / 2 - cw / 2, cy = r.top + r.height / 2 - ch / 2;
+  const essais = [[cx, r.bottom + m], [cx, r.top - ch - m],
+                  [r.right + m, cy], [r.left - cw - m, cy]];
+  for (const [ex, ey] of essais) {
+    const x = Math.max(8, Math.min(W - cw - 8, ex));
+    const y = Math.max(8, Math.min(H - ch - 8, ey));
+    // retenue seulement si la carte ne recouvre pas ce qu'on montre
+    if (x + cw < r.left || x > r.right || y + ch < r.top || y > r.bottom) { poser(x, y); return; }
+  }
+  // dernier recours : le coin bas droit, loin du centre de la zone
+  poser(W - cw - 12, H - ch - 12);
+}
+
+function fermerVisite() {
+  visiteIdx = -1;
+  $('visite').classList.remove('visible');
+}
+
+$('visite-suivant').addEventListener('click', () => {
+  if (visiteIdx >= visiteEtapes.length - 1) { fermerVisite(); return; }
+  visiteIdx++; montrerVisite();
+});
+$('visite-passer').addEventListener('click', fermerVisite);
+window.addEventListener('resize', () => { if (visiteIdx >= 0) montrerVisite(); });
+document.addEventListener('keydown', e => {
+  if (visiteIdx >= 0 && e.key === 'Escape') fermerVisite();
+});
+const btnRevoir = $('btn-revoir-visite');
+if (btnRevoir) btnRevoir.addEventListener('click', () => { fermer('v-aide'); lancerVisite(); });
+
+const NIVEAUX_QUIZ = [
+  { cle:'souviens', em:'🥉', nom:'Je me souviens', poids:1,
+    quoi:'Les mots et les faits rencontrés à la paillasse et dans le corps.' },
+  { cle:'jutilise', em:'🥈', nom:'Je m’en sers', poids:2,
+    quoi:'Reconnaître un aliment, juger un repas, expliquer un cas.' },
+  { cle:'pieges', em:'🥇', nom:'On ne me piège plus', poids:3,
+    quoi:'Les erreurs que presque tout le monde fait. C’est là que tout se joue.' },
+];
+const PAR_SERIE = 6;
+
+const BANQUE = {
+  souviens: [
+    { q:'Quelle couleur prend l’eau iodée en présence d’amidon ?',
+      choix:['Bleu-noir', 'Rouge brique', 'Jaune'], bonne:0, mission:0,
+      expl:"L’eau iodée est le test de l’<b>amidon</b> : elle vire au bleu-noir. Le rouge brique est celui des sucres, le jaune celui des protéines." },
+    { q:'Que faut-il faire pour que le réactif des sucres réagisse ?',
+      choix:['Chauffer', 'Attendre longtemps', 'Ajouter de l’eau'], bonne:0, mission:1,
+      expl:"Sans chaleur, le réactif reste bleu même en présence de sucres. C’est la condition du test : un test mal conduit ne prouve rien." },
+    { q:'Quel réactif colore les protéines en jaune ?',
+      choix:['L’acide nitrique', 'L’eau iodée', 'Le papier'], bonne:0, mission:2,
+      expl:"L’acide nitrique jaunit les protéines. On en trouve dans le poisson, l’œuf, la viande, et aussi dans le niébé et l’arachide." },
+    { q:'Comment reconnaît-on un aliment gras avec du papier ?',
+      choix:['Il laisse une tache translucide qui ne part pas',
+             'Il colore le papier en bleu', 'Il déchire le papier'], bonne:0, mission:3,
+      expl:"Le corps gras reste dans le papier : la tache laisse passer la lumière, même une fois sèche. Une tache d’eau, elle, disparaît." },
+    { q:'À quel groupe appartiennent le riz, l’igname et le gari ?',
+      choix:['Aux aliments énergétiques', 'Aux aliments bâtisseurs',
+             'Aux aliments protecteurs'], bonne:0, mission:5,
+      expl:"Ce sont des aliments de base riches en amidon : ils apportent surtout de l’<b>énergie</b> pour bouger et travailler." },
+    { q:'Quel est le rôle des aliments bâtisseurs ?',
+      choix:['Fournir la matière pour grandir et se réparer',
+             'Donner de l’énergie pour bouger',
+             'Protéger contre les maladies'], bonne:0, mission:5,
+      expl:"Poisson, œuf, viande, niébé et arachide apportent les <b>protéines</b> : la matière avec laquelle le corps se construit." },
+    { q:'Dans quel ordre les aliments traversent-ils le tube digestif ?',
+      choix:['Bouche, œsophage, estomac, intestin grêle, gros intestin',
+             'Bouche, estomac, œsophage, intestin grêle, gros intestin',
+             'Bouche, intestin grêle, estomac, gros intestin'], bonne:0, mission:9,
+      expl:"L’œsophage est le tuyau qui descend de la bouche à l’estomac : il vient avant lui. L’intestin grêle, long et fin, précède le gros intestin." },
+    { q:'Comment appelle-t-on les substances assez petites pour passer dans le sang ?',
+      choix:['Les nutriments', 'Les aliments', 'Les vitamines'], bonne:0, mission:11,
+      expl:"Un <b>aliment</b> est ce qu’on mange ; un <b>nutriment</b> est ce qu’il devient après la digestion, assez petit pour traverser la paroi de l’intestin." },
+    { q:'Quelle est la couche la plus dure de la dent ?',
+      choix:['L’émail', 'L’ivoire', 'La pulpe'], bonne:0, mission:12,
+      expl:"L’émail recouvre la couronne : c’est la matière la plus dure du corps, et c’est elle que les microbes attaquent en premier." },
+  ],
+
+  jutilise: [
+    { q:'L’eau iodée devient bleu-noir sur un aliment. Que peux-tu en dire ?',
+      choix:['Il contient de l’amidon', 'Il contient des protéines',
+             'Il contient des corps gras'], bonne:0, mission:0,
+      expl:"Chaque test ne révèle qu’une substance. Le bleu-noir de l’eau iodée est la signature de l’amidon, et de rien d’autre." },
+    { q:'Un élève mange du riz, du poisson et des feuilles vertes. Son repas est :',
+      choix:['Équilibré : il contient les trois groupes',
+             'Déséquilibré : il manque des protéines',
+             'Déséquilibré : il manque de l’énergie'], bonne:0, mission:6,
+      expl:"Le riz apporte l’énergie, le poisson les protéines, les feuilles les vitamines et les sels minéraux : les trois groupes sont là." },
+    { q:'Un enfant nourri uniquement de bouillie de maïs mange à sa faim mais reste malade. De quoi souffre-t-il ?',
+      choix:['De kwashiorkor : il manque de protéines',
+             'De marasme : il manque de tout',
+             'D’une maladie sans rapport avec l’alimentation'], bonne:0, mission:7,
+      expl:"La bouillie apporte de l’énergie : la faim est calmée. Mais sans protéines, le corps ne peut plus se construire. C’est le kwashiorkor." },
+    { q:'Un aliment fait jaunir l’acide nitrique ET laisse une tache sur le papier. C’est probablement :',
+      choix:['De l’arachide', 'Du sucre de canne', 'De l’eau'], bonne:0, mission:4,
+      expl:"L’arachide contient à la fois des protéines (jaune à l’acide nitrique) et beaucoup de corps gras (tache translucide). Peu d’aliments réussissent les deux tests." },
+    { q:'Ta famille n’a pas les moyens d’acheter de la viande chaque jour. Que proposes-tu ?',
+      choix:['Du niébé, qui apporte aussi des protéines',
+             'Plus de riz, pour compenser',
+             'Du sucre, pour l’énergie'], bonne:0, mission:6,
+      expl:"Le niébé est une légumineuse riche en protéines, il pousse ici et coûte bien moins cher que la viande. Ajouter du riz ou du sucre n’apporterait que de l’énergie." },
+    { q:'Où l’aliment est-il le plus transformé ?',
+      choix:['Dans l’intestin grêle', 'Dans la bouche', 'Dans le gros intestin'], bonne:0, mission:10,
+      expl:"La transformation commence dans la bouche et se poursuit dans l’estomac, mais elle ne s’achève que dans l’intestin grêle — là où les nutriments passent dans le sang." },
+    { q:'Un enfant a une carie qui lui fait très mal. Quelle partie est atteinte ?',
+      choix:['La pulpe, où se trouve le nerf', 'L’émail seulement', 'La racine seulement'], bonne:0, mission:12,
+      expl:"L’émail n’est pas sensible : une carie qui commence ne fait pas mal. La douleur vive apparaît quand la carie atteint la <b>pulpe</b>, qui contient le nerf." },
+    { q:'Comment vérifier qu’une igname bien cuite contient de l’amidon ?',
+      choix:['En y versant de l’eau iodée', 'En la frottant sur du papier',
+             'En la chauffant avec le réactif des sucres'], bonne:0, mission:0,
+      expl:"L’eau iodée est le test de l’amidon. Le papier révélerait des corps gras, que l’igname ne contient presque pas." },
+    { q:'Un repas apporte assez d’énergie et assez de protéines, mais aucun fruit ni légume. Que manque-t-il ?',
+      choix:['Les vitamines et les sels minéraux', 'Rien, le repas est complet',
+             'Des corps gras'], bonne:0, mission:6,
+      expl:"Le troisième groupe manque : les aliments <b>protecteurs</b>. Sans eux, l’organisme se défend moins bien contre les maladies." },
+  ],
+
+  pieges: [
+    { q:'Le réactif des sucres reste bleu sur de la canne à sucre. Que conclure ?',
+      choix:['Rien : on a sans doute oublié de chauffer',
+             'La canne ne contient pas de sucre',
+             'Le test prouve l’absence de sucre'], bonne:0, mission:1,
+      expl:"La canne à sucre en est pleine. Si le réactif ne réagit pas, c’est la condition du test qui n’est pas remplie. <b>Un test mal conduit ne prouve rien</b> — ni la présence, ni l’absence." },
+    { q:'Un enfant atteint de kwashiorkor a le ventre gonflé. Un élève en conclut qu’il a trop mangé. A-t-il raison ?',
+      choix:['Non : il manque de protéines, malgré un ventre plein',
+             'Oui, c’est un excès de nourriture',
+             'Oui, il a mangé trop de protéines'], bonne:0, mission:7,
+      expl:"Le ventre gonflé est un <b>signe de la maladie</b>, pas d’un excès. L’enfant reçoit de l’énergie mais pas de protéines : son corps ne peut plus se construire." },
+    { q:'Un élève dit : « le poisson est un protecteur, il contient du fer ». Qu’en penses-tu ?',
+      choix:['Non : c’est un bâtisseur, même s’il apporte du fer',
+             'Oui, tout aliment contenant du fer est protecteur',
+             'Non : le poisson est un énergétique'], bonne:0, mission:5,
+      expl:"On range un aliment selon ce qu’il apporte <b>principalement</b>. Le poisson est d’abord une source de protéines. Les protecteurs sont les fruits et les légumes." },
+    { q:'Où les aliments passent-ils dans le sang ?',
+      choix:['Dans l’intestin grêle', 'Dans l’estomac, qui les brasse longtemps',
+             'Dans la bouche, dès la mastication'], bonne:0, mission:11,
+      expl:"L’estomac est l’organe où l’aliment reste le plus longtemps, ce qui trompe beaucoup d’élèves. Mais rien n’y traverse la paroi : l’absorption se fait dans l’<b>intestin grêle</b>." },
+    { q:'Digérer un aliment, est-ce le faire disparaître ?',
+      choix:['Non : il est transformé, et ce qui ne passe pas est rejeté',
+             'Oui, il disparaît entièrement',
+             'Oui, il est brûlé dans l’estomac'], bonne:0, mission:10,
+      expl:"Rien ne disparaît. L’aliment est transformé en substances plus petites ; celles qui sont assez petites passent dans le sang, les autres poursuivent leur route vers le gros intestin." },
+    { q:'Manger beaucoup de sucre le soir sans se brosser les dents : quel est le vrai danger ?',
+      choix:['Les microbes se nourrissent du sucre resté et attaquent l’émail',
+             'Le sucre dissout directement l’émail',
+             'Le sucre alourdit les dents'], bonne:0, mission:12,
+      expl:"Ce n’est pas le sucre qui perce la dent : ce sont les <b>microbes</b> de la bouche, qui s’en nourrissent. D’où les deux règles — se brosser les dents, et ne pas laisser du sucre dessus toute la nuit." },
+    { q:'Un repas très copieux de gari à l’huile est-il équilibré ?',
+      choix:['Non : beaucoup d’énergie, presque pas de protéines',
+             'Oui, puisqu’il y a de quoi manger',
+             'Oui, l’huile apporte des protéines'], bonne:0, mission:7,
+      expl:"Gari et huile sont deux <b>énergétiques</b>. La quantité ne fait pas l’équilibre : c’est exactement la situation qui conduit au kwashiorkor." },
+    { q:'L’eau iodée ne change pas sur un morceau de poisson. Que conclure ?',
+      choix:['Le poisson ne contient pas d’amidon',
+             'Le poisson ne contient rien',
+             'Le test a échoué'], bonne:0, mission:0,
+      expl:"Un test négatif ne dit rien des autres substances : il dit seulement qu’il n’y a pas d’amidon. Le poisson est d’ailleurs très riche en protéines — l’acide nitrique le montrerait." },
+    { q:'« Manger équilibré coûte cher. » Vrai ou faux ?',
+      choix:['Faux : niébé et feuilles vertes suffisent, et coûtent peu',
+             'Vrai : il faut de la viande à chaque repas',
+             'Vrai : il faut des aliments importés'], bonne:0, mission:6,
+      expl:"Un plat de niébé aux feuilles vertes, avec un aliment de base, couvre les trois groupes pour un prix bien inférieur à celui de la viande. L’équilibre est une question de <b>choix</b>, pas de moyens." },
+  ],
+};
+/* ---- L'état de maîtrise : le meilleur résultat obtenu à chaque niveau ---- */
+function maitriseDe(cle) { return (etat.maitrise && etat.maitrise[cle]) || 0; }
+
+// Les niveaux difficiles pèsent plus lourd : réussir le premier seul plafonne
+// à 17 %, il faut affronter les pièges pour dépasser 80 %.
+function scoreMaitrise() {
+  // chaque niveau porte son poids : les simulations n'en ont pas toutes trois
+  let p = 0, total = 0;
+  for (const n of NIVEAUX_QUIZ) { p += maitriseDe(n.cle) * n.poids; total += n.poids; }
+  return total ? Math.round(p / total * 100) : 0;
+}
+function motMaitrise(p) {
+  return p >= 85 ? 'Maîtrisée' : p >= 60 ? 'Solide' : p >= 30 ? 'En bonne voie' : 'Découverte';
+}
+function etoiles(r) {
+  return r >= 1 ? '⭐⭐⭐' : r >= .8 ? '⭐⭐' : r >= .5 ? '⭐' : '';
+}
+
+// Le quiz mélange ses propres propositions : les simulations n'ont pas toutes
+// la même structure de question, et emprunter la leur cassait ici.
+function melangerQuiz(q) {
+  const ordre = q.choix.map((_, i) => i);
+  for (let i = ordre.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = ordre[i]; ordre[i] = ordre[j]; ordre[j] = t;
+  }
+  return Object.assign({}, q, { choix:ordre.map(k => q.choix[k]), bonne:ordre.indexOf(q.bonne) });
+}
+
+let quiz = null;
+
+/* Le quiz vit dans le périmètre de init() ; la liste des missions, elle, est
+   dessinée par une fonction globale. On expose donc l’ouverture du quiz pour
+   que la carte « M’exercer » puisse l’appeler. */
+function ouvrirQuiz() {
+  if (!accueilOuvert()) { toast('Termine les ' + MISSIONS.length + ' missions pour t’exercer.'); return; }
+  quiz = null;
+  rendreAccueilQuiz();
+  ouvrir('v-quiz');
+}
+window.ouvrirQuiz = ouvrirQuiz;
+
+function rendreAccueilQuiz() {
+  const p = scoreMaitrise();
+  $('quiz-carte').innerHTML = `
+    <button class="fermer-x" data-ferme="v-quiz" aria-label="Fermer">✕</button>
+    <h2>🏅 M’exercer</h2>
+    <p>Trois séries de ${PAR_SERIE} questions. Tu peux les refaire autant de fois que tu veux :
+       c’est ton <b>meilleur</b> résultat qui compte.</p>
+    <div class="qz-maitrise">
+      <div class="qz-m-haut"><span>Ma maîtrise de la notion</span><b>${p} %</b></div>
+      <div class="qz-m-barre"><i style="width:${p}%"></i></div>
+      <div class="qz-m-mot">${motMaitrise(p)}</div>
+    </div>
+    ${NIVEAUX_QUIZ.map(n => {
+      const r = maitriseDe(n.cle), et = etoiles(r);
+      return `<button class="qz-niveau" data-niveau="${n.cle}">
+        <span class="qz-em">${n.em}</span>
+        <span class="qz-txt"><b data-poids="${n.poids}">${n.nom}</b><span>${n.quoi}</span></span>
+        <span class="qz-note">${et || '—'}<span>${r ? Math.round(r * 100) + ' %' : 'jamais fait'}</span></span>
+      </button>`;
+    }).join('')}
+    <p class="qz-pied">Les questions difficiles comptent <b>trois fois plus</b> que les faciles :
+       c’est en les affrontant qu’on prouve qu’on a compris.</p>`;
+}
+
+function lancerSerie(cle) {
+  const banque = BANQUE[cle].slice();
+  for (let i = banque.length - 1; i > 0; i--) {           // tirage sans remise
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = banque[i]; banque[i] = banque[j]; banque[j] = t;
+  }
+  quiz = { niveau:cle, liste:banque.slice(0, PAR_SERIE).map(melangerQuiz),
+           n:0, justes:0, ratees:[] };
+  rendreQuestionQuiz();
+}
+
+function rendreQuestionQuiz() {
+  const q = quiz.liste[quiz.n];
+  const niv = NIVEAUX_QUIZ.find(n => n.cle === quiz.niveau);
+  $('quiz-carte').innerHTML = `
+    <button class="fermer-x" data-ferme="v-quiz" aria-label="Fermer">✕</button>
+    <div class="q-avance">${niv.em} ${niv.nom} · question ${quiz.n + 1} sur ${quiz.liste.length}</div>
+    <div class="qz-jauge"><i style="width:${quiz.n / quiz.liste.length * 100}%"></i></div>
+    <div class="q-question">${q.q}</div>
+    <div id="qz-choix">${q.choix.map((c, i) =>
+      `<button class="q-choix" data-qz="${i}">${c}</button>`).join('')}</div>
+    <div class="q-expl" id="qz-expl"></div><div id="qz-suite"></div>`;
+}
+
+function repondreQuiz(i) {
+  const q = quiz.liste[quiz.n];
+  const juste = i === q.bonne;
+  if (juste) quiz.justes++; else quiz.ratees.push(q);
+  $('qz-choix').querySelectorAll('.q-choix').forEach((b, k) => {
+    b.disabled = true;
+    if (k === q.bonne) { b.classList.add('bon'); b.textContent = '✔️ ' + b.textContent; }
+    else if (k === i) { b.classList.add('mauvais'); b.textContent = '❌ ' + b.textContent; }
+  });
+  const e = $('qz-expl');
+  e.innerHTML = q.expl;
+  e.classList.add('visible');
+  const dernier = quiz.n === quiz.liste.length - 1;
+  $('qz-suite').innerHTML = `<button class="btn btn-large" style="margin-top:12px" id="qz-continuer">${
+    dernier ? 'Voir mon résultat →' : 'Question suivante →'}</button>`;
+  $('qz-continuer').addEventListener('click', () => {
+    if (dernier) finirSerie(); else { quiz.n++; rendreQuestionQuiz(); }
+  });
+}
+
+function finirSerie() {
+  const r = quiz.justes / quiz.liste.length;
+  const niv = NIVEAUX_QUIZ.find(n => n.cle === quiz.niveau);
+  const avant = maitriseDe(quiz.niveau);
+  etat.maitrise = etat.maitrise || {};
+  etat.maitrise[quiz.niveau] = Math.max(avant, r);
+  sauver();
+  // Les questions ratées renvoient à leur mission : le quiz ramène au parcours.
+  const revoir = [];
+  for (const q of quiz.ratees) if (revoir.indexOf(q.mission) === -1) revoir.push(q.mission);
+  revoir.sort((a, b) => a - b);
+  const p = scoreMaitrise();
+  $('quiz-carte').innerHTML = `
+    <button class="fermer-x" data-ferme="v-quiz" aria-label="Fermer">✕</button>
+    <div class="qz-fin">
+      <div class="qz-fin-em">${r >= 1 ? '🎉' : r >= .5 ? '👏' : '💪'}</div>
+      <div><b>${quiz.justes} bonnes réponses sur ${quiz.liste.length}</b>
+        <span>${niv.em} ${niv.nom}</span></div>
+      <div class="qz-fin-et">${etoiles(r) || '—'}</div>
+    </div>
+    ${r > avant
+      ? `<p class="qz-mieux">✨ C’est ton meilleur résultat à ce niveau.</p>`
+      : `<p class="qz-mieux discret">Ton meilleur reste ${Math.round(avant * 100)} %.</p>`}
+    <div class="qz-maitrise">
+      <div class="qz-m-haut"><span>Ma maîtrise de la notion</span><b>${p} %</b></div>
+      <div class="qz-m-barre"><i style="width:${p}%"></i></div>
+      <div class="qz-m-mot">${motMaitrise(p)}</div>
+    </div>
+    ${revoir.length ? `<div class="qz-revoir"><b>📘 À revoir :</b>${revoir.map(i =>
+        `<span>Mission ${i + 1} — ${MISSIONS[i].titre}</span>`).join('')}</div>` : ''}
+    <div class="qz-boutons">
+      <button class="btn btn-contour" id="qz-refaire">↻ Refaire cette série</button>
+      <button class="btn" id="qz-retour">Les niveaux →</button>
+    </div>`;
+  $('qz-refaire').addEventListener('click', () => lancerSerie(quiz.niveau));
+  $('qz-retour').addEventListener('click', rendreAccueilQuiz);
+}
+
+$('v-quiz').addEventListener('click', e => {
+  const n = e.target.closest('[data-niveau]');
+  if (n) { lancerSerie(n.dataset.niveau); return; }
+  const b = e.target.closest('[data-qz]');
+  if (b && !b.disabled) repondreQuiz(+b.dataset.qz);
+});
+$('ac-exercer').addEventListener('click', () => {
+  if (!accueilOuvert()) return;
+  fermer('v-accueil');
+  ouvrirQuiz();
+});
+
+ouvrirAccueil();
+}
+init();
+
+</script>
+</body>
+</html>

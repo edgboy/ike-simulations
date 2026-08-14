@@ -76,14 +76,21 @@ compréhension du monde et à l'amélioration des conditions de vie ». Pédagog
 
 | Classe | Situations d'apprentissage | Durée |
 |---|---|---|
-| **6ᵉ** | SA1 **Alimentation et besoins nutritionnels de l'Homme** (nature/origine des aliments, valeur nutritive, digestion) · SA2 environnement | |
+| **6ᵉ** | SA1 **Alimentation et besoins nutritionnels de l'Homme** (9 sem.) · SA2 **Diversité des régimes alimentaires chez les animaux** (7 sem.) · SA3 **Diversité et unité des phénomènes respiratoires chez les êtres vivants** (9 sem.) | 2 h TP/cours par ½ classe |
 | **5ᵉ** | SA1 **Besoins nutritifs des végétaux** · SA2 **Relations entre les êtres vivants et leur milieu de vie** · SA3 **Reproduction et développement** (animaux et végétaux) | |
 | **4ᵉ** | SA1 **Sol, avenir de l'homme** (13 sem.) · SA2 **Terre, planète active** (11 sem.) | 2 h × 13 / 11 |
 | **3ᵉ** | SA1 **Échanges de matière et d'énergie entre l'organisme et le milieu extérieur** (respiration, digestion, circulation) · SA2 **Commande nerveuse et réactions comportementales** · SA3 **Reproduction humaine** · SA4 **Réactions immunitaires et lutte contre les agressions microbiennes** | 3 h TP/cours |
 
-**Aucune simulation KONDO LABO pour l'instant.** La première en chantier : **6ᵉ SA1, Alimentation
-et besoins nutritionnels de l'Homme** — c'est la porte d'entrée réelle de la discipline au collège,
-et elle se joue au même niveau de langue que les quinze simulations de PCT 6ᵉ.
+**Couverture KONDO LABO — 1 simulation** :
+- 🍽️ **Le repas de la journée** (v4.46.0) couvre la **SA1 de 6ᵉ**, « Alimentation et besoins
+  nutritionnels de l'Homme » (9 semaines). Les quatre questions de la problématique du guide sont
+  traitées dans l'ordre : composition des aliments (les quatre tests), rôle des aliments (les trois
+  groupes, kwashiorkor et marasme), transformation digestive (trajet, solubilisation, absorption),
+  et hygiène (la dent). Reste hors simulation : le réinvestissement sur la conservation des denrées,
+  que le guide veut mené comme une enquête de terrain.
+
+Prochaine candidate : **5ᵉ SA1, Besoins nutritifs des végétaux** — des expériences de plusieurs
+semaines, impossibles à tenir en classe.
 
 Les intitulés ci-dessus sont ceux des guides officiels. Le catalogue en affichait d'inventés
 jusqu'en v4.45.0 (« Le peuplement du milieu » en 6ᵉ, « La Terre qui bouge » en 4ᵉ) : ils sont

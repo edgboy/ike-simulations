@@ -253,7 +253,7 @@
 </main>
 
 <footer class="enveloppe pied">
-  <span>KONDO LABO · <span class="ver">v4.45.0</span></span>
+  <span>KONDO LABO · <span class="ver">v4.46.0</span></span>
   <span>·</span>
   <span>Programme officiel du Bénin (APC)</span>
   <span>·</span>
@@ -290,6 +290,7 @@ const LIVREES = {
   'molecules-3d':       { cle: 'ike-mol3d-progression',      missions: 14 },
   'transformations':    { cle: 'ike-transfo-progression',    missions: 12 },
   'triangles':          { cle: 'ike-triangles-progression',  missions: 14 },
+  'alimentation':       { cle: 'ike-alimentation-progression', missions: 13 },
 };
 
 const CATALOGUE = [
@@ -506,12 +507,13 @@ const CATALOGUE = [
     classes: [
       { id: '6e', nom: '6ᵉ', desc: "Ce qu'on mange, et ce que le corps en fait.",
         sa: [
-          { n: 1, titre: "Alimentation et besoins nutritionnels de l'Homme", heures: '', cd: 'CD1',
-            sims: [{ ico: '🍽️', nom: 'Le repas de la journée',
-              quoi: "Nature et origine des aliments, valeur nutritive, besoins selon l'âge et l'activité, digestion." }] },
-          { n: 2, titre: 'Environnement', heures: '', cd: 'CD2',
-            sims: [{ ico: '🐾', nom: 'Qui vit ici ?',
-              quoi: "Observer un milieu et classer ceux qui l'habitent." }] },
+          { n: 1, titre: "Alimentation et besoins nutritionnels de l'Homme", heures: '9 sem.', cd: 'CD1',
+            sims: [{ dos: 'alimentation', ico: '🍽️', nom: 'Le repas de la journée',
+              quoi: "Reconnaître les aliments par des tests, composer un repas équilibré, suivre la digestion jusqu'au sang." }] },
+          { n: 2, titre: 'Diversité des régimes alimentaires chez les animaux',
+            heures: '7 sem.', cd: 'CD1', sims: [] },
+          { n: 3, titre: 'Diversité et unité des phénomènes respiratoires chez les êtres vivants',
+            heures: '9 sem.', cd: 'CD1', sims: [] },
         ] },
       { id: '5e', nom: '5ᵉ', desc: "Nutrition des plantes, milieux de vie, reproduction.",
         sa: [

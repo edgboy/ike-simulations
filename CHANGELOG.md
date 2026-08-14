@@ -5,6 +5,55 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v4.46.0 — 2026-08-15
+
+🍽️ **La SVT entre au catalogue : « Le repas de la journée », 6ᵉ SA1.**
+
+Treize missions sur « Alimentation et besoins nutritionnels de l'Homme », la première situation
+d'apprentissage de SVT du collège — neuf semaines au programme. Le guide officiel a été extrait et
+lu à la source : il découpe la SA en **quatre questions**, et le parcours y répond dans l'ordre.
+
+| Question du guide | Missions |
+|---|---|
+| Que sont les aliments et que sait-on de leur composition ? | 1 à 5 — les quatre tests de la paillasse |
+| Quel est le rôle des aliments dans l'organisme ? | 6 à 9 — les trois groupes, le repas, le kwashiorkor, le marasme |
+| En quoi consiste la transformation digestive des aliments ? | 10 à 12 — le trajet, la solubilisation, l'absorption |
+| Comment faut-il se nourrir pour être en bonne santé ? | 13 — la dent et l'hygiène |
+
+### Quatre scènes, un seul geste
+
+Toucher. On prend un aliment de l'étal, on touche un test, et la couleur répond : l'eau iodée vire
+au **bleu-noir** sur l'amidon, le réactif des sucres au **rouge brique** — mais **seulement à
+chaud** —, l'acide nitrique colore les protéines en **jaune**, le papier garde une **tache
+translucide** pour les corps gras. Chaque tube garde son résultat : à la mission 5, l'arachide passe
+les quatre tests et les quatre réponses se lisent ensemble.
+
+Puis l'assiette et ses trois jauges, où l'on compose une journée entière et où l'on **fabrique** le
+kwashiorkor avant de le corriger. Puis le tube digestif, où l'aliment rapetisse d'organe en organe
+jusqu'à traverser la paroi de l'intestin grêle. Puis une dent, dont l'émail s'amincit au fil des
+mois selon qu'on la brosse et qu'on grignote du sucre.
+
+### Ce que le guide interdit, et qui a été respecté
+
+Le guide pose des bornes explicites pour la 6ᵉ : la digestion est une simple **solubilisation** qui
+produit des substances assez petites — les **nutriments** — pour passer dans le sang. Les enzymes,
+les acides aminés, les acides gras et l'expression « sucre réducteur » sont **hors programme**.
+Aucun n'apparaît : on dit « le réactif des sucres », et aucune enzyme n'est nommée.
+
+Les aliments sont ceux du marché : igname, gari, niébé, arachide, huile de palme, poisson, mangue,
+feuilles vertes. Le quiz insiste sur un point que la SA porte tout entier — **manger équilibré n'est
+pas une question de moyens** : un plat de niébé aux feuilles couvre les trois groupes pour bien
+moins cher que la viande.
+
+Modèle testé là où il tourne, comme pour les triangles : `simulations/alimentation/test-modele.js`
+l'extrait du fichier livré et lui applique 25 vérifications.
+
+### Les SA de SVT 6ᵉ, corrigées une fois de plus
+
+La lecture du guide a montré que la 6ᵉ compte **trois** situations d'apprentissage, et non celles
+que le catalogue affichait : SA2 « Diversité des régimes alimentaires chez les animaux » et SA3
+« Diversité et unité des phénomènes respiratoires chez les êtres vivants ».
+
 ## v4.45.0 — 2026-08-14
 
 📐 **Les mathématiques entrent vraiment au catalogue : « La hauteur de l'obélisque », 3ᵉ SA1.**
