@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fiche — La station de KOMO — KONDO LABO</title>
+<style>
+  /* Une fiche se lit à l'écran et s'imprime. Pas de police embarquée : c'est
+     un document de texte, la police du système lui convient. */
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px;
+    font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
+    font-size: 14px; line-height: 1.55; color: #24211E; background: #F7F5F0;
+  }
+  .feuille { max-width: 820px; margin: 0 auto; background: #FFF;
+    border: 1px solid #D3CFC8; border-radius: 12px; padding: 28px 30px 34px; }
+  .marque { display: flex; align-items: center; gap: 10px; font-size: 12px;
+    letter-spacing: .08em; text-transform: uppercase; color: #6B6560; }
+  .pastille { width: 26px; height: 26px; border-radius: 7px; background: #C4D94E;
+    display: grid; place-items: center; font-weight: 800; color: #3A3632; }
+  h1 { font-size: 26px; margin: 14px 0 4px; line-height: 1.2; }
+  .repere { display: inline-block; background: #EDF3D6; border-radius: 6px;
+    padding: 3px 10px; font-weight: 700; font-size: 13px; }
+  .quoi { margin: 12px 0 0; color: #4A443E; }
+  h2 { font-size: 16px; margin: 26px 0 10px; padding-bottom: 6px;
+    border-bottom: 2px solid #C4D94E; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; font-size: 11.5px; text-transform: uppercase;
+    letter-spacing: .06em; color: #6B6560; padding: 0 8px 6px; font-weight: 700; }
+  td { vertical-align: top; padding: 9px 8px; border-top: 1px solid #E7E3DC; }
+  td.n { width: 26px; font-weight: 800; color: #6B6560; }
+  td b { display: block; }
+  .but { display: block; color: #5A544E; font-size: 13px; margin-top: 2px; }
+  .retenir { width: 48%; font-size: 13px; }
+  ul { margin: 0; padding-left: 20px; }
+  li { margin-bottom: 5px; }
+  .lex b { font-weight: 700; }
+  .piege { margin-bottom: 10px; }
+  .piege b { display: block; }
+  .piege span { color: #4A443E; font-size: 13px; }
+  .pied { margin-top: 26px; padding-top: 12px; border-top: 1px solid #E7E3DC;
+    font-size: 12px; color: #6B6560; display: flex; justify-content: space-between;
+    gap: 12px; flex-wrap: wrap; }
+  a { color: #2F6B86; }
+  .note { margin: 12px 0 0; padding: 9px 12px; background: #FBF3E2;
+    border-left: 3px solid #E9A23B; font-size: 13px; }
+  @media print {
+    body { background: #FFF; padding: 0; font-size: 11.5pt; }
+    .feuille { border: none; border-radius: 0; padding: 0; max-width: none; }
+    h2 { break-after: avoid; }
+    tr { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="feuille">
+  <div class="marque"><span class="pastille">K</span> KONDO LABO · fiche pédagogique</div>
+  <h1>La station de KOMO</h1>
+  <div class="repere">Maths · 6ᵉ · SA4</div>
+  <p class="quoi">Maths 6ᵉ, SA4 « Organisation des données » : dépouiller un relevé, effectifs et fréquences, moyenne, diagramme en bâtons et semi-circulaire, proportionnalité, pourcentage et échelle.</p>
+
+  <h2>Le parcours — 11 missions</h2>
+  <table>
+    <thead><tr><th></th><th>Ce que l’élève fait</th><th>Ce qu’il retient</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="n">1</td>
+        <td>
+          <b>Ce qu’on étudie</b>
+          <span class="but">Le relevé de la journée est là. Repère d’abord de quoi il parle.</span>
+        </td>
+        <td class="retenir">La population étudiée est l’ensemble des 78 opérations de la journée. Chaque opération porte deux caractères : la marque du véhicule, qui est qualitatif — on le nomme, on ne le mesure pas — et le nombre de litres, qui est quantitatif. Chaque valeur possible d’un caractère s’appelle une modalité : Audi, Toyota… sont les modalités du caractère « marque ».</td>
+      </tr>
+      <tr>
+        <td class="n">2</td>
+        <td>
+          <b>Dépouiller le relevé</b>
+          <span class="but">Compte les véhicules de chaque marque. C’est le dépouillement.</span>
+        </td>
+        <td class="retenir">L’effectif d’une modalité, c’est le nombre de fois où elle apparaît. Audi 17, Toyota 15, Mercedes 13, Opel 11, Peugeot 9, Renault 7, Volkswagen 6. La somme des effectifs est l’effectif total : 78. Ce contrôle vaut toujours la peine — si la somme ne tombe pas juste, le dépouillement est faux.</td>
+      </tr>
+      <tr>
+        <td class="n">3</td>
+        <td>
+          <b>Les fréquences</b>
+          <span class="but">Quelle part de la journée chaque marque représente-t-elle ?</span>
+        </td>
+        <td class="retenir">La fréquence d’une modalité est son effectif divisé par l’effectif total : pour Audi, 17 ÷ 78 ≈ 0,218. En pourcentage : 21,8 %. La somme des fréquences fait toujours 1, donc 100 % — c’est le contrôle.</td>
+      </tr>
+      <tr>
+        <td class="n">4</td>
+        <td>
+          <b>La moyenne</b>
+          <span class="but">Combien de litres un véhicule achète-t-il en moyenne ?</span>
+        </td>
+        <td class="retenir">La moyenne ne se calcule que sur un caractère quantitatif. Ici : 2 170 litres vendus pour 78 opérations, soit 27,8 litres par véhicule. Attention, la moyenne cache les écarts : Opel achète 35,9 litres en moyenne, Toyota seulement 22,3.</td>
+      </tr>
+      <tr>
+        <td class="n">5</td>
+        <td>
+          <b>Le diagramme en bâtons</b>
+          <span class="but">Construis un bâton par marque, à la bonne hauteur.</span>
+        </td>
+        <td class="retenir">Dans un diagramme en bâtons, la hauteur de chaque bâton est proportionnelle à l’effectif de la modalité. Les bâtons sont séparés — ils ne se touchent pas — parce que le caractère est qualitatif : entre Audi et Toyota, il n’y a rien.</td>
+      </tr>
+      <tr>
+        <td class="n">6</td>
+        <td>
+          <b>Lire un diagramme</b>
+          <span class="but">Le sens inverse : un diagramme t’est donné, retrouve le tableau.</span>
+        </td>
+        <td class="retenir">Un diagramme se lit dans les deux sens. On peut le construire à partir d’un tableau, mais aussi dresser le tableau à partir du diagramme — c’est ce qu’on fait devant un graphique de journal ou d’affiche : on retrouve les nombres derrière le dessin.</td>
+      </tr>
+      <tr>
+        <td class="n">7</td>
+        <td>
+          <b>Le diagramme semi-circulaire</b>
+          <span class="but">Partage un demi-disque : chaque marque reçoit son angle.</span>
+        </td>
+        <td class="retenir">Dans un diagramme semi-circulaire, chaque modalité reçoit un angle proportionnel à son effectif. Comme le demi-disque fait 180°, l’angle vaut : effectif ÷ effectif total × 180. Pour Audi : 17 ÷ 78 × 180 ≈ 39°. La somme des angles fait 180°, jamais 360 — c’est un demi-disque.</td>
+      </tr>
+      <tr>
+        <td class="n">8</td>
+        <td>
+          <b>Litres et prix</b>
+          <span class="but">L’essence coûte 700 F le litre. Remplis le tableau des prix.</span>
+        </td>
+        <td class="retenir">Un tableau de proportionnalité est un tableau où l’on passe de la première ligne à la seconde en multipliant toujours par le même nombre. Ici, les litres et le prix sont proportionnels : 10 L → 7 000 F, 20 L → 14 000 F, 45 L → 31 500 F.</td>
+      </tr>
+      <tr>
+        <td class="n">9</td>
+        <td>
+          <b>Le coefficient</b>
+          <span class="but">Ce nombre par lequel on multiplie porte un nom. Trouve-le.</span>
+        </td>
+        <td class="retenir">Le nombre par lequel on multiplie s’appelle le coefficient de proportionnalité. Ici, c’est 700 : le prix d’un litre. On le retrouve en divisant n’importe quel prix par les litres correspondants — 14 000 ÷ 20 = 700, 31 500 ÷ 45 = 700.</td>
+      </tr>
+      <tr>
+        <td class="n">10</td>
+        <td>
+          <b>Le pourcentage, un opérateur</b>
+          <span class="but">Prendre 25 % d’une quantité, c’est faire une multiplication.</span>
+        </td>
+        <td class="retenir">Un pourcentage est un opérateur : prendre 25 % d’une quantité, c’est la multiplier par 25 ÷ 100, c’est-à-dire par 0,25. Sur les 2 170 litres de la journée, 25 % font 542,5 litres. Prendre 100 % ne change rien, puisqu’on multiplie par 1.</td>
+      </tr>
+      <tr>
+        <td class="n">11</td>
+        <td>
+          <b>L’échelle, le même geste</b>
+          <span class="but">Le plan de la station : une échelle est aussi un opérateur.</span>
+        </td>
+        <td class="retenir">Une échelle s’utilise comme un pourcentage : c’est un opérateur. À l’échelle 1/200, on multiplie la longueur réelle par 1/200 pour obtenir celle du plan — 6 m, soit 600 cm, deviennent 3 cm. Dans l’autre sens, on multiplie la longueur du plan par 200.</td>
+      </tr></tbody>
+  </table>
+
+  
+
+  <h2>Les mots à installer</h2>
+  <ul class="lex"><li><b>Population</b> — L’ensemble sur lequel porte l’étude. Ici, les 78 opérations de la journée.</li><li><b>Caractère</b> — Ce qu’on observe sur chaque élément de la population : la marque, ou le nombre de litres.</li><li><b>Caractère qualitatif</b> — Un caractère qu’on nomme mais qu’on ne mesure pas : la marque du véhicule.</li><li><b>Caractère quantitatif</b> — Un caractère qui est un nombre : le nombre de litres. On peut en faire une moyenne.</li><li><b>Modalité</b> — Une valeur possible du caractère. Audi, Toyota et Opel sont des modalités de « marque ».</li><li><b>Effectif</b> — Le nombre de fois où une modalité apparaît. Celui d’Audi est 17.</li><li><b>Effectif total</b> — La somme des effectifs. Ici 78 — et la vérification que le dépouillement est juste.</li><li><b>Fréquence</b> — L’effectif d’une modalité divisé par l’effectif total. Souvent donnée en pourcentage.</li><li><b>Moyenne</b> — La somme des valeurs divisée par leur nombre. Elle ne vaut que pour un caractère quantitatif.</li><li><b>Tableau statistique</b> — Le tableau qui rassemble modalités, effectifs et fréquences.</li><li><b>Diagramme en bâtons</b> — Une représentation où la hauteur de chaque bâton est proportionnelle à l’effectif.</li><li><b>Diagramme semi-circulaire</b> — Un demi-disque partagé en secteurs proportionnels aux effectifs. La somme des angles fait 180°.</li><li><b>Proportionnalité</b> — Une relation où l’on passe d’une grandeur à l’autre en multipliant toujours par le même nombre.</li><li><b>Coefficient de proportionnalité</b> — Ce nombre par lequel on multiplie. Ici 700, le prix d’un litre.</li><li><b>Pourcentage</b> — Un opérateur : prendre 25 % d’une quantité, c’est la multiplier par 25 ÷ 100.</li><li><b>Échelle</b> — Un opérateur aussi : à l’échelle 1/200, on multiplie le réel par 1/200 pour obtenir le plan.</li></ul>
+
+  <h2>Les erreurs que le quiz vise</h2>
+  <div class="piege"><b>Peut-on calculer la moyenne des marques de véhicules ?</b>
+    <span>Une moyenne s’obtient en additionnant. On ne peut additionner ni des Audi ni des Opel. Les numéroter serait arbitraire : le résultat changerait selon l’ordre choisi.</span></div><div class="piege"><b>La somme des effectifs vaut 76 au lieu de 78. Que faut-il en conclure ?</b>
+    <span>Chaque opération est comptée une fois et une seule. Un écart signale un oubli ou un double comptage — c’est le premier contrôle à faire.</span></div><div class="piege"><b>« Les nombres des deux lignes augmentent ensemble, donc le tableau est proportionnel. » Vrai ?</b>
+    <span>L’âge et la taille d’un enfant montent ensemble, sans être proportionnels. Ce qui compte, c’est que le rapport entre les deux lignes reste constant.</span></div><div class="piege"><b>Sur un diagramme semi-circulaire, un élève calcule 13 ÷ 78 × 360 = 60°. Où est l’erreur ?</b>
+    <span>C’est l’erreur la plus fréquente de cette SA. Sur un demi-disque, on répartit 180°. La formule 360° vaut pour un diagramme circulaire entier.</span></div><div class="piege"><b>Prendre 30 % d’une quantité, c’est la multiplier par :</b>
+    <span>« Pour cent » signifie « divisé par cent » : 30 % = 30 ÷ 100 = 0,30. Multiplier par 30 donnerait trente fois la quantité.</span></div><div class="piege"><b>Un bâton d’effectif 17 est deux fois plus haut qu’un bâton d’effectif 9. Est-ce normal ?</b>
+    <span>17 est presque le double de 9, donc le bâton est presque deux fois plus haut. C’est justement ce qui rend le diagramme lisible d’un coup d’œil.</span></div><div class="piege"><b>La moyenne est de 27,8 litres. Un élève en conclut que chaque véhicule a pris 27,8 litres. A-t-il raison ?</b>
+    <span>La moyenne résume, elle ne décrit pas. Dans ce relevé, les achats vont de 10 à 55 litres, et Opel achète en moyenne 13 litres de plus que Toyota.</span></div><div class="piege"><b>Sur un plan à l’échelle 1/200, un mur mesure 4 cm. Quelle est sa longueur réelle ?</b>
+    <span>On multiplie par 200 : 4 × 200 = 800 cm, soit 8 m. Une échelle s’emploie dans les deux sens — diviser pour dessiner, multiplier pour revenir au réel.</span></div>
+
+  <div class="pied">
+    <span>Chaque mission se termine par une question ; le quiz final compte trois niveaux,
+      et les questions difficiles pèsent trois fois plus.</span>
+    <span><a href="https://edgboy.github.io/ike-simulations/simulations/donnees/index.html">Ouvrir la simulation</a></span>
+  </div>
+</div>
+</body>
+</html>

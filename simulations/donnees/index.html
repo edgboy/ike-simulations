@@ -1,0 +1,2791 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>La station de KOMO — KONDO LABO</title>
+<meta name="description" content="Maths 6ᵉ, SA4 « Organisation des données » : dépouiller un relevé, effectifs et fréquences, moyenne, diagramme en bâtons et semi-circulaire, proportionnalité, pourcentage et échelle.">
+
+<meta name="theme-color" content="#F7F5F0">
+<link rel="stylesheet" href="../../assets/polices.css">
+<style>
+
+/* ===== Jetons du design system KONDO LABO (intégrés : fichier autonome) ===== */
+:root {
+  --primary:#C4D94E; --accent:#5BC5F2; --accent-doux:#D6F0FB;
+  --tertiary:#F7A430; --destructive:#E83A4B; --success:#2A9D8F;
+  --neutral:#3A3632; --background:#F7F5F0; --surface:#FFFFFF; --surface-muted:#F0EEE9;
+  --border:#D3CFC8; --border-strong:#B0ABA3; --ring:#5BC5F2;
+  --accent-texte:#0F6E93;   /* le bleu d’accent ne passe pas les 4,5 de contraste en texte */
+  --font-display:'Baloo 2','Segoe UI',system-ui,sans-serif;
+  --font-body:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;
+  --radius-sm:8px; --radius-md:12px; --radius-lg:16px; --radius-xl:24px; --radius-full:9999px;
+  --shadow-soft:0 4px 16px rgba(58,54,50,.05);
+  --shadow-raised:0 6px 20px rgba(58,54,50,.06);
+  --ease:cubic-bezier(.4,0,.2,1);
+  --metal:#B0ABA3; --cuivre:#C9885A;
+}
+body.sombre {
+  --neutral:#ECEFF1; --background:#14181C; --surface:#1C232A; --surface-muted:#232C34;
+  --border:#333E47; --border-strong:#4A5762; --accent-doux:#17323F; --accent-texte:#7FD4F5;
+  --shadow-soft:0 4px 16px rgba(0,0,0,.28); --shadow-raised:0 6px 20px rgba(0,0,0,.34);
+  --metal:#8A9299;
+}
+
+*,*::before,*::after { box-sizing:border-box; }
+body {
+  margin:0; font-family:var(--font-body); font-size:16px; color:var(--neutral);
+  background:var(--background); overflow:hidden;
+  height:100dvh; display:flex; flex-direction:column;
+  -webkit-tap-highlight-color:transparent; -webkit-text-size-adjust:100%;
+}
+h1,h2,h3,h4 { font-family:var(--font-display); margin:0; line-height:1.2; }
+p { margin:0; }
+:focus-visible { outline:2px solid var(--ring); outline-offset:2px; border-radius:var(--radius-sm); }
+
+/* ============================ En-tête ============================ */
+header {
+  display:flex; align-items:center; gap:8px; flex:none;
+  padding:6px 10px; background:var(--surface); border-bottom:1px solid var(--border);
+}
+header h1 { font-size:15px; font-weight:800; line-height:1.15; }
+header .sous { font-size:10.5px; opacity:.6; }
+.icone-btn {
+  width:40px; height:40px; flex:none; display:grid; place-items:center;
+  border:none; background:none; border-radius:var(--radius-md);
+  font-size:18px; color:inherit; cursor:pointer; text-decoration:none;
+}
+.icone-btn:hover { background:var(--surface-muted); }
+.tete-fin { margin-left:auto; display:flex; gap:2px; align-items:center; }
+
+/* ===================== Bandeau de mission (EN HAUT) ===================== */
+#mission {
+  flex:none; background:var(--surface); border-bottom:1px solid var(--border);
+  padding:8px 12px 9px;
+}
+.m-haut { display:flex; align-items:center; gap:9px; }
+.m-pastille {
+  width:30px; height:30px; flex:none; border-radius:var(--radius-sm);
+  display:grid; place-items:center; background:var(--accent-doux);
+  font-family:var(--font-display); font-weight:800; font-size:13px;
+}
+.m-titres { flex:1; min-width:0; }
+.m-titres b { display:block; font-size:14px; font-weight:600; line-height:1.2; }
+.m-titres span { font-size:11.5px; opacity:.65; line-height:1.35; display:block; }
+.m-rang {
+  font-size:10.5px !important; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--accent-texte); opacity:1 !important; margin-bottom:1px;
+}
+.m-plier {
+  width:34px; height:34px; flex:none; border:none; background:none; cursor:pointer;
+  border-radius:var(--radius-sm); font-size:14px; color:inherit;
+  transition:transform .2s var(--ease);
+}
+.m-plier:hover { background:var(--surface-muted); }
+#mission.ouvert .m-plier { transform:rotate(180deg); }
+/* Replié, on ne montre que l'étape en cours : la lampe reste visible */
+#mission:not(.ouvert) .etape:not(.a-montrer) { display:none; }
+#mission:not(.ouvert) .m-indice { display:none; }
+.m-jauge { height:5px; border-radius:var(--radius-full); background:var(--surface-muted); margin-top:8px; overflow:hidden; }
+.m-jauge i { display:block; height:100%; background:var(--accent); transition:width .4s var(--ease); }
+
+/* ---- Liste des étapes : le guidage pas à pas ---- */
+#etapes { margin-top:9px; }
+.etape {
+  display:flex; align-items:flex-start; gap:9px; padding:5px 0;
+  font-size:13px; line-height:1.4;
+}
+.etape .coche {
+  width:21px; height:21px; flex:none; margin-top:1px; border-radius:var(--radius-full);
+  display:grid; place-items:center; font-size:11px; font-weight:700;
+  border:2px solid var(--border-strong); color:transparent; background:none;
+}
+.etape.faite .coche { background:var(--success); border-color:var(--success); color:#fff; }
+.etape.faite .t { opacity:.5; text-decoration:line-through; }
+.etape.courante .coche { border-color:var(--accent-texte); animation:pulseCoche 1.5s infinite; }
+.etape.courante .t { font-weight:600; }
+@keyframes pulseCoche { 50% { box-shadow:0 0 0 5px var(--accent-doux); } }
+.etape .t { flex:1; }
+.m-indice {
+  margin-top:8px; padding:9px 11px; border-radius:var(--radius-md);
+  background:var(--accent-doux); font-size:12.5px; line-height:1.5;
+}
+.m-indice b { font-weight:600; }
+.m-indice[hidden] { display:none; }
+/* Le bouton d'indice. `display` explicite l'emporte sur l'attribut `hidden` :
+   il faut le redire, sinon le bouton reste visible une fois masqué. */
+.m-actions { display:flex; gap:8px; margin-top:10px; }
+.m-actions .btn { flex:1; min-height:40px; padding:0 12px; font-size:13px; }
+.m-actions[hidden], .m-actions .btn[hidden] { display:none; }
+#btn-indice.appelle { animation:appelleIndice 1.3s infinite; }
+@keyframes appelleIndice { 50% { box-shadow:0 0 0 6px rgba(91,197,242,.32); } }
+
+/* ============================ Atelier ============================ */
+main { flex:1; min-height:0; display:flex; flex-direction:column; }
+#atelier { flex:1; min-height:0; position:relative; display:flex; }
+#plan { flex:1; min-height:0; width:100%; display:block; touch-action:manipulation; }
+
+/* Emplacements sur la lampe */
+.slot { cursor:pointer; }
+.slot .zone {
+  fill:var(--surface); fill-opacity:.5; stroke:var(--border-strong); stroke-width:2;
+  stroke-dasharray:6 5; rx:7;
+}
+.slot:hover .zone, .slot:focus-visible .zone { stroke:var(--accent); fill:var(--accent-doux); fill-opacity:1; }
+.slot.plein .zone { display:none; }
+/* Surbrillance de l'emplacement attendu par l'étape en cours */
+.slot.vise .zone { stroke:var(--accent); stroke-width:3; stroke-dasharray:none;
+  fill:var(--accent-doux); fill-opacity:1; animation:viseur 1.5s infinite; }
+@keyframes viseur { 50% { stroke-opacity:.35; } }
+.slot.vise .etiq-slot { opacity:1; font-weight:700; }
+.etiq-slot {
+  font-family:var(--font-body); font-size:11px; font-weight:600;
+  fill:var(--neutral); opacity:.55; text-anchor:middle; pointer-events:none;
+}
+.txt-piece {
+  font-family:var(--font-body); font-size:11px; font-weight:700;
+  fill:var(--neutral); text-anchor:middle; pointer-events:none;
+}
+.retirer { cursor:pointer; }
+.retirer circle { fill:var(--border-strong); transition:fill .15s var(--ease); }
+.retirer:hover circle, .retirer:focus-visible circle { fill:var(--destructive); }
+.retirer text { fill:#fff; font-size:13px; font-weight:700; text-anchor:middle; font-family:var(--font-body); }
+
+/* ============ Bouton d'accès aux mesures, sur le plan de travail ============ */
+#btn-mesures {
+  position:absolute; right:12px; bottom:12px; z-index:5;
+  display:flex; align-items:center; gap:7px;
+  min-height:44px; padding:0 16px;
+  background:var(--surface); color:var(--neutral);
+  border:2px solid var(--border-strong); border-radius:var(--radius-full);
+  box-shadow:var(--shadow-raised);
+  font-family:var(--font-body); font-size:13.5px; font-weight:600; cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+#btn-mesures:hover { background:var(--surface-muted); border-color:var(--neutral); }
+#btn-mesures[hidden] { display:none; }
+#btn-mesures.appelle { border-color:var(--accent-texte); animation:appelleMesures 1.4s infinite; }
+@keyframes appelleMesures { 50% { box-shadow:0 0 0 8px var(--accent-doux), var(--shadow-raised); } }
+
+/* ============================ Bilan ============================ */
+#bilan {
+  position:absolute; left:8px; right:8px; bottom:8px; z-index:6;
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-raised); padding:13px 15px;
+  display:none; max-width:520px; margin:0 auto;
+}
+#bilan.visible { display:block; animation:monte .3s var(--ease); }
+#atelier.avec-bilan #plan { align-self:flex-start; max-height:48%; }
+@keyframes monte { from { opacity:0; transform:translateY(10px); } }
+#bilan .verdict { display:flex; align-items:center; gap:9px; margin-bottom:4px; }
+#bilan .verdict .em { font-size:23px; line-height:1; }
+#bilan .verdict h3 { font-size:16px; flex:1; }
+#bilan .reduire {
+  width:32px; height:32px; flex:none; margin:-4px -6px 0 0;
+  border:none; background:none; border-radius:var(--radius-sm);
+  font-size:17px; color:inherit; cursor:pointer; opacity:.6;
+}
+#bilan .reduire:hover { background:var(--surface-muted); opacity:1; }
+#bilan .objectif {
+  margin-top:10px; padding:9px 11px; border-radius:var(--radius-md);
+  background:var(--accent-doux); font-size:12.5px; line-height:1.5;
+}
+#bilan .phrase { font-size:12.5px; opacity:.78; line-height:1.5; margin:0 0 10px; }
+.jauges { display:grid; grid-template-columns:repeat(auto-fit,minmax(115px,1fr)); gap:8px 14px; }
+.jauge .haut { display:flex; justify-content:space-between; font-size:11.5px; margin-bottom:3px; }
+.jauge .haut b { font-weight:600; }
+.jauge .haut span { opacity:.65; }
+.barre { height:7px; border-radius:var(--radius-full); background:var(--surface-muted); overflow:hidden; }
+.barre i { display:block; height:100%; background:var(--accent); border-radius:inherit; transition:width .5s var(--ease); }
+.barre.faible i { background:var(--tertiary); }
+.barre.mauvais i { background:var(--destructive); }
+#bilan .actions { display:flex; gap:8px; margin-top:11px; }
+
+/* ============================ Barre d'action ============================ */
+#actions {
+  flex:none; display:flex; gap:8px; align-items:center; justify-content:flex-end;
+  padding:8px 12px calc(8px + env(safe-area-inset-bottom));
+  background:var(--surface); border-top:1px solid var(--border);
+}
+.btn {
+  display:inline-flex; align-items:center; justify-content:center; gap:7px;
+  min-height:44px; padding:0 18px; border:none; border-radius:var(--radius-lg);
+  font-family:var(--font-body); font-size:14px; font-weight:600;
+  color:var(--neutral); background:var(--primary); cursor:pointer;
+  transition:filter .15s var(--ease);
+}
+.btn:hover { filter:brightness(.94); }
+.btn:active { filter:brightness(.88); }
+.btn[disabled] { opacity:.45; cursor:not-allowed; filter:none; }
+.btn-contour { background:var(--surface); border:2px solid var(--neutral); }
+.btn-contour:hover { background:var(--surface-muted); filter:none; }
+.btn-fantome { background:transparent; }
+.btn-fantome:hover { background:var(--surface-muted); filter:none; }
+.btn-large { width:100%; }
+#btn-tester.appelle { animation:appelle 1.3s infinite; }
+@keyframes appelle { 50% { box-shadow:0 0 0 7px rgba(196,217,78,.35); } }
+
+/* ================== Feuille de choix d'un composant ================== */
+#feuille {
+  position:fixed; inset:0; z-index:35; display:none;
+  background:rgba(38,50,56,.5);
+}
+#feuille.visible { display:block; }
+.f-carte {
+  position:absolute; left:0; right:0; bottom:0;
+  max-height:82dvh; overflow-y:auto;
+  background:var(--surface); border-radius:var(--radius-xl) var(--radius-xl) 0 0;
+  padding:8px 16px calc(18px + env(safe-area-inset-bottom));
+  box-shadow:var(--shadow-raised);
+  animation:glisse .28s var(--ease);
+}
+@keyframes glisse { from { transform:translateY(100%); } }
+.f-poignee { width:40px; height:4px; border-radius:2px; background:var(--border); margin:2px auto 12px; }
+.f-tete { display:flex; align-items:center; gap:9px; margin-bottom:4px; }
+.f-tete h2 { font-size:18px; flex:1; }
+.f-role { font-size:12.5px; line-height:1.5; opacity:.75; margin-bottom:13px; }
+.f-liste { display:grid; gap:9px; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); }
+.option {
+  display:flex; flex-direction:column; gap:3px; text-align:left; position:relative;
+  padding:12px 13px; min-height:62px;
+  background:var(--surface); border:2px solid var(--border); border-radius:var(--radius-md);
+  font-family:var(--font-body); color:var(--neutral); cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+.option:hover { border-color:var(--border-strong); background:var(--surface-muted); }
+.option.pose { border-color:var(--accent-texte); background:var(--accent-doux); }
+.option.conseil { border-color:var(--primary); }
+.option.conseil::after {
+  content:'conseillé'; position:absolute; top:-9px; right:9px;
+  padding:1px 8px; border-radius:var(--radius-full);
+  background:var(--primary); color:var(--neutral);
+  font-size:9.5px; font-weight:700; letter-spacing:.04em; text-transform:uppercase;
+}
+.option b { font-size:13.5px; font-weight:600; }
+.option span { font-size:11.5px; opacity:.68; line-height:1.4; }
+.option[disabled] { opacity:.42; cursor:not-allowed; }
+.f-vide { text-align:center; padding:18px 0; font-size:13px; opacity:.6; }
+
+/* ============================ Voiles ============================ */
+.voile {
+  position:fixed; inset:0; z-index:40; display:none;
+  background:rgba(14,18,23,.93); padding:14px; overflow-y:auto;
+}
+.voile.visible { display:flex; align-items:center; justify-content:center; }
+.carte-modale {
+  position:relative; width:100%; max-width:470px; margin:auto;
+  background:var(--surface); border-radius:var(--radius-lg); padding:22px 20px;
+  box-shadow:var(--shadow-raised);
+}
+.carte-modale h2 { font-size:20px; margin-bottom:9px; padding-right:34px; }
+.carte-modale > p { font-size:13.5px; line-height:1.6; opacity:.8; margin-bottom:10px; }
+.fermer-x {
+  position:absolute; top:8px; right:10px; width:36px; height:36px;
+  border:none; background:none; font-size:20px; color:inherit; cursor:pointer;
+  border-radius:var(--radius-md);
+}
+.fermer-x:hover { background:var(--surface-muted); }
+
+/* Cartes de mission */
+.d-carte {
+  display:flex; align-items:center; gap:11px; width:100%; text-align:left;
+  padding:11px 13px; margin-bottom:8px;
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md);
+  font-family:var(--font-body); color:inherit; cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+.d-carte:hover:not([disabled]) { border-color:var(--border-strong); background:var(--surface-muted); }
+.d-carte[disabled] { opacity:.5; cursor:not-allowed; }
+.d-carte .num {
+  width:30px; height:30px; flex:none; border-radius:var(--radius-sm);
+  display:grid; place-items:center; background:var(--accent-doux);
+  font-family:var(--font-display); font-weight:800; font-size:13px;
+}
+.d-carte.fait .num { background:var(--success); color:#fff; }
+.d-carte .txt { flex:1; min-width:0; }
+.d-carte .txt b { display:block; font-size:13.5px; font-weight:600; }
+.d-carte .txt span { font-size:11.5px; opacity:.65; line-height:1.4; }
+
+/* Guide d'accueil */
+.g-etape { display:flex; gap:11px; margin-bottom:13px; }
+.g-etape .num {
+  width:26px; height:26px; flex:none; border-radius:var(--radius-full);
+  display:grid; place-items:center; background:var(--accent-doux);
+  font-family:var(--font-display); font-weight:800; font-size:12.5px;
+}
+.g-etape .t { font-size:13.5px; line-height:1.5; opacity:.85; flex:1; }
+.g-etape .t b { opacity:1; }
+
+/* Lexique */
+.lex-entree {
+  padding:11px 0; border-bottom:1px solid var(--border);
+}
+.lex-entree:last-child { border-bottom:none; }
+.lex-entree b { display:block; font-size:14px; font-weight:600; margin-bottom:2px; }
+.lex-entree span { font-size:12.5px; line-height:1.55; opacity:.78; }
+.lex-entree em { font-style:normal; color:var(--accent-texte); font-weight:600; }
+
+/* Écran de passage d'une mission à la suivante */
+.p-fanion {
+  display:flex; align-items:center; gap:10px; margin-bottom:12px;
+}
+.p-fanion .rond {
+  width:44px; height:44px; flex:none; border-radius:var(--radius-full);
+  display:grid; place-items:center; background:var(--success); font-size:22px;
+}
+.p-fanion b { display:block; font-size:17px; font-family:var(--font-display); font-weight:800; }
+.p-fanion span { font-size:12px; opacity:.65; }
+.p-acquis {
+  padding:12px 14px; border-radius:var(--radius-md); background:var(--accent-doux);
+  font-size:13px; line-height:1.55; margin-bottom:14px;
+}
+.p-acquis b { font-weight:600; }
+.p-suite {
+  border:2px dashed var(--border-strong); border-radius:var(--radius-md);
+  padding:12px 14px; margin-bottom:14px;
+}
+.p-suite .etiq {
+  font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--accent-texte); margin-bottom:3px;
+}
+.p-suite b { display:block; font-size:15px; font-family:var(--font-display); font-weight:800; }
+.p-suite span { font-size:12.5px; opacity:.7; line-height:1.45; }
+.p-neuf { font-size:12px; opacity:.6; text-align:center; margin-top:9px; line-height:1.45; }
+
+/* QCM */
+.q-question { font-size:15px; font-weight:600; line-height:1.4; margin-bottom:12px; }
+/* Le questionnaire. Ici, « q-choix » est le conteneur et « q-rep » chaque
+   proposition : le style s'appliquait au mauvais élément, si bien que les
+   réponses s'affichaient en boutons bruts du navigateur. */
+.q-choix { display:block; }
+.q-rep {
+  display:block; width:100%; text-align:left; margin-bottom:8px;
+  padding:12px 14px; min-height:46px;
+  background:var(--surface); border:2px solid var(--border); border-radius:var(--radius-md);
+  font-family:var(--font-body); font-size:13.5px; line-height:1.45; color:var(--neutral);
+  cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+.q-rep:hover:not([disabled]) { border-color:var(--border-strong); background:var(--surface-muted); }
+.q-rep.juste { border-color:var(--success); background:rgba(42,157,143,.12); font-weight:600; }
+.q-rep.faux { border-color:var(--destructive); background:rgba(232,58,75,.1); }
+.q-rep[disabled] { cursor:default; }
+.q-rep.juste::before { content:'✔️ '; }
+.q-rep.faux::before { content:'❌ '; }
+/* Le mot de la fin, après la réponse */
+.q-mot {
+  margin-top:4px; margin-bottom:12px; padding:11px 13px; border-radius:var(--radius-md);
+  font-size:12.5px; line-height:1.55; background:var(--accent-doux);
+}
+.q-mot.ok { background:rgba(42,157,143,.14); }
+.q-mot.non { background:var(--accent-doux); }
+.q-expl {
+  margin-top:4px; padding:11px 13px; border-radius:var(--radius-md);
+  background:var(--accent-doux); font-size:12.5px; line-height:1.55;
+  display:none;
+}
+.q-expl.visible { display:block; }
+.q-avance { font-size:11.5px; opacity:.55; margin-bottom:10px; letter-spacing:.04em; text-transform:uppercase; font-weight:600; }
+
+/* ============================ Toast ============================ */
+#toast {
+  position:fixed; left:50%; bottom:calc(70px + env(safe-area-inset-bottom));
+  transform:translateX(-50%);
+  max-width:calc(100vw - 28px); padding:10px 16px; z-index:45;
+  background:var(--neutral); color:var(--background);
+  border-radius:var(--radius-full); font-size:13px; font-weight:600;
+  opacity:0; pointer-events:none; transition:opacity .2s var(--ease); text-align:center;
+}
+#toast.visible { opacity:1; }
+#toast.alerte { background:var(--destructive); color:#fff; }
+
+/* ================= Adaptations d'écran ================= */
+
+/* Paysage sur téléphone : chaque pixel de hauteur compte */
+@media (orientation:landscape) and (max-height:520px) {
+  header { padding:3px 8px; }
+  header h1 { font-size:13px; }
+  header .sous { display:none; }
+  .icone-btn { width:34px; height:34px; font-size:16px; }
+  #mission { padding:5px 10px 6px; }
+  .m-pastille { width:24px; height:24px; font-size:11px; }
+  .m-titres b { font-size:12.5px; }
+  .m-titres span { display:none; }
+  #mission.ouvert .m-titres span { display:block; }
+  .m-jauge { margin-top:5px; }
+  #actions { padding:5px 10px calc(5px + env(safe-area-inset-bottom)); }
+  .btn { min-height:38px; padding:0 14px; font-size:13px; }
+  #atelier.avec-bilan #plan { max-height:none; }
+  #bilan { max-width:none; right:8px; left:auto; width:min(58%,420px); bottom:6px; }
+  .f-carte { max-height:96dvh; }
+}
+
+/* Écran large : la mission passe en colonne, l'atelier prend le reste */
+@media (min-width:880px) {
+  body { flex-direction:row; }
+  #colonne {
+    width:330px; flex:none; display:flex; flex-direction:column;
+    background:var(--surface); border-right:1px solid var(--border);
+    overflow-y:auto;
+  }
+  /* la colonne est étroite : les icônes passent sous le titre au lieu de l'écraser */
+  header { border-bottom:1px solid var(--border); flex-wrap:wrap; }
+  header h1 { font-size:16px; }
+  .tete-fin { width:100%; justify-content:flex-end; }
+  #mission { border-bottom:none; padding:12px 16px; }
+  /* la place ne manque pas : toutes les étapes restent visibles */
+  #mission:not(.ouvert) .etape:not(.a-montrer) { display:flex; }
+  #mission:not(.ouvert) .m-indice { display:block; }
+  .m-plier { display:none; }
+  main { flex:1; min-width:0; }
+  #actions { justify-content:center; }
+  #bilan { left:16px; right:16px; }
+  .f-carte {
+    position:absolute; top:50%; left:50%; right:auto; bottom:auto;
+    transform:translate(-50%,-50%); width:min(560px,92vw);
+    border-radius:var(--radius-lg); max-height:86dvh;
+    animation:apparait .2s var(--ease);
+  }
+  @keyframes apparait { from { opacity:0; } }
+  .f-poignee { display:none; }
+}
+
+/* Paysage sur téléphone : la scène passe avant tout le reste.
+   Replié, le plan de mission occupe encore une centaine de pixels, et les
+   barres de commandes autant. Sur 380 px de haut, chaque bloc doit rendre ce
+   qu'il peut — sinon il ne reste rien à regarder, ce qui était le cas.
+   Le but de la mission et le rang disparaissent : ils sont dans la modale des
+   missions, et l'étape en cours suffit à savoir quoi faire. */
+@media (orientation:landscape) and (max-height:520px) {
+  #mission { padding:4px 10px 5px; }
+  #mission:not(.ouvert) #m-but { display:none; }
+  #mission:not(.ouvert) .m-rang { font-size:9.5px; }
+  #mission .m-haut { gap:8px; }
+  .m-pastille { width:26px; height:26px; font-size:12px; }
+  .m-jauge { margin-top:4px; }
+  #etapes { margin-top:5px; }
+  .etape { padding:3px 0; font-size:12px; }
+  .m-actions { margin-top:6px; }
+  .m-actions .btn { min-height:32px; font-size:12px; }
+  #actions { padding:5px 8px; }
+  #actions .btn { min-height:36px; }
+}
+
+@media (prefers-reduced-motion:reduce) {
+  *,*::before,*::after { animation-duration:.01ms !important; transition-duration:.01ms !important; }
+}
+
+/* ===================== Propre au repas de la journée ===================== */
+
+.titre-scene {
+  font-family:var(--font-body); font-size:12.5px; font-weight:600;
+  fill:var(--neutral); text-anchor:middle; pointer-events:none; opacity:.8;
+}
+.etiq-scene {
+  font-family:var(--font-body); font-size:11.5px; font-weight:600;
+  fill:var(--neutral); text-anchor:middle; pointer-events:none;
+}
+.etiq-jauge {
+  font-family:var(--font-display); font-size:13.5px; font-weight:800;
+  fill:var(--neutral); text-anchor:middle; pointer-events:none;
+}
+.nom-test {
+  font-family:var(--font-display); font-size:12.5px; font-weight:800;
+  fill:var(--neutral); text-anchor:middle; pointer-events:none;
+}
+.em-jeton { font-size:22px; text-anchor:middle; pointer-events:none; }
+.jeton-op { font-family:var(--font-display); font-size:13px; font-weight:800;
+  text-anchor:middle; pointer-events:none; }
+.jeton-gros { font-family:var(--font-display); font-size:22px; font-weight:800;
+  text-anchor:middle; pointer-events:none; }
+.entete-col { font-family:var(--font-body); font-size:10.5px; font-weight:700;
+  letter-spacing:.05em; text-transform:uppercase; fill:var(--neutral); opacity:.6;
+  text-anchor:middle; pointer-events:none; }
+.cellule { font-family:var(--font-body); font-size:12.5px; font-weight:600;
+  text-anchor:middle; pointer-events:none; }
+.cellule.total { font-weight:800; }
+.etiq-secteur { font-family:var(--font-body); font-size:11px; font-weight:700;
+  fill:#FFF; text-anchor:middle; pointer-events:none; }
+.poignee, .case, .ligne-marque { cursor:pointer; }
+.ligne-marque.vise rect { stroke:var(--accent); stroke-width:2; }
+.zone-org, .surf { cursor:pointer; }
+.surf.choisie rect { stroke-width:3; }
+.nom-piece { font-family:var(--font-display); font-size:14px; font-weight:800;
+  fill:var(--neutral); text-anchor:middle; pointer-events:none; }
+.piece { cursor:pointer; }
+.piece.choisie path, .piece.choisie ellipse { stroke-width:3; }
+.jeton, .panier { cursor:pointer; }
+.panier.actif rect { stroke-width:3; }
+.me-outil { font-size:12px; line-height:1.55; }
+
+/* La zone d'un test : elle ne s'éclaire que si l'élève tient un aliment —
+   sinon rien n'indique qu'il faut d'abord en choisir un. */
+.zone-test { cursor:default; }
+.zone-test.active { cursor:pointer; }
+.zone-test.active:hover rect:first-child { fill:var(--accent-doux); }
+
+/* Les parties de la dent : chacune se touche pour être reconnue */
+.part-dent { cursor:pointer; }
+.part-dent path { transition:stroke-width .12s var(--ease); }
+.part-dent.vue path { stroke:var(--accent-texte); stroke-width:3.5; }
+
+/* ---- Le carnet d'observation ---- */
+#mesures {
+  position:absolute; top:8px; left:8px; width:214px; max-width:46%;
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--radius-md); box-shadow:var(--shadow-soft);
+  padding:9px 11px; pointer-events:none; z-index:3;
+}
+#mesures .me-titre {
+  font-size:10px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--accent-texte); margin-bottom:5px;
+}
+.me-ligne {
+  display:flex; align-items:baseline; justify-content:space-between; gap:8px;
+  font-size:12.5px; line-height:1.7;
+}
+.me-ligne .nom { font-weight:700; }
+.me-ligne .val { font-family:var(--font-display); font-weight:800; font-size:14px; }
+.me-sep { height:1px; background:var(--border); margin:6px 0 5px; }
+.me-egalite {
+  display:flex; align-items:center; gap:6px; flex-wrap:wrap;
+  font-size:12px; margin-top:3px; line-height:1.5;
+}
+.me-egalite .memb { font-family:var(--font-display); font-weight:800; }
+.me-egalite.juste { color:var(--success); }
+.me-egalite.faux  { color:var(--destructive); }
+#mesures .me-quoi { font-size:11.5px; line-height:1.45; opacity:.75; margin-top:6px; }
+
+/* ---- L'étal : les aliments et les commandes de la scène ---- */
+#outils {
+  flex:none; border-top:1px solid var(--border); background:var(--surface);
+  padding:8px 12px 9px; display:flex; gap:7px; align-items:center; flex-wrap:wrap;
+}
+.ot-titre { font-size:11.5px; opacity:.7; flex:none; margin-right:2px; }
+/* Les boutons sont des flex : sans conteneur flex, ils s'empilent chacun sur
+   sa ligne et la barre mange la hauteur de la scène. */
+#liste-outils { display:flex; gap:6px; flex-wrap:wrap; min-width:0; }
+.ot {
+  flex:none; display:flex; align-items:center; gap:5px; cursor:pointer;
+  padding:6px 11px 6px 9px; border-radius:var(--radius-full);
+  border:2px solid var(--border); background:var(--surface-muted);
+  font-family:inherit; font-size:12px; font-weight:600; color:var(--neutral);
+  min-height:40px;
+  transition:background .16s var(--ease), border-color .16s var(--ease);
+}
+.ot .em { font-size:15px; line-height:1; }
+.ot .compte {
+  margin-left:3px; background:var(--accent); color:var(--sur-primary);
+  border-radius:var(--radius-full); padding:0 6px; font-size:11.5px;
+}
+.ot[aria-pressed="true"] { border-color:var(--accent); background:var(--accent-doux); }
+.ot:disabled { opacity:.42; cursor:not-allowed; }
+.ot.appelle, .btn.appelle { animation:appelOutil 1.4s infinite; }
+@keyframes appelOutil {
+  0%,100% { box-shadow:0 0 0 0 rgba(91,197,242,.55); }
+  60%     { box-shadow:0 0 0 8px rgba(91,197,242,0); }
+}
+
+/* Sur téléphone, le carnet devient un bandeau au-dessus de la scène et l'étal
+   défile sur une seule ligne — même règle que dans les autres simulations. */
+@media (max-width:560px) {
+  #atelier { display:flex; flex-direction:column; }
+  #mesures {
+    position:static; width:auto; max-width:none; order:-1; flex:none;
+    border:none; border-bottom:1px solid var(--border); border-radius:0;
+    box-shadow:none; padding:6px 10px 7px;
+  }
+  #mesures .me-titre { margin-bottom:2px; font-size:9.5px; }
+  .me-ligne { display:inline-flex; margin-right:12px; font-size:11.5px; line-height:1.5; }
+  .me-ligne .val { font-size:13px; }
+  .me-sep { display:none; }
+  #mesures .me-quoi { font-size:10.5px; margin-top:2px; }
+  .me-egalite { font-size:11.5px; }
+  #outils { flex-wrap:nowrap; padding:6px 10px 7px; gap:6px; }
+  #liste-outils { flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; padding-bottom:2px; }
+  #liste-outils::-webkit-scrollbar { display:none; }
+  .ot-titre { display:none; }
+  .ot { padding:5px 10px 5px 8px; font-size:11.5px; min-height:38px; }
+  .em-jeton { font-size:19px; }
+  .jeton-op { font-size:12px; }
+  .cellule { font-size:11.5px; }
+  .entete-col { font-size:9.5px; }
+  .nom-piece { font-size:13px; }
+}
+@media (max-height:430px) and (orientation:landscape) {
+  #mesures .me-quoi { display:none; }
+  #outils { padding:5px 10px 6px; }
+  #actions { padding:6px 8px; }
+}
+
+
+.g-titre { font-family:var(--font-display); font-weight:800; font-size:14px;
+  margin:14px 0 7px; color:var(--accent-texte); }
+
+/* ===================== L'accueil : « Que veux-tu faire ? » ===================== */
+#v-accueil .carte-modale { max-width:520px; }
+.ac-intro { font-size:13.5px; line-height:1.6; opacity:.8; margin-bottom:14px; }
+.ac-choix {
+  display:flex; align-items:center; gap:13px; width:100%; text-align:left;
+  padding:15px 16px; margin-bottom:11px;
+  background:var(--surface); border:2px solid var(--border); border-radius:var(--radius-lg);
+  font-family:var(--font-body); color:inherit; cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+.ac-choix:hover:not([disabled]) { border-color:var(--accent); background:var(--accent-doux); }
+.ac-choix[disabled] { opacity:.55; cursor:not-allowed; }
+.ac-choix .ac-em {
+  width:46px; height:46px; flex:none; border-radius:var(--radius-md);
+  display:grid; place-items:center; background:var(--surface-muted); font-size:25px;
+}
+.ac-choix .ac-txt { flex:1; min-width:0; }
+.ac-choix .ac-txt b { display:block; font-family:var(--font-display); font-size:17px; font-weight:800; }
+.ac-choix .ac-txt span { display:block; font-size:12.5px; opacity:.7; line-height:1.45; margin-top:1px; }
+.ac-choix .ac-etat { font-size:11.5px; font-weight:700; opacity:.75; flex:none; text-align:right; max-width:34%; }
+.ac-pied { font-size:12px; opacity:.6; line-height:1.5; margin-top:2px; }
+
+/* ===================== La visite guidée de l'interface =====================
+   Un halo encadre la zone dont on parle et assombrit tout le reste ; la carte
+   se pose à côté. Une liste écrite ne montrait rien : ici, on regarde. */
+#visite { position:fixed; inset:0; z-index:48; display:none; }
+#visite.visible { display:block; }
+#visite-halo {
+  position:absolute; border-radius:var(--radius-md);
+  border:3px solid var(--primary);
+  box-shadow:0 0 0 9999px rgba(12,16,20,.91);
+  transition:left .3s var(--ease), top .3s var(--ease),
+             width .3s var(--ease), height .3s var(--ease);
+  pointer-events:none;
+}
+#visite-carte {
+  position:absolute; background:var(--surface); border-radius:var(--radius-lg);
+  padding:15px 16px 13px; width:min(320px, calc(100vw - 24px));
+  box-shadow:0 12px 44px rgba(0,0,0,.34);
+  transition:left .3s var(--ease), top .3s var(--ease);
+}
+.v-titre { font-family:var(--font-display); font-size:16px; font-weight:800; margin-bottom:5px; }
+.v-texte { font-size:13px; line-height:1.55; opacity:.85; }
+.v-texte b { opacity:1; }
+.v-bas { display:flex; align-items:center; gap:8px; margin-top:13px; }
+.v-prog { flex:1; font-size:11.5px; font-weight:700; opacity:.5; letter-spacing:.04em; }
+#visite-passer {
+  background:none; border:none; color:inherit; opacity:.6;
+  font-family:var(--font-body); font-size:12.5px; text-decoration:underline;
+  cursor:pointer; padding:6px;
+}
+#visite-passer:hover { opacity:1; }
+#visite-suivant {
+  border:none; background:var(--primary); color:var(--neutral);
+  font-family:var(--font-body); font-weight:700; font-size:13.5px;
+  padding:10px 18px; border-radius:var(--radius-md); cursor:pointer; min-height:40px;
+}
+
+/* ===================== Le quiz libre : m'exercer =====================
+   Refonte : les trois niveaux se ressemblaient trait pour trait — même carte
+   blanche, même texte, et trois médailles que rien ne distingue à cette taille.
+   Rien ne disait qu'il s'agit d'une échelle de difficulté, ni qu'un niveau pèse
+   plus lourd qu'un autre. Chacun reçoit donc sa teinte (bronze, argent, or),
+   portée par un rail à gauche et par le disque de la médaille, et son poids est
+   écrit. Le score de maîtrise devient le personnage principal de l'écran. */
+#v-quiz .carte-modale { max-width:520px; }
+
+/* ---- Le bandeau de maîtrise : c'est LE chiffre qu'on vient voir ---- */
+.qz-maitrise {
+  margin:4px 0 18px; padding:15px 16px; border-radius:var(--radius-lg);
+  background:linear-gradient(135deg, var(--accent-doux), var(--surface-muted));
+  border:1px solid var(--border);
+}
+.qz-m-haut { display:flex; align-items:center; justify-content:space-between; gap:10px; font-size:12.5px; }
+.qz-m-haut span { opacity:.75; font-weight:600; }
+.qz-m-haut b {
+  font-family:var(--font-display); font-size:34px; font-weight:800; line-height:1;
+  letter-spacing:-.02em;
+}
+.qz-m-barre {
+  height:12px; border-radius:var(--radius-full); background:var(--surface);
+  overflow:hidden; margin-top:10px; border:1px solid var(--border);
+}
+.qz-m-barre i {
+  display:block; height:100%; border-radius:inherit;
+  background:linear-gradient(90deg, #B87333 0%, #8A9BA8 45%, var(--primary) 100%);
+  transition:width .6s var(--ease);
+}
+.qz-m-mot {
+  font-size:11px; font-weight:800; opacity:.7; margin-top:7px;
+  letter-spacing:.08em; text-transform:uppercase;
+}
+
+/* ---- Les trois niveaux : une échelle, pas une liste ---- */
+.qz-niveau {
+  position:relative; display:flex; align-items:center; gap:13px;
+  width:100%; text-align:left; padding:14px 15px 14px 22px; margin-bottom:10px;
+  background:var(--surface); border:2px solid var(--border); border-radius:var(--radius-lg);
+  font-family:var(--font-body); color:inherit; cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease),
+             transform .15s var(--ease);
+}
+/* le rail coloré : on lit le niveau avant même d'avoir lu son nom */
+.qz-niveau::before {
+  content:''; position:absolute; left:0; top:0; bottom:0; width:7px;
+  background:var(--qz-teinte); border-radius:var(--radius-lg) 0 0 var(--radius-lg);
+}
+.qz-niveau:hover { border-color:var(--qz-teinte); background:var(--surface-muted); }
+.qz-niveau:active { transform:scale(.99); }
+.qz-niveau[data-niveau="souviens"]  { --qz-teinte:#C08A4A; }   /* bronze */
+.qz-niveau[data-niveau="comprends"] { --qz-teinte:#8E9BA6; }   /* argent */
+.qz-niveau[data-niveau="pieges"]    { --qz-teinte:#D9A520; }   /* or     */
+body.sombre .qz-niveau[data-niveau="souviens"]  { --qz-teinte:#D19A5C; }
+body.sombre .qz-niveau[data-niveau="comprends"] { --qz-teinte:#A6B3BE; }
+body.sombre .qz-niveau[data-niveau="pieges"]    { --qz-teinte:#EBBB3A; }
+
+.qz-niveau .qz-em {
+  width:46px; height:46px; flex:none; border-radius:var(--radius-full);
+  display:grid; place-items:center; font-size:23px;
+  background:color-mix(in srgb, var(--qz-teinte) 20%, var(--surface));
+  border:2px solid var(--qz-teinte);
+}
+.qz-niveau .qz-txt { flex:1; min-width:0; }
+.qz-niveau .qz-txt b {
+  display:block; font-family:var(--font-display); font-size:16px; font-weight:800;
+}
+.qz-niveau .qz-txt span {
+  display:block; font-size:12px; opacity:.7; line-height:1.4; margin-top:2px;
+}
+/* Le poids du niveau, écrit : c'est l'information qui manquait le plus. */
+.qz-niveau .qz-txt b::after {
+  content:'×' attr(data-poids); margin-left:8px;
+  padding:2px 7px; border-radius:var(--radius-full); vertical-align:2px;
+  background:var(--qz-teinte); color:#fff;
+  font-family:var(--font-body); font-size:10px; font-weight:700; letter-spacing:.02em;
+}
+.qz-niveau .qz-note { flex:none; text-align:right; font-size:15px; line-height:1.2; }
+.qz-niveau .qz-note span {
+  display:block; font-size:10.5px; font-weight:600; opacity:.55; margin-top:3px;
+}
+.qz-pied { font-size:12px; opacity:.65; line-height:1.5; margin-top:6px; }
+
+/* ---- Le fil des questions ---- */
+.qz-jauge {
+  height:8px; border-radius:var(--radius-full); background:var(--surface-muted);
+  overflow:hidden; margin:0 0 14px; border:1px solid var(--border);
+}
+.qz-jauge i {
+  display:block; height:100%; border-radius:inherit;
+  background:var(--accent); transition:width .3s var(--ease);
+}
+
+/* ---- L'écran de résultat : le score et les étoiles font la une ---- */
+.qz-fin {
+  display:flex; align-items:center; gap:14px; margin-bottom:12px;
+  padding:14px 15px; border-radius:var(--radius-lg);
+  background:var(--surface-muted);
+}
+.qz-fin-em { font-size:40px; line-height:1; flex:none; }
+.qz-fin b { display:block; font-family:var(--font-display); font-size:19px; font-weight:800; line-height:1.15; }
+.qz-fin span { font-size:12.5px; opacity:.68; }
+.qz-fin-et { margin-left:auto; font-size:20px; letter-spacing:2px; white-space:nowrap; }
+.qz-mieux { font-size:12.5px; font-weight:600; color:var(--vert-fonce); margin:0 0 12px; }
+.qz-mieux.discret { color:inherit; opacity:.55; font-weight:400; }
+.qz-revoir {
+  padding:12px 14px; border-radius:var(--radius-md);
+  background:var(--accent-doux); font-size:12.5px; line-height:1.65; margin-bottom:14px;
+}
+.qz-revoir span { display:block; }
+.qz-boutons { display:flex; gap:8px; }
+.qz-boutons .btn { flex:1; }
+
+/* ---- Les propositions de réponse, ici comme dans le QCM de fin de mission ----
+   Elles ressemblaient à des champs de saisie : un trait fin, du texte, rien qui
+   dise « on me choisit ». Chacune reçoit sa lettre — on peut alors la désigner à
+   l'oral, « la B » — et une cible au doigt franchement plus grande. */
+#qz-choix, #q-choix { counter-reset:choix; }
+#qz-choix .q-choix, #q-choix .q-choix {
+  position:relative; display:flex; align-items:center;
+  padding:13px 14px 13px 48px; min-height:54px; line-height:1.4;
+}
+#qz-choix .q-choix::before, #q-choix .q-choix::before {
+  counter-increment:choix; content:counter(choix, upper-alpha);
+  position:absolute; left:12px; top:50%; transform:translateY(-50%);
+  width:27px; height:27px; border-radius:var(--radius-full);
+  display:grid; place-items:center;
+  background:var(--surface-muted); border:1.5px solid var(--border);
+  font-family:var(--font-display); font-size:12.5px; font-weight:800;
+}
+#qz-choix .q-choix:hover:not([disabled])::before,
+#q-choix .q-choix:hover:not([disabled])::before { border-color:var(--border-strong); }
+#qz-choix .q-choix.bon::before, #q-choix .q-choix.bon::before {
+  background:var(--success); border-color:var(--success); color:#fff;
+}
+#qz-choix .q-choix.mauvais::before, #q-choix .q-choix.mauvais::before {
+  background:var(--destructive); border-color:var(--destructive); color:#fff;
+}
+
+/* ---- La carte de la visite guidée : elle ne doit ressembler à rien d'autre ----
+   Retour d'usage : l'œil hésitait entre la zone montrée et la carte qui
+   l'explique, surtout quand la zone contient beaucoup de texte — les deux
+   avaient le même fond blanc et le même style. La carte prend donc une couleur
+   qui n'existe nulle part ailleurs dans l'interface : c'est « le guide qui
+   parle », pas un panneau de l'application. Même identité en clair et en
+   sombre, pour qu'on la reconnaisse d'un thème à l'autre.
+   Contrastes vérifiés : 5,7 (clair) et 7,7 (sombre) pour le texte plein ;
+   l'opacité des textes secondaires ne descend pas sous 0,85, plancher mesuré
+   en dessous duquel on passe sous le seuil AA. */
+:root { --visite-fond:#0F6E93; --visite-encre:#FFFFFF; }
+body.sombre { --visite-fond:#0B5674; --visite-encre:#F2FAFE; }
+
+#visite-carte {
+  background:var(--visite-fond); color:var(--visite-encre);
+  border:2px solid rgba(255,255,255,.16);
+  box-shadow:0 14px 46px rgba(0,0,0,.45);
+}
+#visite-carte .v-titre, #visite-carte .vtitre { color:var(--visite-encre); }
+#visite-carte .v-texte, #visite-carte .vtexte { color:var(--visite-encre); opacity:.92; }
+#visite-carte .v-texte b, #visite-carte .vtexte b { color:var(--visite-encre); opacity:1; }
+#visite-carte .v-prog, #visite-carte .vprog { color:var(--visite-encre); opacity:.85; }
+#visite-carte .vmarque { color:var(--visite-encre); opacity:.85; }
+#visite-passer { color:var(--visite-encre); opacity:.85; }
+#visite-passer:hover { opacity:1; }
+/* Le bouton garde le lime de la plateforme : c'est l'action, elle doit sauter aux yeux */
+#visite-suivant { background:var(--primary); color:#3A3632; }
+
+/* ---- Lisibilité des boutons lime en thème sombre ----
+   Le lime (--primary) est une couleur claire dans les DEUX thèmes : son encre
+   doit donc rester sombre dans les deux. Elle suivait le jeton --neutral, qui passe au
+   blanc en sombre : le texte tombait à 1,36 de contraste, illisible. Un jeton
+   dédié fige l'encre posée sur le lime, à 7,6 de contraste. */
+:root, body.sombre { --sur-primary:#3A3632; }
+.btn, #visite-suivant, .go, #btn-continuer, #btn-suivante, #btn-suiv2, #btn-commencer {
+  color:var(--sur-primary);
+}
+.btn-contour, .btn-fantome { color:var(--neutral); }
+</style>
+</head>
+<body>
+<div id="colonne">
+  <header>
+    <a class="icone-btn" href="../../index.html#/maths/6e" title="Retour au catalogue" aria-label="Retour">←</a>
+    <div>
+      <h1>La station de KOMO</h1>
+      <div class="sous">Maths · 6ᵉ · SA4</div>
+    </div>
+    <div class="tete-fin">
+      <button class="icone-btn" id="btn-missions" title="Les missions" aria-label="Missions">🎯</button>
+      <button class="icone-btn" id="btn-lexique" title="Lexique" aria-label="Lexique">📖</button>
+      <button class="icone-btn" id="btn-aide" title="Comment jouer" aria-label="Aide">❓</button>
+      <button class="icone-btn" id="btn-theme" title="Thème" aria-label="Thème">🌙</button>
+    </div>
+  </header>
+  <section id="mission">
+    <div class="m-haut">
+      <span class="m-pastille" id="m-num">1</span>
+      <div class="m-titres">
+        <span class="m-rang" id="m-rang">Mission 1 sur 11</span>
+        <b id="m-titre">—</b>
+        <span id="m-but"></span>
+      </div>
+      <button class="m-plier" id="m-plier" aria-label="Afficher toutes les étapes" aria-expanded="false">▼</button>
+    </div>
+    <div class="m-jauge"><i id="m-jauge" style="width:0"></i></div>
+    <div id="etapes"></div>
+    <div class="m-actions" id="m-actions" hidden>
+      <button class="btn btn-contour btn-large" id="btn-indice">💡 Indice</button>
+    </div>
+    <div class="m-indice" id="m-indice" hidden></div>
+  </section>
+</div>
+
+<main>
+  <div id="atelier">
+    <svg id="plan" preserveAspectRatio="xMidYMid meet" role="img"
+         aria-label="Un relevé de station-service, un tableau statistique, un diagramme en bâtons et un diagramme semi-circulaire"></svg>
+    <div id="mesures">
+      <div class="me-titre">Mon carnet d’observation</div>
+      <div id="me-corps"></div>
+      <div class="me-quoi" id="me-quoi">Deux caractères, un seul est quantitatif.</div>
+    </div>
+    <div id="bilan" role="status" aria-live="polite"></div>
+  </div>
+
+  <div id="outils">
+    <span class="ot-titre">Afficher :</span>
+    <div class="rg-choix" id="liste-outils"></div>
+  </div>
+
+  <div id="actions"></div>
+</main>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<div id="visite">
+  <div id="visite-halo"></div>
+  <div id="visite-carte">
+    <div class="v-titre" id="visite-titre"></div>
+    <div class="v-texte" id="visite-texte"></div>
+    <div class="v-bas">
+      <span class="v-prog" id="visite-prog"></span>
+      <button id="visite-passer" type="button">Passer</button>
+      <button id="visite-suivant" type="button">Suivant</button>
+    </div>
+  </div>
+</div>
+
+<div class="voile" id="v-quiz">
+  <div class="carte-modale" id="quiz-carte"></div>
+</div>
+
+<div class="voile" id="v-accueil">
+  <div class="carte-modale">
+    <h2>Que veux-tu faire ?</h2>
+    <p class="ac-intro">Un commerçant veut ouvrir une station d’essence à KOMO. On lui remet le
+       relevé d’une journée : <b>78 opérations</b> en vrac. Tu vas en tirer quelque chose de lisible.</p>
+    <button class="ac-choix" id="ac-apprendre">
+      <span class="ac-em">🎓</span>
+      <span class="ac-txt"><b>Apprendre</b><span>Le parcours guidé, mission après mission.</span></span>
+      <span class="ac-etat" id="ac-etat-app"></span>
+    </button>
+    <button class="ac-choix" id="ac-experimenter">
+      <span class="ac-em">🧪</span>
+      <span class="ac-txt"><b>Expérimenter</b><span>Le tableau complet, toutes les colonnes.</span></span>
+      <span class="ac-etat" id="ac-etat-exp"></span>
+    </button>
+    <button class="ac-choix" id="ac-exercer">
+      <span class="ac-em">🏅</span>
+      <span class="ac-txt"><b>M’exercer</b><span>Trois séries de questions, et un score de maîtrise.</span></span>
+      <span class="ac-etat" id="ac-etat-ex"></span>
+    </button>
+    <p class="ac-pied" id="ac-pied"></p>
+  </div>
+</div>
+
+<div class="voile" id="v-lexique">
+  <div class="carte-modale">
+    <button class="fermer-x" data-ferme="v-lexique" aria-label="Fermer">✕</button>
+    <h2>📖 Les mots des données</h2>
+    <p>Le vocabulaire exact du programme, avec des exemples pris dans le relevé de KOMO.</p>
+    <div id="liste-lexique"></div>
+  </div>
+</div>
+
+<div class="voile" id="v-missions">
+  <div class="carte-modale">
+    <button class="fermer-x" data-ferme="v-missions" aria-label="Fermer">✕</button>
+    <h2>🎯 Les missions</h2>
+    <p>Elles se suivent : termine l’une pour ouvrir la suivante.</p>
+    <div id="liste-missions"></div>
+    <button class="btn btn-fantome btn-large" id="btn-rezero"
+            style="margin-top:6px;color:var(--destructive)">↺ Recommencer tout le parcours</button>
+  </div>
+</div>
+
+<div class="voile" id="v-aide">
+  <div class="carte-modale">
+    <button class="fermer-x" data-ferme="v-aide" aria-label="Fermer">✕</button>
+    <h2>📊 Rendre un relevé lisible</h2>
+    <p>Soixante-dix-huit opérations en vrac ne disent rien. Comptées, rangées et dessinées,
+       elles racontent la journée d’une station.</p>
+    <div class="g-titre">Comment on s’y prend</div>
+    <div class="g-etape"><span class="num">1</span><span class="t">
+      <b>Dépouille le relevé :</b> touche la ligne de la marque affichée. Les bâtonnets
+      s’accumulent, comme sur une feuille de comptage.</span></div>
+    <div class="g-etape"><span class="num">2</span><span class="t">
+      <b>Construis les diagrammes</b> en faisant glisser les sommets des bâtons, puis les
+      séparations du demi-disque. Et lis-les <b>dans l’autre sens</b>.</span></div>
+    <div class="g-etape"><span class="num">3</span><span class="t">
+      <b>Le prix, le pourcentage et l’échelle</b> se posent tous les trois de la même façon :
+      une multiplication.</span></div>
+    <button class="btn btn-contour btn-large" id="btn-revoir-visite"
+            style="margin-bottom:8px">🔍 Revoir la visite guidée</button>
+    <button class="btn btn-large" data-ferme="v-aide">Ouvrir le relevé</button>
+  </div>
+</div>
+
+<div class="voile" id="v-qcm"><div class="carte-modale" id="qcm-carte"></div></div>
+<div class="voile" id="v-passage"><div class="carte-modale" id="passage-carte"></div></div>
+
+<script>
+'use strict';
+/* =====================================================================
+   La station de KOMO — Mathématiques 6ᵉ, SA4
+   ===================================================================== */
+
+const $ = id => document.getElementById(id);
+const el = (nom, attrs, texte) => {
+  const n = document.createElementNS('http://www.w3.org/2000/svg', nom);
+  for (const k in attrs) n.setAttribute(k, attrs[k]);
+  if (texte != null) n.textContent = texte;
+  return n;
+};
+
+/* =====================================================================
+   La station de KOMO — Mathématiques 6ᵉ, SA4
+   « Organisation des données » (16 heures)
+
+   La situation de départ est celle du guide, mot pour mot : un opérateur
+   économique veut ouvrir une station d'essence à KOMO, et se fait remettre le
+   relevé d'une journée dans une station de la région. Les 78 opérations
+   ci-dessous sont CELLES DU GUIDE, extraites du PDF et non retapées — une
+   coquille dans un relevé fausserait tous les calculs de la simulation.
+
+   Le guide découpe la SA en deux blocs :
+     1. Statistiques — population, caractère qualitatif ou quantitatif,
+        effectif, fréquence, moyenne, tableau statistique, diagramme en bâtons,
+        diagramme semi-circulaire, et la lecture de ces diagrammes DANS LES
+        DEUX SENS.
+     2. Proportionnalité — reconnaître et dresser un tableau, coefficient,
+        pourcentage et échelle, ces deux derniers « présentés comme
+        OPÉRATEURS » : prendre un pourcentage de…, déterminer une grandeur à
+        une échelle de…
+
+   Le diagramme SEMI-circulaire est une particularité du programme béninois :
+   les angles s'y calculent sur 180°, et non sur 360°.
+
+   Le modèle est vérifié par test-modele.js, qui l'extrait de ce fichier même.
+   ===================================================================== */
+
+/*__DEBUT MODELE__*/
+/* ---- Le relevé de la journée, tel que le guide le donne ----
+   « R20 signifie qu'un véhicule Renault a acheté 20 litres d'essence. » */
+const MARQUES = {
+  A: { nom:'Audi',       em:'🚗', couleur:'#2F80C7' },
+  M: { nom:'Mercedes',   em:'🚙', couleur:'#7A4FBF' },
+  O: { nom:'Opel',       em:'🚕', couleur:'#C77A2F' },
+  P: { nom:'Peugeot',    em:'🚐', couleur:'#2A9D8F' },
+  R: { nom:'Renault',    em:'🚓', couleur:'#E8792A' },
+  T: { nom:'Toyota',     em:'🛻', couleur:'#B34A6E' },
+  V: { nom:'Volkswagen', em:'🚌', couleur:'#5B8C2A' },
+};
+
+const RELEVE = ('R20;T10;T40;A20;P40;A10;A40;A25;R25;R30;M40;V30;O55;A40;P45;V20;M25;R45;' +
+  'T20;A25;M50;V35;O45;R20;A10;M30;O45;P20;T30;V40;A20;M20;M35;O50;T10;V25;' +
+  'A40;M45;O20;P30;A20;M20;O30;P40;A40;M10;O25;P45;T30;A10;M15;O40;A10;M30;' +
+  'O25;O35;T10;T30;T10;T25;T10;T25;T10;T45;A30;V20;M10;P30;A25;R25;P40;' +
+  'A15;M45;P15;R15;O25;A30;T30').split(';').map(s => ({
+    marque: s[0],
+    litres: parseInt(s.slice(1), 10),
+  }));
+
+/* ---- Le vocabulaire du programme ----
+   La POPULATION est l'ensemble étudié — ici les opérations de la journée.
+   Un CARACTÈRE peut être QUALITATIF (la marque : on ne peut pas en faire une
+   moyenne) ou QUANTITATIF (les litres : on peut). Une MODALITÉ est une valeur
+   possible du caractère. */
+const CARACTERES = {
+  marque: { nom:'La marque du véhicule', type:'qualitatif',
+    quoi:'On peut la nommer, pas la mesurer. Faire la moyenne des marques n’aurait aucun sens.' },
+  litres: { nom:'Le nombre de litres', type:'quantitatif',
+    quoi:'C’est un nombre : on peut l’additionner, et en calculer une moyenne.' },
+};
+
+// L'effectif d'une modalité : combien de fois elle apparaît.
+function effectifs(releve, quoi) {
+  const n = {};
+  for (const op of releve) {
+    const cle = quoi === 'marque' ? op.marque : String(op.litres);
+    n[cle] = (n[cle] || 0) + 1;
+  }
+  return n;
+}
+
+const effectifTotal = releve => releve.length;
+
+/* La FRÉQUENCE d'une modalité : sa part de l'effectif total. On la donne aussi
+   en pourcentage, parce que c'est sous cette forme que le programme la fait
+   lire — le pourcentage est un opérateur, pas un nombre à part. */
+function frequence(effectif, total) {
+  if (!total) return { part:0, pourcent:0 };
+  return { part: effectif / total, pourcent: effectif / total * 100 };
+}
+
+/* L'angle du diagramme SEMI-circulaire : la fréquence appliquée à 180°, et non
+   à 360°. C'est la particularité du programme béninois, et c'est ce qui relie
+   cette SA à la mesure des angles. */
+const angleSemi = (effectif, total) => total ? effectif / total * 180 : 0;
+
+// La moyenne n'a de sens que sur un caractère QUANTITATIF.
+function moyenne(valeurs) {
+  if (!valeurs.length) return 0;
+  return valeurs.reduce((s, v) => s + v, 0) / valeurs.length;
+}
+const moyenneLitres = releve => moyenne(releve.map(o => o.litres));
+
+// Le tableau statistique complet : ce que l'élève doit savoir dresser.
+function tableau(releve) {
+  const n = effectifs(releve, 'marque');
+  const total = effectifTotal(releve);
+  return Object.keys(MARQUES)
+    .filter(m => n[m])
+    .map(m => {
+      const f = frequence(n[m], total);
+      const litres = releve.filter(o => o.marque === m).map(o => o.litres);
+      return {
+        cle: m, nom: MARQUES[m].nom, effectif: n[m],
+        frequence: f.part, pourcent: f.pourcent,
+        angle: angleSemi(n[m], total),
+        litres: litres.reduce((s, v) => s + v, 0),
+        moyenne: moyenne(litres),
+      };
+    })
+    .sort((a, b) => b.effectif - a.effectif);
+}
+
+/* ---- Proportionnalité ----
+   Un tableau est proportionnel si l'on passe de la première ligne à la seconde
+   en multipliant toujours par le MÊME nombre : le coefficient. */
+function coefficient(paires) {
+  if (!paires.length) return null;
+  const c = paires.map(([a, b]) => (a === 0 ? null : b / a)).filter(x => x !== null);
+  if (!c.length) return null;
+  const premier = c[0];
+  const meme = c.every(x => Math.abs(x - premier) <= 1e-9 * Math.max(1, Math.abs(premier)));
+  return meme ? premier : null;
+}
+const estProportionnel = paires => coefficient(paires) !== null;
+
+// Le prix de l'essence à KOMO : c'est lui qui rend le tableau proportionnel.
+const PRIX_LITRE = 700;                      // francs CFA
+const prixDe = litres => litres * PRIX_LITRE;
+
+/* Le pourcentage et l'échelle, « présentés comme opérateurs » — c'est le mot
+   du guide. Prendre 25 % d'une quantité, c'est la multiplier par 25/100 ;
+   appliquer une échelle de 1/200, c'est multiplier par 1/200. Le même geste. */
+const prendrePourcent = (p, quantite) => quantite * p / 100;
+const appliquerEchelle = (echelle, reel) => reel * echelle;
+const echelleDe = (surPlan, reel) => (reel === 0 ? 0 : surPlan / reel);
+/*__FIN MODELE__*/
+
+/* ============================ Les missions ============================
+   Deux blocs, ceux du guide : les statistiques d'abord, la proportionnalité
+   ensuite. Chaque diagramme se lit DANS LES DEUX SENS — le guide demande
+   explicitement de « dresser un tableau statistique À PARTIR d'un diagramme ». */
+
+const T = () => tableau(RELEVE);
+const bonEffectif = m => (etat.saisie[m] || 0) === T().find(l => l.cle === m).effectif;
+const tousBons = () => T().every(l => bonEffectif(l.cle));
+const bonneBarre = m => {
+  const l = T().find(x => x.cle === m);
+  return Math.abs((etat.barres[m] || 0) - l.effectif) < .5;
+};
+const bonAngle = m => {
+  const l = T().find(x => x.cle === m);
+  return Math.abs((etat.angles[m] || 0) - l.angle) <= 1.5;
+};
+
+const MISSIONS = [
+  /* ---- 1. Les statistiques ---- */
+  { titre:'Ce qu’on étudie',
+    but:'Le relevé de la journée est là. Repère d’abord de quoi il parle.',
+    scene:'releve',
+    etapes:[
+      { t:'Fais défiler le relevé', ok:e => e.lus >= 12 },
+      { t:'Dis lequel des deux caractères est quantitatif', cible:'ca-litres',
+        ok:e => e.caractere === 'litres' },
+      { t:'Conclus', cible:'btn-tester', ok:e => e.vus.luPopulation },
+    ],
+    gagne:e => e.vus.luPopulation,
+    indice:'Un caractère quantitatif est un nombre, sur lequel on peut faire une moyenne. La marque d’un véhicule n’en est pas un.',
+    retenir:'La <b>population</b> étudiée est l’ensemble des <b>78 opérations</b> de la journée. Chaque opération porte deux <b>caractères</b> : la <b>marque</b> du véhicule, qui est <b>qualitatif</b> — on le nomme, on ne le mesure pas — et le <b>nombre de litres</b>, qui est <b>quantitatif</b>. Chaque valeur possible d’un caractère s’appelle une <b>modalité</b> : Audi, Toyota… sont les modalités du caractère « marque ».',
+    qcm:{ q:'Le caractère « marque du véhicule » est :',
+      r:['Qualitatif : on peut le nommer, pas le mesurer',
+         'Quantitatif : c’est un nombre',
+         'Ni l’un ni l’autre'], bonne:0,
+      pourquoi:'On ne peut pas additionner « Audi » et « Toyota », ni en faire une moyenne. Un caractère qualitatif se compte — combien d’Audi — mais ne se mesure pas.' } },
+
+  { titre:'Dépouiller le relevé',
+    but:'Compte les véhicules de chaque marque. C’est le dépouillement.',
+    scene:'depouiller',
+    etapes:[
+      { t:'Pointe les vingt premières opérations', ok:e => e.pointe >= 20 },
+      { t:'Termine le dépouillement', cible:'btn-finir', ok:e => e.pointe >= RELEVE.length },
+      { t:'Vérifie que le total fait bien 78', ok:e => e.vus.totalVu },
+      { t:'Conclus', cible:'btn-tester', ok:e => e.vus.luEffectifs },
+    ],
+    gagne:e => e.vus.luEffectifs,
+    indice:'Touche l’opération affichée : elle va se ranger dans la ligne de sa marque. Le bouton « Terminer le comptage » fait le reste une fois que tu as compris le geste.',
+    retenir:'L’<b>effectif</b> d’une modalité, c’est le nombre de fois où elle apparaît. Audi 17, Toyota 15, Mercedes 13, Opel 11, Peugeot 9, Renault 7, Volkswagen 6. La somme des effectifs est l’<b>effectif total</b> : <b>78</b>. Ce contrôle vaut toujours la peine — si la somme ne tombe pas juste, le dépouillement est faux.',
+    qcm:{ q:'Pourquoi vérifier que la somme des effectifs fait 78 ?',
+      r:['Parce que si elle ne tombe pas juste, le dépouillement est faux',
+         'Pour connaître la moyenne', 'Ce n’est pas utile'], bonne:0,
+      pourquoi:'Chaque opération doit être comptée une fois et une seule. Si la somme des effectifs diffère de l’effectif total, c’est qu’on en a oublié ou compté deux fois.' } },
+
+  { titre:'Les fréquences',
+    but:'Quelle part de la journée chaque marque représente-t-elle ?',
+    scene:'tableau',
+    etapes:[
+      { t:'Affiche la colonne des fréquences', cible:'co-frequence', ok:e => e.colonnes.frequence },
+      { t:'Affiche-les en pourcentage', cible:'co-pourcent', ok:e => e.colonnes.pourcent },
+      { t:'Vérifie que la somme fait 100 %', ok:e => e.vus.sommeVue },
+      { t:'Conclus', cible:'btn-tester', ok:e => e.vus.luFrequences },
+    ],
+    gagne:e => e.vus.luFrequences,
+    indice:'La fréquence d’une modalité, c’est son effectif divisé par l’effectif total. En pourcentage, on multiplie ce quotient par 100.',
+    retenir:'La <b>fréquence</b> d’une modalité est son effectif divisé par l’<b>effectif total</b> : pour Audi, 17 ÷ 78 ≈ 0,218. En pourcentage : <b>21,8 %</b>. La somme des fréquences fait toujours <b>1</b>, donc <b>100 %</b> — c’est le contrôle.',
+    qcm:{ q:'Que vaut la somme de toutes les fréquences d’un tableau statistique ?',
+      r:['1, c’est-à-dire 100 %', '78', 'Cela dépend des données'], bonne:0,
+      pourquoi:'Chaque opération appartient à une modalité et une seule. En additionnant toutes les parts, on retrouve donc la totalité : 1, ou 100 %.' } },
+
+  { titre:'La moyenne',
+    but:'Combien de litres un véhicule achète-t-il en moyenne ?',
+    scene:'tableau',
+    etapes:[
+      { t:'Affiche les litres achetés par marque', cible:'co-litres', ok:e => e.colonnes.litres },
+      { t:'Affiche la moyenne', cible:'co-moyenne', ok:e => e.colonnes.moyenne },
+      { t:'Conclus', cible:'btn-tester', ok:e => e.vus.luMoyenne },
+    ],
+    gagne:e => e.vus.luMoyenne,
+    indice:'La moyenne se calcule sur le caractère quantitatif : le total des litres divisé par le nombre d’opérations.',
+    retenir:'La <b>moyenne</b> ne se calcule que sur un caractère <b>quantitatif</b>. Ici : 2 170 litres vendus pour 78 opérations, soit <b>27,8 litres</b> par véhicule. Attention, la moyenne cache les écarts : Opel achète 35,9 litres en moyenne, Toyota seulement 22,3.',
+    qcm:{ q:'Peut-on calculer la moyenne des marques de véhicules ?',
+      r:['Non : la marque est un caractère qualitatif',
+         'Oui, en les numérotant', 'Oui, c’est Audi'], bonne:0,
+      pourquoi:'Une moyenne s’obtient en additionnant puis en divisant. On ne peut additionner ni des Audi ni des Toyota : le caractère est qualitatif, la moyenne n’a pas de sens.' } },
+
+  /* ---- 2. Représenter, et lire dans les deux sens ---- */
+  { titre:'Le diagramme en bâtons',
+    but:'Construis un bâton par marque, à la bonne hauteur.',
+    scene:'batons',
+    etapes:[
+      { t:'Fais glisser le sommet d’un bâton', ok:e => e.bougesBarre >= 3 },
+      { t:'Mets les sept bâtons à la bonne hauteur', ok:() => Object.keys(MARQUES).every(bonneBarre) },
+      { t:'Conclus', cible:'btn-tester', ok:e => e.vus.luBatons },
+    ],
+    gagne:e => e.vus.luBatons,
+    indice:'La hauteur d’un bâton, c’est l’effectif de la marque. Ton tableau te les rappelle dans le carnet.',
+    retenir:'Dans un <b>diagramme en bâtons</b>, la <b>hauteur</b> de chaque bâton est proportionnelle à l’<b>effectif</b> de la modalité. Les bâtons sont séparés — ils ne se touchent pas — parce que le caractère est <b>qualitatif</b> : entre Audi et Toyota, il n’y a rien.',
+    qcm:{ q:'Que représente la hauteur d’un bâton ?',
+      r:['L’effectif de la modalité', 'Le nombre de litres achetés',
+         'Le prix payé'], bonne:0,
+      pourquoi:'Le diagramme en bâtons représente les effectifs : combien de véhicules de chaque marque. Les litres seraient une autre étude, avec un autre diagramme.' } },
+
+  { titre:'Lire un diagramme',
+    but:'Le sens inverse : un diagramme t’est donné, retrouve le tableau.',
+    scene:'lecture',
+    etapes:[
+      { t:'Lis les effectifs sur le diagramme', ok:e => Object.keys(e.saisie).length >= 4 },
+      { t:'Remplis le tableau sans erreur', ok:() => tousBons() },
+      { t:'Conclus', cible:'btn-tester', ok:e => e.vus.luLecture },
+    ],
+    gagne:e => e.vus.luLecture,
+    indice:'Suis la hauteur de chaque bâton jusqu’à la graduation de gauche, puis règle la ligne du tableau sur cette valeur.',
+    retenir:'Un diagramme se lit <b>dans les deux sens</b>. On peut le construire à partir d’un tableau, mais aussi <b>dresser le tableau à partir du diagramme</b> — c’est ce qu’on fait devant un graphique de journal ou d’affiche : on retrouve les nombres derrière le dessin.',
+    qcm:{ q:'Un bâton monte jusqu’à la graduation 11. Que vaut l’effectif ?',
+      r:['11', '11 %', 'On ne peut pas savoir'], bonne:0,
+      pourquoi:'L’axe vertical d’un diagramme en bâtons porte les effectifs. Le bâton monte à 11 : la modalité apparaît 11 fois.' } },
+
+  { titre:'Le diagramme semi-circulaire',
+    but:'Partage un demi-disque : chaque marque reçoit son angle.',
+    scene:'secteurs',
+    etapes:[
+      { t:'Fais glisser une séparation', ok:e => e.bougesAngle >= 3 },
+      { t:'Donne à chaque marque son angle', ok:() => Object.keys(MARQUES).every(bonAngle) },
+      { t:'Conclus', cible:'btn-tester', ok:e => e.vus.luSecteurs },
+    ],
+    gagne:e => e.vus.luSecteurs,
+    indice:'L’angle d’une marque, c’est sa fréquence appliquée à 180°. Pour Mercedes : 13 ÷ 78 × 180 = 30° exactement.',
+    retenir:'Dans un <b>diagramme semi-circulaire</b>, chaque modalité reçoit un angle <b>proportionnel à son effectif</b>. Comme le demi-disque fait <b>180°</b>, l’angle vaut : effectif ÷ effectif total × <b>180</b>. Pour Audi : 17 ÷ 78 × 180 ≈ 39°. La somme des angles fait 180°, jamais 360 — c’est un demi-disque.',
+    qcm:{ q:'Dans un diagramme semi-circulaire, que vaut la somme des angles ?',
+      r:['180°', '360°', '100°'], bonne:0,
+      pourquoi:'Un demi-disque mesure 180°. On répartit donc ces 180° entre les modalités, proportionnellement à leurs effectifs. Sur un disque entier, on répartirait 360°.' } },
+
+  /* ---- 3. Proportionnalité ---- */
+  { titre:'Litres et prix',
+    but:'L’essence coûte 700 F le litre. Remplis le tableau des prix.',
+    scene:'proportion',
+    etapes:[
+      { t:'Complète les prix manquants', ok:e => e.vus.tableauJuste },
+      { t:'Conclus', cible:'btn-tester', ok:e => e.vus.luProportion },
+    ],
+    gagne:e => e.vus.luProportion,
+    indice:'Chaque prix s’obtient en multipliant les litres par 700. Utilise les boutons + et − : ils avancent par pas de 700.',
+    retenir:'Un <b>tableau de proportionnalité</b> est un tableau où l’on passe de la première ligne à la seconde en multipliant toujours par le <b>même nombre</b>. Ici, les litres et le prix sont proportionnels : 10 L → 7 000 F, 20 L → 14 000 F, 45 L → 31 500 F.',
+    qcm:{ q:'Comment reconnaît-on un tableau de proportionnalité ?',
+      r:['On passe d’une ligne à l’autre en multipliant toujours par le même nombre',
+         'Les nombres augmentent', 'Les deux lignes ont le même total'], bonne:0,
+      pourquoi:'Ce n’est pas parce que les nombres augmentent ensemble qu’ils sont proportionnels. Il faut que le quotient soit le MÊME pour toutes les colonnes.' } },
+
+  { titre:'Le coefficient',
+    but:'Ce nombre par lequel on multiplie porte un nom. Trouve-le.',
+    scene:'proportion',
+    etapes:[
+      { t:'Affiche le coefficient', cible:'btn-coef', ok:e => e.montreCoef },
+      { t:'Vérifie qu’il est le même dans chaque colonne', ok:e => e.vus.coefVu },
+      { t:'Conclus', cible:'btn-tester', ok:e => e.vus.luCoefficient },
+    ],
+    gagne:e => e.vus.luCoefficient,
+    indice:'Divise un prix par les litres correspondants, dans chaque colonne. Tu dois toujours retrouver le même nombre.',
+    retenir:'Le nombre par lequel on multiplie s’appelle le <b>coefficient de proportionnalité</b>. Ici, c’est <b>700</b> : le prix d’un litre. On le retrouve en divisant n’importe quel prix par les litres correspondants — 14 000 ÷ 20 = 700, 31 500 ÷ 45 = 700.',
+    qcm:{ q:'Dans le tableau litres → prix, que représente le coefficient 700 ?',
+      r:['Le prix d’un litre', 'Le nombre total de litres',
+         'Le prix de la journée'], bonne:0,
+      pourquoi:'Le coefficient est ce par quoi on multiplie chaque litre pour obtenir un prix : c’est donc bien le prix d’UN litre, en francs.' } },
+
+  { titre:'Le pourcentage, un opérateur',
+    but:'Prendre 25 % d’une quantité, c’est faire une multiplication.',
+    scene:'operateur',
+    etapes:[
+      { t:'Applique un pourcentage à la vente du jour', ok:e => e.bougesOperateur >= 2 },
+      { t:'Trouve combien font 25 % des 2 170 litres', ok:() => Math.abs(etat.pourcent - 25) < .1 },
+      { t:'Conclus', cible:'btn-tester', ok:e => e.vus.luPourcent },
+    ],
+    gagne:e => e.vus.luPourcent,
+    indice:'Fais glisser le curseur du pourcentage jusqu’à 25. Le résultat se calcule tout seul : 2 170 × 25 ÷ 100.',
+    retenir:'Un <b>pourcentage</b> est un <b>opérateur</b> : prendre 25 % d’une quantité, c’est la multiplier par 25 ÷ 100, c’est-à-dire par 0,25. Sur les 2 170 litres de la journée, 25 % font <b>542,5 litres</b>. Prendre 100 % ne change rien, puisqu’on multiplie par 1.',
+    qcm:{ q:'Prendre 30 % d’une quantité, c’est la multiplier par :',
+      r:['0,30', '30', '3'], bonne:0,
+      pourquoi:'« Pour cent » veut dire « divisé par cent ». 30 % = 30 ÷ 100 = 0,30. Multiplier par 30 donnerait trente fois la quantité, pas une part.' } },
+
+  { titre:'L’échelle, le même geste',
+    but:'Le plan de la station : une échelle est aussi un opérateur.',
+    scene:'operateur',
+    etapes:[
+      { t:'Change l’échelle du plan', ok:e => e.bougesEchelle >= 2 },
+      { t:'Règle-la sur 1/200', ok:() => Math.abs(etat.echelle - 200) < .5 },
+      { t:'Conclus', cible:'btn-tester', ok:e => e.vus.luEchelle },
+    ],
+    gagne:e => e.vus.luEchelle,
+    indice:'À l’échelle 1/200, une longueur réelle est divisée par 200 pour être dessinée : 6 mètres deviennent 3 centimètres.',
+    retenir:'Une <b>échelle</b> s’utilise comme un pourcentage : c’est un <b>opérateur</b>. À l’échelle <b>1/200</b>, on multiplie la longueur réelle par 1/200 pour obtenir celle du plan — 6 m, soit 600 cm, deviennent <b>3 cm</b>. Dans l’autre sens, on multiplie la longueur du plan par 200.',
+    qcm:{ q:'Sur un plan à l’échelle 1/200, un mur mesure 4 cm. Quelle est sa longueur réelle ?',
+      r:['8 m', '4 m', '800 m'], bonne:0,
+      pourquoi:'On multiplie par 200 : 4 × 200 = 800 cm, soit 8 m. L’échelle 1/200 signifie qu’un centimètre du plan représente 200 centimètres en vrai.' } },
+];
+
+const LEXIQUE = [
+  ['Population', 'L’ensemble sur lequel porte l’étude. Ici, les 78 opérations de la journée.'],
+  ['Caractère', 'Ce qu’on observe sur chaque élément de la population : la marque, ou le nombre de litres.'],
+  ['Caractère qualitatif', 'Un caractère qu’on nomme mais qu’on ne mesure pas : la marque du véhicule.'],
+  ['Caractère quantitatif', 'Un caractère qui est un nombre : le nombre de litres. On peut en faire une moyenne.'],
+  ['Modalité', 'Une valeur possible du caractère. Audi, Toyota et Opel sont des modalités de « marque ».'],
+  ['Effectif', 'Le nombre de fois où une modalité apparaît. Celui d’Audi est 17.'],
+  ['Effectif total', 'La somme des effectifs. Ici 78 — et la vérification que le dépouillement est juste.'],
+  ['Fréquence', 'L’effectif d’une modalité divisé par l’effectif total. Souvent donnée en pourcentage.'],
+  ['Moyenne', 'La somme des valeurs divisée par leur nombre. Elle ne vaut que pour un caractère quantitatif.'],
+  ['Tableau statistique', 'Le tableau qui rassemble modalités, effectifs et fréquences.'],
+  ['Diagramme en bâtons', 'Une représentation où la hauteur de chaque bâton est proportionnelle à l’effectif.'],
+  ['Diagramme semi-circulaire', 'Un demi-disque partagé en secteurs proportionnels aux effectifs. La somme des angles fait 180°.'],
+  ['Proportionnalité', 'Une relation où l’on passe d’une grandeur à l’autre en multipliant toujours par le même nombre.'],
+  ['Coefficient de proportionnalité', 'Ce nombre par lequel on multiplie. Ici 700, le prix d’un litre.'],
+  ['Pourcentage', 'Un opérateur : prendre 25 % d’une quantité, c’est la multiplier par 25 ÷ 100.'],
+  ['Échelle', 'Un opérateur aussi : à l’échelle 1/200, on multiplie le réel par 1/200 pour obtenir le plan.'],
+];
+
+/* ============================ L’état du jeu ============================ */
+const CLE = 'ike-donnees-progression';
+
+const vusVierge = () => ({
+  totalVu:false, sommeVue:false, coefVu:false, tableauJuste:false,
+  luPopulation:false, luEffectifs:false, luFrequences:false, luMoyenne:false,
+  luBatons:false, luLecture:false, luSecteurs:false,
+  luProportion:false, luCoefficient:false, luPourcent:false, luEchelle:false,
+});
+
+const vierge = () => ({
+  scene:'releve',
+  lus:0, caractere:null,
+  pointe:0, comptes:{},
+  colonnes:{},
+  saisie:{}, barres:{}, angles:{},
+  bougesBarre:0, bougesAngle:0, bougesOperateur:0, bougesEchelle:0,
+  prix:{}, montreCoef:false,
+  pourcent:10, echelle:100,
+  vus:vusVierge(),
+});
+let etat = Object.assign({ mission:0, faits:[], libre:false }, vierge());
+let calc = {};
+
+function sauver() {
+  try { localStorage.setItem(CLE, JSON.stringify({ maitrise:etat.maitrise, mission:etat.mission,
+    faites:etat.faits, libre:etat.libre })); } catch (e) {}
+}
+function charger() {
+  try {
+    const d = JSON.parse(localStorage.getItem(CLE) || '{}');
+    if (d.maitrise) etat.maitrise = d.maitrise;
+    if (typeof d.mission === 'number') etat.mission = Math.min(d.mission, MISSIONS.length - 1);
+    if (Array.isArray(d.faites || d.faits)) etat.faits = d.faites || d.faits;
+    etat.libre = !!d.libre;
+  } catch (e) {}
+}
+
+const enLibre = () => etat.libre === true;
+
+// Les colonnes du tableau que la mission ouvre. Les afficher toutes d'emblée
+// noierait le tableau : le guide construit fréquence puis moyenne l'une après
+// l'autre, et le parcours fait pareil.
+const COLONNES = ['effectif', 'frequence', 'pourcent', 'litres', 'moyenne', 'angle'];
+
+function reprendre() {
+  const n = vierge();
+  for (const k in n) etat[k] = n[k];
+  const M = enLibre() ? null : MISSIONS[etat.mission];
+  etat.scene = enLibre() ? 'tableau' : (M.scene || 'releve');
+  // les missions de lecture partent d'un tableau vide ; les autres du vrai
+  if (etat.scene === 'lecture') etat.saisie = {};
+  if (etat.scene === 'depouiller') etat.comptes = {};
+  if (enLibre()) for (const c of COLONNES) etat.colonnes[c] = true;
+  else etat.colonnes.effectif = true;
+  // les prix déjà donnés dans l'énoncé
+  if (etat.scene === 'proportion') etat.prix = { 10:7000, 20:0, 45:0 };
+}
+
+function passerEnLibre() {
+  etat.libre = true; reprendre(); sauver();
+  demarrerMission(); rendreListeMissions();
+}
+
+/* ======================= Le plan de travail (SVG) ======================= */
+let Wp = 660, Hp = 340;
+const refs = {};
+const nuit = () => document.body.classList.contains('sombre');
+
+function mesurerPlan() {
+  const r = refs.plan.getBoundingClientRect();
+  Wp = Math.max(260, Math.round(r.width));
+  Hp = Math.max(160, Math.round(r.height));
+  refs.plan.setAttribute('viewBox', '0 0 ' + Wp + ' ' + Hp);
+  dessiner();
+}
+
+function C() {
+  const s = getComputedStyle(document.body);
+  const v = n => s.getPropertyValue(n).trim();
+  return { trait:v('--neutral'), bord:v('--border'), bordF:v('--border-strong'),
+           surface:v('--surface'), muet:v('--surface-muted'), accent:v('--accent-texte'),
+           ok:v('--success'), non:v('--destructive'), doux:v('--accent-doux') };
+}
+
+const nb = (v, d) => {
+  const n = d === undefined ? (Math.abs(v) >= 100 || v === Math.round(v) ? 0 : 1) : d;
+  return v.toFixed(n).replace('.', ',');
+};
+const espace = v => String(Math.round(v)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+
+function decouper(txt, n) {
+  const mots = String(txt).split(' '), l = [];
+  let c = '';
+  for (const m of mots) {
+    if ((c + ' ' + m).trim().length > n) { l.push(c); c = m; }
+    else c = (c + ' ' + m).trim();
+  }
+  if (c) l.push(c);
+  return l;
+}
+
+function dessiner() {
+  refs.plan.textContent = '';
+  const f = { releve:dessinerReleve, depouiller:dessinerDepouiller, tableau:dessinerTableau,
+              batons:dessinerBatons, lecture:dessinerLecture, secteurs:dessinerSecteurs,
+              proportion:dessinerProportion, operateur:dessinerOperateur }[etat.scene];
+  if (f) f();
+}
+
+/* ---- Scène 1 : le relevé brut ---- */
+function dessinerReleve() {
+  const t = C(), plan = refs.plan;
+  plan.appendChild(el('text', { x:Wp / 2, y:Hp * .09, class:'titre-scene' },
+    'Le relevé d’une journée · ' + RELEVE.length + ' opérations'));
+  const parLigne = Math.max(5, Math.floor(Wp / 58));
+  const n = Math.min(RELEVE.length, etat.lus);
+  const haut = Hp * .16, pas = 26;
+  for (let i = 0; i < n; i++) {
+    const o = RELEVE[i], m = MARQUES[o.marque];
+    const x = Wp * .04 + (i % parLigne + .5) * ((Wp * .92) / parLigne);
+    const y = haut + Math.floor(i / parLigne) * pas;
+    if (y > Hp * .78) break;
+    plan.appendChild(el('text', { x, y, class:'jeton-op', fill:m.couleur },
+      o.marque + o.litres));
+  }
+  if (!n) plan.appendChild(el('text', { x:Wp / 2, y:Hp * .45, class:'etiq-scene' },
+    'Touche « Lire la suite » pour dérouler le relevé.'));
+  plan.appendChild(el('text', { x:Wp / 2, y:Hp * .9, class:'etiq-scene' },
+    n + ' opérations lues sur ' + RELEVE.length));
+}
+
+/* ---- Scène 2 : le dépouillement ---- */
+function dessinerDepouiller() {
+  const t = C(), plan = refs.plan;
+  const i = Math.min(etat.pointe, RELEVE.length - 1);
+  const fini = etat.pointe >= RELEVE.length;
+  const o = RELEVE[i];
+  plan.appendChild(el('text', { x:Wp / 2, y:Hp * .09, class:'titre-scene' },
+    fini ? 'Dépouillement terminé' : 'Opération ' + (etat.pointe + 1) + ' sur ' + RELEVE.length));
+  if (!fini) {
+    plan.appendChild(el('rect', { x:Wp / 2 - 46, y:Hp * .13, width:92, height:38, rx:9,
+      fill:MARQUES[o.marque].couleur, opacity:.16, stroke:MARQUES[o.marque].couleur, 'stroke-width':2 }));
+    plan.appendChild(el('text', { x:Wp / 2, y:Hp * .13 + 26, class:'jeton-gros',
+      fill:MARQUES[o.marque].couleur }, o.marque + o.litres));
+  }
+  const cles = Object.keys(MARQUES);
+  const haut = Hp * .3, hl = Math.min(30, (Hp * .58) / cles.length);
+  cles.forEach((m, k) => {
+    const y = haut + k * hl;
+    const c = etat.comptes[m] || 0;
+    const g = el('g', { class:'ligne-marque' + (!fini && o.marque === m ? ' vise' : ''),
+      'data-marque':m, role:'button', tabindex:'0', 'aria-label':MARQUES[m].nom });
+    g.appendChild(el('rect', { x:Wp * .05, y:y - hl * .4, width:Wp * .9, height:hl * .86, rx:6,
+      fill:!fini && o.marque === m ? t.doux : 'transparent' }));
+    g.appendChild(el('text', { x:Wp * .08, y:y + 4, class:'etiq-scene',
+      style:'text-anchor:start', fill:MARQUES[m].couleur }, MARQUES[m].nom));
+    // les bâtonnets du dépouillement, par paquets de cinq
+    const bx = Wp * .42;
+    for (let j = 0; j < Math.min(c, 20); j++)
+      g.appendChild(el('line', { x1:bx + j * 6 + Math.floor(j / 5) * 5, y1:y - 7,
+        x2:bx + j * 6 + Math.floor(j / 5) * 5, y2:y + 3,
+        stroke:MARQUES[m].couleur, 'stroke-width':2 }));
+    g.appendChild(el('text', { x:Wp * .95, y:y + 4, class:'etiq-jauge',
+      style:'text-anchor:end' }, String(c)));
+    plan.appendChild(g);
+  });
+  const total = cles.reduce((s, m) => s + (etat.comptes[m] || 0), 0);
+  plan.appendChild(el('text', { x:Wp / 2, y:Hp * .94, class:'etiq-jauge',
+    fill:total === RELEVE.length ? t.ok : t.trait },
+    'Total : ' + total + (total === RELEVE.length ? ' ✓' : ' / ' + RELEVE.length)));
+}
+
+/* ---- Scène 3 : le tableau statistique ---- */
+function dessinerTableau() {
+  const t = C(), plan = refs.plan;
+  const lignes = T();
+  const cols = [['Marque', 'nom']].concat(
+    COLONNES.filter(c => etat.colonnes[c]).map(c => [{
+      effectif:'Effectif', frequence:'Fréquence', pourcent:'%',
+      litres:'Litres', moyenne:'Moy.', angle:'Angle' }[c], c]));
+  const lx = Wp * .04, lw = Wp * .92;
+  const cw = lw / cols.length;
+  const haut = Hp * .16, hl = Math.min(28, (Hp * .68) / (lignes.length + 1));
+  cols.forEach((c, i) =>
+    plan.appendChild(el('text', { x:lx + (i + .5) * cw, y:haut, class:'entete-col' }, c[0])));
+  lignes.forEach((l, k) => {
+    const y = haut + (k + 1) * hl + 4;
+    cols.forEach((c, i) => {
+      const v = c[1] === 'nom' ? l.nom
+        : c[1] === 'frequence' ? nb(l.frequence, 3)
+        : c[1] === 'pourcent' ? nb(l.pourcent, 1) + ' %'
+        : c[1] === 'angle' ? nb(l.angle, 1) + '°'
+        : c[1] === 'moyenne' ? nb(l.moyenne, 1)
+        : String(l[c[1]]);
+      plan.appendChild(el('text', { x:lx + (i + .5) * cw, y, class:'cellule',
+        fill:i === 0 ? MARQUES[l.cle].couleur : t.trait }, v));
+    });
+  });
+  // la ligne des totaux : c'est elle qui porte le contrôle
+  const y = haut + (lignes.length + 1) * hl + 10;
+  plan.appendChild(el('line', { x1:lx, y1:y - hl * .7, x2:lx + lw, y2:y - hl * .7,
+    stroke:t.bord, 'stroke-width':1.5 }));
+  cols.forEach((c, i) => {
+    const v = c[1] === 'nom' ? 'Total'
+      : c[1] === 'effectif' ? String(RELEVE.length)
+      : c[1] === 'frequence' ? '1'
+      : c[1] === 'pourcent' ? '100 %'
+      : c[1] === 'angle' ? '180°'
+      : c[1] === 'litres' ? String(lignes.reduce((s, l) => s + l.litres, 0))
+      : nb(moyenneLitres(RELEVE), 1);
+    plan.appendChild(el('text', { x:lx + (i + .5) * cw, y, class:'cellule total' }, v));
+  });
+}
+
+/* ---- Scène 4 : construire le diagramme en bâtons ---- */
+function cadreGraphe() {
+  return { x:Wp * .12, y:Hp * .14, w:Wp * .84, h:Hp * .66, max:20 };
+}
+function dessinerBatons(lecture) {
+  const t = C(), plan = refs.plan, g = cadreGraphe();
+  const cles = Object.keys(MARQUES);
+  const lignes = T();
+  plan.appendChild(el('text', { x:Wp / 2, y:Hp * .075, class:'titre-scene' },
+    lecture ? 'Lis les effectifs sur le diagramme' : 'Mets chaque bâton à la hauteur de son effectif'));
+  // l'axe et sa graduation
+  for (let v = 0; v <= g.max; v += 5) {
+    const y = g.y + g.h - v / g.max * g.h;
+    plan.appendChild(el('line', { x1:g.x, y1:y, x2:g.x + g.w, y2:y,
+      stroke:t.bord, 'stroke-width':1, opacity:v ? .55 : 1 }));
+    plan.appendChild(el('text', { x:g.x - 8, y:y + 4, class:'etiq-scene',
+      style:'text-anchor:end' }, String(v)));
+  }
+  const lb = g.w / cles.length;
+  cles.forEach((m, i) => {
+    const cx = g.x + (i + .5) * lb;
+    const val = lecture ? lignes.find(l => l.cle === m).effectif : (etat.barres[m] || 0);
+    const y = g.y + g.h - val / g.max * g.h;
+    const bon = !lecture && bonneBarre(m);
+    plan.appendChild(el('rect', { x:cx - lb * .3, y, width:lb * .6, height:g.y + g.h - y,
+      fill:MARQUES[m].couleur, opacity:lecture ? .8 : (bon ? .85 : .45) }));
+    plan.appendChild(el('text', { x:cx, y:g.y + g.h + 16, class:'etiq-scene',
+      fill:MARQUES[m].couleur }, MARQUES[m].nom.slice(0, 4)));
+    if (!lecture) {
+      const p = el('g', { class:'poignee', 'data-barre':m, role:'button', tabindex:'0',
+        'aria-label':'Hauteur du bâton ' + MARQUES[m].nom });
+      p.appendChild(el('rect', { x:cx - lb * .34, y:y - 14, width:lb * .68, height:28, fill:'transparent' }));
+      p.appendChild(el('line', { x1:cx - lb * .32, y1:y, x2:cx + lb * .32, y2:y,
+        stroke:bon ? t.ok : t.trait, 'stroke-width':3.5, 'stroke-linecap':'round' }));
+      plan.appendChild(p);
+      plan.appendChild(el('text', { x:cx, y:y - 8, class:'etiq-jauge',
+        fill:bon ? t.ok : t.trait }, String(Math.round(val))));
+    }
+  });
+}
+
+/* ---- Scène 5 : lire le diagramme et remplir le tableau ---- */
+function dessinerLecture() {
+  const t = C(), plan = refs.plan;
+  dessinerBatons(true);
+  // le tableau à remplir, sous le diagramme
+  const cles = Object.keys(MARQUES);
+  const y = Hp * .88, lc = (Wp * .92) / cles.length;
+  cles.forEach((m, i) => {
+    const x = Wp * .04 + (i + .5) * lc;
+    const v = etat.saisie[m];
+    const bon = v !== undefined && bonEffectif(m);
+    const g = el('g', { class:'case', 'data-case':m, role:'button', tabindex:'0',
+      'aria-label':'Effectif de ' + MARQUES[m].nom });
+    g.appendChild(el('rect', { x:x - lc * .38, y:y - 17, width:lc * .76, height:26, rx:5,
+      fill:v === undefined ? 'transparent' : bon ? t.doux : '#F6D6D6',
+      stroke:bon ? t.ok : t.bordF, 'stroke-width':bon ? 2 : 1.5,
+      'stroke-dasharray':v === undefined ? '4 3' : '' }));
+    g.appendChild(el('text', { x, y:y + 2, class:'etiq-jauge' },
+      v === undefined ? '?' : String(v)));
+    plan.appendChild(g);
+  });
+}
+
+/* ---- Scène 6 : le diagramme semi-circulaire ---- */
+function dessinerSecteurs() {
+  const t = C(), plan = refs.plan;
+  const cles = Object.keys(MARQUES);
+  const cx = Wp / 2, cy = Hp * .82, R = Math.min(Wp * .38, Hp * .62);
+  plan.appendChild(el('text', { x:Wp / 2, y:Hp * .09, class:'titre-scene' },
+    'Partage les 180° du demi-disque'));
+  const pol = (a, r) => [cx + Math.cos(Math.PI - a * Math.PI / 180) * r,
+                         cy - Math.sin(Math.PI - a * Math.PI / 180) * r];
+  let debut = 0;
+  const somme = cles.reduce((s, m) => s + (etat.angles[m] || 0), 0);
+  cles.forEach(m => {
+    const a = etat.angles[m] || 0;
+    if (a > .2) {
+      const [x1, y1] = pol(debut, R), [x2, y2] = pol(debut + a, R);
+      plan.appendChild(el('path', {
+        d:'M ' + cx + ' ' + cy + ' L ' + x1 + ' ' + y1 +
+          ' A ' + R + ' ' + R + ' 0 ' + (a > 180 ? 1 : 0) + ' 0 ' + x2 + ' ' + y2 + ' Z',
+        fill:MARQUES[m].couleur, opacity:bonAngle(m) ? .85 : .4,
+        stroke:C().surface, 'stroke-width':1.5 }));
+      const [tx, ty] = pol(debut + a / 2, R * .62);
+      if (a > 12) plan.appendChild(el('text', { x:tx, y:ty + 4, class:'etiq-secteur' },
+        MARQUES[m].nom.slice(0, 3)));
+    }
+    debut += a;
+  });
+  plan.appendChild(el('path', { d:'M ' + (cx - R) + ' ' + cy + ' A ' + R + ' ' + R +
+    ' 0 0 1 ' + (cx + R) + ' ' + cy + ' Z', fill:'none', stroke:t.bordF, 'stroke-width':2 }));
+  // les poignées de séparation
+  let acc = 0;
+  cles.forEach((m, i) => {
+    acc += etat.angles[m] || 0;
+    if (i === cles.length - 1) return;
+    const [hx, hy] = pol(Math.min(180, acc), R);
+    const g = el('g', { class:'poignee', 'data-angle':m, role:'button', tabindex:'0',
+      'aria-label':'Angle de ' + MARQUES[m].nom });
+    g.appendChild(el('circle', { cx:hx, cy:hy, r:22, fill:'transparent' }));
+    g.appendChild(el('circle', { cx:hx, cy:hy, r:7,
+      fill:bonAngle(m) ? t.ok : t.surface, stroke:t.trait, 'stroke-width':2 }));
+    plan.appendChild(g);
+  });
+  plan.appendChild(el('text', { x:Wp / 2, y:Hp * .95, class:'etiq-jauge',
+    fill:Math.abs(somme - 180) < 1.5 ? t.ok : t.trait },
+    'Somme des angles : ' + nb(somme, 1) + '° / 180°'));
+}
+
+/* ---- Scène 7 : le tableau de proportionnalité ---- */
+const LIGNES_PRIX = [10, 20, 45];
+function dessinerProportion() {
+  const t = C(), plan = refs.plan;
+  plan.appendChild(el('text', { x:Wp / 2, y:Hp * .12, class:'titre-scene' },
+    'L’essence coûte ' + PRIX_LITRE + ' F le litre'));
+  const lx = Wp * .08, lw = Wp * .84, cw = lw / (LIGNES_PRIX.length + 1);
+  const y1 = Hp * .34, y2 = Hp * .54;
+  plan.appendChild(el('text', { x:lx + cw * .5, y:y1, class:'entete-col',
+    style:'text-anchor:start' }, 'Litres'));
+  plan.appendChild(el('text', { x:lx + cw * .5, y:y2, class:'entete-col',
+    style:'text-anchor:start' }, 'Prix (F)'));
+  LIGNES_PRIX.forEach((L, i) => {
+    const x = lx + cw * (i + 1.5);
+    plan.appendChild(el('text', { x, y:y1, class:'cellule' }, String(L)));
+    const p = etat.prix[L] || 0;
+    const bon = p === prixDe(L);
+    const g = el('g', { class:'case', 'data-prix':L, role:'button', tabindex:'0',
+      'aria-label':'Prix pour ' + L + ' litres' });
+    g.appendChild(el('rect', { x:x - cw * .42, y:y2 - 18, width:cw * .84, height:28, rx:5,
+      fill:p ? (bon ? t.doux : '#F6D6D6') : 'transparent',
+      stroke:bon ? t.ok : t.bordF, 'stroke-width':bon ? 2 : 1.5,
+      'stroke-dasharray':p ? '' : '4 3' }));
+    g.appendChild(el('text', { x, y:y2 + 2, class:'cellule' }, p ? espace(p) : '?'));
+    plan.appendChild(g);
+    if (etat.montreCoef && p) {
+      plan.appendChild(el('text', { x, y:y2 + 34, class:'etiq-scene',
+        fill:p / L === PRIX_LITRE ? t.ok : t.non }, '÷ ' + L + ' = ' + nb(p / L, 0)));
+    }
+  });
+  if (etat.montreCoef)
+    plan.appendChild(el('text', { x:Wp / 2, y:Hp * .78, class:'etiq-jauge' },
+      'Le même nombre dans chaque colonne : le coefficient'));
+}
+
+/* ---- Scène 8 : pourcentage et échelle, deux opérateurs ---- */
+function dessinerOperateur() {
+  const t = C(), plan = refs.plan;
+  const total = RELEVE.reduce((s, o) => s + o.litres, 0);
+  const part = prendrePourcent(etat.pourcent, total);
+  plan.appendChild(el('text', { x:Wp / 2, y:Hp * .1, class:'titre-scene' },
+    'Deux opérateurs, un seul geste : multiplier'));
+  // le pourcentage
+  plan.appendChild(el('text', { x:Wp * .06, y:Hp * .26, class:'etiq-jauge',
+    style:'text-anchor:start' }, 'Prendre ' + nb(etat.pourcent, 0) + ' % des ' + espace(total) + ' litres'));
+  const bx = Wp * .06, bw = Wp * .88, by = Hp * .32;
+  plan.appendChild(el('rect', { x:bx, y:by, width:bw, height:16, rx:8, fill:t.muet }));
+  plan.appendChild(el('rect', { x:bx, y:by, width:bw * etat.pourcent / 100, height:16, rx:8,
+    fill:t.accent }));
+  const gp = el('g', { class:'poignee', 'data-op':'pourcent', role:'button', tabindex:'0',
+    'aria-label':'Pourcentage' });
+  gp.appendChild(el('circle', { cx:bx + bw * etat.pourcent / 100, cy:by + 8, r:20, fill:'transparent' }));
+  gp.appendChild(el('circle', { cx:bx + bw * etat.pourcent / 100, cy:by + 8, r:9,
+    fill:t.surface, stroke:t.trait, 'stroke-width':2.5 }));
+  plan.appendChild(gp);
+  plan.appendChild(el('text', { x:Wp / 2, y:Hp * .46, class:'etiq-jauge' },
+    espace(total) + ' × ' + nb(etat.pourcent, 0) + ' ÷ 100 = ' + nb(part, 1) + ' litres'));
+  // l'échelle
+  const reel = 600;                                    // 6 mètres, en centimètres
+  const surPlan = appliquerEchelle(1 / etat.echelle, reel);
+  plan.appendChild(el('text', { x:Wp * .06, y:Hp * .64, class:'etiq-jauge',
+    style:'text-anchor:start' }, 'Un mur de 6 m sur un plan à l’échelle 1/' + Math.round(etat.echelle)));
+  const cy = Hp * .7;
+  plan.appendChild(el('rect', { x:bx, y:cy, width:bw, height:16, rx:8, fill:t.muet }));
+  plan.appendChild(el('rect', { x:bx, y:cy, width:bw * (etat.echelle - 50) / 350, height:16, rx:8,
+    fill:'#C77A2F' }));
+  const ge = el('g', { class:'poignee', 'data-op':'echelle', role:'button', tabindex:'0',
+    'aria-label':'Échelle' });
+  const ex = bx + bw * (etat.echelle - 50) / 350;
+  ge.appendChild(el('circle', { cx:ex, cy:cy + 8, r:20, fill:'transparent' }));
+  ge.appendChild(el('circle', { cx:ex, cy:cy + 8, r:9,
+    fill:t.surface, stroke:t.trait, 'stroke-width':2.5 }));
+  plan.appendChild(ge);
+  plan.appendChild(el('text', { x:Wp / 2, y:Hp * .86, class:'etiq-jauge' },
+    '600 cm × 1/' + Math.round(etat.echelle) + ' = ' + nb(surPlan, 1) + ' cm sur le plan'));
+}
+
+/* ==================== Ce que la scène permet de calculer ==================== */
+function resoudre() {
+  calc = { tableau:T() };
+  memoriser();
+  mesurerPlan(); majCarnet(); rendreEtapes(); rendreActions(); verifierProgres();
+}
+
+function memoriser() {
+  const v = etat.vus;
+  if (etat.scene === 'depouiller') {
+    const total = Object.keys(MARQUES).reduce((s, m) => s + (etat.comptes[m] || 0), 0);
+    if (total === RELEVE.length) v.totalVu = true;
+  }
+  if (etat.colonnes.pourcent) v.sommeVue = true;
+  if (etat.montreCoef) v.coefVu = true;
+  if (etat.scene === 'proportion' && LIGNES_PRIX.every(L => etat.prix[L] === prixDe(L)))
+    v.tableauJuste = true;
+}
+
+/* ========================= Le carnet ========================= */
+const ligne = (n, v) => '<div class="me-ligne"><span class="nom">' + n +
+  '</span><span class="val">' + v + '</span></div>';
+
+function majCarnet() {
+  const z = $('me-corps');
+  let h = '', quoi = '';
+  const lignes = T();
+  if (etat.scene === 'releve') {
+    h += ligne('Population', RELEVE.length + ' opérations');
+    h += ligne('Lues', etat.lus);
+    h += '<div class="me-sep"></div>';
+    for (const c in CARACTERES)
+      h += '<div class="me-outil">' + CARACTERES[c].nom + ' · <b>' + CARACTERES[c].type + '</b></div>';
+    quoi = etat.caractere ? CARACTERES[etat.caractere].quoi : 'Deux caractères, un seul est quantitatif.';
+  } else if (etat.scene === 'depouiller') {
+    const total = Object.keys(MARQUES).reduce((s, m) => s + (etat.comptes[m] || 0), 0);
+    h += ligne('Pointées', etat.pointe + ' / ' + RELEVE.length);
+    h += ligne('Total compté', total);
+    quoi = total === RELEVE.length ? 'Le total tombe juste : le dépouillement est bon.'
+                                   : 'Touche la ligne de la marque affichée.';
+  } else if (etat.scene === 'batons' || etat.scene === 'lecture') {
+    for (const l of lignes) h += ligne(l.nom, l.effectif);
+    quoi = etat.scene === 'batons' ? 'La hauteur d’un bâton, c’est l’effectif.'
+                                   : 'Lis chaque bâton, puis règle sa case.';
+  } else if (etat.scene === 'secteurs') {
+    for (const l of lignes) h += ligne(l.nom, nb(l.angle, 1) + '°');
+    quoi = 'Angle = effectif ÷ 78 × 180.';
+  } else if (etat.scene === 'proportion') {
+    h += ligne('Prix du litre', PRIX_LITRE + ' F');
+    for (const L of LIGNES_PRIX) h += ligne(L + ' litres', etat.prix[L] ? espace(etat.prix[L]) + ' F' : '?');
+    quoi = etat.montreCoef ? 'Le même quotient partout : c’est le coefficient.'
+                           : 'Chaque prix vaut les litres × 700.';
+  } else if (etat.scene === 'operateur') {
+    h += ligne('Pourcentage', nb(etat.pourcent, 0) + ' %');
+    h += ligne('Échelle', '1/' + Math.round(etat.echelle));
+    quoi = 'Un pourcentage et une échelle se posent de la même façon : on multiplie.';
+  } else {
+    for (const l of lignes) {
+      const bouts = ['effectif ' + l.effectif];
+      if (etat.colonnes.pourcent) bouts.push(nb(l.pourcent, 1) + ' %');
+      if (etat.colonnes.moyenne) bouts.push('moy. ' + nb(l.moyenne, 1) + ' L');
+      h += ligne(l.nom, bouts.join(' · '));
+    }
+    quoi = 'Effectif total 78 · moyenne générale ' + nb(moyenneLitres(RELEVE), 1) + ' litres.';
+  }
+  z.innerHTML = h;
+  $('me-quoi').textContent = quoi;
+}
+
+/* ============================== La barre du bas ============================== */
+function rendreOutils() {
+  const z = $('liste-outils');
+  z.innerHTML = '';
+  const bouton = (id, txt, actif, act) => {
+    const b = document.createElement('button');
+    b.className = 'ot'; b.id = id; b.type = 'button';
+    b.setAttribute('aria-pressed', actif ? 'true' : 'false');
+    b.innerHTML = txt; b.onclick = act;
+    z.appendChild(b); return b;
+  };
+  if (etat.scene === 'releve') {
+    bouton('btn-lire', '👁 Lire la suite', false, () => {
+      etat.lus = Math.min(RELEVE.length, etat.lus + 12); resoudre();
+    });
+    for (const c in CARACTERES)
+      bouton('ca-' + c, CARACTERES[c].nom, etat.caractere === c,
+        () => { etat.caractere = c; rendreOutils(); resoudre(); });
+  } else if (etat.scene === 'depouiller') {
+    bouton('btn-finir', '⏭ Terminer le comptage', false, () => {
+      etat.comptes = {};
+      for (const o of RELEVE) etat.comptes[o.marque] = (etat.comptes[o.marque] || 0) + 1;
+      etat.pointe = RELEVE.length; resoudre();
+    });
+  } else if (etat.scene === 'tableau') {
+    for (const c of COLONNES) {
+      if (c === 'effectif') continue;
+      bouton('co-' + c, { frequence:'Fréquence', pourcent:'Pourcentage', litres:'Litres',
+        moyenne:'Moyenne', angle:'Angle' }[c], !!etat.colonnes[c],
+        () => { etat.colonnes[c] = !etat.colonnes[c]; rendreOutils(); resoudre(); });
+    }
+  } else if (etat.scene === 'proportion') {
+    bouton('btn-coef', '🔎 Montrer le coefficient', etat.montreCoef,
+      () => { etat.montreCoef = !etat.montreCoef; rendreOutils(); resoudre(); });
+  }
+  $('outils').hidden = z.children.length === 0;
+}
+
+/* ====================== Les boutons du bas de l’écran ====================== */
+function rendreActions() {
+  const z = $('actions');
+  z.innerHTML = '';
+  const bouton = (id, txt, cls, act) => {
+    const b = document.createElement('button');
+    b.className = 'btn ' + (cls || ''); b.id = id; b.textContent = txt; b.onclick = act;
+    z.appendChild(b); return b;
+  };
+  if (etat.scene === 'batons' || etat.scene === 'secteurs' || etat.scene === 'lecture')
+    bouton('btn-remise', '↺ Tout remettre à zéro', 'btn-fantome', () => {
+      etat.barres = {}; etat.angles = {}; etat.saisie = {}; resoudre();
+    });
+  if (!enLibre()) bouton('btn-tester', '✅ Conclure', '', conclure);
+  surbrillerCible();
+}
+
+/* ============================== Le geste ============================== */
+let saisi = null;
+function versPlan(ev) {
+  const r = refs.plan.getBoundingClientRect();
+  return { x:(ev.clientX - r.left) * (Wp / (r.width || 1)),
+           y:(ev.clientY - r.top) * (Hp / (r.height || 1)) };
+}
+
+function brancherGestes() {
+  const plan = refs.plan;
+  plan.addEventListener('click', ev => {
+    const m = ev.target.closest('[data-marque]');
+    if (m && etat.pointe < RELEVE.length) {
+      const o = RELEVE[etat.pointe];
+      if (o.marque === m.dataset.marque) {
+        etat.comptes[o.marque] = (etat.comptes[o.marque] || 0) + 1;
+        etat.pointe++;
+      } else toast('Ce n’est pas cette marque : regarde l’opération affichée.');
+      resoudre(); return;
+    }
+    const c = ev.target.closest('[data-case]');
+    if (c) {
+      const cle = c.dataset.case;
+      etat.saisie[cle] = ((etat.saisie[cle] || 0) + 1) % 21;
+      resoudre(); return;
+    }
+    const p = ev.target.closest('[data-prix]');
+    if (p) {
+      const L = +p.dataset.prix;
+      etat.prix[L] = ((etat.prix[L] || 0) + 700 * L / 10) % (prixDe(L) * 2 + 700);
+      resoudre();
+    }
+  });
+  plan.addEventListener('pointerdown', ev => {
+    const c = ev.target.closest('[data-barre], [data-angle], [data-op]');
+    if (!c) return;
+    saisi = c.dataset.barre ? { type:'barre', cle:c.dataset.barre }
+          : c.dataset.angle ? { type:'angle', cle:c.dataset.angle }
+          : { type:'op', cle:c.dataset.op };
+    try { plan.setPointerCapture(ev.pointerId); } catch (e) {}
+    ev.preventDefault();
+  });
+  plan.addEventListener('pointermove', ev => {
+    if (!saisi) return;
+    const p = versPlan(ev);
+    if (saisi.type === 'barre') {
+      const g = cadreGraphe();
+      const v = Math.max(0, Math.min(g.max, Math.round((g.y + g.h - p.y) / g.h * g.max)));
+      if (v !== etat.barres[saisi.cle]) { etat.barres[saisi.cle] = v; etat.bougesBarre++; resoudre(); }
+    } else if (saisi.type === 'angle') {
+      const cx = Wp / 2, cy = Hp * .82;
+      let a = Math.atan2(cy - p.y, p.x - cx) * 180 / Math.PI;
+      a = Math.max(0, Math.min(180, 180 - a));
+      const cles = Object.keys(MARQUES), i = cles.indexOf(saisi.cle);
+      let avant = 0;
+      for (let k = 0; k < i; k++) avant += etat.angles[cles[k]] || 0;
+      const v = Math.max(0, Math.round((a - avant) * 2) / 2);
+      if (v !== etat.angles[saisi.cle]) { etat.angles[saisi.cle] = v; etat.bougesAngle++; resoudre(); }
+    } else {
+      const bx = Wp * .06, bw = Wp * .88;
+      const f = Math.max(0, Math.min(1, (p.x - bx) / bw));
+      if (saisi.cle === 'pourcent') {
+        const v = Math.round(f * 100);
+        if (v !== etat.pourcent) { etat.pourcent = v; etat.bougesOperateur++; resoudre(); }
+      } else {
+        const v = Math.round((50 + f * 350) / 25) * 25;
+        if (v !== etat.echelle) { etat.echelle = v; etat.bougesEchelle++; resoudre(); }
+      }
+    }
+    ev.preventDefault();
+  });
+  const lacher = ev => { if (!saisi) return; saisi = null;
+    try { plan.releasePointerCapture(ev.pointerId); } catch (e) {} };
+  plan.addEventListener('pointerup', lacher);
+  plan.addEventListener('pointercancel', lacher);
+  plan.addEventListener('keydown', ev => {
+    if (ev.key !== 'Enter' && ev.key !== ' ') return;
+    const c = ev.target.closest('[data-marque], [data-case], [data-prix]');
+    if (!c) return;
+    ev.preventDefault();
+    c.dispatchEvent(new MouseEvent('click', { bubbles:true }));
+  });
+}
+
+function montrerIndice() {
+  const M = enLibre() ? null : MISSIONS[etat.mission];
+  if (!M || !M.indice) return;
+  $('mission').classList.add('ouvert');
+  $('m-plier').setAttribute('aria-expanded', 'true');
+  $('m-indice').innerHTML = '<b>💡 Indice :</b> ' + M.indice;
+  $('m-indice').hidden = false;
+  $('btn-indice').classList.remove('appelle');
+  mesurerPlan();
+}
+
+function demarrerMission() {
+  cacherBilan();
+  reprendre();
+  $('m-indice').hidden = true;
+  $('m-indice').innerHTML = '';
+  const M = enLibre() ? null : MISSIONS[etat.mission];
+  $('m-actions').hidden = !(M && M.indice);
+  rendreMission(); rendreOutils(); resoudre();
+}
+
+/* ====================== Le bilan ====================== */
+const BILANS = [
+  () => { if (etat.caractere !== 'litres') return ['📋', 'Choisis le caractère quantitatif', '',
+      'Des deux caractères, un seul est un <b>nombre</b> sur lequel on peut faire une moyenne.'];
+    etat.vus.luPopulation = true;
+    return ['📋', 'La population et ses caractères', RELEVE.length + ' opérations dans la journée',
+      'La <b>population</b>, ce sont les 78 opérations. La <b>marque</b> est un caractère <b>qualitatif</b> — on le nomme —, le <b>nombre de litres</b> un caractère <b>quantitatif</b> — on le mesure. Chaque valeur possible est une <b>modalité</b>.']; },
+
+  () => { const total = Object.keys(MARQUES).reduce((s, m) => s + (etat.comptes[m] || 0), 0);
+    if (total !== RELEVE.length) return ['🧮', 'Le dépouillement n’est pas fini',
+      total + ' opérations comptées sur ' + RELEVE.length, ''];
+    etat.vus.luEffectifs = true;
+    return ['🧮', 'Les effectifs', 'Audi 17 · Toyota 15 · Mercedes 13 · Opel 11 · Peugeot 9 · Renault 7 · Volkswagen 6',
+      'L’<b>effectif</b> d’une modalité est le nombre de fois où elle apparaît. Leur somme fait <b>78</b>, l’<b>effectif total</b> — et si elle ne tombait pas juste, le dépouillement serait faux.']; },
+
+  () => { if (!etat.colonnes.pourcent) return ['➗', 'Affiche les pourcentages', '',
+      'Touche « Pourcentage » dans la barre du bas.'];
+    etat.vus.luFrequences = true;
+    return ['➗', 'Les fréquences', 'Audi 17 ÷ 78 ≈ 0,218, soit 21,8 %',
+      'La <b>fréquence</b> est l’effectif divisé par l’effectif total. Leur somme fait toujours <b>1</b>, donc <b>100 %</b> : c’est le contrôle du tableau.']; },
+
+  () => { if (!etat.colonnes.moyenne) return ['📏', 'Affiche la moyenne', '',
+      'Touche « Moyenne » dans la barre du bas.'];
+    etat.vus.luMoyenne = true;
+    return ['📏', 'La moyenne', '2 170 litres pour 78 opérations, soit ' + nb(moyenneLitres(RELEVE), 1) + ' litres',
+      'La <b>moyenne</b> ne vaut que pour un caractère <b>quantitatif</b>. Et elle cache les écarts : Opel achète 35,9 litres en moyenne, Toyota 22,3.']; },
+
+  () => { if (!Object.keys(MARQUES).every(bonneBarre)) return ['📊', 'Les bâtons n’y sont pas encore', '',
+      'La hauteur de chaque bâton est l’<b>effectif</b> de la marque. Ton carnet te les rappelle.'];
+    etat.vus.luBatons = true;
+    return ['📊', 'Le diagramme en bâtons', '',
+      'La <b>hauteur</b> d’un bâton est proportionnelle à l’<b>effectif</b>. Les bâtons restent <b>séparés</b> : le caractère est qualitatif, il n’y a rien entre Audi et Toyota.']; },
+
+  () => { if (!tousBons()) return ['🔎', 'Le tableau n’est pas encore juste', '',
+      'Touche une case pour faire monter sa valeur, et compare avec la hauteur du bâton.'];
+    etat.vus.luLecture = true;
+    return ['🔎', 'Lire dans l’autre sens', '',
+      'Un diagramme se lit <b>dans les deux sens</b>. Savoir dresser le tableau à partir du dessin, c’est ce qui permet de retrouver les nombres derrière un graphique de journal ou d’affiche.']; },
+
+  () => { if (!Object.keys(MARQUES).every(bonAngle)) return ['🥧', 'Les angles n’y sont pas', '',
+      'L’angle d’une marque vaut effectif ÷ 78 × <b>180</b>. Pour Mercedes : exactement 30°.'];
+    etat.vus.luSecteurs = true;
+    return ['🥧', 'Le diagramme semi-circulaire', 'La somme des angles fait 180°, jamais 360',
+      'Chaque modalité reçoit un angle <b>proportionnel à son effectif</b>, sur les <b>180°</b> du demi-disque : effectif ÷ effectif total × 180.']; },
+
+  () => { if (!etat.vus.tableauJuste) return ['💰', 'Le tableau n’est pas complet', '',
+      'Touche une case du prix : elle avance par pas de 700 F par tranche de dix litres.'];
+    etat.vus.luProportion = true;
+    return ['💰', 'Un tableau de proportionnalité', '10 L → 7 000 F · 20 L → 14 000 F · 45 L → 31 500 F',
+      'Un <b>tableau de proportionnalité</b> est un tableau où l’on passe d’une ligne à l’autre en multipliant toujours par le <b>même nombre</b>.']; },
+
+  () => { if (!etat.montreCoef) return ['🔑', 'Montre le coefficient', '',
+      'Touche « Montrer le coefficient » : chaque prix se divise par ses litres.'];
+    etat.vus.luCoefficient = true;
+    return ['🔑', 'Le coefficient de proportionnalité', '14 000 ÷ 20 = 700 · 31 500 ÷ 45 = 700',
+      'Le nombre par lequel on multiplie s’appelle le <b>coefficient de proportionnalité</b>. Ici c’est <b>700</b> — le prix d’un litre. On le retrouve en divisant n’importe quel prix par ses litres.']; },
+
+  () => { if (Math.abs(etat.pourcent - 25) >= .1) return ['％', 'Règle le curseur sur 25 %', '',
+      'Fais glisser la poignée jusqu’à 25.'];
+    etat.vus.luPourcent = true;
+    return ['％', 'Le pourcentage est un opérateur',
+      '2 170 × 25 ÷ 100 = 542,5 litres',
+      'Prendre 25 % d’une quantité, c’est la <b>multiplier</b> par 25 ÷ 100, soit 0,25. Prendre 100 % ne change rien : on multiplie par 1.']; },
+
+  () => { if (Math.abs(etat.echelle - 200) >= .5) return ['📐', 'Règle l’échelle sur 1/200', '',
+      'Fais glisser la seconde poignée.'];
+    etat.vus.luEchelle = true;
+    return ['📐', 'L’échelle aussi', '600 cm × 1/200 = 3 cm sur le plan',
+      'Une <b>échelle</b> s’emploie exactement comme un pourcentage : c’est un <b>opérateur</b>. On multiplie le réel par 1/200 pour obtenir le plan, et le plan par 200 pour revenir au réel.']; },
+];
+
+function conclure() {
+  const b = $('btn-tester'); if (b) b.classList.remove('appelle');
+  const f = BILANS[etat.mission];
+  if (!f) return;
+  const [em, titre, objectif, phrase] = f();
+  montrerBilan(em, titre, objectif, phrase);
+  resoudre();
+}
+
+/* ====================== Le bilan : « que conclure ? » ====================== */
+function cacherBilan() {
+  $('bilan').classList.remove('visible');
+  $('atelier').classList.remove('avec-bilan');
+}
+let qcmEnAttente = false;
+// Referme le bilan, et enchaîne sur le questionnaire s'il attendait son tour
+function fermerBilan() {
+  cacherBilan();
+  if (qcmEnAttente) { qcmEnAttente = false; setTimeout(ouvrirQcm, 180); }
+}
+function montrerBilan(em, titre, objectif, phrase, suite) {
+  const b = $('bilan');
+  b.innerHTML =
+    '<div class="verdict"><span class="em">' + em + '</span><h3>' + titre + '</h3>' +
+    '<button class="reduire" id="bilan-x" aria-label="Réduire">✕</button></div>' +
+    (objectif ? '<div class="objectif">' + objectif + '</div>' : '') +
+    '<p class="phrase">' + phrase + '</p>' +
+    // C'est la seule action de la modale : elle doit ressembler à un bouton.
+    // En `btn-fantome`, fond transparent sur le fond du bilan, elle passait
+    // pour du texte cliquable — pas pour un appel à agir.
+    '<div class="actions"><button class="btn" id="bilan-ok">' +
+      (suite || 'Continuer') + '</button></div>';
+  b.classList.add('visible');
+  $('atelier').classList.add('avec-bilan');
+  $('bilan-x').onclick = fermerBilan;
+  $('bilan-ok').onclick = fermerBilan;
+}
+
+/* ============================== Les missions ============================== */
+function rendreMission() {
+  if (enLibre()) {
+    $('m-num').textContent = '∞';
+    $('m-rang').textContent = 'Exploration libre';
+    $('m-titre').textContent = 'Fabrique ce que tu veux';
+    $('m-but').textContent = 'Tout le sel, tous les isolants, aucune consigne : essaie et compare.';
+    $('etapes').innerHTML = '';
+    $('m-jauge').style.width = '100%';
+    surbrillerCible();
+    return;
+  }
+  const M = MISSIONS[etat.mission];
+  $('m-num').textContent = etat.mission + 1;
+  $('m-rang').textContent = 'Mission ' + (etat.mission + 1) + ' sur ' + MISSIONS.length;
+  $('m-titre').textContent = M.titre;
+  $('m-but').textContent = M.but;
+  rendreEtapes();
+}
+function rendreEtapes() {
+  // en exploration libre il n'y a pas d'étapes : le panneau reste vide
+  if (enLibre()) { $('etapes').innerHTML = ''; $('m-jauge').style.width = '100%'; surbrillerCible(); return; }
+  const M = MISSIONS[etat.mission], z = $('etapes');
+  z.innerHTML = '';
+  let courante = -1;
+  const faites = M.etapes.map(e => !!e.ok(etat));
+  for (let i = 0; i < faites.length; i++) if (!faites[i]) { courante = i; break; }
+  // Panneau replié, seule l'étape en cours s'affiche : le chevron déploie le reste.
+  const iMontrer = courante >= 0 ? courante : faites.length - 1;
+  M.etapes.forEach((e, i) => {
+    const d = document.createElement('div');
+    d.className = 'etape' + (faites[i] ? ' faite' : '') + (i === courante ? ' courante' : '')
+      + (i === iMontrer ? ' a-montrer' : '');
+    d.innerHTML = '<span class="coche">' + (faites[i] ? '✓' : i + 1) +
+      '</span><span class="t">' + e.t + '</span>';
+    z.appendChild(d);
+  });
+  const n = faites.filter(Boolean).length;
+  $('m-jauge').style.width = Math.round(n / M.etapes.length * 100) + '%';
+  surbrillerCible();
+}
+// L’élément à montrer du doigt : celui de la première étape non franchie
+function cibleEffective() {
+  if (enLibre()) return null;              // rien à montrer du doigt : l'élève explore
+  const M = MISSIONS[etat.mission];
+  for (const e of M.etapes) if (!e.ok(etat)) return e.cible || null;
+  return null;
+}
+function surbrillerCible() {
+  document.querySelectorAll('.appelle').forEach(n => n.classList.remove('appelle'));
+  const c = cibleEffective();
+  if (c && $(c)) $(c).classList.add('appelle');
+}
+
+function verifierProgres() {
+  if (enLibre()) return;                   // aucune mission à gagner ici
+  const M = MISSIONS[etat.mission];
+  if (!M.gagne(etat)) { rendreEtapes(); return; }
+  if (etat.faits.includes(etat.mission)) { rendreEtapes(); return; }
+  etat.faits.push(etat.mission); sauver(); rendreEtapes();
+  // Si un bilan est ouvert, on ne le recouvre pas : c'est le bouton du bilan
+  // qui enchaîne sur le questionnaire, quand l'élève a fini de lire.
+  if ($('bilan').classList.contains('visible')) {
+    qcmEnAttente = true;
+    const ok = $('bilan-ok'); if (ok) ok.textContent = '🎓 Mission réussie — continuer';
+  } else setTimeout(ouvrirQcm, 620);
+}
+
+/* ================================ Le QCM ================================ */
+
+// Mélange les propositions : sans cela, la bonne réponse resterait toujours en
+// tête de liste et l'élève finirait par cliquer sans lire.
+function melangerQuestion(q) {
+  const ordre = q.r.map((_, i) => i);
+  for (let i = ordre.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = ordre[i]; ordre[i] = ordre[j]; ordre[j] = t;
+  }
+  return Object.assign({}, q, {
+    r: ordre.map(k => q.r[k]),
+    bonne: ordre.indexOf(q.bonne),
+  });
+}
+function ouvrirQcm() {
+  const M = MISSIONS[etat.mission], q = melangerQuestion(M.qcm);
+  qcmCourant = q;
+  const c = $('qcm-carte');
+  c.innerHTML = '<h2>🎓 Mission réussie !</h2><p class="q-question">' + q.q + '</p>' +
+    '<div class="q-choix" id="q-choix"></div><div id="q-retour"></div>';
+  const zc = $('q-choix');
+  q.r.forEach((txt, i) => {
+    const b = document.createElement('button');
+    b.className = 'q-rep'; b.type = 'button'; b.textContent = txt;
+    b.onclick = () => repondre(i, b);
+    zc.appendChild(b);
+  });
+  ouvrir('v-qcm');
+}
+let qcmCourant = null;
+function repondre(i, bouton) {
+  const q = qcmCourant;
+  const juste = i === q.bonne;
+  bouton.classList.add(juste ? 'juste' : 'faux');
+  document.querySelectorAll('.q-rep').forEach(b => b.disabled = true);
+  if (!juste) document.querySelectorAll('.q-rep')[q.bonne].classList.add('juste');
+  $('q-retour').innerHTML =
+    '<div class="q-mot ' + (juste ? 'ok' : 'non') + '">' +
+      (juste ? '✅ Bien vu.' : '💡 Regarde plutôt la bonne réponse.') + ' ' + q.pourquoi + '</div>' +
+    '<button class="btn btn-large" id="q-suite">Continuer</button>';
+  $('q-suite').onclick = () => { fermer('v-qcm'); ouvrirPassage(); };
+}
+
+/* ===================== L’écran de passage entre missions ===================== */
+function ouvrirPassage() {
+  const M = MISSIONS[etat.mission], suivante = MISSIONS[etat.mission + 1];
+  const c = $('passage-carte');
+  c.innerHTML =
+    '<div class="p-fanion"><span class="rond">🏅</span><div>' +
+      '<b>Mission ' + (etat.mission + 1) + ' terminée</b>' +
+      '<span>' + M.titre + '</span></div></div>' +
+    '<div class="p-acquis"><b>Ce que tu retiens :</b><br>' + M.retenir + '</div>' +
+    (suivante
+      ? '<div class="p-suite"><div class="etiq">Mission suivante</div><b>' + suivante.titre +
+        '</b><span>' + suivante.but + '</span></div>' +
+        '<button class="btn btn-large" id="p-go">Commencer la mission ' + (etat.mission + 2) + '</button>' +
+        '<p class="p-neuf">La scène est remise en ordre pour la nouvelle mission.</p>'
+      : '<div class="p-suite"><div class="etiq">Parcours terminé</div><b>Tu sais fabriquer de la glace</b>' +
+        '<span>Le mélange réfrigérant, le rôle de l’isolant, le palier de solidification et l’origine du givre.</span></div>' +
+        '<button class="btn btn-large" id="p-go">Explorer librement →</button>' +
+        '<p class="p-neuf">Le sel et les quatre isolants s’ouvrent : essaie les mélanges que tu veux.</p>');
+  $('p-go').onclick = () => {
+    fermer('v-passage');
+    if (suivante) { etat.mission++; sauver(); reprendre(); demarrerMission(); }
+    else passerEnLibre();
+  };
+  ouvrir('v-passage');
+}
+
+/* ============================== Les fenêtres ============================== */
+function ouvrir(id) { $(id).classList.add('visible'); }
+function fermer(id) { $(id).classList.remove('visible'); }
+
+let minuteurToast = null;
+function toast(txt, alerte) {
+  const t = $('toast');
+  t.textContent = txt;
+  t.classList.toggle('alerte', !!alerte);
+  t.classList.add('visible');
+  clearTimeout(minuteurToast);
+  minuteurToast = setTimeout(() => t.classList.remove('visible'), 2600);
+}
+
+function rendreLexique() {
+  $('liste-lexique').innerHTML = LEXIQUE.map(([m, d]) =>
+    // le mot et sa définition sur deux lignes : « em » les collait l'un à l'autre
+    '<div class="lex-entree"><b>' + m + '</b><span>' + d + '</span></div>').join('');
+}
+
+/* Le quiz doit rester atteignable SANS quitter la simulation : il n'apparaissait
+   que sur l'écran d'accueil, au lancement. Une fois le parcours terminé, l'élève
+   devait sortir de la simulation et y revenir pour le retrouver. */
+function carteExercer() {
+  // etat.faits, pas etat.faites : ici le champ mémoire s'appelle « faits ».
+  // C'est « faites » qu'on ÉCRIT dans localStorage, pas ce qu'on lit en mémoire.
+  const ouvert = etat.faits.length >= MISSIONS.length;
+  return '<button class="d-carte" data-mission="exercer"' + (ouvert ? '' : ' disabled') + '>' +
+    '<span class="num">' + (ouvert ? '🏅' : '🔒') + '</span>' +
+    '<span class="txt"><b>M’exercer</b><span>' + (ouvert
+      ? 'Trois séries de questions, et un score de maîtrise.'
+      : 'Termine le parcours pour l’ouvrir.') + '</span></span></button>';
+}
+
+function rendreListeMissions() {
+  $('liste-missions').innerHTML = MISSIONS.map((m, i) => {
+    const fait = etat.faits.includes(i), ouverte = i <= etat.mission || fait;
+    return '<button class="d-carte' + (fait ? ' fait' : '') + '" data-mission="' + i + '"' +
+      (ouverte ? '' : ' disabled') + '>' +
+      '<span class="num">' + (fait ? '✓' : ouverte ? i + 1 : '🔒') + '</span>' +
+      '<div class="txt"><b>' + m.titre + '</b><span>' +
+      (ouverte ? m.but : 'Termine la mission précédente pour l’ouvrir.') +
+      '</span></div></button>';
+  }).join('') + carteLibre();
+  $('liste-missions').insertAdjacentHTML('beforeend', carteExercer());
+  // une mission déjà ouverte se rejoue d'un clic, comme dans les autres simulations
+  $('liste-missions').querySelectorAll('[data-mission]').forEach(b => {
+    if (b.disabled) return;
+    b.onclick = () => {
+      if (b.dataset.mission === 'exercer') { fermer('v-missions'); ouvrirQuiz(); return; }
+      fermer('v-missions');
+      etat.libre = false; etat.mission = +b.dataset.mission;
+      sauver(); reprendre(); demarrerMission(); rendreListeMissions();
+    };
+  });
+  const c = $('carte-libre');
+  if (c && !c.disabled) c.onclick = () => { fermer('v-missions'); passerEnLibre(); };
+}
+
+// La carte d'exploration libre, en bas de la liste des missions
+function carteLibre() {
+  const tout = etat.faits.length >= MISSIONS.length;
+  return '<button class="d-carte' + (tout ? '' : ' verrou') + '" id="carte-libre"' +
+    (tout ? '' : ' disabled') + '><span class="num">' + (tout ? '∞' : '🔒') + '</span>' +
+    '<div class="txt"><b>Exploration libre</b><span>' + (tout
+      ? 'Tout le sel, les quatre isolants, aucune consigne.'
+      : 'Termine les ' + MISSIONS.length + ' missions pour l’ouvrir.') +
+    '</span></div></button>';
+}
+
+/* ================================ Le thème ================================ */
+function appliquerTheme(t) {
+  document.body.classList.toggle('sombre', t === 'sombre');
+  $('btn-theme').textContent = t === 'sombre' ? '☀️' : '🌙';
+  try { localStorage.setItem('ike-theme', t); } catch (e) {}
+}
+
+/* ================== Repli du panneau sur les petits écrans ================== */
+function replierSiPetitEcran() {
+  const petit = window.innerHeight < 620 || window.innerWidth < 560;
+  $('mission').classList.toggle('ouvert', !petit);
+  $('m-plier').setAttribute('aria-expanded', petit ? 'false' : 'true');
+}
+
+/* Ici, rien ne se passe tout seul : la figure ne change que si l'élève déplace
+   un point. Il n'y a donc pas de boucle d'animation — resoudre() recalcule et
+   redessine après chaque geste, ce qui suffit et coûte bien moins cher sur les
+   appareils du terrain. */
+
+/* ============================== Le démarrage ============================== */
+function init() {
+  refs.plan = $('plan');
+  charger();
+  mesurerPlan();
+
+  let th = 'clair';
+  try { th = localStorage.getItem('ike-theme') || 'clair'; } catch (e) {}
+  appliquerTheme(th);
+  $('btn-theme').onclick = () =>
+    appliquerTheme(document.body.classList.contains('sombre') ? 'clair' : 'sombre');
+
+  $('btn-lexique').onclick = () => { rendreLexique(); ouvrir('v-lexique'); };
+  $('btn-missions').onclick = () => { rendreListeMissions(); ouvrir('v-missions'); };
+  $('btn-aide').onclick = () => ouvrir('v-aide');
+  document.querySelectorAll('[data-ferme]').forEach(b =>
+    b.onclick = () => fermer(b.getAttribute('data-ferme')));
+  document.querySelectorAll('.voile').forEach(v =>
+    v.addEventListener('click', ev => { if (ev.target === v) v.classList.remove('visible'); }));
+  document.addEventListener('keydown', ev => {
+    if (ev.key === 'Escape') document.querySelectorAll('.voile.visible')
+      .forEach(v => v.classList.remove('visible'));
+  });
+
+  $('btn-rezero').onclick = () => {
+    try { localStorage.removeItem(CLE); } catch (e) {}
+    etat.mission = 0; etat.faits = []; reprendre();
+    fermer('v-missions'); demarrerMission();
+    toast('Parcours remis à zéro.');
+  };
+
+  $('m-plier').onclick = () => {
+    const o = $('mission').classList.toggle('ouvert');
+    $('m-plier').setAttribute('aria-expanded', o ? 'true' : 'false');
+    mesurerPlan();
+  };
+
+  $('btn-indice').onclick = montrerIndice;
+  brancherGestes();
+  replierSiPetitEcran();
+  window.addEventListener('resize', () => { replierSiPetitEcran(); mesurerPlan(); });
+  window.addEventListener('orientationchange', () => { replierSiPetitEcran(); mesurerPlan(); });
+
+  demarrerMission();
+  /* ============================================================================
+   L'accueil — « Que veux-tu faire ? »
+   Deux portes d'entrée : le parcours guidé, et le plan de travail libre. La
+   seconde reste fermée tant que le parcours n'est pas terminé. L'écran se
+   présente à chaque ouverture de la simulation, et indique où l'on en est.
+   ========================================================================== */
+function accueilFaites() { return (etat.faits || []).length; }
+function accueilOuvert() { return accueilFaites() >= MISSIONS.length; }
+
+function rendreAccueil() {
+  const n = accueilFaites(), total = MISSIONS.length;
+  $('ac-etat-app').textContent = n === 0 ? 'Commencer'
+    : n >= total ? 'Terminé ✓' : 'Reprendre · ' + n + '/' + total;
+  const ouvert = accueilOuvert();
+  $('ac-experimenter').disabled = !ouvert;
+  $('ac-etat-exp').textContent = ouvert ? 'Ouvert' : '🔒 Verrouillé';
+  $('ac-exercer').disabled = !ouvert;
+  $('ac-etat-ex').textContent = ouvert ? (scoreMaitrise() + ' %') : '🔒 Verrouillé';
+  $('ac-pied').innerHTML = ouvert
+    ? 'Tu as terminé le parcours : les deux portes sont ouvertes.'
+    : 'Termine les <b>' + total + ' missions</b> d’Apprendre pour ouvrir Expérimenter.';
+}
+
+function ouvrirAccueil() {
+  rendreAccueil();
+  ouvrir('v-accueil');
+}
+
+$('ac-apprendre').addEventListener('click', () => {
+  fermer('v-accueil');
+  etat.libre = false; sauver(); reprendre(); demarrerMission();
+  // le repérage de l'interface reste proposé tant que la première mission n'est pas gagnée
+  if (accueilFaites() === 0) lancerVisite();
+});
+$('ac-experimenter').addEventListener('click', () => {
+  if (!accueilOuvert()) return;
+  fermer('v-accueil');
+  passerEnLibre();
+});
+
+/* ============================================================================
+   La visite guidée — on montre l'écran au lieu de le décrire
+   ========================================================================== */
+const VISITE = [
+  { cible:'#mission', titre:'🎯 Le plan de mission', texte:"Ton but du moment et les étapes à cocher. Le chevron <b>▼</b> le replie quand tu veux de la place pour travailler." },
+  { cible:'#mesures', titre:'📒 Ton carnet d’observation', texte:"Les nombres de ton tableau, et ce que la mission te demande d'en tirer." },
+  { cible:'#plan', titre:'📋 La scène', texte:"Ici, le relevé brut. Elle changera au fil du parcours : le tableau, les diagrammes, puis la proportionnalité." },
+  { cible:'#outils', titre:'🎛️ Les commandes', texte:"Ce que tu fais apparaître : les colonnes du tableau, le comptage, le coefficient. Selon la mission, ces boutons changent de rôle." },
+  { cible:'#actions', titre:'✅ Conclure', texte:"« Conclure » te dit ce que ton essai démontre — ou ce qu'il manque pour y arriver." },
+  { cible:'.tete-fin', titre:'🎓 Les boutons du haut', texte:"Les missions, le lexique des mots difficiles, ce guide, et le thème clair ou sombre." },
+];
+let visiteIdx = -1, visiteEtapes = [];
+
+function cibleVisible(sel) {
+  const e = document.querySelector(sel);
+  if (!e) return null;
+  const r = e.getBoundingClientRect();
+  return (r.width > 4 && r.height > 4) ? r : null;
+}
+
+function lancerVisite() {
+  for (const v of document.querySelectorAll('.voile.visible')) v.classList.remove('visible');
+  // on ne montre que ce qui est réellement à l'écran en ce moment
+  visiteEtapes = VISITE.filter(e => !e.cible || cibleVisible(e.cible));
+  if (!visiteEtapes.length) return;
+  visiteIdx = 0;
+  $('visite').classList.add('visible');
+  montrerVisite();
+}
+
+function montrerVisite() {
+  const et = visiteEtapes[visiteIdx];
+  const halo = $('visite-halo');
+  const r = et.cible ? cibleVisible(et.cible) : null;
+  if (r) {
+    halo.style.display = 'block';
+    halo.style.left = (r.left - 5) + 'px';
+    halo.style.top = (r.top - 5) + 'px';
+    halo.style.width = (r.width + 10) + 'px';
+    halo.style.height = (r.height + 10) + 'px';
+  } else halo.style.display = 'none';
+  $('visite-titre').textContent = et.titre;
+  $('visite-texte').innerHTML = et.texte;
+  $('visite-prog').textContent = (visiteIdx + 1) + ' / ' + visiteEtapes.length;
+  $('visite-suivant').textContent =
+    visiteIdx === visiteEtapes.length - 1 ? 'C’est parti !' : 'Suivant';
+  placerCarteVisite(r);
+}
+
+// La carte cherche une place libre autour de la zone montrée : dessous, dessus,
+// à droite, à gauche. Quand la zone occupe presque tout l'écran — le plan de
+// travail, par exemple — aucune place n'est libre : elle se pose alors dans un
+// coin, en couvrant le moins possible.
+function placerCarteVisite(r) {
+  const c = $('visite-carte');
+  c.style.visibility = 'hidden';
+  const cw = c.offsetWidth, ch = c.offsetHeight;
+  const W = window.innerWidth, H = window.innerHeight;
+  const poser = (x, y) => {
+    c.style.left = Math.round(Math.max(8, Math.min(W - cw - 8, x))) + 'px';
+    c.style.top = Math.round(Math.max(8, Math.min(H - ch - 8, y))) + 'px';
+    c.style.visibility = 'visible';
+  };
+  if (!r) { poser((W - cw) / 2, (H - ch) / 2); return; }
+  const m = 14, cx = r.left + r.width / 2 - cw / 2, cy = r.top + r.height / 2 - ch / 2;
+  const essais = [[cx, r.bottom + m], [cx, r.top - ch - m],
+                  [r.right + m, cy], [r.left - cw - m, cy]];
+  for (const [ex, ey] of essais) {
+    const x = Math.max(8, Math.min(W - cw - 8, ex));
+    const y = Math.max(8, Math.min(H - ch - 8, ey));
+    // retenue seulement si la carte ne recouvre pas ce qu'on montre
+    if (x + cw < r.left || x > r.right || y + ch < r.top || y > r.bottom) { poser(x, y); return; }
+  }
+  // dernier recours : le coin bas droit, loin du centre de la zone
+  poser(W - cw - 12, H - ch - 12);
+}
+
+function fermerVisite() {
+  visiteIdx = -1;
+  $('visite').classList.remove('visible');
+}
+
+$('visite-suivant').addEventListener('click', () => {
+  if (visiteIdx >= visiteEtapes.length - 1) { fermerVisite(); return; }
+  visiteIdx++; montrerVisite();
+});
+$('visite-passer').addEventListener('click', fermerVisite);
+window.addEventListener('resize', () => { if (visiteIdx >= 0) montrerVisite(); });
+document.addEventListener('keydown', e => {
+  if (visiteIdx >= 0 && e.key === 'Escape') fermerVisite();
+});
+const btnRevoir = $('btn-revoir-visite');
+if (btnRevoir) btnRevoir.addEventListener('click', () => { fermer('v-aide'); lancerVisite(); });
+
+const NIVEAUX_QUIZ = [
+  { cle:'souviens', em:'🥉', nom:'Je me souviens', poids:1,
+    quoi:'Le vocabulaire et les définitions du programme.' },
+  { cle:'jutilise', em:'🥈', nom:'Je m’en sers', poids:2,
+    quoi:'Calculer une fréquence, un angle, un prix, un pourcentage.' },
+  { cle:'pieges', em:'🥇', nom:'On ne me piège plus', poids:3,
+    quoi:'Les erreurs que presque tout le monde fait. C’est là que tout se joue.' },
+];
+const PAR_SERIE = 6;
+
+const BANQUE = {
+  souviens: [
+    { q:'Qu’appelle-t-on l’<b>effectif</b> d’une modalité ?',
+      choix:['Le nombre de fois où elle apparaît', 'Sa part en pourcentage',
+             'La moyenne des valeurs'], bonne:0, mission:1,
+      expl:"L’effectif se compte : combien d’Audi, combien de Toyota. La part en pourcentage, c’est la fréquence." },
+    { q:'Le caractère « marque du véhicule » est :',
+      choix:['Qualitatif', 'Quantitatif', 'Une modalité'], bonne:0, mission:0,
+      expl:"On peut le nommer mais pas le mesurer : c’est un caractère <b>qualitatif</b>. Le nombre de litres, lui, est quantitatif." },
+    { q:'Comment calcule-t-on la <b>fréquence</b> d’une modalité ?',
+      choix:['Son effectif divisé par l’effectif total', 'Son effectif multiplié par 100',
+             'La somme de ses valeurs'], bonne:0, mission:2,
+      expl:"La fréquence est une part : effectif ÷ effectif total. Multipliée par 100, elle s’exprime en pourcentage." },
+    { q:'Dans un diagramme <b>semi-circulaire</b>, que vaut la somme des angles ?',
+      choix:['180°', '360°', '100°'], bonne:0, mission:6,
+      expl:"Un demi-disque mesure 180°. C’est sur ces 180° qu’on répartit les modalités, proportionnellement à leurs effectifs." },
+    { q:'Que représente la hauteur d’un bâton dans un diagramme en bâtons ?',
+      choix:['L’effectif de la modalité', 'La fréquence en degrés',
+             'Le prix payé'], bonne:0, mission:4,
+      expl:"L’axe vertical porte les effectifs. Un bâton qui monte à 11 signale une modalité qui apparaît 11 fois." },
+    { q:'Qu’est-ce qu’un tableau de <b>proportionnalité</b> ?',
+      choix:['Un tableau où l’on passe d’une ligne à l’autre en multipliant par le même nombre',
+             'Un tableau dont les nombres augmentent',
+             'Un tableau à deux lignes'], bonne:0, mission:7,
+      expl:"C’est l’égalité des quotients qui fait la proportionnalité, pas le fait que les nombres montent ensemble." },
+    { q:'Comment appelle-t-on le nombre par lequel on multiplie dans un tableau de proportionnalité ?',
+      choix:['Le coefficient de proportionnalité', 'La fréquence', 'La moyenne'], bonne:0, mission:8,
+      expl:"Ici, ce coefficient vaut 700 : c’est le prix d’un litre d’essence." },
+    { q:'Qu’est-ce qu’une <b>modalité</b> ?',
+      choix:['Une valeur possible du caractère étudié', 'Le nombre total d’observations',
+             'Le nom du tableau'], bonne:0, mission:0,
+      expl:"Audi, Toyota, Opel… sont les modalités du caractère « marque ». Chaque modalité a son effectif." },
+  ],
+
+  jutilise: [
+    { q:'Sur 78 opérations, Audi en compte 17. Quelle est sa fréquence en pourcentage ?',
+      choix:['Environ 21,8 %', 'Environ 17 %', 'Environ 4,6 %'], bonne:0, mission:2,
+      expl:"17 ÷ 78 ≈ 0,218, soit 21,8 %. L’effectif 17 n’est pas un pourcentage : il faut le rapporter au total." },
+    { q:'Mercedes compte 13 opérations sur 78. Quel angle sur un diagramme semi-circulaire ?',
+      choix:['30°', '60°', '13°'], bonne:0, mission:6,
+      expl:"13 ÷ 78 × 180 = 30° exactement. Sur un disque entier on aurait trouvé 60° — mais ici le demi-disque ne fait que 180°." },
+    { q:'La station a vendu 2 170 litres à 700 F le litre. Quelle recette ?',
+      choix:['1 519 000 F', '151 900 F', '3 100 F'], bonne:0, mission:7,
+      expl:"2 170 × 700 = 1 519 000 F. Le tableau litres → prix est proportionnel, de coefficient 700." },
+    { q:'Quel est le prix de 45 litres à 700 F le litre ?',
+      choix:['31 500 F', '3 150 F', '45 700 F'], bonne:0, mission:7,
+      expl:"45 × 700 = 31 500 F. On multiplie par le coefficient, on ne l’ajoute pas." },
+    { q:'Combien font 25 % de 2 170 litres ?',
+      choix:['542,5 litres', '2 145 litres', '86,8 litres'], bonne:0, mission:9,
+      expl:"2 170 × 25 ÷ 100 = 542,5. Prendre 25 %, c’est multiplier par 0,25 — c’est-à-dire prendre le quart." },
+    { q:'Sur un plan à l’échelle 1/200, un mur réel de 6 m mesure :',
+      choix:['3 cm', '30 cm', '1 200 cm'], bonne:0, mission:10,
+      expl:"6 m font 600 cm ; 600 × 1/200 = 3 cm. L’échelle réduit, elle n’agrandit pas." },
+    { q:'2 170 litres pour 78 opérations. Quelle moyenne par véhicule ?',
+      choix:['Environ 27,8 litres', 'Environ 78 litres', 'Environ 2,8 litres'], bonne:0, mission:3,
+      expl:"2 170 ÷ 78 ≈ 27,8 litres. On divise le total par le nombre d’observations." },
+    { q:'Un bâton monte à la graduation 9. Que vaut l’effectif de cette marque ?',
+      choix:['9', '9 %', '90'], bonne:0, mission:5,
+      expl:"L’axe vertical porte directement les effectifs : la modalité apparaît 9 fois. C’est le cas de Peugeot." },
+  ],
+
+  pieges: [
+    { q:'Peut-on calculer la moyenne des marques de véhicules ?',
+      choix:['Non : la marque est un caractère qualitatif',
+             'Oui, en les numérotant de 1 à 7',
+             'Oui, la moyenne est Audi'], bonne:0, mission:3,
+      expl:"Une moyenne s’obtient en additionnant. On ne peut additionner ni des Audi ni des Opel. Les numéroter serait arbitraire : le résultat changerait selon l’ordre choisi." },
+    { q:'La somme des effectifs vaut 76 au lieu de 78. Que faut-il en conclure ?',
+      choix:['Le dépouillement est faux : il faut recompter',
+             'Deux véhicules n’ont rien acheté',
+             'Ce n’est pas grave'], bonne:0, mission:1,
+      expl:"Chaque opération est comptée une fois et une seule. Un écart signale un oubli ou un double comptage — c’est le premier contrôle à faire." },
+    { q:'« Les nombres des deux lignes augmentent ensemble, donc le tableau est proportionnel. » Vrai ?',
+      choix:['Non : il faut que le QUOTIENT soit le même dans chaque colonne',
+             'Oui, c’est la définition',
+             'Oui, si les deux lignes montent'], bonne:0, mission:7,
+      expl:"L’âge et la taille d’un enfant montent ensemble, sans être proportionnels. Ce qui compte, c’est que le rapport entre les deux lignes reste constant." },
+    { q:'Sur un diagramme semi-circulaire, un élève calcule 13 ÷ 78 × 360 = 60°. Où est l’erreur ?',
+      choix:['Le demi-disque fait 180°, pas 360°',
+             'Il fallait diviser par 360', 'Il n’y a pas d’erreur'], bonne:0, mission:6,
+      expl:"C’est l’erreur la plus fréquente de cette SA. Sur un demi-disque, on répartit 180°. La formule 360° vaut pour un diagramme circulaire entier." },
+    { q:'Prendre 30 % d’une quantité, c’est la multiplier par :',
+      choix:['0,30', '30', '70'], bonne:0, mission:9,
+      expl:"« Pour cent » signifie « divisé par cent » : 30 % = 30 ÷ 100 = 0,30. Multiplier par 30 donnerait trente fois la quantité." },
+    { q:'Un bâton d’effectif 17 est deux fois plus haut qu’un bâton d’effectif 9. Est-ce normal ?',
+      choix:['Oui, à peu près : les hauteurs sont proportionnelles aux effectifs',
+             'Non, tous les bâtons doivent avoir la même hauteur',
+             'Non, la hauteur ne veut rien dire'], bonne:0, mission:4,
+      expl:"17 est presque le double de 9, donc le bâton est presque deux fois plus haut. C’est justement ce qui rend le diagramme lisible d’un coup d’œil." },
+    { q:'La moyenne est de 27,8 litres. Un élève en conclut que chaque véhicule a pris 27,8 litres. A-t-il raison ?',
+      choix:['Non : la moyenne cache les écarts, de 10 à 55 litres ici',
+             'Oui, c’est ce que veut dire une moyenne',
+             'Oui, à un litre près'], bonne:0, mission:3,
+      expl:"La moyenne résume, elle ne décrit pas. Dans ce relevé, les achats vont de 10 à 55 litres, et Opel achète en moyenne 13 litres de plus que Toyota." },
+    { q:'Sur un plan à l’échelle 1/200, un mur mesure 4 cm. Quelle est sa longueur réelle ?',
+      choix:['8 m', '4 m', '200 m'], bonne:0, mission:10,
+      expl:"On multiplie par 200 : 4 × 200 = 800 cm, soit 8 m. Une échelle s’emploie dans les deux sens — diviser pour dessiner, multiplier pour revenir au réel." },
+  ],
+};
+/* ---- L'état de maîtrise : le meilleur résultat obtenu à chaque niveau ---- */
+function maitriseDe(cle) { return (etat.maitrise && etat.maitrise[cle]) || 0; }
+
+// Les niveaux difficiles pèsent plus lourd : réussir le premier seul plafonne
+// à 17 %, il faut affronter les pièges pour dépasser 80 %.
+function scoreMaitrise() {
+  // chaque niveau porte son poids : les simulations n'en ont pas toutes trois
+  let p = 0, total = 0;
+  for (const n of NIVEAUX_QUIZ) { p += maitriseDe(n.cle) * n.poids; total += n.poids; }
+  return total ? Math.round(p / total * 100) : 0;
+}
+function motMaitrise(p) {
+  return p >= 85 ? 'Maîtrisée' : p >= 60 ? 'Solide' : p >= 30 ? 'En bonne voie' : 'Découverte';
+}
+function etoiles(r) {
+  return r >= 1 ? '⭐⭐⭐' : r >= .8 ? '⭐⭐' : r >= .5 ? '⭐' : '';
+}
+
+// Le quiz mélange ses propres propositions : les simulations n'ont pas toutes
+// la même structure de question, et emprunter la leur cassait ici.
+function melangerQuiz(q) {
+  const ordre = q.choix.map((_, i) => i);
+  for (let i = ordre.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = ordre[i]; ordre[i] = ordre[j]; ordre[j] = t;
+  }
+  return Object.assign({}, q, { choix:ordre.map(k => q.choix[k]), bonne:ordre.indexOf(q.bonne) });
+}
+
+let quiz = null;
+
+/* Le quiz vit dans le périmètre de init() ; la liste des missions, elle, est
+   dessinée par une fonction globale. On expose donc l’ouverture du quiz pour
+   que la carte « M’exercer » puisse l’appeler. */
+function ouvrirQuiz() {
+  if (!accueilOuvert()) { toast('Termine les ' + MISSIONS.length + ' missions pour t’exercer.'); return; }
+  quiz = null;
+  rendreAccueilQuiz();
+  ouvrir('v-quiz');
+}
+window.ouvrirQuiz = ouvrirQuiz;
+
+function rendreAccueilQuiz() {
+  const p = scoreMaitrise();
+  $('quiz-carte').innerHTML = `
+    <button class="fermer-x" data-ferme="v-quiz" aria-label="Fermer">✕</button>
+    <h2>🏅 M’exercer</h2>
+    <p>Trois séries de ${PAR_SERIE} questions. Tu peux les refaire autant de fois que tu veux :
+       c’est ton <b>meilleur</b> résultat qui compte.</p>
+    <div class="qz-maitrise">
+      <div class="qz-m-haut"><span>Ma maîtrise de la notion</span><b>${p} %</b></div>
+      <div class="qz-m-barre"><i style="width:${p}%"></i></div>
+      <div class="qz-m-mot">${motMaitrise(p)}</div>
+    </div>
+    ${NIVEAUX_QUIZ.map(n => {
+      const r = maitriseDe(n.cle), et = etoiles(r);
+      return `<button class="qz-niveau" data-niveau="${n.cle}">
+        <span class="qz-em">${n.em}</span>
+        <span class="qz-txt"><b data-poids="${n.poids}">${n.nom}</b><span>${n.quoi}</span></span>
+        <span class="qz-note">${et || '—'}<span>${r ? Math.round(r * 100) + ' %' : 'jamais fait'}</span></span>
+      </button>`;
+    }).join('')}
+    <p class="qz-pied">Les questions difficiles comptent <b>trois fois plus</b> que les faciles :
+       c’est en les affrontant qu’on prouve qu’on a compris.</p>`;
+}
+
+function lancerSerie(cle) {
+  const banque = BANQUE[cle].slice();
+  for (let i = banque.length - 1; i > 0; i--) {           // tirage sans remise
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = banque[i]; banque[i] = banque[j]; banque[j] = t;
+  }
+  quiz = { niveau:cle, liste:banque.slice(0, PAR_SERIE).map(melangerQuiz),
+           n:0, justes:0, ratees:[] };
+  rendreQuestionQuiz();
+}
+
+function rendreQuestionQuiz() {
+  const q = quiz.liste[quiz.n];
+  const niv = NIVEAUX_QUIZ.find(n => n.cle === quiz.niveau);
+  $('quiz-carte').innerHTML = `
+    <button class="fermer-x" data-ferme="v-quiz" aria-label="Fermer">✕</button>
+    <div class="q-avance">${niv.em} ${niv.nom} · question ${quiz.n + 1} sur ${quiz.liste.length}</div>
+    <div class="qz-jauge"><i style="width:${quiz.n / quiz.liste.length * 100}%"></i></div>
+    <div class="q-question">${q.q}</div>
+    <div id="qz-choix">${q.choix.map((c, i) =>
+      `<button class="q-choix" data-qz="${i}">${c}</button>`).join('')}</div>
+    <div class="q-expl" id="qz-expl"></div><div id="qz-suite"></div>`;
+}
+
+function repondreQuiz(i) {
+  const q = quiz.liste[quiz.n];
+  const juste = i === q.bonne;
+  if (juste) quiz.justes++; else quiz.ratees.push(q);
+  $('qz-choix').querySelectorAll('.q-choix').forEach((b, k) => {
+    b.disabled = true;
+    if (k === q.bonne) { b.classList.add('bon'); b.textContent = '✔️ ' + b.textContent; }
+    else if (k === i) { b.classList.add('mauvais'); b.textContent = '❌ ' + b.textContent; }
+  });
+  const e = $('qz-expl');
+  e.innerHTML = q.expl;
+  e.classList.add('visible');
+  const dernier = quiz.n === quiz.liste.length - 1;
+  $('qz-suite').innerHTML = `<button class="btn btn-large" style="margin-top:12px" id="qz-continuer">${
+    dernier ? 'Voir mon résultat →' : 'Question suivante →'}</button>`;
+  $('qz-continuer').addEventListener('click', () => {
+    if (dernier) finirSerie(); else { quiz.n++; rendreQuestionQuiz(); }
+  });
+}
+
+function finirSerie() {
+  const r = quiz.justes / quiz.liste.length;
+  const niv = NIVEAUX_QUIZ.find(n => n.cle === quiz.niveau);
+  const avant = maitriseDe(quiz.niveau);
+  etat.maitrise = etat.maitrise || {};
+  etat.maitrise[quiz.niveau] = Math.max(avant, r);
+  sauver();
+  // Les questions ratées renvoient à leur mission : le quiz ramène au parcours.
+  const revoir = [];
+  for (const q of quiz.ratees) if (revoir.indexOf(q.mission) === -1) revoir.push(q.mission);
+  revoir.sort((a, b) => a - b);
+  const p = scoreMaitrise();
+  $('quiz-carte').innerHTML = `
+    <button class="fermer-x" data-ferme="v-quiz" aria-label="Fermer">✕</button>
+    <div class="qz-fin">
+      <div class="qz-fin-em">${r >= 1 ? '🎉' : r >= .5 ? '👏' : '💪'}</div>
+      <div><b>${quiz.justes} bonnes réponses sur ${quiz.liste.length}</b>
+        <span>${niv.em} ${niv.nom}</span></div>
+      <div class="qz-fin-et">${etoiles(r) || '—'}</div>
+    </div>
+    ${r > avant
+      ? `<p class="qz-mieux">✨ C’est ton meilleur résultat à ce niveau.</p>`
+      : `<p class="qz-mieux discret">Ton meilleur reste ${Math.round(avant * 100)} %.</p>`}
+    <div class="qz-maitrise">
+      <div class="qz-m-haut"><span>Ma maîtrise de la notion</span><b>${p} %</b></div>
+      <div class="qz-m-barre"><i style="width:${p}%"></i></div>
+      <div class="qz-m-mot">${motMaitrise(p)}</div>
+    </div>
+    ${revoir.length ? `<div class="qz-revoir"><b>📘 À revoir :</b>${revoir.map(i =>
+        `<span>Mission ${i + 1} — ${MISSIONS[i].titre}</span>`).join('')}</div>` : ''}
+    <div class="qz-boutons">
+      <button class="btn btn-contour" id="qz-refaire">↻ Refaire cette série</button>
+      <button class="btn" id="qz-retour">Les niveaux →</button>
+    </div>`;
+  $('qz-refaire').addEventListener('click', () => lancerSerie(quiz.niveau));
+  $('qz-retour').addEventListener('click', rendreAccueilQuiz);
+}
+
+$('v-quiz').addEventListener('click', e => {
+  const n = e.target.closest('[data-niveau]');
+  if (n) { lancerSerie(n.dataset.niveau); return; }
+  const b = e.target.closest('[data-qz]');
+  if (b && !b.disabled) repondreQuiz(+b.dataset.qz);
+});
+$('ac-exercer').addEventListener('click', () => {
+  if (!accueilOuvert()) return;
+  fermer('v-accueil');
+  ouvrirQuiz();
+});
+
+ouvrirAccueil();
+}
+init();
+
+</script>
+</body>
+</html>

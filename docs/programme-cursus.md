@@ -48,7 +48,7 @@ angles, **symétries et transformations du plan** (« applications du plan »), 
 pourcentages, statistiques (« organisation des données »), solides de l'espace, **théorème de Pythagore**,
 **théorème de Thalès**, racines carrées, équations, trigonométrie (3ᵉ).
 
-**Couverture KONDO LABO — 2 simulations** :
+**Couverture KONDO LABO — 3 simulations** :
 - 🔺 **Transformations du plan** (v2.8.0) couvre la SA3 « Applications du plan » **des quatre
   classes** (symétrie axiale, symétrie centrale, translation, rotation).
 - 📏 **La hauteur de l'obélisque** (v4.45.0) couvre la **SA1 « Triangles » de 3ᵉ**, dont le guide
@@ -58,7 +58,19 @@ pourcentages, statistiques (« organisation des données »), solides de l'espac
   (séq. 3). Restent hors simulation : la valeur absolue (séq. 2, purement numérique) et les angles
   et cercles (séq. 7).
 
-Prochaine candidate : *Organisation des données* (SA4, les quatre classes également).
+- 📊 **La station de KOMO** (v4.52.0) couvre la **SA4 « Organisation des données » de 6ᵉ**
+  (16 heures), et reprend la **situation de départ du guide** : un commerçant veut ouvrir une
+  station d'essence à KOMO et reçoit le relevé d'une journée. Les **78 opérations sont celles du
+  guide**, extraites du PDF et non retapées. Les deux blocs de la SA sont traités : statistiques
+  (population, caractère qualitatif ou quantitatif, effectif, fréquence, moyenne, diagramme en
+  bâtons et **semi-circulaire**, lus dans les deux sens) et proportionnalité (tableau, coefficient,
+  pourcentage et échelle « présentés comme opérateurs », le mot du guide).
+
+  Attention : le diagramme **semi**-circulaire est une particularité béninoise — les angles se
+  répartissent sur **180°**, pas sur 360. C'est l'erreur que le quiz vise en priorité.
+
+La SA4 existe aux **quatre classes** ; seule la 6ᵉ est couverte pour l'instant, le contenu des
+niveaux suivants étant plus large. Prochaine candidate : la SA2 « Configurations du plan ».
 
 **Attention aux numéros de SA.** Ils étaient faux dans le catalogue jusqu'en v4.45.0 : les
 transformations du plan avaient été rangées en SA1 alors qu'elles relèvent de la SA3. Le repère de

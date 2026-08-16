@@ -312,7 +312,7 @@
 </main>
 
 <footer class="enveloppe pied">
-  <span>KONDO LABO · <span class="ver">v4.51.0</span></span>
+  <span>KONDO LABO · <span class="ver">v4.52.0</span></span>
   <span>·</span>
   <span>Programme officiel du Bénin (APC)</span>
   <span>·</span>
@@ -352,6 +352,7 @@ const LIVREES = {
   'alimentation':       { cle: 'ike-alimentation-progression', missions: 13 },
   'regimes-alimentaires':{ cle: 'ike-regimes-progression',     missions: 11 },
   'respiration':        { cle: 'ike-respiration-progression', missions: 10 },
+  'donnees':            { cle: 'ike-donnees-progression',     missions: 11 },
 };
 
 const CATALOGUE = [
@@ -526,9 +527,9 @@ const CATALOGUE = [
           { n: 3, titre: 'Applications du plan', heures: '', cd: 'CD2',
             sims: [{ dos: 'transformations', ico: '📐', nom: 'Transformations du plan',
               quoi: "Symétrie axiale et centrale, translation, rotation." }] },
-          { n: 4, titre: 'Organisation des données', heures: '', cd: 'CD3',
-            sims: [{ ico: '📊', nom: 'Tableaux et diagrammes',
-              quoi: "Effectifs, fréquences, moyenne et représentations graphiques." }] },
+          { n: 4, titre: 'Organisation des données', heures: '16 h', cd: 'CD3',
+            sims: [{ dos: 'donnees', ico: '📊', nom: 'La station de KOMO',
+              quoi: "Dépouiller un relevé, effectifs et fréquences, moyenne, diagramme en bâtons et semi-circulaire, proportionnalité, pourcentage et échelle." }] },
         ] },
       { id: '5e', nom: '5ᵉ', desc: "Symétrie centrale, triangles, proportionnalité.",
         sa: [
