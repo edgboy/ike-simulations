@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fiche — Qui pollue vraiment ? — KONDO LABO</title>
+<style>
+  /* Une fiche se lit à l'écran et s'imprime. Pas de police embarquée : c'est
+     un document de texte, la police du système lui convient. */
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px;
+    font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
+    font-size: 14px; line-height: 1.55; color: #24211E; background: #F7F5F0;
+  }
+  .feuille { max-width: 820px; margin: 0 auto; background: #FFF;
+    border: 1px solid #D3CFC8; border-radius: 12px; padding: 28px 30px 34px; }
+  .marque { display: flex; align-items: center; gap: 10px; font-size: 12px;
+    letter-spacing: .08em; text-transform: uppercase; color: #6B6560; }
+  .pastille { width: 26px; height: 26px; border-radius: 7px; background: #C4D94E;
+    display: grid; place-items: center; font-weight: 800; color: #3A3632; }
+  h1 { font-size: 26px; margin: 14px 0 4px; line-height: 1.2; }
+  .repere { display: inline-block; background: #EDF3D6; border-radius: 6px;
+    padding: 3px 10px; font-weight: 700; font-size: 13px; }
+  .quoi { margin: 12px 0 0; color: #4A443E; }
+  h2 { font-size: 16px; margin: 26px 0 10px; padding-bottom: 6px;
+    border-bottom: 2px solid #C4D94E; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; font-size: 11.5px; text-transform: uppercase;
+    letter-spacing: .06em; color: #6B6560; padding: 0 8px 6px; font-weight: 700; }
+  td { vertical-align: top; padding: 9px 8px; border-top: 1px solid #E7E3DC; }
+  td.n { width: 26px; font-weight: 800; color: #6B6560; }
+  td b { display: block; }
+  .but { display: block; color: #5A544E; font-size: 13px; margin-top: 2px; }
+  .retenir { width: 48%; font-size: 13px; }
+  ul { margin: 0; padding-left: 20px; }
+  li { margin-bottom: 5px; }
+  .lex b { font-weight: 700; }
+  .piege { margin-bottom: 10px; }
+  .piege b { display: block; }
+  .piege span { color: #4A443E; font-size: 13px; }
+  .pied { margin-top: 26px; padding-top: 12px; border-top: 1px solid #E7E3DC;
+    font-size: 12px; color: #6B6560; display: flex; justify-content: space-between;
+    gap: 12px; flex-wrap: wrap; }
+  a { color: #2F6B86; }
+  .note { margin: 12px 0 0; padding: 9px 12px; background: #FBF3E2;
+    border-left: 3px solid #E9A23B; font-size: 13px; }
+  @media print {
+    body { background: #FFF; padding: 0; font-size: 11.5pt; }
+    .feuille { border: none; border-radius: 0; padding: 0; max-width: none; }
+    h2 { break-after: avoid; }
+    tr { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="feuille">
+  <div class="marque"><span class="pastille">K</span> KONDO LABO · fiche pédagogique</div>
+  <h1>Qui pollue vraiment ?</h1>
+  <div class="repere">PCT · 6ᵉ · SA5</div>
+  <p class="quoi"></p>
+
+  <h2>Le parcours — 6 missions</h2>
+  <table>
+    <thead><tr><th></th><th>Ce que l’élève fait</th><th>Ce qu’il retient</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="n">1</td>
+        <td>
+          <b>Relève l’air du quartier</b>
+          <span class="but">Promène le capteur et note au moins quatre mesures à des endroits différents.</span>
+        </td>
+        <td class="retenir">On ne juge pas l’air à l’œil : on le mesure. Le capteur donne des chiffres, et ce sont eux qui font foi.</td>
+      </tr>
+      <tr>
+        <td class="n">2</td>
+        <td>
+          <b>La fumée blanche d’Élie</b>
+          <span class="but">Élie dit que sa fumée blanche ne salit pas comme la fumée noire. Vérifie-le au capteur.</span>
+        </td>
+        <td class="retenir">Une fumée blanche n’est pas une fumée propre : celle du deux-temps est pleine d’huile imbrûlée. Elle pollue plus que la fumée noire du moulin.</td>
+      </tr>
+      <tr>
+        <td class="n">3</td>
+        <td>
+          <b>Le tuyau de Faton</b>
+          <span class="but">Faton a relevé son tuyau « pour que ça ne gêne personne ». Mesure de près, puis de loin.</span>
+        </td>
+        <td class="retenir">Relever un tuyau déplace la fumée, il ne la supprime pas : ce qui est rejeté chaque jour reste identique, et l’air du quartier est le même pour tous.</td>
+      </tr>
+      <tr>
+        <td class="n">4</td>
+        <td>
+          <b>Yèmi ne pollue pas ?</b>
+          <span class="but">Yèmi dit qu’elle ne pollue pas, parce qu’on ne voit rien sortir de sa moto neuve.</span>
+        </td>
+        <td class="retenir">Un moteur peut polluer sans fumée visible : le monoxyde de carbone est invisible et inodore — mais toxique. L’œil ne suffit pas.</td>
+      </tr>
+      <tr>
+        <td class="n">5</td>
+        <td>
+          <b>Le temps du vieux Fignon</b>
+          <span class="but">Fignon accuse « les engins importés ». Compare le coal-pot d’autrefois et la cuisinière à gaz.</span>
+        </td>
+        <td class="retenir">Le passé n’était pas sans pollution : le feu de bois en dégage beaucoup. Mais Fignon a raison sur un point — le feu de brousse pèse plus lourd que tout le reste réuni.</td>
+      </tr>
+      <tr>
+        <td class="n">6</td>
+        <td>
+          <b>Prends position, puis agis</b>
+          <span class="but">Juge les quatre affirmations à partir de tes mesures, puis choisis ce qu’on fait pour le quartier.</span>
+        </td>
+        <td class="retenir">Prendre position, ce n’est pas donner son opinion : c’est s’appuyer sur des faits vérifiés, puis agir.</td>
+      </tr></tbody>
+  </table>
+
+  
+
+  <h2>Les mots à installer</h2>
+  <ul class="lex"><li><b>Pollution de l’air</b> — La présence, dans l'air qu'on respire, de substances qui nuisent à la santé ou à l'environnement.</li><li><b>Poussières fines</b> — De minuscules particules solides en suspension, si petites qu'elles entrent au fond des poumons. On les mesure en microgrammes par mètre cube (µg/m³). Au-delà de 25, l'air devient malsain.</li><li><b>Monoxyde de carbone (CO)</b> — Un gaz invisible et inodore, produit quand une combustion est incomplète. Il est toxique : c'est lui qui tue dans les pièces mal aérées. On le mesure en ppm.</li><li><b>Dioxyde de carbone (CO₂)</b> — Le gaz produit par toute combustion complète. Il n'est pas toxique à l'air libre, mais il retient la chaleur : c'est le principal gaz à effet de serre.</li><li><b>Combustion incomplète</b> — Quand un combustible brûle mal — faute d'air, ou parce qu'il y a trop d'huile — il ne se transforme pas entièrement. Il reste des imbrûlés : suie, fumée, monoxyde de carbone.</li><li><b>Imbrûlés</b> — Ce qui n'a pas brûlé et part dans l'air : gouttelettes d'huile, morceaux de carbone. C'est ce qui fait la fumée, blanche ou noire.</li><li><b>Moteur à deux temps</b> — Un moteur simple où l'huile brûle avec l'essence. Il rejette beaucoup d'imbrûlés : sa fumée blanche est très polluante, malgré les apparences.</li><li><b>Effet de serre</b> — Certains gaz de l'atmosphère retiennent la chaleur du Soleil, comme une couverture. Trop de ces gaz, et la Terre se réchauffe.</li><li><b>Réchauffement climatique</b> — L'augmentation de la température moyenne de la Terre. Elle fait fondre les glaciers, monter la mer, et accélère la désertification.</li><li><b>Couche d’ozone</b> — Une couche de gaz, très haut dans l'atmosphère, qui nous protège des rayons dangereux du Soleil. Certains produits l'abîment — c'est un problème différent de l'effet de serre.</li><li><b>Déforestation</b> — La disparition des forêts. Les feux de brousse en sont une cause majeure : moins d'arbres, c'est moins d'air filtré et plus de désert.</li><li><b>Développement durable</b> — Satisfaire nos besoins d'aujourd'hui sans empêcher ceux de demain d'être satisfaits.</li><li><b>Prendre position</b> — Se faire un avis à partir de faits vérifiés, savoir l'expliquer, et agir en conséquence.</li></ul>
+
+  <h2>Les erreurs que le quiz vise</h2>
+  <div class="piege"><b>Le tuyau d’échappement d’un moulin est relevé de trois mètres. La quantité rejetée chaque jour dans le quartier est-elle modifiée ?</b>
+    <span>Relever un tuyau change l’endroit où la fumée retombe, pas la quantité rejetée. Le moulin lâche toujours 240 g par jour. On ne fait pas disparaître une pollution en la déplaçant.</span></div><div class="piege"><b>Deux moteurs rejettent l’un une fumée blanche, l’autre une fumée noire. Que peut-on conclure de la couleur de ces fumées ?</b>
+    <span>Près du Zem, dont la fumée est blanche, le capteur relève plus de poussières que près du moulin, dont la fumée est noire. La fumée blanche du deux-temps est faite d’huile imbrûlée.</span></div><div class="piege"><b>Un élève affirme que la fumée d’un feu de bois est sans danger, parce que le bois est naturel. Cette affirmation est-elle exacte ?</b>
+    <span>L’origine d’un combustible ne dit rien de ce que sa combustion rejette. Naturel ne veut pas dire sans danger : cuisiner au bois dans un espace fermé est l’une des pollutions les plus nocives.</span></div><div class="piege"><b>S’éloigner d’une source de pollution suffit-il à respirer un air pur ?</b>
+    <span>Tes relevés le montrent : la mesure baisse nettement avec la distance, mais elle ne retombe jamais au niveau du manguier. L’air d’un quartier est un seul et même air.</span></div><div class="piege"><b>Un moteur ne laisse voir aucune fumée. Peut-on en conclure qu’il ne rejette rien ?</b>
+    <span>Le monoxyde de carbone est incolore et inodore. Tout moteur qui brûle du carburant en produit. Ne rien voir sortir ne prouve rien.</span></div><div class="piege"><b>La destruction de la couche d’ozone et le réchauffement climatique désignent-ils le même phénomène ?</b>
+    <span>La couche d’ozone nous protège des rayons dangereux du Soleil ; certains produits l’abîment. L’effet de serre retient la chaleur près du sol. Deux mécanismes différents, souvent confondus.</span></div><div class="piege"><b>Dans un quartier, une source rejette à elle seule plus de la moitié du total. Faut-il pour autant négliger les autres sources ?</b>
+    <span>Les rejets du quartier sont une somme. Et surtout, celui qui vit à côté du Zem respire son air à lui, pas la moyenne du quartier.</span></div><div class="piege"><b>Deux mesures sont relevées au même endroit, à deux heures différentes, et donnent des valeurs différentes. Comment l’expliquer ?</b>
+    <span>Une mesure décrit l’air à cet endroit et à cet instant. C’est pourquoi on note le lieu et le moment de chaque relevé dans son carnet.</span></div>
+
+  <div class="pied">
+    <span>Chaque mission se termine par une question ; le quiz final compte trois niveaux,
+      et les questions difficiles pèsent trois fois plus.</span>
+    <span><a href="https://edgboy.github.io/ike-simulations/simulations/pollution-air/index.html">Ouvrir la simulation</a></span>
+  </div>
+</div>
+</body>
+</html>

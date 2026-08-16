@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fiche — Banc d'optique — KONDO LABO</title>
+<style>
+  /* Une fiche se lit à l'écran et s'imprime. Pas de police embarquée : c'est
+     un document de texte, la police du système lui convient. */
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px;
+    font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
+    font-size: 14px; line-height: 1.55; color: #24211E; background: #F7F5F0;
+  }
+  .feuille { max-width: 820px; margin: 0 auto; background: #FFF;
+    border: 1px solid #D3CFC8; border-radius: 12px; padding: 28px 30px 34px; }
+  .marque { display: flex; align-items: center; gap: 10px; font-size: 12px;
+    letter-spacing: .08em; text-transform: uppercase; color: #6B6560; }
+  .pastille { width: 26px; height: 26px; border-radius: 7px; background: #C4D94E;
+    display: grid; place-items: center; font-weight: 800; color: #3A3632; }
+  h1 { font-size: 26px; margin: 14px 0 4px; line-height: 1.2; }
+  .repere { display: inline-block; background: #EDF3D6; border-radius: 6px;
+    padding: 3px 10px; font-weight: 700; font-size: 13px; }
+  .quoi { margin: 12px 0 0; color: #4A443E; }
+  h2 { font-size: 16px; margin: 26px 0 10px; padding-bottom: 6px;
+    border-bottom: 2px solid #C4D94E; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; font-size: 11.5px; text-transform: uppercase;
+    letter-spacing: .06em; color: #6B6560; padding: 0 8px 6px; font-weight: 700; }
+  td { vertical-align: top; padding: 9px 8px; border-top: 1px solid #E7E3DC; }
+  td.n { width: 26px; font-weight: 800; color: #6B6560; }
+  td b { display: block; }
+  .but { display: block; color: #5A544E; font-size: 13px; margin-top: 2px; }
+  .retenir { width: 48%; font-size: 13px; }
+  ul { margin: 0; padding-left: 20px; }
+  li { margin-bottom: 5px; }
+  .lex b { font-weight: 700; }
+  .piege { margin-bottom: 10px; }
+  .piege b { display: block; }
+  .piege span { color: #4A443E; font-size: 13px; }
+  .pied { margin-top: 26px; padding-top: 12px; border-top: 1px solid #E7E3DC;
+    font-size: 12px; color: #6B6560; display: flex; justify-content: space-between;
+    gap: 12px; flex-wrap: wrap; }
+  a { color: #2F6B86; }
+  .note { margin: 12px 0 0; padding: 9px 12px; background: #FBF3E2;
+    border-left: 3px solid #E9A23B; font-size: 13px; }
+  @media print {
+    body { background: #FFF; padding: 0; font-size: 11.5pt; }
+    .feuille { border: none; border-radius: 0; padding: 0; max-width: none; }
+    h2 { break-after: avoid; }
+    tr { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="feuille">
+  <div class="marque"><span class="pastille">K</span> KONDO LABO · fiche pédagogique</div>
+  <h1>Banc d'optique</h1>
+  <div class="repere">PCT · 5ᵉ SA4 · 4ᵉ · 3ᵉ</div>
+  <p class="quoi"></p>
+
+  <h2>Le parcours — 12 missions</h2>
+  <table>
+    <thead><tr><th></th><th>Ce que l’élève fait</th><th>Ce qu’il retient</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="n">1</td>
+        <td>
+          <b>La lampe</b>
+          <span class="but">Touche « Lampe » en bas pour la poser sur le banc, puis fais-la glisser avec ton doigt.</span>
+        </td>
+        <td class="retenir">La lampe est une source de lumière : elle produit la lumière qu'elle envoie dans toutes les directions. Le Soleil, une bougie ou une torche sont aussi des sources.</td>
+      </tr>
+      <tr>
+        <td class="n">2</td>
+        <td>
+          <b>La lumière va tout droit</b>
+          <span class="but">Ajoute l'écran à droite de la lampe et observe les rayons.</span>
+        </td>
+        <td class="retenir">Dans un milieu transparent et homogène (l'air), la lumière se propage en ligne droite. On la représente par des rayons : des droites fléchées qui partent de la source. (5ème — propagation rectiligne)</td>
+      </tr>
+      <tr>
+        <td class="n">3</td>
+        <td>
+          <b>L'ombre</b>
+          <span class="but">Place la balle ENTRE la lampe et l'écran : une ombre apparaît sur l'écran !</span>
+        </td>
+        <td class="retenir">La balle est opaque : elle bloque la lumière. Derrière elle, la lumière ne passe plus → c'est l'ombre. Sa forme prouve que la lumière va en ligne droite : les rayons qui frôlent la balle dessinent le contour de l'ombre.</td>
+      </tr>
+      <tr>
+        <td class="n">4</td>
+        <td>
+          <b>Joue avec l'ombre</b>
+          <span class="but">Rapproche la balle de la lampe : l'ombre doit devenir au moins 3 fois plus grande que la balle.</span>
+        </td>
+        <td class="retenir">Plus l'obstacle est près de la source, plus son ombre est grande — les rayons s'écartent en ligne droite depuis la lampe. C'est le principe du théâtre d'ombres et des ombres géantes au coucher du soleil !</td>
+      </tr>
+      <tr>
+        <td class="n">5</td>
+        <td>
+          <b>La chambre noire</b>
+          <span class="but">Nouveau matériel ! Place l'objet lumineux (la flèche), puis le sténopé (plaque percée d'un petit trou), puis l'écran.</span>
+        </td>
+        <td class="retenir">C'est la chambre noire (4ème) : chaque point de l'objet envoie un rayon qui passe par le trou en ligne droite. Le haut de l'objet arrive en BAS de l'écran → l'image est renversée. C'est l'ancêtre de l'appareil photo !</td>
+      </tr>
+      <tr>
+        <td class="n">6</td>
+        <td>
+          <b>Grande ou petite ?</b>
+          <span class="but">Éloigne l'objet du trou : l'image doit devenir au moins 2 fois plus PETITE que l'objet.</span>
+        </td>
+        <td class="retenir">La taille de l'image dépend des distances : image = objet × (distance trou-écran) ÷ (distance objet-trou). Les proportions (triangles semblables) sont partout en optique !</td>
+      </tr>
+      <tr>
+        <td class="n">7</td>
+        <td>
+          <b>La lentille convergente</b>
+          <span class="but">Nouveau matériel : la lentille ! Place l'objet à gauche, la lentille au milieu. Observe les trois rayons colorés.</span>
+        </td>
+        <td class="retenir">Une lentille convergente fait converger les rayons. Trois rayons suffisent pour construire l'image : rouge (parallèle → passe par F'), vert (par le centre, non dévié), bleu (par F → ressort parallèle). F et F' sont les foyers. (3ème — l'optique au service de l'homme)</td>
+      </tr>
+      <tr>
+        <td class="n">8</td>
+        <td>
+          <b>Attrape l'image !</b>
+          <span class="but">Déplace l'écran jusqu'à ce que l'image soit NETTE. (Suis le repère violet !)</span>
+        </td>
+        <td class="retenir">L'image réelle se forme à un endroit précis : là où les rayons se croisent. L'écran placé exactement là capte une image nette ; trop près ou trop loin, elle est floue. C'est la mise au point d'un appareil photo !</td>
+      </tr>
+      <tr>
+        <td class="n">9</td>
+        <td>
+          <b>Plus grand que nature</b>
+          <span class="but">Obtiens une image NETTE plus GRANDE que l'objet. Astuce : rapproche l'objet de la lentille (mais reste au-delà de F).</span>
+        </td>
+        <td class="retenir">Quand l'objet est entre F et 2F, l'image est plus grande que l'objet : c'est le principe du projecteur de cinéma et du vidéoprojecteur !</td>
+      </tr>
+      <tr>
+        <td class="n">10</td>
+        <td>
+          <b>Tout petit</b>
+          <span class="but">Cette fois, obtiens une image NETTE plus PETITE que l'objet : éloigne bien l'objet de la lentille.</span>
+        </td>
+        <td class="retenir">Quand l'objet est loin (au-delà de 2F), l'image est petite et proche du foyer : c'est ce que font l'appareil photo et… ton œil ! Sa lentille (le cristallin) forme une petite image renversée sur la rétine.</td>
+      </tr>
+      <tr>
+        <td class="n">11</td>
+        <td>
+          <b>La loupe</b>
+          <span class="but">Approche l'objet TOUT près de la lentille (entre F et la lentille). Que devient l'image ?</span>
+        </td>
+        <td class="retenir">Objet plus près que le foyer F → les rayons ne se croisent plus ! Ils semblent venir d'une image virtuelle : droite, agrandie, du même côté que l'objet. Impossible à capter sur un écran, mais visible à l'œil : c'est la loupe !</td>
+      </tr>
+      <tr>
+        <td class="n">12</td>
+        <td>
+          <b>Défi : le projecteur</b>
+          <span class="but">Défi final : projette une image NETTE d'au moins 8 cm sur l'écran. À toi de tout régler (positions, focale, hauteur) !</span>
+        </td>
+        <td class="retenir">Bravo, parcours terminé 💪 Tu sais construire une ombre, une chambre noire et une image par lentille — tout le programme d'optique du collège. Explore maintenant le Mode libre !</td>
+      </tr></tbody>
+  </table>
+
+  
+
+  <h2>Les mots à installer</h2>
+  <ul class="lex"><li><b>Source de lumière</b> — Objet qui produit sa propre lumière : la lampe du banc, le Soleil, une bougie.</li><li><b>Rayon lumineux</b> — Trait droit fléché qui représente le trajet de la lumière. La flèche indique le sens de propagation.</li><li><b>Propagation rectiligne</b> — Dans un milieu transparent et homogène (l'air), la lumière avance en ligne droite. C'est ce que montrent tous les rayons du banc.</li><li><b>Opaque / transparent</b> — Un objet opaque (la balle) bloque la lumière ; un objet transparent (l'air, le verre) la laisse passer.</li><li><b>Ombre</b> — Zone sombre derrière un objet opaque : la lumière, bloquée, ne peut pas y arriver.</li><li><b>Sténopé (chambre noire)</b> — Plaque (ou boîte) percée d'un tout petit trou. Chaque rayon y passe tout droit → l'image se forme renversée. Ancêtre de l'appareil photo.</li><li><b>Lentille convergente</b> — Verre bombé qui fait converger (se rejoindre) les rayons lumineux. Loupe, appareil photo, œil…</li><li><b>Axe optique</b> — Droite horizontale qui passe par le centre de la lentille (les pointillés du banc).</li><li><b>Centre optique (O)</b> — Centre de la lentille. Un rayon qui passe par O n'est pas dévié (le rayon vert).</li><li><b>Foyers F et F′</b> — Points particuliers de l'axe : les rayons parallèles convergent en F′ (après la lentille) ; un rayon passant par F ressort parallèle.</li><li><b>Distance focale (f)</b> — Distance entre le centre O et un foyer. Petite focale = lentille très bombée, très puissante.</li><li><b>Image réelle</b> — Image que l'on peut capter sur un écran : les rayons s'y croisent vraiment. Elle est renversée.</li><li><b>Image virtuelle</b> — Image que l'œil voit mais qu'aucun écran ne peut capter (les rayons ne s'y croisent pas vraiment). Celle de la loupe : droite et agrandie.</li><li><b>2F (double distance focale)</b> — Le point situé à deux focales de la lentille (repère gris sur l'axe). Objet entre F et 2F → image agrandie ; objet au-delà de 2F → image réduite.</li><li><b>Grandissement (γ)</b> — Hauteur de l'image ÷ hauteur de l'objet. γ = 2 : image deux fois plus grande ; γ = 0,5 : deux fois plus petite.</li><li><b>Mise au point</b> — Placer l'écran exactement là où l'image est nette (là où les rayons se croisent).</li></ul>
+
+  <h2>Les erreurs que le quiz vise</h2>
+  <div class="piege"><b>Un élève affirme qu’on peut voir un objet dans le noir complet, à condition de bien regarder. Cette affirmation est-elle exacte ?</b>
+    <span>S'habituer à l'obscurité aide quand il reste un peu de lumière. Dans le noir complet, il n'y a rien à recevoir.</span></div><div class="piege"><b>Un élève affirme que l’ombre d’un objet a toujours la même taille que l’objet. Cette affirmation est-elle exacte ?</b>
+    <span>C'est une affaire de proportions. Rapproche la lampe et l'ombre grandit, sans que l'objet ait bougé.</span></div><div class="piege"><b>Un élève affirme que l’image de la chambre noire est renversée parce que le trou retourne la lumière. Cette affirmation est-elle exacte ?</b>
+    <span>Rien ne retourne quoi que ce soit : c'est la propagation rectiligne qui, à elle seule, croise les rayons au passage du trou.</span></div><div class="piege"><b>Un élève affirme qu’une image floue sur l’écran signifie que la lentille est de mauvaise qualité. Cette affirmation est-elle exacte ?</b>
+    <span>C'est un problème de mise au point, pas de lentille. Déplace l'écran jusqu'au plan de l'image.</span></div><div class="piege"><b>Un élève affirme qu’on peut recueillir sur un écran l’image donnée par une loupe. Cette affirmation est-elle exacte ?</b>
+    <span>Après la lentille, les rayons divergent. C'est leur prolongement qui donne l'image : rien à capter sur un écran.</span></div><div class="piege"><b>Un élève affirme qu’en cachant la moitié d’une lentille, on ne voit plus que la moitié de l’image. Cette affirmation est-elle exacte ?</b>
+    <span>Chaque point de l'objet envoie de la lumière sur toute la lentille. Avec la moitié, il reste moins de rayons : l'image entière s'assombrit.</span></div><div class="piege"><b>Un élève affirme que plus l’objet est loin de la lentille, plus son image est grande. Cette affirmation est-elle exacte ?</b>
+    <span>Pour agrandir, il faut approcher l'objet du foyer, par l'extérieur. C'est le réglage du projecteur ; l'appareil photo fait le contraire.</span></div>
+
+  <div class="pied">
+    <span>Chaque mission se termine par une question ; le quiz final compte trois niveaux,
+      et les questions difficiles pèsent trois fois plus.</span>
+    <span><a href="https://edgboy.github.io/ike-simulations/simulations/optique/index.html">Ouvrir la simulation</a></span>
+  </div>
+</div>
+</body>
+</html>

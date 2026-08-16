@@ -127,6 +127,8 @@
   .sa-vide { margin: 0; font-size: .9rem; font-style: italic; color: var(--neutral); opacity: .55; }
 
   /* ===================== Emporter les simulations ===================== */
+  .emporter-note { font-size: 13.5px; line-height: 1.55; opacity: .75;
+    margin: var(--space-4) 0 0; max-width: 62ch; }
   .emporter p { font-size: 14.5px; line-height: 1.6; opacity: .8; margin: 0 0 var(--space-4); max-width: 62ch; }
   .emporter-actions { display: flex; gap: var(--space-3); flex-wrap: wrap; }
   .btn-tele {
@@ -154,7 +156,13 @@
   .tele-ligne:hover { background: var(--accent-doux); }
   .tele-ligne .ico { font-size: 18px; width: 24px; text-align: center; flex: none; }
   .tele-ligne .nom { flex: 1; min-width: 0; font-weight: 600; }
-  .tele-ligne .poids { font-size: 12px; opacity: .6; flex: none; }
+  .tele-lien {
+    flex: none; font-size: 12.5px; text-decoration: none; color: inherit;
+    padding: 4px 9px; border-radius: var(--radius-sm);
+    background: var(--surface); border: 1px solid var(--border); white-space: nowrap;
+  }
+  .tele-lien:hover { border-color: var(--border-strong); background: var(--accent-doux); }
+  .tele-fiche { opacity: .85; }
 
   .sim {
     display: flex; align-items: center; gap: var(--space-3);
@@ -274,6 +282,9 @@
             <span><b>Choisir une simulation</b><span>télécharger un fichier à la fois</span></span>
           </button>
         </div>
+        <p class="emporter-note">Chaque simulation va avec sa <b>fiche pédagogique</b> : la
+           situation d’apprentissage couverte, les missions et ce qu’elles font retenir, le
+           lexique, et les erreurs que le quiz vise. L’archive contient les deux.</p>
         <div id="liste-tele" hidden></div>
       </div>
     </div>
@@ -301,7 +312,7 @@
 </main>
 
 <footer class="enveloppe pied">
-  <span>KONDO LABO · <span class="ver">v4.50.0</span></span>
+  <span>KONDO LABO · <span class="ver">v4.51.0</span></span>
   <span>·</span>
   <span>Programme officiel du Bénin (APC)</span>
   <span>·</span>
@@ -719,12 +730,16 @@ function rendreListeTelechargement() {
   const zone = $('liste-tele');
   zone.innerHTML = toutesLesSimsLivrees().map(s => {
     const ko = poidsCharges && poidsCharges[s.dos];
-    return `<a class="tele-ligne" download
-               href="telechargement/kondo-labo-${encodeURIComponent(s.dos)}.html">
+    return `<div class="tele-ligne">
         <span class="ico" aria-hidden="true">${s.ico}</span>
         <span class="nom">${echapper(s.nom)}<span class="discret"> · ${echapper(s.matiere)}</span></span>
-        <span class="poids">${ko ? ko + ' Ko' : 'télécharger'}</span>
-      </a>`;
+        <a class="tele-lien" download
+           href="telechargement/kondo-labo-${encodeURIComponent(s.dos)}.html"
+           title="La simulation">⬇ ${ko ? ko + ' Ko' : 'simulation'}</a>
+        <a class="tele-lien tele-fiche" target="_blank" rel="noopener"
+           href="telechargement/fiche-${encodeURIComponent(s.dos)}.html"
+           title="La fiche pédagogique : SA couverte, missions, lexique, pièges">📄 fiche</a>
+      </div>`;
   }).join('');
 }
 

@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fiche — Les premiers pas du circuit — KONDO LABO</title>
+<style>
+  /* Une fiche se lit à l'écran et s'imprime. Pas de police embarquée : c'est
+     un document de texte, la police du système lui convient. */
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px;
+    font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
+    font-size: 14px; line-height: 1.55; color: #24211E; background: #F7F5F0;
+  }
+  .feuille { max-width: 820px; margin: 0 auto; background: #FFF;
+    border: 1px solid #D3CFC8; border-radius: 12px; padding: 28px 30px 34px; }
+  .marque { display: flex; align-items: center; gap: 10px; font-size: 12px;
+    letter-spacing: .08em; text-transform: uppercase; color: #6B6560; }
+  .pastille { width: 26px; height: 26px; border-radius: 7px; background: #C4D94E;
+    display: grid; place-items: center; font-weight: 800; color: #3A3632; }
+  h1 { font-size: 26px; margin: 14px 0 4px; line-height: 1.2; }
+  .repere { display: inline-block; background: #EDF3D6; border-radius: 6px;
+    padding: 3px 10px; font-weight: 700; font-size: 13px; }
+  .quoi { margin: 12px 0 0; color: #4A443E; }
+  h2 { font-size: 16px; margin: 26px 0 10px; padding-bottom: 6px;
+    border-bottom: 2px solid #C4D94E; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; font-size: 11.5px; text-transform: uppercase;
+    letter-spacing: .06em; color: #6B6560; padding: 0 8px 6px; font-weight: 700; }
+  td { vertical-align: top; padding: 9px 8px; border-top: 1px solid #E7E3DC; }
+  td.n { width: 26px; font-weight: 800; color: #6B6560; }
+  td b { display: block; }
+  .but { display: block; color: #5A544E; font-size: 13px; margin-top: 2px; }
+  .retenir { width: 48%; font-size: 13px; }
+  ul { margin: 0; padding-left: 20px; }
+  li { margin-bottom: 5px; }
+  .lex b { font-weight: 700; }
+  .piege { margin-bottom: 10px; }
+  .piege b { display: block; }
+  .piege span { color: #4A443E; font-size: 13px; }
+  .pied { margin-top: 26px; padding-top: 12px; border-top: 1px solid #E7E3DC;
+    font-size: 12px; color: #6B6560; display: flex; justify-content: space-between;
+    gap: 12px; flex-wrap: wrap; }
+  a { color: #2F6B86; }
+  .note { margin: 12px 0 0; padding: 9px 12px; background: #FBF3E2;
+    border-left: 3px solid #E9A23B; font-size: 13px; }
+  @media print {
+    body { background: #FFF; padding: 0; font-size: 11.5pt; }
+    .feuille { border: none; border-radius: 0; padding: 0; max-width: none; }
+    h2 { break-after: avoid; }
+    tr { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="feuille">
+  <div class="marque"><span class="pastille">K</span> KONDO LABO · fiche pédagogique</div>
+  <h1>Les premiers pas du circuit</h1>
+  <div class="repere">PCT · 6ᵉ · SA1</div>
+  <p class="quoi"></p>
+
+  <h2>Le parcours — 5 missions</h2>
+  <table>
+    <thead><tr><th></th><th>Ce que l’élève fait</th><th>Ce qu’il retient</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="n">1</td>
+        <td>
+          <b>Allume la lampe</b>
+          <span class="but">Relie la pile à la lampe pour qu’elle s’allume.</span>
+        </td>
+        <td class="retenir">Une lampe s’allume quand ses deux bornes — le culot et le plot — sont reliées aux deux bornes de la pile. Il faut une boucle complète.</td>
+      </tr>
+      <tr>
+        <td class="n">2</td>
+        <td>
+          <b>Deux bornes différentes</b>
+          <span class="but">Découvre pourquoi brancher les deux fils au même endroit ne marche jamais.</span>
+        </td>
+        <td class="retenir">Les deux fils doivent partir de bornes différentes, des deux côtés. Sur la même borne, le courant n’a aucune raison de traverser la lampe.</td>
+      </tr>
+      <tr>
+        <td class="n">3</td>
+        <td>
+          <b>Conducteur ou isolant ?</b>
+          <span class="but">Intercale chaque objet dans le circuit et devine s’il laisse passer le courant.</span>
+        </td>
+        <td class="retenir">Les métaux laissent passer le courant : ce sont des conducteurs. Le plastique, le bois sec, la craie et le caoutchouc l’arrêtent : ce sont des isolants.</td>
+      </tr>
+      <tr>
+        <td class="n">4</td>
+        <td>
+          <b>Le sens du courant</b>
+          <span class="but">La DEL ne s’allume que dans un sens. Sers-t’en pour trouver par où sort le courant.</span>
+        </td>
+        <td class="retenir">Le courant sort de la borne + de la pile et revient par la borne −. La DEL ne s’allume que dans ce sens : elle sert de détecteur.</td>
+      </tr>
+      <tr>
+        <td class="n">5</td>
+        <td>
+          <b>Le tourniquet de Vignon</b>
+          <span class="but">Vignon a reçu un tourniquet qui tourne dans les deux sens. Trouve comment.</span>
+        </td>
+        <td class="retenir">En inversant les bornes de la pile, le courant circule dans l’autre sens et le moteur tourne à l’envers. C’est ainsi que le jouet de Vignon change de sens.</td>
+      </tr></tbody>
+  </table>
+
+  
+
+  <h2>Les mots à installer</h2>
+  <ul class="lex"><li><b>Circuit électrique</b> — Le chemin fermé que suit le courant. Il part d'une borne de la pile, traverse le récepteur, et revient à l'autre borne.</li><li><b>Bornes de la pile</b> — Les deux contacts de la pile : la borne + et la borne −. Il faut relier les deux pour fermer le circuit.</li><li><b>Culot et plot</b> — Les deux contacts de la lampe. Le culot est la partie métallique sur le côté ; le plot est le petit point au bout. Le courant entre par l'un et sort par l'autre.</li><li><b>Conducteur</b> — Un matériau qui laisse passer le courant. Les métaux — cuivre, fer, aluminium — sont conducteurs.</li><li><b>Isolant</b> — Un matériau qui empêche le courant de passer : plastique, bois sec, craie, caoutchouc. C'est pourquoi les fils électriques sont gainés de plastique.</li><li><b>Sens du courant</b> — Par convention, le courant sort de la borne + du générateur, traverse le circuit, et revient par la borne −.</li><li><b>DEL</b> — Une diode électroluminescente. Elle ne s'allume que si le courant la traverse dans le bon sens : c'est ce qui permet de repérer le sens du courant.</li><li><b>Générateur</b> — Ce qui fournit le courant : ici, la pile.</li><li><b>Récepteur</b> — Ce qui reçoit le courant et le transforme : la lampe le change en lumière, le moteur en mouvement.</li><li><b>Circuit ouvert</b> — Un circuit coupé quelque part : le courant ne circule pas, la lampe reste éteinte.</li></ul>
+
+  <h2>Les erreurs que le quiz vise</h2>
+  <div class="piege"><b>Poser une lampe directement sur une pile, sans fil, suffit-il à l’allumer ?</b>
+    <span>Un seul contact ne fait pas une boucle. Le courant doit entrer par une borne de la lampe et ressortir par l’autre.</span></div><div class="piege"><b>Une DEL reste éteinte dans un montage complet. Peut-on en conclure qu’elle est défectueuse ?</b>
+    <span>Une DEL ne conduit que dans un sens. Avant de conclure à une panne, il faut l’inverser.</span></div><div class="piege"><b>La couleur d’un objet permet-elle de savoir s’il conduit le courant ?</b>
+    <span>Une craie blanche et un fil d’aluminium gris ont des couleurs proches et des comportements opposés. Seul l’essai tranche.</span></div><div class="piege"><b>Brancher les deux fils sur la même borne de la pile fait-il briller la lampe deux fois plus ?</b>
+    <span>Ce n’est pas le nombre de fils qui compte, mais le trajet. Deux fils sur la même borne ne forment aucun circuit.</span></div><div class="piege"><b>Un moteur tourne dans le mauvais sens. Faut-il en changer ?</b>
+    <span>Le sens de rotation suit le sens du courant. Inverser les deux fils suffit — c’est le principe de la marche arrière.</span></div><div class="piege"><b>Un objet est dit isolant. Cela signifie-t-il qu’il arrête le courant déjà présent dans le fil ?</b>
+    <span>Le courant n’est pas un stock qui avance et se heurte à un obstacle : il ne s’établit que si la boucle entière est conductrice.</span></div><div class="piege"><b>Le sens conventionnel du courant a-t-il été choisi au hasard ?</b>
+    <span>On convient que le courant sort du +. Cette convention est universelle, et la DEL en donne une preuve expérimentale.</span></div>
+
+  <div class="pied">
+    <span>Chaque mission se termine par une question ; le quiz final compte trois niveaux,
+      et les questions difficiles pèsent trois fois plus.</span>
+    <span><a href="https://edgboy.github.io/ike-simulations/simulations/premiers-pas/index.html">Ouvrir la simulation</a></span>
+  </div>
+</div>
+</body>
+</html>

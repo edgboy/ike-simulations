@@ -127,6 +127,7 @@ Règles d'or :
 # 1. Régénérer les fichiers téléchargeables — voir §10. À ne jamais sauter :
 #    sans cela, ce qu'on télécharge n'est plus ce qui est en ligne.
 node outils/autonomiser.js
+node outils/fiches.js
 node outils/archiver.js
 
 # 2. Publier
@@ -226,3 +227,33 @@ node outils/autonomiser.js && node outils/archiver.js && git diff --quiet telech
 Vérification faite en v4.48.0 : chaque fichier copié **seul** dans un dossier vide, ouvert, et
 contrôlé au protocole DevTools — **aucune requête ne sort du fichier**, les polices de la charte
 sont chargées, la scène répond.
+
+### La fiche pédagogique (v4.51.0)
+
+`outils/fiches.js` produit, à côté de chaque simulation, une **fiche d'une page** : la situation
+d'apprentissage couverte, les missions avec ce que chacune fait retenir, le lexique, et les erreurs
+que le niveau « pièges » du quiz vise. Elle s'imprime, et elle part dans l'archive avec la
+simulation.
+
+Elle est **extraite de la simulation**, jamais écrite à la main. Les données existent déjà —
+`MISSIONS`, `LEXIQUE`, `BANQUE`, l'en-tête de SA. Écrite à part, elle mentirait dès la version
+suivante ; ce dépôt a assez d'exemples de divergence pour qu'on s'en méfie.
+
+**Comment l'extraction fonctionne, et pourquoi elle est sûre** : on isole la déclaration
+`const MISSIONS = [...]` et on l'évalue dans un bac à sable. Les prédicats (`ok`, `gagne`) parlent
+de variables inconnues là-bas, mais ce n'est pas un problème : on les **définit** sans jamais les
+**appeler**, et le corps d'une fonction n'est évalué qu'à l'appel. Seules les données littérales
+sont réellement lues.
+
+**Trois générations cohabitent**, et l'outil les accepte toutes plutôt que d'imposer un format aux
+dix-neuf fichiers déjà livrés :
+
+| | Lexique | But de la mission | Bilan |
+|---|---|---|---|
+| génération récente | `['mot', 'déf']` | `but` | `retenir` |
+| premières simulations | `{ mot, def }` | *aucun* → première étape | `retenir` |
+| atelier de molécules | `{ t, d }` | `sousTitre` | *aucun* → la fiche le dit |
+
+Les polices ne sont **pas** embarquées dans les fiches, contrairement aux simulations : une fiche
+est un document de texte, la police du système lui convient, et embarquer 108 Ko dans chacune
+alourdirait l'archive de deux mégaoctets pour un gain nul.

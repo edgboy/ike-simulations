@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fiche — La flamme de la bougie — KONDO LABO</title>
+<style>
+  /* Une fiche se lit à l'écran et s'imprime. Pas de police embarquée : c'est
+     un document de texte, la police du système lui convient. */
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px;
+    font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
+    font-size: 14px; line-height: 1.55; color: #24211E; background: #F7F5F0;
+  }
+  .feuille { max-width: 820px; margin: 0 auto; background: #FFF;
+    border: 1px solid #D3CFC8; border-radius: 12px; padding: 28px 30px 34px; }
+  .marque { display: flex; align-items: center; gap: 10px; font-size: 12px;
+    letter-spacing: .08em; text-transform: uppercase; color: #6B6560; }
+  .pastille { width: 26px; height: 26px; border-radius: 7px; background: #C4D94E;
+    display: grid; place-items: center; font-weight: 800; color: #3A3632; }
+  h1 { font-size: 26px; margin: 14px 0 4px; line-height: 1.2; }
+  .repere { display: inline-block; background: #EDF3D6; border-radius: 6px;
+    padding: 3px 10px; font-weight: 700; font-size: 13px; }
+  .quoi { margin: 12px 0 0; color: #4A443E; }
+  h2 { font-size: 16px; margin: 26px 0 10px; padding-bottom: 6px;
+    border-bottom: 2px solid #C4D94E; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; font-size: 11.5px; text-transform: uppercase;
+    letter-spacing: .06em; color: #6B6560; padding: 0 8px 6px; font-weight: 700; }
+  td { vertical-align: top; padding: 9px 8px; border-top: 1px solid #E7E3DC; }
+  td.n { width: 26px; font-weight: 800; color: #6B6560; }
+  td b { display: block; }
+  .but { display: block; color: #5A544E; font-size: 13px; margin-top: 2px; }
+  .retenir { width: 48%; font-size: 13px; }
+  ul { margin: 0; padding-left: 20px; }
+  li { margin-bottom: 5px; }
+  .lex b { font-weight: 700; }
+  .piege { margin-bottom: 10px; }
+  .piege b { display: block; }
+  .piege span { color: #4A443E; font-size: 13px; }
+  .pied { margin-top: 26px; padding-top: 12px; border-top: 1px solid #E7E3DC;
+    font-size: 12px; color: #6B6560; display: flex; justify-content: space-between;
+    gap: 12px; flex-wrap: wrap; }
+  a { color: #2F6B86; }
+  .note { margin: 12px 0 0; padding: 9px 12px; background: #FBF3E2;
+    border-left: 3px solid #E9A23B; font-size: 13px; }
+  @media print {
+    body { background: #FFF; padding: 0; font-size: 11.5pt; }
+    .feuille { border: none; border-radius: 0; padding: 0; max-width: none; }
+    h2 { break-after: avoid; }
+    tr { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="feuille">
+  <div class="marque"><span class="pastille">K</span> KONDO LABO · fiche pédagogique</div>
+  <h1>La flamme de la bougie</h1>
+  <div class="repere">PCT · 6ᵉ · SA3</div>
+  <p class="quoi"></p>
+
+  <h2>Le parcours — 5 missions</h2>
+  <table>
+    <thead><tr><th></th><th>Ce que l’élève fait</th><th>Ce qu’il retient</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="n">1</td>
+        <td>
+          <b>Les trois parties de la flamme</b>
+          <span class="but">Une flamme n’est pas d’un seul bloc. Promène le thermomètre dedans et trouve ses trois parties.</span>
+        </td>
+        <td class="retenir">La flamme d’une bougie a trois parties : une zone sombre au cœur, une grande zone lumineuse, et un mince liseré bleu sur les bords et à la base.</td>
+      </tr>
+      <tr>
+        <td class="n">2</td>
+        <td>
+          <b>Où fait-il le plus chaud ?</b>
+          <span class="but">Beaucoup pensent que le centre de la flamme est le plus chaud. Mesure les trois parties, puis chauffe le fil de cuivre.</span>
+        </td>
+        <td class="retenir">Le liseré bleu est la partie la plus chaude — près de 1400 °C — parce que le dioxygène y arrive en abondance. Le cœur sombre est le plus froid.</td>
+      </tr>
+      <tr>
+        <td class="n">3</td>
+        <td>
+          <b>D’où vient le noir de fumée ?</b>
+          <span class="but">Le fond des marmites noircit. Cherche dans quelle partie de la flamme se dépose ce noir.</span>
+        </td>
+        <td class="retenir">Le noir de fumée vient de la zone lumineuse : les grains de carbone qui l’éclairent se déposent sur les objets froids. Dans le liseré bleu, tout brûle jusqu’au bout et la soucoupe reste propre.</td>
+      </tr>
+      <tr>
+        <td class="n">4</td>
+        <td>
+          <b>L’allumette qui ne brûle pas au milieu</b>
+          <span class="but">Pose une allumette en travers de la flamme, dans le bas, et regarde bien où elle noircit.</span>
+        </td>
+        <td class="retenir">L’allumette noircit des deux côtés et reste intacte au milieu : cela prouve que le cœur de la flamme est bien plus froid que ses bords.</td>
+      </tr>
+      <tr>
+        <td class="n">5</td>
+        <td>
+          <b>De quoi est fait l’air ?</b>
+          <span class="but">Une bougie brûle sur l’eau, sous une cloche. Regarde jusqu’où l’eau monte quand la flamme s’éteint.</span>
+        </td>
+        <td class="retenir">La flamme s’éteint alors que la cloche est encore pleine de gaz : l’eau n’est montée que d’un cinquième. L’air contient environ un cinquième de dioxygène et quatre cinquièmes de diazote, qui n’entretient pas la combustion.</td>
+      </tr></tbody>
+  </table>
+
+  
+
+  <h2>Les mots à installer</h2>
+  <ul class="lex"><li><b>Combustion complète</b> — Le combustible brûle jusqu’au bout, parce qu’il reçoit assez de dioxygène. La flamme est bleue et ne salit pas.</li><li><b>Combustion incomplète</b> — Il manque du dioxygène : une partie du carbone ne brûle pas et se dépose en noir de fumée.</li><li><b>Noir de fumée</b> — La suie : de fines particules de carbone. C’est ce qui noircit le fond des marmites.</li><li><b>Combustible</b> — Ce qui brûle. Pour une bougie, c’est la vapeur de cire — et non la mèche.</li><li><b>Comburant</b> — Ce qui permet de brûler : le dioxygène de l’air.</li><li><b>Dioxygène</b> — Le gaz de l’air qui entretient les combustions. Il occupe environ un cinquième de l’air.</li><li><b>Diazote</b> — Le gaz le plus abondant de l’air — quatre cinquièmes. Il n’entretient pas la combustion.</li></ul>
+
+  <h2>Les erreurs que le quiz vise</h2>
+  <div class="piege"><b>Le centre d’une flamme de bougie est-il la partie la plus chaude ?</b>
+    <span>Le centre est le cône sombre : de la vapeur de cire qui n’a pas encore brûlé, faute d’air. La combustion complète se fait à la base, où l’air arrive.</span></div><div class="piege"><b>La partie la plus lumineuse d’une flamme est-elle celle où la combustion est la meilleure ?</b>
+    <span>Ce sont des particules de carbone portées au rouge qui éclairent — donc du combustible en train de se perdre. Une flamme bleue brûle mieux et éclaire moins.</span></div><div class="piege"><b>Une bougie enfermée sous une cloche s’éteint. Peut-on conclure que tout le dioxygène a été consommé ?</b>
+    <span>L’eau monte d’environ un cinquième, pas de la totalité. Une flamme a besoin d’une proportion minimale de dioxygène : en dessous, elle s’arrête.</span></div><div class="piege"><b>Une allumette placée en travers d’une flamme ne noircit pas en son milieu. Faut-il en conclure que le milieu est vide ?</b>
+    <span>Le cône sombre est plein — de vapeur de cire. Elle n’a pas encore rencontré assez d’air pour brûler, donc il y fait relativement froid.</span></div><div class="piege"><b>Ce qui brûle dans une bougie, est-ce la mèche ?</b>
+    <span>Souffle la flamme et approche une allumette du filet de fumée : il se rallume à distance. C’est la vapeur qui brûle, pas le fil.</span></div><div class="piege"><b>Le noir de fumée déposé par une flamme est-il de la cendre ?</b>
+    <span>La cendre est ce qui reste après combustion. Le noir de fumée est au contraire du combustible qui n’a pas brûlé, faute d’air.</span></div><div class="piege"><b>L’air est-il constitué principalement de dioxygène ?</b>
+    <span>Le dioxygène n’occupe qu’un cinquième de l’air. C’est justement ce que mesure la montée de l’eau sous la cloche.</span></div>
+
+  <div class="pied">
+    <span>Chaque mission se termine par une question ; le quiz final compte trois niveaux,
+      et les questions difficiles pèsent trois fois plus.</span>
+    <span><a href="https://edgboy.github.io/ike-simulations/simulations/flamme-bougie/index.html">Ouvrir la simulation</a></span>
+  </div>
+</div>
+</body>
+</html>

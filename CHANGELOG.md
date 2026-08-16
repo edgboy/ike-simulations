@@ -5,6 +5,54 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v4.51.0 — 2026-08-16
+
+📄 **Une fiche pédagogique par simulation.**
+
+Un enseignant à qui on envoie `kondo-labo-respiration.html` reçoit un fichier de 355 Ko et rien
+d'autre. Il ne sait pas quelle situation d'apprentissage c'est, quelles séquences du guide elle
+couvre, ce que ses élèves auront retenu à la fin, ni où ils vont buter. Il devrait tout jouer
+lui-même pour le découvrir — et un enseignant qui n'a pas le temps ne le fera pas.
+
+Chaque simulation a désormais **sa fiche d'une page** : le repère de SA, ce que couvre la
+simulation, le tableau des missions avec **ce que chacune fait retenir**, le lexique à installer,
+et les erreurs que le niveau « pièges » du quiz vise. Elle s'imprime, elle s'ouvre sur un
+téléphone, et elle part dans l'archive à côté de la simulation.
+
+### Elle est extraite de la simulation, jamais écrite à la main
+
+Les données existent déjà dans le fichier livré : `MISSIONS`, `LEXIQUE`, `BANQUE`, l'en-tête de SA.
+Une fiche rédigée à part mentirait dès la version suivante — ce dépôt a assez d'exemples de
+divergence pour qu'on s'en méfie. Régénérée à chaque publication, celle-ci ne le peut pas.
+
+L'extraction évalue la déclaration `const MISSIONS = [...]` dans un bac à sable. Les prédicats des
+missions y parlent de variables inconnues, mais on les **définit** sans jamais les **appeler** : le
+corps d'une fonction n'est évalué qu'à l'appel, et seules les données littérales sont lues.
+
+### Trois générations, un seul outil
+
+Le catalogue a vieilli par couches, et l'outil les accepte toutes plutôt que d'imposer un format
+aux dix-neuf fichiers livrés :
+
+| | Lexique | But de la mission | Bilan |
+|---|---|---|---|
+| génération récente | `['mot', 'déf']` | `but` | `retenir` |
+| premières simulations | `{ mot, def }` | *aucun* → la première étape | `retenir` |
+| atelier de molécules | `{ t, d }` | `sousTitre` | *aucun* |
+
+`atelier-molecules` n'a aucun bilan de mission : sa fiche retire la colonne et **le dit** — elle
+n'a jamais été alignée sur le socle commun. C'est aussi la seule simulation sans carte au
+catalogue, tout en partant dans l'archive.
+
+### Sur le catalogue
+
+Chaque ligne de la section « Emporter » propose maintenant **le fichier et sa fiche**. L'archive
+contient les deux : 19 simulations, 19 fiches, 3,9 Mo.
+
+Les polices ne sont pas embarquées dans les fiches, contrairement aux simulations : un document de
+texte se lit très bien dans la police du système, et les embarquer aurait alourdi l'archive de deux
+mégaoctets pour un gain nul.
+
 ## v4.50.0 — 2026-08-16
 
 🫁 **« Tous respirent » — SVT 6ᵉ, SA3. La classe de 6ᵉ est complète.**

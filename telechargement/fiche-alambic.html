@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fiche — Construis ton alambic — KONDO LABO</title>
+<style>
+  /* Une fiche se lit à l'écran et s'imprime. Pas de police embarquée : c'est
+     un document de texte, la police du système lui convient. */
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px;
+    font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
+    font-size: 14px; line-height: 1.55; color: #24211E; background: #F7F5F0;
+  }
+  .feuille { max-width: 820px; margin: 0 auto; background: #FFF;
+    border: 1px solid #D3CFC8; border-radius: 12px; padding: 28px 30px 34px; }
+  .marque { display: flex; align-items: center; gap: 10px; font-size: 12px;
+    letter-spacing: .08em; text-transform: uppercase; color: #6B6560; }
+  .pastille { width: 26px; height: 26px; border-radius: 7px; background: #C4D94E;
+    display: grid; place-items: center; font-weight: 800; color: #3A3632; }
+  h1 { font-size: 26px; margin: 14px 0 4px; line-height: 1.2; }
+  .repere { display: inline-block; background: #EDF3D6; border-radius: 6px;
+    padding: 3px 10px; font-weight: 700; font-size: 13px; }
+  .quoi { margin: 12px 0 0; color: #4A443E; }
+  h2 { font-size: 16px; margin: 26px 0 10px; padding-bottom: 6px;
+    border-bottom: 2px solid #C4D94E; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; font-size: 11.5px; text-transform: uppercase;
+    letter-spacing: .06em; color: #6B6560; padding: 0 8px 6px; font-weight: 700; }
+  td { vertical-align: top; padding: 9px 8px; border-top: 1px solid #E7E3DC; }
+  td.n { width: 26px; font-weight: 800; color: #6B6560; }
+  td b { display: block; }
+  .but { display: block; color: #5A544E; font-size: 13px; margin-top: 2px; }
+  .retenir { width: 48%; font-size: 13px; }
+  ul { margin: 0; padding-left: 20px; }
+  li { margin-bottom: 5px; }
+  .lex b { font-weight: 700; }
+  .piege { margin-bottom: 10px; }
+  .piege b { display: block; }
+  .piege span { color: #4A443E; font-size: 13px; }
+  .pied { margin-top: 26px; padding-top: 12px; border-top: 1px solid #E7E3DC;
+    font-size: 12px; color: #6B6560; display: flex; justify-content: space-between;
+    gap: 12px; flex-wrap: wrap; }
+  a { color: #2F6B86; }
+  .note { margin: 12px 0 0; padding: 9px 12px; background: #FBF3E2;
+    border-left: 3px solid #E9A23B; font-size: 13px; }
+  @media print {
+    body { background: #FFF; padding: 0; font-size: 11.5pt; }
+    .feuille { border: none; border-radius: 0; padding: 0; max-width: none; }
+    h2 { break-after: avoid; }
+    tr { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="feuille">
+  <div class="marque"><span class="pastille">K</span> KONDO LABO · fiche pédagogique</div>
+  <h1>Construis ton alambic</h1>
+  <div class="repere">PCT · 6ᵉ · SA4</div>
+  <p class="quoi"></p>
+
+  <h2>Le parcours — 6 missions</h2>
+  <table>
+    <thead><tr><th></th><th>Ce que l’élève fait</th><th>Ce qu’il retient</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="n">1</td>
+        <td>
+          <b>Fais bouillir l’eau</b>
+          <span class="but">Chauffe de l’eau jusqu’à l’ébullition et regarde jusqu’où monte la température.</span>
+        </td>
+        <td class="retenir">L’eau pure bout à 100 °C. Ensuite, elle ne chauffe plus : toute la chaleur sert à la transformer en vapeur.</td>
+      </tr>
+      <tr>
+        <td class="n">2</td>
+        <td>
+          <b>Attrape la vapeur</b>
+          <span class="but">Ferme la chaudière et conduis la vapeur dehors, sans la laisser filer.</span>
+        </td>
+        <td class="retenir">Le chapiteau rassemble la vapeur et le tuyau la conduit. Une chaudière fermée doit toujours avoir une sortie, sinon la pression monte.</td>
+      </tr>
+      <tr>
+        <td class="n">3</td>
+        <td>
+          <b>Transforme la vapeur en gouttes</b>
+          <span class="but">Refroidis la vapeur pour qu’elle redevienne liquide, et recueille les gouttes.</span>
+        </td>
+        <td class="retenir">Au contact du froid, la vapeur redevient liquide : c’est la condensation. C’est elle qui remplit le flacon.</td>
+      </tr>
+      <tr>
+        <td class="n">4</td>
+        <td>
+          <b>De l’eau salée à l’eau douce</b>
+          <span class="but">Distille de l’eau salée et recueille au moins 100 mL d’eau douce.</span>
+        </td>
+        <td class="retenir">La distillation sépare : seule l’eau part en vapeur. Le sel, lui, ne s’évapore pas et reste au fond de la chaudière.</td>
+      </tr>
+      <tr>
+        <td class="n">5</td>
+        <td>
+          <b>Le meilleur rendement</b>
+          <span class="but">Améliore ton alambic pour recueillir au moins 250 mL sur les 500 mL de départ.</span>
+        </td>
+        <td class="retenir">Le rendement dépend de trois choses : la chaleur reçue, l’étanchéité du montage, et la qualité du refroidissement.</td>
+      </tr>
+      <tr>
+        <td class="n">6</td>
+        <td>
+          <b>L’huile essentielle</b>
+          <span class="but">Distille des feuilles odorantes pour extraire leur parfum, avec un montage sans danger.</span>
+        </td>
+        <td class="retenir">La vapeur qui traverse des plantes emporte leurs parfums : c’est l’entraînement à la vapeur, la méthode des huiles essentielles.</td>
+      </tr></tbody>
+  </table>
+
+  
+
+  <h2>Les mots à installer</h2>
+  <ul class="lex"><li><b>Alambic</b> — L'appareil qui sert à distiller : il fait bouillir un liquide, puis refroidit la vapeur pour la récupérer. On l'utilise au village pour distiller le vin de palme.</li><li><b>Distillation</b> — Faire bouillir un liquide puis refroidir sa vapeur pour la recueillir. Elle sépare : seule l'eau part en vapeur, ce qui ne s'évapore pas reste au fond.</li><li><b>Chaudière</b> — Le récipient posé sur le feu, où l'on met le liquide à distiller. On l'appelle aussi cucurbite.</li><li><b>Chapiteau</b> — Le couvercle qui ferme la chaudière et rassemble la vapeur vers le tuyau.</li><li><b>Réfrigérant</b> — La partie qui refroidit la vapeur. Souvent un serpentin : un tuyau enroulé qui passe dans un bac d'eau froide.</li><li><b>Distillat</b> — Le liquide qu'on recueille au bout du tuyau. En distillant de l'eau salée, le distillat est de l'eau douce.</li><li><b>Les trois états de l’eau</b> — Solide (la glace), liquide (l'eau du robinet), gazeux (la vapeur d'eau, invisible). C'est la même eau à chaque fois : seule sa forme change.</li><li><b>Vaporisation</b> — Le passage de l'état liquide à l'état gazeux. Dans l'alambic, elle a lieu dans la chaudière, sur le feu.</li><li><b>Condensation (liquéfaction)</b> — Le passage de l'état gazeux à l'état liquide. Dans l'alambic, elle a lieu dans le réfrigérant, au contact du froid.</li><li><b>Ébullition</b> — Le bouillonnement d'un liquide qu'on chauffe. L'eau pure bout à 100 °C et ne monte pas plus haut, même si on chauffe davantage : la chaleur sert alors à fabriquer de la vapeur.</li><li><b>Fusion et solidification</b> — La glace qui fond devient liquide : c'est la fusion. L'eau qui gèle devient solide : c'est la solidification.</li><li><b>Sublimation</b> — Le passage direct du solide au gazeux, sans passer par le liquide. C'est ce que font le camphre et le diiode.</li><li><b>Entraînement à la vapeur</b> — La vapeur qui traverse des plantes emporte avec elle leurs parfums. En la refroidissant, on recueille leur huile essentielle.</li><li><b>Buée</b> — Les fines gouttes qui se déposent sur une surface froide : c'est de la vapeur d'eau qui vient de se condenser.</li></ul>
+
+  <h2>Les erreurs que le quiz vise</h2>
+  <div class="piege"><b>Pendant l’ébullition, la température du liquide continue-t-elle de monter si l’on chauffe plus fort ?</b>
+    <span>C’est un palier : tant qu’il reste du liquide à vaporiser, toute la chaleur y passe. Chauffer plus fort accélère la vaporisation, sans élever la température.</span></div><div class="piege"><b>Un alambic est monté sans réfrigérant. Que recueille-t-on dans le flacon ?</b>
+    <span>Mesuré à l’identique : 0 mL sans réfrigérant, 25 mL avec un linge mouillé, 43 mL avec un serpentin dans l’eau froide.</span></div><div class="piege"><b>La distillation de l’eau salée fait-elle disparaître le sel ?</b>
+    <span>Distiller sépare, cela ne détruit rien. Le sel est toujours là, au fond de la chaudière — c’est même ainsi qu’on le récolte.</span></div><div class="piege"><b>Un linge mouillé enroulé autour du tuyau refroidit-il aussi bien qu’un serpentin plongé dans l’eau froide ?</b>
+    <span>Le serpentin offre un long trajet dans l’eau froide : la vapeur a le temps de tout perdre. Avec un linge, une partie ressort encore en gaz.</span></div><div class="piege"><b>Le distillat d’une eau salée a-t-il le même goût que l’eau de départ ?</b>
+    <span>C’est tout l’intérêt du procédé : on obtient une eau débarrassée de ce qui ne s’évapore pas.</span></div><div class="piege"><b>La vapeur d’eau que l’on voit sortir d’une casserole est-elle le gaz lui-même ?</b>
+    <span>La vapeur d’eau, à l’état gazeux, est invisible. Ce qu’on voit s’est déjà refroidi et condensé au contact de l’air.</span></div><div class="piege"><b>Pour distiller des feuilles odorantes, faut-il choisir un tuyau en roseau ?</b>
+    <span>Le matériau du tuyau touche le produit. Un roseau noircit à la chaleur et cède son goût : il faut un tuyau qui ne donne rien au distillat.</span></div>
+
+  <div class="pied">
+    <span>Chaque mission se termine par une question ; le quiz final compte trois niveaux,
+      et les questions difficiles pèsent trois fois plus.</span>
+    <span><a href="https://edgboy.github.io/ike-simulations/simulations/alambic/index.html">Ouvrir la simulation</a></span>
+  </div>
+</div>
+</body>
+</html>

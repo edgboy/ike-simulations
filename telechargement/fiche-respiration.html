@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fiche — Tous respirent — KONDO LABO</title>
+<style>
+  /* Une fiche se lit à l'écran et s'imprime. Pas de police embarquée : c'est
+     un document de texte, la police du système lui convient. */
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px;
+    font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
+    font-size: 14px; line-height: 1.55; color: #24211E; background: #F7F5F0;
+  }
+  .feuille { max-width: 820px; margin: 0 auto; background: #FFF;
+    border: 1px solid #D3CFC8; border-radius: 12px; padding: 28px 30px 34px; }
+  .marque { display: flex; align-items: center; gap: 10px; font-size: 12px;
+    letter-spacing: .08em; text-transform: uppercase; color: #6B6560; }
+  .pastille { width: 26px; height: 26px; border-radius: 7px; background: #C4D94E;
+    display: grid; place-items: center; font-weight: 800; color: #3A3632; }
+  h1 { font-size: 26px; margin: 14px 0 4px; line-height: 1.2; }
+  .repere { display: inline-block; background: #EDF3D6; border-radius: 6px;
+    padding: 3px 10px; font-weight: 700; font-size: 13px; }
+  .quoi { margin: 12px 0 0; color: #4A443E; }
+  h2 { font-size: 16px; margin: 26px 0 10px; padding-bottom: 6px;
+    border-bottom: 2px solid #C4D94E; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; font-size: 11.5px; text-transform: uppercase;
+    letter-spacing: .06em; color: #6B6560; padding: 0 8px 6px; font-weight: 700; }
+  td { vertical-align: top; padding: 9px 8px; border-top: 1px solid #E7E3DC; }
+  td.n { width: 26px; font-weight: 800; color: #6B6560; }
+  td b { display: block; }
+  .but { display: block; color: #5A544E; font-size: 13px; margin-top: 2px; }
+  .retenir { width: 48%; font-size: 13px; }
+  ul { margin: 0; padding-left: 20px; }
+  li { margin-bottom: 5px; }
+  .lex b { font-weight: 700; }
+  .piege { margin-bottom: 10px; }
+  .piege b { display: block; }
+  .piege span { color: #4A443E; font-size: 13px; }
+  .pied { margin-top: 26px; padding-top: 12px; border-top: 1px solid #E7E3DC;
+    font-size: 12px; color: #6B6560; display: flex; justify-content: space-between;
+    gap: 12px; flex-wrap: wrap; }
+  a { color: #2F6B86; }
+  .note { margin: 12px 0 0; padding: 9px 12px; background: #FBF3E2;
+    border-left: 3px solid #E9A23B; font-size: 13px; }
+  @media print {
+    body { background: #FFF; padding: 0; font-size: 11.5pt; }
+    .feuille { border: none; border-radius: 0; padding: 0; max-width: none; }
+    h2 { break-after: avoid; }
+    tr { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="feuille">
+  <div class="marque"><span class="pastille">K</span> KONDO LABO · fiche pédagogique</div>
+  <h1>Tous respirent</h1>
+  <div class="repere">SVT · 6ᵉ · SA3</div>
+  <p class="quoi">SVT 6ᵉ, SA3 « Unité et diversité des phénomènes respiratoires chez les êtres vivants » : mouvements respiratoires, organes extérieurs, surfaces respiratoires et échanges gazeux.</p>
+
+  <h2>Le parcours — 10 missions</h2>
+  <table>
+    <thead><tr><th></th><th>Ce que l’élève fait</th><th>Ce qu’il retient</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="n">1</td>
+        <td>
+          <b>Inspirer, expirer</b>
+          <span class="but">Regarde ce qui bouge quand on respire, et compte.</span>
+        </td>
+        <td class="retenir">Respirer, c’est faire entrer de l’air dans le corps puis l’en faire sortir : c’est l’inspiration et l’expiration. Chez l’homme, la poitrine se soulève puis s’abaisse — ce sont les mouvements respiratoires. Ils se répètent sans arrêt, jour et nuit.</td>
+      </tr>
+      <tr>
+        <td class="n">2</td>
+        <td>
+          <b>L’air expiré a changé</b>
+          <span class="but">L’air qui sort est-il le même que celui qui entre ? L’eau de chaux répond.</span>
+        </td>
+        <td class="retenir">L’eau de chaux se trouble en présence de dioxyde de carbone — tu l’avais déjà rencontrée avec les combustions. Elle reste limpide dans l’air ordinaire, mais se trouble avec l’air expiré : l’air qui sort du corps contient plus de dioxyde de carbone que celui qui entre.</td>
+      </tr>
+      <tr>
+        <td class="n">3</td>
+        <td>
+          <b>Il manque du dioxygène</b>
+          <span class="but">L’autre moitié de l’échange : qu’est-ce qui a disparu de l’air ?</span>
+        </td>
+        <td class="retenir">Une bougie ne brûle que s’il y a assez de dioxygène. Dans l’air expiré, elle faiblit puis s’éteint : il en reste moins que dans l’air ordinaire. Respirer, c’est donc prendre du dioxygène dans l’air et y rejeter du dioxyde de carbone. C’est l’échange gazeux respiratoire.</td>
+      </tr>
+      <tr>
+        <td class="n">4</td>
+        <td>
+          <b>Par où l’air entre-t-il ?</b>
+          <span class="but">Chez les animaux terrestres, cherche l’ouverture par où l’air passe.</span>
+        </td>
+        <td class="retenir">L’air n’entre pas partout de la même façon. La souris a des narines, le criquet des stigmates — de petits trous alignés sur ses flancs. Le ver de terre n’a aucune ouverture : l’air traverse directement sa peau, qui doit rester humide pour cela.</td>
+      </tr>
+      <tr>
+        <td class="n">5</td>
+        <td>
+          <b>Les signes dans l’eau</b>
+          <span class="but">Un animal aquatique respire aussi. Repère ce qui bouge sans arrêt.</span>
+        </td>
+        <td class="retenir">Le poisson ouvre la bouche et referme ses opercules sans arrêt : il fait ainsi passer un courant d’eau sur ses branchies. Ce mouvement continu est le signe extérieur de sa respiration. Il ne respire pas l’eau : il prélève le dioxygène dissous dedans.</td>
+      </tr>
+      <tr>
+        <td class="n">6</td>
+        <td>
+          <b>Quatre organes, un seul travail</b>
+          <span class="but">Poumons, branchies, trachées, peau : regarde-les de près.</span>
+        </td>
+        <td class="retenir">Quatre organes très différents : les poumons et leurs alvéoles, les branchies et leurs lamelles, les trachées qui se ramifient dans tout le corps, et la peau du ver de terre. Chacun est la surface respiratoire de son propriétaire : l’endroit où les gaz passent.</td>
+      </tr>
+      <tr>
+        <td class="n">7</td>
+        <td>
+          <b>Ce qu’elles ont toutes en commun</b>
+          <span class="but">Compare les quatre surfaces : trois caractères reviennent partout.</span>
+        </td>
+        <td class="retenir">Toutes les surfaces respiratoires sont très fines, toujours humides et très étendues — repliées, plissées ou ramifiées. Trois d’entre elles sont en plus richement irriguées de sang, qui emporte le dioxygène vers tout le corps. Les trachées du criquet font exception : l’air y arrive directement aux organes, sans passer par le sang.</td>
+      </tr>
+      <tr>
+        <td class="n">8</td>
+        <td>
+          <b>Le témoin</b>
+          <span class="but">Avant d’accuser un être vivant, vérifie que le bocal seul ne fait rien.</span>
+        </td>
+        <td class="retenir">Avec des cailloux, l’eau de chaux reste limpide et la bougie brûle : le bocal ne fait rien tout seul. C’est le témoin, et il est indispensable — sans lui, on ne pourrait pas affirmer que c’est bien l’être vivant qui a modifié l’air.</td>
+      </tr>
+      <tr>
+        <td class="n">9</td>
+        <td>
+          <b>Les végétaux aussi</b>
+          <span class="but">Une plante ne bouge pas, n’a ni narines ni branchies. Respire-t-elle ?</span>
+        </td>
+        <td class="retenir">Les graines germées et les feuilles troublent l’eau de chaux, et finissent par éteindre la bougie : elles prennent du dioxygène et rejettent du dioxyde de carbone, exactement comme un animal. Les végétaux respirent, sans aucun organe visible, de jour comme de nuit.</td>
+      </tr>
+      <tr>
+        <td class="n">10</td>
+        <td>
+          <b>Tous respirent</b>
+          <span class="but">Un dernier être t’attend dans le bocal. Ni animal, ni végétal.</span>
+        </td>
+        <td class="retenir">Un champignon n’est ni un animal ni un végétal — et il respire lui aussi. C’est l’unité de la fonction : tous les êtres vivants respirent, ils prennent du dioxygène et rejettent du dioxyde de carbone. Ce qui change d’un être à l’autre, ce sont les organes — poumons, branchies, trachées, peau, ou rien de visible : c’est la diversité.</td>
+      </tr></tbody>
+  </table>
+
+  
+
+  <h2>Les mots à installer</h2>
+  <ul class="lex"><li><b>Respiration</b> — La fonction par laquelle un être vivant prend du dioxygène et rejette du dioxyde de carbone.</li><li><b>Inspiration</b> — Le mouvement par lequel l’air entre dans le corps.</li><li><b>Expiration</b> — Le mouvement par lequel l’air sort du corps.</li><li><b>Mouvements respiratoires</b> — L’inspiration et l’expiration, qui se répètent sans arrêt.</li><li><b>Dioxygène</b> — Le gaz de l’air que les êtres vivants prélèvent. Il représente environ 21 % de l’air.</li><li><b>Dioxyde de carbone</b> — Le gaz que les êtres vivants rejettent. Il trouble l’eau de chaux.</li><li><b>Eau de chaux</b> — Un liquide limpide qui se trouble en présence de dioxyde de carbone. C’est un test.</li><li><b>Échange gazeux respiratoire</b> — Le double passage : le dioxygène entre, le dioxyde de carbone sort.</li><li><b>Surface respiratoire</b> — L’endroit du corps où les gaz passent : alvéoles, lamelles, trachées ou peau.</li><li><b>Poumons</b> — Les organes respiratoires des mammifères, des oiseaux et des reptiles.</li><li><b>Alvéoles</b> — Les minuscules sacs qui forment la surface respiratoire des poumons.</li><li><b>Branchies</b> — Les organes respiratoires des poissons, faits de lamelles serrées.</li><li><b>Opercule</b> — Le volet qui couvre les branchies d’un poisson. Son mouvement est le signe de la respiration.</li><li><b>Trachées</b> — Le réseau de tubes fins qui conduit l’air dans tout le corps d’un insecte.</li><li><b>Stigmate</b> — Un des petits trous, sur les flancs d’un insecte, par où l’air entre dans les trachées.</li><li><b>Respiration cutanée</b> — La respiration à travers la peau, comme chez le ver de terre. La peau doit rester humide.</li><li><b>Témoin</b> — Un montage identique, sans ce qu’on veut étudier. Il montre que le reste ne fait rien tout seul.</li></ul>
+
+  <h2>Les erreurs que le quiz vise</h2>
+  <div class="piege"><b>« Les plantes ne respirent pas, elles produisent du dioxygène. » Vrai ou faux ?</b>
+    <span>C’est l’erreur la plus répandue de tout le programme. Les végétaux respirent sans arrêt, comme tous les êtres vivants — l’eau de chaux le montre. Ils font en plus autre chose à la lumière, mais cela ne remplace pas la respiration.</span></div><div class="piege"><b>Un poisson respire-t-il l’eau ?</b>
+    <span>L’eau n’est pas un gaz respirable. Ce que les branchies prélèvent, c’est le dioxygène dissous dedans — bien moins abondant que dans l’air.</span></div><div class="piege"><b>Un élève conclut qu’une souris respire, sans avoir fait tourner de bocal témoin. Que lui manque-t-il ?</b>
+    <span>Sans témoin, on ne peut pas exclure que le bocal, l’humidité ou le montage soient responsables. Le témoin est ce qui transforme une observation en preuve.</span></div><div class="piege"><b>Un poisson sorti de l’eau étouffe, alors que l’air contient bien plus de dioxygène. Pourquoi ?</b>
+    <span>Hors de l’eau, les lamelles s’effondrent les unes sur les autres : la surface d’échange s’effondre, et elle sèche. Une surface respiratoire doit rester étendue et humide.</span></div><div class="piege"><b>Le criquet a-t-il besoin de sang pour transporter le dioxygène jusqu’à ses organes ?</b>
+    <span>C’est l’exception de la simulation : les trachées se ramifient jusqu’aux organes eux-mêmes. Chez les trois autres surfaces, c’est le sang qui emporte les gaz.</span></div><div class="piege"><b>« Respirer, c’est faire des mouvements avec sa poitrine. » Est-ce suffisant ?</b>
+    <span>Les mouvements ne sont qu’un signe chez certains animaux. Respirer, c’est l’échange lui-même : prendre du dioxygène et rejeter du dioxyde de carbone.</span></div><div class="piege"><b>L’eau de chaux reste limpide après deux minutes avec un ver de terre. Que conclure ?</b>
+    <span>Un ver de terre respire lentement. Le test n’a pas eu le temps de répondre : un résultat négatif trop tôt ne prouve rien du tout.</span></div><div class="piege"><b>Deux animaux aux organes totalement différents peuvent-ils faire la même chose ?</b>
+    <span>C’est tout le sens du titre de la situation d’apprentissage : unité de la fonction, diversité des organes.</span></div>
+
+  <div class="pied">
+    <span>Chaque mission se termine par une question ; le quiz final compte trois niveaux,
+      et les questions difficiles pèsent trois fois plus.</span>
+    <span><a href="https://edgboy.github.io/ike-simulations/simulations/respiration/index.html">Ouvrir la simulation</a></span>
+  </div>
+</div>
+</body>
+</html>

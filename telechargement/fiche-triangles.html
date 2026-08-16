@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fiche — La hauteur de l’obélisque — KONDO LABO</title>
+<style>
+  /* Une fiche se lit à l'écran et s'imprime. Pas de police embarquée : c'est
+     un document de texte, la police du système lui convient. */
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px;
+    font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
+    font-size: 14px; line-height: 1.55; color: #24211E; background: #F7F5F0;
+  }
+  .feuille { max-width: 820px; margin: 0 auto; background: #FFF;
+    border: 1px solid #D3CFC8; border-radius: 12px; padding: 28px 30px 34px; }
+  .marque { display: flex; align-items: center; gap: 10px; font-size: 12px;
+    letter-spacing: .08em; text-transform: uppercase; color: #6B6560; }
+  .pastille { width: 26px; height: 26px; border-radius: 7px; background: #C4D94E;
+    display: grid; place-items: center; font-weight: 800; color: #3A3632; }
+  h1 { font-size: 26px; margin: 14px 0 4px; line-height: 1.2; }
+  .repere { display: inline-block; background: #EDF3D6; border-radius: 6px;
+    padding: 3px 10px; font-weight: 700; font-size: 13px; }
+  .quoi { margin: 12px 0 0; color: #4A443E; }
+  h2 { font-size: 16px; margin: 26px 0 10px; padding-bottom: 6px;
+    border-bottom: 2px solid #C4D94E; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; font-size: 11.5px; text-transform: uppercase;
+    letter-spacing: .06em; color: #6B6560; padding: 0 8px 6px; font-weight: 700; }
+  td { vertical-align: top; padding: 9px 8px; border-top: 1px solid #E7E3DC; }
+  td.n { width: 26px; font-weight: 800; color: #6B6560; }
+  td b { display: block; }
+  .but { display: block; color: #5A544E; font-size: 13px; margin-top: 2px; }
+  .retenir { width: 48%; font-size: 13px; }
+  ul { margin: 0; padding-left: 20px; }
+  li { margin-bottom: 5px; }
+  .lex b { font-weight: 700; }
+  .piege { margin-bottom: 10px; }
+  .piege b { display: block; }
+  .piege span { color: #4A443E; font-size: 13px; }
+  .pied { margin-top: 26px; padding-top: 12px; border-top: 1px solid #E7E3DC;
+    font-size: 12px; color: #6B6560; display: flex; justify-content: space-between;
+    gap: 12px; flex-wrap: wrap; }
+  a { color: #2F6B86; }
+  .note { margin: 12px 0 0; padding: 9px 12px; background: #FBF3E2;
+    border-left: 3px solid #E9A23B; font-size: 13px; }
+  @media print {
+    body { background: #FFF; padding: 0; font-size: 11.5pt; }
+    .feuille { border: none; border-radius: 0; padding: 0; max-width: none; }
+    h2 { break-after: avoid; }
+    tr { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="feuille">
+  <div class="marque"><span class="pastille">K</span> KONDO LABO · fiche pédagogique</div>
+  <h1>La hauteur de l’obélisque</h1>
+  <div class="repere">Maths · 3ᵉ · SA1</div>
+  <p class="quoi">Maths 3ᵉ, SA1 « Triangles » : propriété de Pythagore, hauteur relative à l’hypoténuse, propriété de Thalès et sa réciproque, triangles semblables, trigonométrie.</p>
+
+  <h2>Le parcours — 14 missions</h2>
+  <table>
+    <thead><tr><th></th><th>Ce que l’élève fait</th><th>Ce qu’il retient</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="n">1</td>
+        <td>
+          <b>Reconnaître l’angle droit</b>
+          <span class="but">Déplace les sommets du triangle jusqu’à ce que l’angle en A soit droit.</span>
+        </td>
+        <td class="retenir">Un triangle est rectangle quand il a un angle droit. Le côté opposé à l’angle droit s’appelle l’hypoténuse : c’est toujours le plus long. Les deux autres sont les côtés de l’angle droit.</td>
+      </tr>
+      <tr>
+        <td class="n">2</td>
+        <td>
+          <b>Les trois carrés</b>
+          <span class="but">Construis un carré sur chaque côté et compare leurs aires.</span>
+        </td>
+        <td class="retenir">Propriété de Pythagore — dans un triangle rectangle, le carré de la longueur de l’hypoténuse est égal à la somme des carrés des longueurs des deux autres côtés. Si le triangle ABC est rectangle en A, alors BC² = AB² + AC².</td>
+      </tr>
+      <tr>
+        <td class="n">3</td>
+        <td>
+          <b>La corde à treize nœuds</b>
+          <span class="but">Les maçons tracent un angle droit avec une corde. Retrouve leur triangle.</span>
+        </td>
+        <td class="retenir">Un triangle de côtés 3, 4 et 5 est rectangle, car 3² + 4² = 9 + 16 = 25 = 5². Avec une corde marquée de 13 nœuds, on forme ce triangle et on obtient un angle droit parfait sans équerre : c’est ainsi qu’on trace les fondations d’une maison.</td>
+      </tr>
+      <tr>
+        <td class="n">4</td>
+        <td>
+          <b>Le côté qui manque</b>
+          <span class="but">Connaissant deux côtés, trouve le troisième sans le mesurer.</span>
+        </td>
+        <td class="retenir">La propriété de Pythagore sert à calculer une longueur qu’on ne peut pas mesurer. Si le triangle est rectangle en A avec AB = 5 et AC = 12, alors BC² = 25 + 144 = 169, donc BC = √169 = 13.</td>
+      </tr>
+      <tr>
+        <td class="n">5</td>
+        <td>
+          <b>Reconnaître un triangle rectangle</b>
+          <span class="but">Un triangle quelconque : Pythagore permet de dire s’il a un angle droit.</span>
+        </td>
+        <td class="retenir">Réciproque de la propriété de Pythagore — si, dans un triangle, le carré du plus grand côté est égal à la somme des carrés des deux autres, alors ce triangle est rectangle, et l’angle droit est opposé au plus grand côté. Si l’égalité est fausse, le triangle n’est pas rectangle.</td>
+      </tr>
+      <tr>
+        <td class="n">6</td>
+        <td>
+          <b>Le nombre √2</b>
+          <span class="but">Un triangle tout petit va faire apparaître un nombre d’un genre nouveau.</span>
+        </td>
+        <td class="retenir">BC² = 1 + 1 = 2. La longueur BC est donc le nombre dont le carré vaut 2 : on le note √2 et on lit « racine carrée de 2 ». Ce nombre n’est aucune fraction : ce n’est pas un nombre rationnel. Avec √3, √5, √6 et tous les autres, il complète les nombres connus pour former l’ensemble des nombres réels, noté ℝ.</td>
+      </tr>
+      <tr>
+        <td class="n">7</td>
+        <td>
+          <b>La hauteur de l’hypoténuse</b>
+          <span class="but">Depuis l’angle droit, descends la hauteur jusqu’à l’hypoténuse.</span>
+        </td>
+        <td class="retenir">La hauteur relative à l’hypoténuse part du sommet de l’angle droit et rejoint l’hypoténuse perpendiculairement. Son pied H partage l’hypoténuse en deux segments : BH + HC = BC. Elle découpe aussi le triangle en deux triangles rectangles.</td>
+      </tr>
+      <tr>
+        <td class="n">8</td>
+        <td>
+          <b>AH² = BH × HC</b>
+          <span class="but">La hauteur est la moyenne proportionnelle des deux morceaux qu’elle découpe.</span>
+        </td>
+        <td class="retenir">Dans un triangle rectangle, la longueur de la hauteur relative à l’hypoténuse est moyenne proportionnelle entre les longueurs des deux segments qu’elle détermine sur l’hypoténuse : AH² = BH × HC.</td>
+      </tr>
+      <tr>
+        <td class="n">9</td>
+        <td>
+          <b>AB² = BH × BC</b>
+          <span class="but">Chaque côté de l’angle droit se lit sur l’hypoténuse.</span>
+        </td>
+        <td class="retenir">Dans un triangle rectangle, le carré d’un côté de l’angle droit est égal au produit de l’hypoténuse par le projeté de ce côté sur elle : AB² = BH × BC et AC² = CH × BC. Et le produit des côtés de l’angle droit vaut celui de l’hypoténuse par la hauteur : AB × AC = AH × BC.</td>
+      </tr>
+      <tr>
+        <td class="n">10</td>
+        <td>
+          <b>La propriété de Thalès</b>
+          <span class="but">Coupe le triangle par une droite parallèle à un côté, et compare les rapports.</span>
+        </td>
+        <td class="retenir">Propriété de Thalès relative au triangle — ABC est un triangle, M un point de la droite (AB) et N un point de la droite (AC). Si les droites (MN) et (BC) sont parallèles, alors AM/AB = AN/AC = MN/BC.</td>
+      </tr>
+      <tr>
+        <td class="n">11</td>
+        <td>
+          <b>Le piège de la réciproque</b>
+          <span class="but">Deux rapports égaux suffisent-ils pour que les droites soient parallèles ?</span>
+        </td>
+        <td class="retenir">Réciproque de la propriété de Thalès — l’égalité des rapports ne suffit pas. Il faut en plus que la position de M par rapport à A et B soit la même que celle de N par rapport à A et C. Sous ces deux conditions, si AM/AB = AN/AC, alors (MN) est parallèle à (BC).</td>
+      </tr>
+      <tr>
+        <td class="n">12</td>
+        <td>
+          <b>Les triangles semblables</b>
+          <span class="but">La parallèle découpe un petit triangle. Compare-le au grand.</span>
+        </td>
+        <td class="retenir">Deux triangles sont semblables lorsque les longueurs des côtés de l’un sont proportionnelles à celles de l’autre. Le nombre par lequel on multiplie s’appelle le rapport de similitude. Deux triangles semblables ont leurs angles homologues de même mesure : ils ont exactement la même forme, à la taille près.</td>
+      </tr>
+      <tr>
+        <td class="n">13</td>
+        <td>
+          <b>La hauteur de l’obélisque</b>
+          <span class="but">Baké veut la hauteur de l’obélisque. Il n’a qu’un bâton et son ombre.</span>
+        </td>
+        <td class="retenir">Le soleil éclaire tout le terrain sous le même angle : le bâton et son ombre forment un triangle semblable à celui de l’obélisque et de son ombre. On a donc hauteur ÷ ombre identique pour les deux. Avec un bâton d’un mètre et demi qui donne deux mètres d’ombre, et douze mètres d’ombre pour l’obélisque : 1,5 ÷ 2 = 0,75, puis 12 × 0,75 = 9 mètres.</td>
+      </tr>
+      <tr>
+        <td class="n">14</td>
+        <td>
+          <b>Le cosinus ne dépend que de l’angle</b>
+          <span class="but">Éloigne un point sur le côté : le rapport, lui, ne bouge pas.</span>
+        </td>
+        <td class="retenir">Dans un triangle rectangle en A, les rapports cos B = AB/BC, sin B = AC/BC et tan B = AC/AB ne dépendent que de la mesure de l’angle, pas de la taille du triangle. C’est ce qui permet de les mettre en table : cos 60° = 0,5 et cos 45° = √2/2, quel que soit le triangle.</td>
+      </tr></tbody>
+  </table>
+
+  
+
+  <h2>Les mots à installer</h2>
+  <ul class="lex"><li><b>Hypoténuse</b> — Dans un triangle rectangle, le côté opposé à l’angle droit. C’est toujours le plus long des trois.</li><li><b>Propriété de Pythagore</b> — Dans un triangle rectangle, le carré de l’hypoténuse égale la somme des carrés des deux autres côtés : BC² = AB² + AC².</li><li><b>Réciproque</b> — La propriété lue à l’envers : si l’égalité des carrés est vraie, alors le triangle est rectangle. Elle sert à reconnaître, quand la propriété sert à calculer.</li><li><b>Nombre réel</b> — Tous les nombres de la droite graduée, fractions comprises, plus ceux comme √2 qui ne sont aucune fraction. On note leur ensemble ℝ.</li><li><b>Hauteur relative à l’hypoténuse</b> — Le segment qui part du sommet de l’angle droit et tombe perpendiculairement sur l’hypoténuse. Son pied la partage en deux morceaux.</li><li><b>Moyenne proportionnelle</b> — Un nombre dont le carré vaut le produit de deux autres. La hauteur AH est moyenne proportionnelle entre BH et HC : AH² = BH × HC.</li><li><b>Projeté orthogonal</b> — L’endroit où un point tombe sur une droite quand on descend perpendiculairement. Le pied H est le projeté orthogonal de A sur (BC).</li><li><b>Propriété de Thalès</b> — Si (MN) est parallèle à (BC) dans le triangle ABC, alors AM/AB = AN/AC = MN/BC.</li><li><b>Triangles semblables</b> — Deux triangles dont les côtés sont proportionnels. Ils ont la même forme et les mêmes angles, à la taille près.</li><li><b>Rapport de similitude</b> — Le nombre par lequel on multiplie les côtés d’un triangle pour obtenir ceux de son semblable.</li><li><b>Côtés homologues</b> — Les côtés qui se correspondent dans deux triangles semblables : [AM] avec [AB], [MN] avec [BC], [AN] avec [AC].</li><li><b>Cosinus d’un angle aigu</b> — Dans un triangle rectangle, le rapport du côté adjacent à l’angle sur l’hypoténuse. Il ne dépend que de l’angle.</li><li><b>Sinus d’un angle aigu</b> — Le rapport du côté opposé à l’angle sur l’hypoténuse.</li><li><b>Tangente d’un angle aigu</b> — Le rapport du côté opposé sur le côté adjacent. C’est elle qui relie une hauteur à son ombre.</li></ul>
+
+  <h2>Les erreurs que le quiz vise</h2>
+  <div class="piege"><b>Un triangle a pour côtés 5, 6 et 8. Peut-on écrire 5² + 6² = 8² ?</b>
+    <span>On ne peut écrire l’égalité de Pythagore que si le triangle EST rectangle. Ici 61 ≠ 64 : il ne l’est pas, il s’en faut de peu. Vérifier avant d’appliquer, toujours.</span></div><div class="piege"><b>AM/AB = AN/AC dans le triangle ABC. Les droites (MN) et (BC) sont-elles parallèles ?</b>
+    <span>C’est le piège que tu as vu sur ta figure : en plaçant N de l’autre côté de A, les rapports de longueurs restent égaux et les droites se croisent. La condition de position fait partie de la réciproque.</span></div><div class="piege"><b>On double toutes les longueurs d’un triangle rectangle. Que devient le sinus de son angle aigu ?</b>
+    <span>Le sinus est un rapport. Si les deux longueurs doublent, le quotient reste le même. Les rapports trigonométriques ne dépendent que de l’angle — c’est tout leur intérêt.</span></div><div class="piege"><b>Dans un triangle rectangle en A, on écrit AH² = BH + HC. Où est l’erreur ?</b>
+    <span>La hauteur est moyenne proportionnelle entre les deux segments : son carré vaut leur PRODUIT. Avec BH = 2 et HC = 8, on trouve AH = 4, et non 10.</span></div><div class="piege"><b>Un élève écrit : « le triangle a des côtés 6, 8 et 10, donc 6 + 8 = 10 prouve qu’il est rectangle ». Qu’en penses-tu ?</b>
+    <span>6 + 8 = 14, pas 10 — et de toute façon ce n’est pas le bon critère. Il faut comparer 6² + 8² = 100 avec 10² = 100. L’égalité des carrés est ce qui compte.</span></div><div class="piege"><b>Le bâton de Baké mesure 1,5 m et son ombre 2 m. Un élève conclut que l’obélisque, dont l’ombre fait 12 m, mesure 12 − 2 + 1,5 = 11,5 m. Où est l’erreur ?</b>
+    <span>Les triangles sont semblables : on passe de l’un à l’autre en MULTIPLIANT, pas en ajoutant. 12 × 1,5 ÷ 2 = 9 m. Confondre proportionnalité et écart constant est l’erreur la plus fréquente.</span></div><div class="piege"><b>Dans un triangle rectangle en B, quelle égalité est vraie ?</b>
+    <span>L’angle droit est en B : l’hypoténuse est donc [AC], le côté qui lui fait face. On applique la propriété à l’hypoténuse, quelle que soit la lettre qui la nomme.</span></div><div class="piege"><b>Deux triangles ont les mêmes angles. Sont-ils forcément superposables ?</b>
+    <span>Mêmes angles signifie même forme : les triangles sont semblables. Mais l’un peut être un agrandissement de l’autre. Superposables demanderait en plus un rapport de similitude égal à 1.</span></div><div class="piege"><b>Un élève trace la hauteur issue de A dans un triangle rectangle en A, et affirme qu’elle tombe au milieu de [BC]. Est-ce vrai ?</b>
+    <span>BH et HC sont égaux uniquement quand AB = AC. Dès que les deux côtés de l’angle droit diffèrent, le pied H se rapproche du côté le plus court. Déplace un sommet sur ta figure pour t’en convaincre.</span></div>
+
+  <div class="pied">
+    <span>Chaque mission se termine par une question ; le quiz final compte trois niveaux,
+      et les questions difficiles pèsent trois fois plus.</span>
+    <span><a href="https://edgboy.github.io/ike-simulations/simulations/triangles/index.html">Ouvrir la simulation</a></span>
+  </div>
+</div>
+</body>
+</html>

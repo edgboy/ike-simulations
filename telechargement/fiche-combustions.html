@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fiche — Combustions vives — KONDO LABO</title>
+<style>
+  /* Une fiche se lit à l'écran et s'imprime. Pas de police embarquée : c'est
+     un document de texte, la police du système lui convient. */
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px;
+    font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
+    font-size: 14px; line-height: 1.55; color: #24211E; background: #F7F5F0;
+  }
+  .feuille { max-width: 820px; margin: 0 auto; background: #FFF;
+    border: 1px solid #D3CFC8; border-radius: 12px; padding: 28px 30px 34px; }
+  .marque { display: flex; align-items: center; gap: 10px; font-size: 12px;
+    letter-spacing: .08em; text-transform: uppercase; color: #6B6560; }
+  .pastille { width: 26px; height: 26px; border-radius: 7px; background: #C4D94E;
+    display: grid; place-items: center; font-weight: 800; color: #3A3632; }
+  h1 { font-size: 26px; margin: 14px 0 4px; line-height: 1.2; }
+  .repere { display: inline-block; background: #EDF3D6; border-radius: 6px;
+    padding: 3px 10px; font-weight: 700; font-size: 13px; }
+  .quoi { margin: 12px 0 0; color: #4A443E; }
+  h2 { font-size: 16px; margin: 26px 0 10px; padding-bottom: 6px;
+    border-bottom: 2px solid #C4D94E; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; font-size: 11.5px; text-transform: uppercase;
+    letter-spacing: .06em; color: #6B6560; padding: 0 8px 6px; font-weight: 700; }
+  td { vertical-align: top; padding: 9px 8px; border-top: 1px solid #E7E3DC; }
+  td.n { width: 26px; font-weight: 800; color: #6B6560; }
+  td b { display: block; }
+  .but { display: block; color: #5A544E; font-size: 13px; margin-top: 2px; }
+  .retenir { width: 48%; font-size: 13px; }
+  ul { margin: 0; padding-left: 20px; }
+  li { margin-bottom: 5px; }
+  .lex b { font-weight: 700; }
+  .piege { margin-bottom: 10px; }
+  .piege b { display: block; }
+  .piege span { color: #4A443E; font-size: 13px; }
+  .pied { margin-top: 26px; padding-top: 12px; border-top: 1px solid #E7E3DC;
+    font-size: 12px; color: #6B6560; display: flex; justify-content: space-between;
+    gap: 12px; flex-wrap: wrap; }
+  a { color: #2F6B86; }
+  .note { margin: 12px 0 0; padding: 9px 12px; background: #FBF3E2;
+    border-left: 3px solid #E9A23B; font-size: 13px; }
+  @media print {
+    body { background: #FFF; padding: 0; font-size: 11.5pt; }
+    .feuille { border: none; border-radius: 0; padding: 0; max-width: none; }
+    h2 { break-after: avoid; }
+    tr { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="feuille">
+  <div class="marque"><span class="pastille">K</span> KONDO LABO · fiche pédagogique</div>
+  <h1>Combustions vives</h1>
+  <div class="repere">PCT · 6ᵉ · SA3</div>
+  <p class="quoi"></p>
+
+  <h2>Le parcours — 10 missions</h2>
+  <table>
+    <thead><tr><th></th><th>Ce que l’élève fait</th><th>Ce qu’il retient</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="n">1</td>
+        <td>
+          <b>Allume la bougie</b>
+          <span class="but">Touche 🔥 Allumer pour enflammer la mèche. Observe bien la flamme !</span>
+        </td>
+        <td class="retenir">Une combustion ne démarre jamais seule : il faut une énergie d'activation — la chaleur de l'allumette. Ensuite, la flamme s'entretient toute seule… tant qu'elle a ce qu'il lui faut.</td>
+      </tr>
+      <tr>
+        <td class="n">2</td>
+        <td>
+          <b>La cloche mystérieuse</b>
+          <span class="but">Bougie allumée, pose la cloche en verre par-dessus… et regarde ce qui arrive à la flamme.</span>
+        </td>
+        <td class="retenir">Sous la cloche, la flamme faiblit puis MEURT : la combustion a consommé le dioxygène de l'air emprisonné. Sans comburant, pas de feu. C'est l'extinction par étouffement !</td>
+      </tr>
+      <tr>
+        <td class="n">3</td>
+        <td>
+          <b>La taille de la cloche</b>
+          <span class="but">Nouveau réglage : le volume de la cloche ! Fais s'éteindre la bougie sous DEUX cloches de tailles différentes et compare les temps ⏱.</span>
+        </td>
+        <td class="retenir">Plus la cloche est grande, plus elle emprisonne d'air (donc de dioxygène), plus la combustion dure longtemps. Le chrono le prouve : le temps est proportionnel au volume !</td>
+      </tr>
+      <tr>
+        <td class="n">4</td>
+        <td>
+          <b>Le seuil des 15 %</b>
+          <span class="but">Refais une extinction sous cloche en fixant la jauge O₂ : à combien s'arrête-t-elle ? (Regarde le trait rouge…)</span>
+        </td>
+        <td class="retenir">Surprise : la flamme meurt vers 15 % d'O₂, pas à 0 ! Il reste du dioxygène, mais plus assez. Et souviens-toi : l'air n'est pas que du dioxygène — 21 % d'O₂ et 78 % de diazote, qui ne brûle pas.</td>
+      </tr>
+      <tr>
+        <td class="n">5</td>
+        <td>
+          <b>Le test du gaz</b>
+          <span class="but">Nouvel outil : l'eau de chaux ! Après une extinction sous cloche, touche 🧪 Tester le gaz. Que se passe-t-il ?</span>
+        </td>
+        <td class="retenir">L'eau de chaux se trouble : la combustion a produit du DIOXYDE DE CARBONE. C'est LE test d'identification du CO₂ — retiens-le, il revient à toutes les évaluations !</td>
+      </tr>
+      <tr>
+        <td class="n">6</td>
+        <td>
+          <b>L'autre produit : l'eau</b>
+          <span class="but">Pendant une combustion sous cloche, observe la paroi du verre : fais apparaître la buée 💧.</span>
+        </td>
+        <td class="retenir">Ces gouttelettes sur le verre, c'est de l'EAU produite par la combustion, qui se condense sur la paroi froide. La combustion de la cire produit donc du CO₂ ET de l'eau.</td>
+      </tr>
+      <tr>
+        <td class="n">7</td>
+        <td>
+          <b>Le bilan de la combustion</b>
+          <span class="but">Regarde le panneau 🔺 : fais brûler la bougie jusqu'à avoir produit au moins 15 unités de CO₂ (en une ou plusieurs fois).</span>
+        </td>
+        <td class="retenir">Le bilan s'écrit en mots : cire + dioxygène → dioxyde de carbone + eau. Rien ne disparaît : les atomes du combustible et du comburant se réarrangent en nouveaux produits. C'est une transformation chimique !</td>
+      </tr>
+      <tr>
+        <td class="n">8</td>
+        <td>
+          <b>Souffler, ce n'est pas étouffer</b>
+          <span class="but">Nouvelle technique : 💨 Souffler ! Éteins la bougie en soufflant (sans cloche).</span>
+        </td>
+        <td class="retenir">Souffler éteint en REFROIDISSANT la flamme (et en éloignant les gaz chauds) : on casse le côté « chaleur » du triangle. L'étouffement, lui, casse le côté « comburant ». Deux côtés différents, deux façons d'éteindre !</td>
+      </tr>
+      <tr>
+        <td class="n">9</td>
+        <td>
+          <b>Casse le triangle !</b>
+          <span class="but">Prouve que tu maîtrises le triangle du feu : éteins par étouffement (cloche) PUIS par refroidissement (souffle), dans la même mission.</span>
+        </td>
+        <td class="retenir">Combustible, comburant, chaleur : casser UN seul côté suffit à éteindre. C'est le principe de tous les moyens d'extinction : couvercle (comburant), eau (chaleur), couper le gaz (combustible). Les pompiers appliquent ce triangle tous les jours !</td>
+      </tr>
+      <tr>
+        <td class="n">10</td>
+        <td>
+          <b>Défi : la flamme marathon</b>
+          <span class="but">Défi final : fais brûler la bougie SOUS CLOCHE pendant au moins 28 secondes d'affilée. À toi de trouver le réglage !</span>
+        </td>
+        <td class="retenir">Bravo, parcours terminé 💪 Tu sais ce qu'est une combustion, ce qu'elle consomme, ce qu'elle produit, et comment l'arrêter. Dernier rappel, le plus important : en vrai, le feu n'est PAS un jeu — les expériences de combustion se font avec un adulte.</td>
+      </tr></tbody>
+  </table>
+
+  
+
+  <h2>Les mots à installer</h2>
+  <ul class="lex"><li><b>Combustion</b> — Transformation chimique qui dégage beaucoup de chaleur et souvent de la lumière : le combustible brûle grâce au comburant.</li><li><b>Combustible</b> — Ce qui brûle : la cire de la bougie, le bois, le butane, l'essence…</li><li><b>Comburant</b> — Ce qui fait brûler : le dioxygène (O₂) de l'air. Sans lui, pas de flamme.</li><li><b>Énergie d'activation</b> — Le « coup de chaud » qui démarre la combustion : la flamme de l'allumette. Une combustion ne démarre jamais toute seule.</li><li><b>Triangle du feu</b> — Les 3 conditions du feu : combustible + comburant + chaleur. Il suffit d'en casser UNE pour éteindre — c'est le principe de tous les extincteurs.</li><li><b>Dioxyde de carbone (CO₂)</b> — Gaz produit par la combustion (et ta respiration). Invisible, il se détecte avec l'eau de chaux.</li><li><b>Eau de chaux</b> — Liquide limpide qui se TROUBLE (devient blanc laiteux) en présence de CO₂. C'est le test d'identification du dioxyde de carbone.</li><li><b>Buée</b> — Gouttelettes d'eau sur une paroi froide : la preuve que la combustion produit aussi de l'eau !</li><li><b>Étouffement</b> — Éteindre en privant le feu de dioxygène : cloche, couvercle sur la poêle, couverture anti-feu.</li><li><b>Combustion vive</b> — Combustion rapide, avec flamme. (La rouille, elle, est une combustion lente !)</li></ul>
+
+  <h2>Les erreurs que le quiz vise</h2>
+  <div class="piege"><b>Un élève affirme que la flamme s’éteint sous la cloche parce qu’il n’y a plus du tout de dioxygène. Cette affirmation est-elle exacte ?</b>
+    <span>C'est l'erreur la plus courante de cette leçon. Le seuil d'extinction est à 15 %, pas à zéro : la jauge le montre.</span></div><div class="piege"><b>Un élève affirme que l’air que nous respirons est du dioxygène. Cette affirmation est-elle exacte ?</b>
+    <span>Le diazote est majoritaire et ne participe pas à la combustion. C'est pour cela qu'une flamme s'éteint bien avant d'avoir vidé la cloche.</span></div><div class="piege"><b>Un élève affirme qu’on éteint une bougie d’anniversaire en soufflant parce qu’on lui enlève l’air. Cette affirmation est-elle exacte ?</b>
+    <span>On casse le côté chaleur du triangle, pas le côté comburant. Souffler et étouffer sont deux gestes différents.</span></div><div class="piege"><b>Un élève affirme que la cire disparaît quand la bougie brûle. Cette affirmation est-elle exacte ?</b>
+    <span>Les atomes se réarrangent en nouveaux produits — on les retrouve dans le gaz et la buée. C'est le sens même d'un bilan chimique.</span></div><div class="piege"><b>Un élève affirme qu’une combustion peut démarrer seule dès que le combustible et le comburant sont réunis. Cette affirmation est-elle exacte ?</b>
+    <span>Une bougie posée à l'air libre ne s'allume pas toute seule. Il manque le troisième côté du triangle : la chaleur.</span></div><div class="piege"><b>Un élève affirme que l’eau de chaux se trouble parce que la combustion produit de la vapeur d’eau. Cette affirmation est-elle exacte ?</b>
+    <span>Deux produits, deux tests différents : l'eau de chaux pour le CO₂, la buée sur une paroi froide pour l'eau. Ne pas les confondre.</span></div><div class="piege"><b>Un élève affirme qu’une très grande cloche empêche définitivement la flamme de s’éteindre. Cette affirmation est-elle exacte ?</b>
+    <span>Toute cloche est fermée : le dioxygène ne se renouvelle pas. Elle retarde l'extinction, elle ne l'annule pas.</span></div>
+
+  <div class="pied">
+    <span>Chaque mission se termine par une question ; le quiz final compte trois niveaux,
+      et les questions difficiles pèsent trois fois plus.</span>
+    <span><a href="https://edgboy.github.io/ike-simulations/simulations/combustions/index.html">Ouvrir la simulation</a></span>
+  </div>
+</div>
+</body>
+</html>

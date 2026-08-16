@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fiche — Fabrique ta lampe de poche — KONDO LABO</title>
+<style>
+  /* Une fiche se lit à l'écran et s'imprime. Pas de police embarquée : c'est
+     un document de texte, la police du système lui convient. */
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px;
+    font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
+    font-size: 14px; line-height: 1.55; color: #24211E; background: #F7F5F0;
+  }
+  .feuille { max-width: 820px; margin: 0 auto; background: #FFF;
+    border: 1px solid #D3CFC8; border-radius: 12px; padding: 28px 30px 34px; }
+  .marque { display: flex; align-items: center; gap: 10px; font-size: 12px;
+    letter-spacing: .08em; text-transform: uppercase; color: #6B6560; }
+  .pastille { width: 26px; height: 26px; border-radius: 7px; background: #C4D94E;
+    display: grid; place-items: center; font-weight: 800; color: #3A3632; }
+  h1 { font-size: 26px; margin: 14px 0 4px; line-height: 1.2; }
+  .repere { display: inline-block; background: #EDF3D6; border-radius: 6px;
+    padding: 3px 10px; font-weight: 700; font-size: 13px; }
+  .quoi { margin: 12px 0 0; color: #4A443E; }
+  h2 { font-size: 16px; margin: 26px 0 10px; padding-bottom: 6px;
+    border-bottom: 2px solid #C4D94E; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; font-size: 11.5px; text-transform: uppercase;
+    letter-spacing: .06em; color: #6B6560; padding: 0 8px 6px; font-weight: 700; }
+  td { vertical-align: top; padding: 9px 8px; border-top: 1px solid #E7E3DC; }
+  td.n { width: 26px; font-weight: 800; color: #6B6560; }
+  td b { display: block; }
+  .but { display: block; color: #5A544E; font-size: 13px; margin-top: 2px; }
+  .retenir { width: 48%; font-size: 13px; }
+  ul { margin: 0; padding-left: 20px; }
+  li { margin-bottom: 5px; }
+  .lex b { font-weight: 700; }
+  .piege { margin-bottom: 10px; }
+  .piege b { display: block; }
+  .piege span { color: #4A443E; font-size: 13px; }
+  .pied { margin-top: 26px; padding-top: 12px; border-top: 1px solid #E7E3DC;
+    font-size: 12px; color: #6B6560; display: flex; justify-content: space-between;
+    gap: 12px; flex-wrap: wrap; }
+  a { color: #2F6B86; }
+  .note { margin: 12px 0 0; padding: 9px 12px; background: #FBF3E2;
+    border-left: 3px solid #E9A23B; font-size: 13px; }
+  @media print {
+    body { background: #FFF; padding: 0; font-size: 11.5pt; }
+    .feuille { border: none; border-radius: 0; padding: 0; max-width: none; }
+    h2 { break-after: avoid; }
+    tr { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="feuille">
+  <div class="marque"><span class="pastille">K</span> KONDO LABO · fiche pédagogique</div>
+  <h1>Fabrique ta lampe de poche</h1>
+  <div class="repere">PCT · 6ᵉ · SA2</div>
+  <p class="quoi"></p>
+
+  <h2>Le parcours — 6 missions</h2>
+  <table>
+    <thead><tr><th></th><th>Ce que l’élève fait</th><th>Ce qu’il retient</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="n">1</td>
+        <td>
+          <b>Que ça s’allume !</b>
+          <span class="but">Fabrique une lampe qui éclaire, même faiblement.</span>
+        </td>
+        <td class="retenir">Pour qu’une lampe s’allume, le courant doit faire un tour complet : il sort de la pile, traverse l’ampoule, et revient à la pile par le contact du fond.</td>
+      </tr>
+      <tr>
+        <td class="n">2</td>
+        <td>
+          <b>Bien réglée</b>
+          <span class="but">L’ampoule doit recevoir la tension qu’il lui faut : ni trop peu, ni trop.</span>
+        </td>
+        <td class="retenir">Chaque ampoule a une tension d’usage écrite dessus. Trop peu, elle rougeoie (sous-tension) ; trop, elle grille (surtension).</td>
+      </tr>
+      <tr>
+        <td class="n">3</td>
+        <td>
+          <b>Le bon contact</b>
+          <span class="but">Réussis une lampe qui éclaire en utilisant une lame métallique au fond.</span>
+        </td>
+        <td class="retenir">Le ressort se détend et garde le contact même s’il reste de la place. La lame, elle, est rigide : le boîtier doit être plein.</td>
+      </tr>
+      <tr>
+        <td class="n">4</td>
+        <td>
+          <b>Loin devant</b>
+          <span class="but">Fais porter la lumière de ta lampe jusqu’à 6 mètres.</span>
+        </td>
+        <td class="retenir">Le réflecteur renvoie vers l’avant la lumière qui partait en arrière. La lampe porte deux fois plus loin, sans user les piles davantage.</td>
+      </tr>
+      <tr>
+        <td class="n">5</td>
+        <td>
+          <b>Toute la nuit</b>
+          <span class="but">Ta lampe doit pouvoir éclairer 8 heures sans s’arrêter.</span>
+        </td>
+        <td class="retenir">À tension égale, une grosse pile contient beaucoup plus d’énergie : elle éclaire bien plus longtemps, mais elle est lourde.</td>
+      </tr>
+      <tr>
+        <td class="n">6</td>
+        <td>
+          <b>La lampe de Jean</b>
+          <span class="but">Jean fait 5 km de vélo la nuit. Il lui faut 8 m de portée, 8 h d’autonomie, une lampe solide et bien finie.</span>
+        </td>
+        <td class="retenir">Fabriquer, c’est choisir entre des qualités : légèreté, portée, autonomie, solidité. L’ingénieur teste, puis améliore.</td>
+      </tr></tbody>
+  </table>
+
+  
+
+  <h2>Les mots à installer</h2>
+  <ul class="lex"><li><b>Circuit électrique</b> — Le chemin fermé que suit le courant : il part d'une borne de la pile, traverse l'ampoule, et revient à l'autre borne. Si le chemin est coupé quelque part, plus rien ne s'allume.</li><li><b>Générateur</b> — L'appareil qui fournit le courant. Ici, c'est la pile.</li><li><b>Récepteur</b> — L'appareil qui reçoit le courant et le transforme en autre chose. Ici, l'ampoule le transforme en lumière.</li><li><b>Bornes de la pile</b> — Les deux extrémités de la pile : la borne + et la borne −. Le courant sort par le + et revient par le −.</li><li><b>Tension (en volts)</b> — La « force » avec laquelle la pile pousse le courant. On la mesure en volts (V). Une pile ronde donne 1,5 V ; une pile plate, 4,5 V.</li><li><b>Tension d’usage</b> — La tension écrite sur l'ampoule : celle qu'il lui faut pour éclairer normalement, sans s'abîmer.</li><li><b>Sous-tension</b> — L'ampoule reçoit moins que sa tension d'usage : elle rougeoie faiblement au lieu de briller.</li><li><b>Surtension</b> — L'ampoule reçoit trop : son filament chauffe trop fort et grille. La lampe est fichue.</li><li><b>Piles en série</b> — Des piles posées bout à bout, le + de l'une contre le − de la suivante. Leurs tensions s'additionnent : 2 piles de 1,5 V donnent 3 V.</li><li><b>Piles en opposition</b> — Une pile retournée par rapport aux autres : elle pousse dans l'autre sens et annule une partie de la tension. La lampe faiblit ou s'éteint.</li><li><b>Filament</b> — Le fil très fin à l'intérieur de l'ampoule. Le courant le chauffe jusqu'à ce qu'il devienne blanc et éclaire.</li><li><b>Culot et plot</b> — Les deux contacts de l'ampoule : le culot est la partie vissée sur le côté, le plot est le point au bout. Le courant entre par l'un et sort par l'autre.</li><li><b>Tête de la lampe</b> — L'avant de la lampe, en forme d'entonnoir. C'est là que se logent la douille qui reçoit l'ampoule, le réflecteur qui l'entoure, et la vitre qui ferme le tout.</li><li><b>Ressort</b> — Une pièce métallique qui se détend. Au fond du boîtier, il pousse les piles et garde le contact même s'il reste un peu de place.</li><li><b>Autonomie</b> — Le temps que la lampe peut éclairer avant que les piles soient vides. Les grosses piles durent plus longtemps.</li><li><b>Démarche technologique</b> — La façon de travailler de l'ingénieur : explorer les possibilités, choisir, fabriquer, tester, puis améliorer.</li></ul>
+
+  <h2>Les erreurs que le quiz vise</h2>
+  <div class="piege"><b>Une ampoule prévue pour 3 V est alimentée par trois piles de 1,5 V. Que va-t-il se passer ?</b>
+    <span>Les tensions s’ajoutent : 3 × 1,5 = 4,5 V pour une ampoule qui en attend 3. Le filament chauffe trop et casse.</span></div><div class="piege"><b>Une ampoule prévue pour 4,5 V est alimentée par une seule pile de 1,5 V. Que va-t-il se passer ?</b>
+    <span>En sous-tension, le filament ne chauffe pas assez pour donner sa pleine lumière. Rien ne casse, mais la lampe ne sert à rien.</span></div><div class="piege"><b>Ajouter des piles augmente-t-il la portée d’une lampe sans autre changement ?</b>
+    <span>Chaque ampoule a sa tension. Pour aller plus loin, c’est le réflecteur qu’il faut ajouter, pas des piles.</span></div><div class="piege"><b>Une lampe montée correctement reste éteinte. Faut-il d’abord changer l’ampoule ?</b>
+    <span>Une lampe éteinte signale une boucle ouverte : piles à l’envers, contact absent, interrupteur ouvert. L’ampoule n’est qu’une cause parmi d’autres.</span></div><div class="piege"><b>Deux piles posées tête-bêche dans le boîtier donnent-elles 3 V ?</b>
+    <span>Il faut relier le + de l’une au − de l’autre. Tête-bêche, elles se contrarient et il ne reste presque rien.</span></div><div class="piege"><b>Une grosse pile délivre-t-elle une tension plus élevée qu’une petite ?</b>
+    <span>Une pile ronde, grande ou petite, donne 1,5 V. Ce qui change avec la taille, c’est la durée pendant laquelle elle les fournit.</span></div><div class="piege"><b>Un réflecteur augmente-t-il la quantité de lumière produite par l’ampoule ?</b>
+    <span>L’ampoule produit toujours autant. Le réflecteur rassemble ce qui partait vers l’arrière : le faisceau porte plus loin, sans plus d’énergie.</span></div>
+
+  <div class="pied">
+    <span>Chaque mission se termine par une question ; le quiz final compte trois niveaux,
+      et les questions difficiles pèsent trois fois plus.</span>
+    <span><a href="https://edgboy.github.io/ike-simulations/simulations/lampe-de-poche/index.html">Ouvrir la simulation</a></span>
+  </div>
+</div>
+</body>
+</html>

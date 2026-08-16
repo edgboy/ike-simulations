@@ -1,5 +1,7 @@
-// Rassemble les simulations téléchargeables en une seule archive, pour
-// l'enseignant qui veut emporter tout le catalogue sur une clé.
+// Rassemble les simulations téléchargeables ET leurs fiches pédagogiques en une
+// seule archive, pour l'enseignant qui veut emporter tout le catalogue sur une
+// clé. Les deux vont ensemble : un fichier sans sa fiche ne dit pas ce qu'il
+// couvre ni ce qu'il fait retenir.
 //
 // Le format ZIP est écrit à la main : le dépôt n'a aucune dépendance npm et
 // n'a pas à en gagner une pour empaqueter dix-sept fichiers. On stocke sans
@@ -113,5 +115,6 @@ if (fs.existsSync(releve)) {
   t.__archive = Math.round(zip.length / 1024);
   fs.writeFileSync(releve, JSON.stringify(t, null, 1));
 }
-console.log(path.basename(ARCHIVE) + ' · ' + fichiers.length + ' simulations · ' +
-  (zip.length / 1024 / 1024).toFixed(1) + ' Mo');
+const sims = fichiers.filter(f => !path.basename(f).startsWith('fiche-')).length;
+console.log(path.basename(ARCHIVE) + ' · ' + sims + ' simulations et ' +
+  (fichiers.length - sims) + ' fiches · ' + (zip.length / 1024 / 1024).toFixed(1) + ' Mo');

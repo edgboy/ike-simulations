@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fiche — Transformations du plan — KONDO LABO</title>
+<style>
+  /* Une fiche se lit à l'écran et s'imprime. Pas de police embarquée : c'est
+     un document de texte, la police du système lui convient. */
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px;
+    font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
+    font-size: 14px; line-height: 1.55; color: #24211E; background: #F7F5F0;
+  }
+  .feuille { max-width: 820px; margin: 0 auto; background: #FFF;
+    border: 1px solid #D3CFC8; border-radius: 12px; padding: 28px 30px 34px; }
+  .marque { display: flex; align-items: center; gap: 10px; font-size: 12px;
+    letter-spacing: .08em; text-transform: uppercase; color: #6B6560; }
+  .pastille { width: 26px; height: 26px; border-radius: 7px; background: #C4D94E;
+    display: grid; place-items: center; font-weight: 800; color: #3A3632; }
+  h1 { font-size: 26px; margin: 14px 0 4px; line-height: 1.2; }
+  .repere { display: inline-block; background: #EDF3D6; border-radius: 6px;
+    padding: 3px 10px; font-weight: 700; font-size: 13px; }
+  .quoi { margin: 12px 0 0; color: #4A443E; }
+  h2 { font-size: 16px; margin: 26px 0 10px; padding-bottom: 6px;
+    border-bottom: 2px solid #C4D94E; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; font-size: 11.5px; text-transform: uppercase;
+    letter-spacing: .06em; color: #6B6560; padding: 0 8px 6px; font-weight: 700; }
+  td { vertical-align: top; padding: 9px 8px; border-top: 1px solid #E7E3DC; }
+  td.n { width: 26px; font-weight: 800; color: #6B6560; }
+  td b { display: block; }
+  .but { display: block; color: #5A544E; font-size: 13px; margin-top: 2px; }
+  .retenir { width: 48%; font-size: 13px; }
+  ul { margin: 0; padding-left: 20px; }
+  li { margin-bottom: 5px; }
+  .lex b { font-weight: 700; }
+  .piege { margin-bottom: 10px; }
+  .piege b { display: block; }
+  .piege span { color: #4A443E; font-size: 13px; }
+  .pied { margin-top: 26px; padding-top: 12px; border-top: 1px solid #E7E3DC;
+    font-size: 12px; color: #6B6560; display: flex; justify-content: space-between;
+    gap: 12px; flex-wrap: wrap; }
+  a { color: #2F6B86; }
+  .note { margin: 12px 0 0; padding: 9px 12px; background: #FBF3E2;
+    border-left: 3px solid #E9A23B; font-size: 13px; }
+  @media print {
+    body { background: #FFF; padding: 0; font-size: 11.5pt; }
+    .feuille { border: none; border-radius: 0; padding: 0; max-width: none; }
+    h2 { break-after: avoid; }
+    tr { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="feuille">
+  <div class="marque"><span class="pastille">K</span> KONDO LABO · fiche pédagogique</div>
+  <h1>Transformations du plan</h1>
+  <div class="repere">Maths · 5ᵉ · 4ᵉ · 3ᵉ</div>
+  <p class="quoi"></p>
+
+  <h2>Le parcours — 12 missions</h2>
+  <table>
+    <thead><tr><th></th><th>Ce que l’élève fait</th><th>Ce qu’il retient</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="n">1</td>
+        <td>
+          <b>Le miroir</b>
+          <span class="but">Fais GLISSER l'axe violet (d) et observe la figure rouge : c'est l'image de la figure bleue dans le miroir.</span>
+        </td>
+        <td class="retenir">La symétrie axiale, c'est le miroir : chaque point A a une image A′, de l'autre côté de l'axe (d), à la même distance. Les pointillés violets montrent le chemin de chaque point.</td>
+      </tr>
+      <tr>
+        <td class="n">2</td>
+        <td>
+          <b>Colle l'image à la figure</b>
+          <span class="but">Place l'axe pour que la figure bleue et son image rouge se TOUCHENT (l'axe doit passer par un sommet).</span>
+        </td>
+        <td class="retenir">Un point situé SUR l'axe est son propre image : on dit qu'il est invariant. C'est pourquoi les deux figures se touchent exactement à cet endroit.</td>
+      </tr>
+      <tr>
+        <td class="n">3</td>
+        <td>
+          <b>La figure est retournée</b>
+          <span class="but">Regarde le panneau 📐 : que dit-il du « sens » ? Continue à bouger l'axe, il ne change jamais…</span>
+        </td>
+        <td class="retenir">La symétrie axiale INVERSE le sens de la figure : comme dans un miroir, la main gauche devient une main droite. Mais les longueurs et les aires, elles, ne changent pas !</td>
+      </tr>
+      <tr>
+        <td class="n">4</td>
+        <td>
+          <b>Le demi-tour</b>
+          <span class="but">Nouvelle transformation : la symétrie centrale ! Choisis-la, puis fais glisser le centre O.</span>
+        </td>
+        <td class="retenir">La symétrie centrale, c'est le demi-tour autour d'un point O. Le point O est toujours le MILIEU du segment [AA′] : A, O et A′ sont alignés — regarde les pointillés !</td>
+      </tr>
+      <tr>
+        <td class="n">5</td>
+        <td>
+          <b>O au milieu de la figure</b>
+          <span class="but">Place le centre O EXACTEMENT sur le sommet A (2 ; 2) de la figure bleue. Que devient A′ ?</span>
+        </td>
+        <td class="retenir">Quand O est confondu avec A, alors A′ = A : le centre est un point invariant. La symétrie centrale conserve le sens de la figure (elle n'est pas retournée, juste tournée d'un demi-tour).</td>
+      </tr>
+      <tr>
+        <td class="n">6</td>
+        <td>
+          <b>Le glissement</b>
+          <span class="but">Nouvelle transformation : la translation ! Choisis-la et fais glisser la pointe du vecteur violet.</span>
+        </td>
+        <td class="retenir">La translation, c'est le glissement : TOUS les points se déplacent de la même longueur, dans la même direction et le même sens. Les flèches violettes sont toutes identiques : ce sont des vecteurs égaux.</td>
+      </tr>
+      <tr>
+        <td class="n">7</td>
+        <td>
+          <b>Translation exacte</b>
+          <span class="but">Règle le vecteur pour qu'il vaille exactement (+6 ; +3). Vérifie dans le panneau 📐 que A (2 ; 2) devient A′ (8 ; 5).</span>
+        </td>
+        <td class="retenir">Une translation s'écrit avec ses coordonnées : (+6 ; +3) veut dire « 6 carreaux vers la droite, 3 vers le haut ». Pour trouver A′, on ajoute simplement : (2+6 ; 2+3) = (8 ; 5).</td>
+      </tr>
+      <tr>
+        <td class="n">8</td>
+        <td>
+          <b>Le pivot</b>
+          <span class="but">Dernière transformation : la rotation ! Choisis-la, puis fais tourner la figure en déplaçant le centre O.</span>
+        </td>
+        <td class="retenir">La rotation fait pivoter la figure autour du centre O, d'un certain angle. Chaque point garde sa distance à O (OA = OA′) : il se déplace sur un arc de cercle — regarde les arcs en pointillés !</td>
+      </tr>
+      <tr>
+        <td class="n">9</td>
+        <td>
+          <b>Change l'angle</b>
+          <span class="but">Touche le bouton « 📐 Angle » pour essayer 180°, 270°, puis −90°. Observe comme la figure pivote !</span>
+        </td>
+        <td class="retenir">L'angle donne l'ampleur du pivot. Un angle positif tourne dans le sens direct (antihoraire, l'inverse des aiguilles d'une montre) ; un angle négatif tourne dans le sens des aiguilles.</td>
+      </tr>
+      <tr>
+        <td class="n">10</td>
+        <td>
+          <b>La grande découverte</b>
+          <span class="but">Mets la rotation à 180°, puis compare avec la symétrie centrale (même centre O)… Que remarques-tu ?</span>
+        </td>
+        <td class="retenir">La rotation de 180° donne EXACTEMENT la même image que la symétrie centrale de même centre ! C'est pour cela qu'on appelle la symétrie centrale un « demi-tour ». Deux transformations, un seul résultat.</td>
+      </tr>
+      <tr>
+        <td class="n">11</td>
+        <td>
+          <b>Toutes conservent</b>
+          <span class="but">Essaie les 4 transformations l'une après l'autre en surveillant le panneau 📐 : longueurs et aires changent-elles ?</span>
+        </td>
+        <td class="retenir">Les 4 transformations conservent les longueurs, les angles et les aires : l'image est toujours SUPERPOSABLE à la figure de départ. Seule la symétrie axiale retourne la figure (comme un miroir).</td>
+      </tr>
+      <tr>
+        <td class="n">12</td>
+        <td>
+          <b>Défi : la cible</b>
+          <span class="but">Défi final : par une SYMÉTRIE CENTRALE, envoie le sommet A (2 ; 2) exactement sur le point A′ (14 ; 8). À toi de trouver le centre O !</span>
+        </td>
+        <td class="retenir">Bravo, parcours terminé 💪 Le centre cherché était (8 ; 5) : le MILIEU de [AA′] — car x = (2+14)÷2 = 8 et y = (2+8)÷2 = 5. Tu viens d'utiliser la propriété-clé de la symétrie centrale pour résoudre un problème. C'est ça, faire des maths !</td>
+      </tr></tbody>
+  </table>
+
+  
+
+  <h2>Les mots à installer</h2>
+  <ul class="lex"><li><b>Transformation du plan</b> — Procédé qui, à chaque point du plan, associe un autre point : son image. Les 4 du collège : symétrie axiale, symétrie centrale, translation, rotation.</li><li><b>Image</b> — Le point (ou la figure) obtenu après la transformation. L'image de A se note A′ (« A prime »).</li><li><b>Symétrie axiale (d'axe (d))</b> — Le « miroir » : A et A′ sont à la même distance de l'axe, de part et d'autre, et [AA′] est perpendiculaire à l'axe. La figure est retournée.</li><li><b>Symétrie centrale (de centre O)</b> — Le « demi-tour » : O est le MILIEU de [AA′]. C'est exactement une rotation de 180°.</li><li><b>Translation (de vecteur)</b> — Le « glissement » : tous les points se déplacent de la même longueur, dans la même direction et le même sens.</li><li><b>Rotation (de centre O, d'angle a)</b> — Le « pivot » : A′ est tel que OA = OA′ et l'angle AOA′ vaut a. Sens direct (antihoraire) si l'angle est positif.</li><li><b>Point invariant</b> — Point qui est sa propre image : les points de l'axe (symétrie axiale), le centre O (symétrie centrale et rotation). La translation n'en a aucun (sauf vecteur nul).</li><li><b>Conservation des longueurs</b> — Les 4 transformations conservent les longueurs, les angles et les aires : l'image est SUPERPOSABLE à la figure de départ.</li><li><b>Orientation</b> — La symétrie axiale RETOURNE la figure (comme un miroir) ; les trois autres la conservent (on peut la faire glisser sans la retourner).</li></ul>
+
+  <h2>Les erreurs que le quiz vise</h2>
+  <div class="piege"><b>Un élève affirme que la symétrie centrale retourne la figure, comme un miroir. Cette affirmation est-elle exacte ?</b>
+    <span>Seule la symétrie axiale inverse le sens. Le demi-tour, lui, ne retourne rien : la figure reste superposable sans la soulever.</span></div><div class="piege"><b>Un élève affirme qu’une symétrie axiale agrandit la figure quand l’axe est loin d’elle. Cette affirmation est-elle exacte ?</b>
+    <span>L'axe change où arrive l'image, jamais sa taille. Longueurs, angles et aire sont conservés : c'est une isométrie.</span></div><div class="piege"><b>Un élève affirme qu’une translation peut faire tourner la figure si le vecteur est incliné. Cette affirmation est-elle exacte ?</b>
+    <span>Un vecteur incliné fait glisser en diagonale, sans rien faire tourner. La figure garde exactement son orientation.</span></div><div class="piege"><b>Un élève affirme qu’une rotation d’angle −90° et une rotation d’angle +90° donnent la même image. Cette affirmation est-elle exacte ?</b>
+    <span>Le signe donne le sens : le positif tourne à l'inverse des aiguilles d'une montre, le négatif dans leur sens. Un quart de tour à gauche n'est pas un quart de tour à droite.</span></div><div class="piege"><b>Un élève affirme que le centre d’une symétrie centrale doit se trouver sur la figure. Cette affirmation est-elle exacte ?</b>
+    <span>Le centre est un point du plan, libre. S'il tombe sur la figure, il en est simplement le seul point invariant.</span></div><div class="piege"><b>Un élève affirme que si une figure et son image se superposent exactement, alors aucune transformation n’a été appliquée. Cette affirmation est-elle exacte ?</b>
+    <span>Une transformation peut très bien ramener la figure sur elle-même. Un tour complet en est le meilleur exemple.</span></div><div class="piege"><b>Un élève affirme que la symétrie axiale ne conserve pas les angles, puisqu’elle retourne la figure. Cette affirmation est-elle exacte ?</b>
+    <span>La mesure d'un angle ne change pas ; c'est l'ordre dans lequel on parcourt la figure qui s'inverse. Longueurs, angles et aire restent identiques.</span></div>
+
+  <div class="pied">
+    <span>Chaque mission se termine par une question ; le quiz final compte trois niveaux,
+      et les questions difficiles pèsent trois fois plus.</span>
+    <span><a href="https://edgboy.github.io/ike-simulations/simulations/transformations/index.html">Ouvrir la simulation</a></span>
+  </div>
+</div>
+</body>
+</html>

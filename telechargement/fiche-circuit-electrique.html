@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fiche — Circuit électrique — KONDO LABO</title>
+<style>
+  /* Une fiche se lit à l'écran et s'imprime. Pas de police embarquée : c'est
+     un document de texte, la police du système lui convient. */
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px;
+    font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
+    font-size: 14px; line-height: 1.55; color: #24211E; background: #F7F5F0;
+  }
+  .feuille { max-width: 820px; margin: 0 auto; background: #FFF;
+    border: 1px solid #D3CFC8; border-radius: 12px; padding: 28px 30px 34px; }
+  .marque { display: flex; align-items: center; gap: 10px; font-size: 12px;
+    letter-spacing: .08em; text-transform: uppercase; color: #6B6560; }
+  .pastille { width: 26px; height: 26px; border-radius: 7px; background: #C4D94E;
+    display: grid; place-items: center; font-weight: 800; color: #3A3632; }
+  h1 { font-size: 26px; margin: 14px 0 4px; line-height: 1.2; }
+  .repere { display: inline-block; background: #EDF3D6; border-radius: 6px;
+    padding: 3px 10px; font-weight: 700; font-size: 13px; }
+  .quoi { margin: 12px 0 0; color: #4A443E; }
+  h2 { font-size: 16px; margin: 26px 0 10px; padding-bottom: 6px;
+    border-bottom: 2px solid #C4D94E; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; font-size: 11.5px; text-transform: uppercase;
+    letter-spacing: .06em; color: #6B6560; padding: 0 8px 6px; font-weight: 700; }
+  td { vertical-align: top; padding: 9px 8px; border-top: 1px solid #E7E3DC; }
+  td.n { width: 26px; font-weight: 800; color: #6B6560; }
+  td b { display: block; }
+  .but { display: block; color: #5A544E; font-size: 13px; margin-top: 2px; }
+  .retenir { width: 48%; font-size: 13px; }
+  ul { margin: 0; padding-left: 20px; }
+  li { margin-bottom: 5px; }
+  .lex b { font-weight: 700; }
+  .piege { margin-bottom: 10px; }
+  .piege b { display: block; }
+  .piege span { color: #4A443E; font-size: 13px; }
+  .pied { margin-top: 26px; padding-top: 12px; border-top: 1px solid #E7E3DC;
+    font-size: 12px; color: #6B6560; display: flex; justify-content: space-between;
+    gap: 12px; flex-wrap: wrap; }
+  a { color: #2F6B86; }
+  .note { margin: 12px 0 0; padding: 9px 12px; background: #FBF3E2;
+    border-left: 3px solid #E9A23B; font-size: 13px; }
+  @media print {
+    body { background: #FFF; padding: 0; font-size: 11.5pt; }
+    .feuille { border: none; border-radius: 0; padding: 0; max-width: none; }
+    h2 { break-after: avoid; }
+    tr { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="feuille">
+  <div class="marque"><span class="pastille">K</span> KONDO LABO · fiche pédagogique</div>
+  <h1>Circuit électrique</h1>
+  <div class="repere">PCT · 6ᵉ SA1 · 4ᵉ SA1</div>
+  <p class="quoi"></p>
+
+  <h2>Le parcours — 15 missions</h2>
+  <table>
+    <thead><tr><th></th><th>Ce que l’élève fait</th><th>Ce qu’il retient</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="n">1</td>
+        <td>
+          <b>Le premier fil</b>
+          <span class="but">Choisis l'outil Fil, puis fais glisser ton doigt entre deux points voisins de la grille.</span>
+        </td>
+        <td class="retenir">Les fils sont des conducteurs : ils laissent passer le courant électrique. Mis bout à bout, ils forment le chemin du circuit.</td>
+      </tr>
+      <tr>
+        <td class="n">2</td>
+        <td>
+          <b>La pile et la lampe</b>
+          <span class="but">Nouveaux composants débloqués ! Pose une pile : c'est elle qui fournit l'énergie.</span>
+        </td>
+        <td class="retenir">La pile est le générateur : c'est elle qui fait circuler le courant, de sa borne + vers sa borne −. La lampe est un récepteur : elle reçoit le courant et le transforme en lumière.</td>
+      </tr>
+      <tr>
+        <td class="n">3</td>
+        <td>
+          <b>Allume la lampe !</b>
+          <span class="but">Relie la pile et la lampe avec des fils pour former une boucle complète : la lampe doit s'allumer !</span>
+        </td>
+        <td class="retenir">Un circuit doit être fermé (une boucle complète) pour que le courant circule : il sort par la borne + de la pile, traverse la lampe et revient à la borne −.</td>
+      </tr>
+      <tr>
+        <td class="n">4</td>
+        <td>
+          <b>L'interrupteur</b>
+          <span class="but">Nouveau composant ! Pose un interrupteur sur le chemin du courant : la lampe s'éteint, car il est ouvert.</span>
+        </td>
+        <td class="retenir">L'interrupteur commande le circuit sans le démonter : ouvert, il coupe le chemin du courant (le coup de ciseaux ✂️) ; fermé, il le rétablit.</td>
+      </tr>
+      <tr>
+        <td class="n">5</td>
+        <td>
+          <b>Joue avec l'interrupteur</b>
+          <span class="but">Ouvre l'interrupteur : le courant ne passe plus, la lampe s'éteint.</span>
+        </td>
+        <td class="retenir">Circuit ouvert = le courant ne circule plus, tout s'éteint. Circuit fermé = le courant circule. C'est exactement l'interrupteur de ta chambre !</td>
+      </tr>
+      <tr>
+        <td class="n">6</td>
+        <td>
+          <b>L'ampèremètre</b>
+          <span class="but">Nouvel outil : l'ampèremètre ! Place-le dans un circuit qui fonctionne, puis lis la mesure sur son petit écran.</span>
+        </td>
+        <td class="retenir">L'intensité du courant se mesure en ampères (A) avec un ampèremètre, toujours branché en série (sur le chemin du courant). Son écran affiche la mesure en temps réel : ici, environ 0,43 A.</td>
+      </tr>
+      <tr>
+        <td class="n">7</td>
+        <td>
+          <b>Le courant ne s'use pas</b>
+          <span class="but">Place DEUX ampèremètres dans la même boucle : un avant la lampe, un après. Compare leurs valeurs !</span>
+        </td>
+        <td class="retenir">Les deux ampèremètres affichent la même valeur : dans une boucle simple, l'intensité est la même partout. Le courant ne s'use pas en traversant la lampe — c'est l'énergie de la pile qui se transforme en lumière et en chaleur.</td>
+      </tr>
+      <tr>
+        <td class="n">8</td>
+        <td>
+          <b>Deux lampes à la file (série)</b>
+          <span class="but">Avec UNE seule pile, allume DEUX lampes posées l'une après l'autre sur le même chemin (en série). Observe leur éclat !</span>
+        </td>
+        <td class="retenir">En série, le même courant traverse les lampes l'une après l'autre : elles brillent moins que si elles étaient seules. Et si on en retire une, tout s'éteint !</td>
+      </tr>
+      <tr>
+        <td class="n">9</td>
+        <td>
+          <b>Chacune son chemin (parallèle)</b>
+          <span class="but">Avec UNE seule pile, branche DEUX lampes en parallèle : chacune sur sa propre branche. Elles doivent briller fort !</span>
+        </td>
+        <td class="retenir">En parallèle (en dérivation), chaque lampe a sa propre boucle : chacune brille fort, comme si elle était seule. C'est le branchement des maisons ! En échange, la pile débite plus de courant et s'use plus vite.</td>
+      </tr>
+      <tr>
+        <td class="n">10</td>
+        <td>
+          <b>La panne maligne</b>
+          <span class="but">Construis un montage où DEUX lampes brillent, avec un interrupteur fermé sur la branche d'UNE seule des deux.</span>
+        </td>
+        <td class="retenir">En parallèle, chaque branche est indépendante : couper l'une n'éteint pas l'autre. C'est pour ça qu'éteindre la lampe de la cuisine n'éteint pas celle du salon !</td>
+      </tr>
+      <tr>
+        <td class="n">11</td>
+        <td>
+          <b>Danger : court-circuit !</b>
+          <span class="but">Provoque un court-circuit : relie directement les deux bornes de la pile par un simple fil. (Ici, c'est sans danger !)</span>
+        </td>
+        <td class="retenir">Sans lampe ni appareil pour limiter le courant, l'intensité devient énorme (presque 9 A ici !) : la pile chauffe très fort. En vrai : risque de brûlure et d'incendie. On ne relie JAMAIS les deux bornes d'une pile directement.</td>
+      </tr>
+      <tr>
+        <td class="n">12</td>
+        <td>
+          <b>Double énergie</b>
+          <span class="but">Place DEUX piles dans le même sens dans ta boucle, avec une lampe : elle doit briller plus fort que jamais (plus de 0,60 A) !</span>
+        </td>
+        <td class="retenir">Tu viens de le VIVRE : deux piles dans le même sens additionnent leurs tensions (4,5 + 4,5 = 9 V → la lampe brille très fort), mais en sens opposés elles s'annulent (4,5 − 4,5 = 0 V → tout s'éteint). Le sens des piles compte autant que leur nombre ! La suite : apprendre à MESURER cette fameuse tension…</td>
+      </tr>
+      <tr>
+        <td class="n">13</td>
+        <td>
+          <b>Le voltmètre</b>
+          <span class="but">Nouvel outil : le voltmètre ! Branche-le EN PARALLÈLE de la lampe (à cheval, sur une branche à côté) et lis la tension.</span>
+        </td>
+        <td class="retenir">La tension se mesure en volts (V) avec un voltmètre, toujours branché EN PARALLÈLE (en dérivation) — l'inverse de l'ampèremètre ! Sa très grande résistance fait qu'il ne perturbe pas le circuit.</td>
+      </tr>
+      <tr>
+        <td class="n">14</td>
+        <td>
+          <b>La tension se partage</b>
+          <span class="but">Monte DEUX lampes en série (une seule pile), puis mesure la tension d'UNE seule lampe. Que remarques-tu ?</span>
+        </td>
+        <td class="retenir">En série, la tension de la pile se PARTAGE entre les lampes : chacune reçoit environ la moitié de 4,5 V. C'est la loi d'additivité des tensions — les tensions des récepteurs s'additionnent pour égaler celle du générateur.</td>
+      </tr>
+      <tr>
+        <td class="n">15</td>
+        <td>
+          <b>La loi d'Ohm</b>
+          <span class="but">La grande expérience de 4ᵉ : dans un même circuit, mesure U (voltmètre sur la lampe) ET I (ampèremètre en série). Le panneau 📐 fera le calcul U ÷ I…</span>
+        </td>
+        <td class="retenir">U ÷ I = 10 Ω : c'est la résistance de la lampe, et elle ne change pas ! C'est la loi d'Ohm : U = R × I. Trois grandeurs, une formule — celle qui domine toute l'électricité de 4ᵉ. Bravo, parcours terminé 💪 place au Mode libre !</td>
+      </tr></tbody>
+  </table>
+
+  
+
+  <h2>Les mots à installer</h2>
+  <ul class="lex"><li><b>Circuit fermé / ouvert</b> — Fermé : la boucle est complète, le courant circule. Ouvert : la boucle est coupée, plus rien ne passe.</li><li><b>Générateur</b> — L’élément qui fournit l’énergie et fait circuler le courant : la pile (bornes + et −).</li><li><b>Récepteur</b> — L’élément qui utilise l’énergie électrique : la lampe la transforme en lumière.</li><li><b>Conducteur / isolant</b> — Un conducteur (cuivre…) laisse passer le courant ; un isolant (plastique, bois…) le bloque.</li><li><b>Intensité (I)</b> — La « quantité » de courant qui circule. Unité : l’ampère (A). Se mesure avec l’ampèremètre.</li><li><b>Ampèremètre</b> — L’appareil qui mesure l’intensité. Il se branche EN SÉRIE, sur le chemin du courant.</li><li><b>Tension (U)</b> — La « pression » électrique fournie entre deux points. Unité : le volt (V). Se mesure avec le voltmètre.</li><li><b>Voltmètre</b> — L’appareil qui mesure la tension. Il se branche EN PARALLÈLE (en dérivation), à cheval sur un élément.</li><li><b>Circuit en série</b> — Les éléments sont l’un après l’autre, sur une seule boucle. Le même courant les traverse tous.</li><li><b>Circuit en dérivation</b> — Chaque élément a sa propre branche. C’est le branchement des maisons : les branches sont indépendantes.</li><li><b>Court-circuit</b> — Les deux bornes de la pile reliées sans récepteur : l’intensité devient énorme, la pile chauffe. Danger !</li><li><b>Résistance (R)</b> — L’opposition au passage du courant. Unité : l’ohm (Ω). Plus R est grande, plus I est faible.</li><li><b>Loi d’Ohm</b> — La formule qui relie les trois grandeurs : U = R × I.</li></ul>
+
+  <h2>Les erreurs que le quiz vise</h2>
+  <div class="piege"><b>Un élève affirme que le courant s’use en traversant la lampe, et qu’il en ressort donc moins qu’il n’en est entré. Cette affirmation est-elle exacte ?</b>
+    <span>Deux ampèremètres, l’un avant et l’autre après, affichent la même valeur. Ce que la lampe consomme, c’est l’énergie de la pile, transformée en lumière et en chaleur.</span></div><div class="piege"><b>Un élève affirme qu’un court-circuit est sans danger avec une petite pile, parce qu’elle est petite. Cette affirmation est-elle exacte ?</b>
+    <span>Rien ne freine le courant : il monte à près de 9 A dans notre simulation. En vrai, la pile chauffe au point de brûler, voire de mettre le feu.</span></div><div class="piege"><b>Un élève affirme que deux piles donnent toujours plus de tension qu’une seule, quel que soit leur sens. Cette affirmation est-elle exacte ?</b>
+    <span>Il faut relier le + de l’une au − de l’autre. En sens opposés : 4,5 − 4,5 = 0 V, aucun courant ne circule.</span></div><div class="piege"><b>Un élève affirme que le voltmètre se branche comme l’ampèremètre, c’est-à-dire dans la boucle. Cette affirmation est-elle exacte ?</b>
+    <span>L’ampèremètre se met en série, le voltmètre en parallèle : c’est l’inverse l’un de l’autre, et c’est l’erreur la plus fréquente en évaluation.</span></div><div class="piege"><b>Un élève affirme que deux lampes en dérivation brillent faiblement, parce qu’elles se partagent le courant de la pile. Cette affirmation est-elle exacte ?</b>
+    <span>L’intensité se partage, mais la tension, elle, est la même sur chaque branche : chaque lampe brille comme si elle était seule. C’est en série que la tension se partage et que l’éclat baisse.</span></div><div class="piege"><b>Un élève affirme qu’un interrupteur ouvert laisse encore passer un peu de courant, parce que le reste du circuit est intact. Cette affirmation est-elle exacte ?</b>
+    <span>Ouvrir l’interrupteur, c’est le coup de ciseaux ✂️ dans le chemin. Sans boucle complète, il ne circule rien du tout — pas même un peu.</span></div><div class="piege"><b>Un élève affirme que la résistance d’une lampe augmente quand on augmente la tension, puisque le courant a plus de mal à passer. Cette affirmation est-elle exacte ?</b>
+    <span>C’est tout le sens de la loi d’Ohm : U = R × I, avec R constante. Double la tension, l’intensité double aussi — et U ÷ I redonne les mêmes 10 Ω.</span></div>
+
+  <div class="pied">
+    <span>Chaque mission se termine par une question ; le quiz final compte trois niveaux,
+      et les questions difficiles pèsent trois fois plus.</span>
+    <span><a href="https://edgboy.github.io/ike-simulations/simulations/circuit-electrique/index.html">Ouvrir la simulation</a></span>
+  </div>
+</div>
+</body>
+</html>

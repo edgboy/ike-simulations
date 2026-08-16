@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fiche — Le repas de la journée — KONDO LABO</title>
+<style>
+  /* Une fiche se lit à l'écran et s'imprime. Pas de police embarquée : c'est
+     un document de texte, la police du système lui convient. */
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px;
+    font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
+    font-size: 14px; line-height: 1.55; color: #24211E; background: #F7F5F0;
+  }
+  .feuille { max-width: 820px; margin: 0 auto; background: #FFF;
+    border: 1px solid #D3CFC8; border-radius: 12px; padding: 28px 30px 34px; }
+  .marque { display: flex; align-items: center; gap: 10px; font-size: 12px;
+    letter-spacing: .08em; text-transform: uppercase; color: #6B6560; }
+  .pastille { width: 26px; height: 26px; border-radius: 7px; background: #C4D94E;
+    display: grid; place-items: center; font-weight: 800; color: #3A3632; }
+  h1 { font-size: 26px; margin: 14px 0 4px; line-height: 1.2; }
+  .repere { display: inline-block; background: #EDF3D6; border-radius: 6px;
+    padding: 3px 10px; font-weight: 700; font-size: 13px; }
+  .quoi { margin: 12px 0 0; color: #4A443E; }
+  h2 { font-size: 16px; margin: 26px 0 10px; padding-bottom: 6px;
+    border-bottom: 2px solid #C4D94E; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; font-size: 11.5px; text-transform: uppercase;
+    letter-spacing: .06em; color: #6B6560; padding: 0 8px 6px; font-weight: 700; }
+  td { vertical-align: top; padding: 9px 8px; border-top: 1px solid #E7E3DC; }
+  td.n { width: 26px; font-weight: 800; color: #6B6560; }
+  td b { display: block; }
+  .but { display: block; color: #5A544E; font-size: 13px; margin-top: 2px; }
+  .retenir { width: 48%; font-size: 13px; }
+  ul { margin: 0; padding-left: 20px; }
+  li { margin-bottom: 5px; }
+  .lex b { font-weight: 700; }
+  .piege { margin-bottom: 10px; }
+  .piege b { display: block; }
+  .piege span { color: #4A443E; font-size: 13px; }
+  .pied { margin-top: 26px; padding-top: 12px; border-top: 1px solid #E7E3DC;
+    font-size: 12px; color: #6B6560; display: flex; justify-content: space-between;
+    gap: 12px; flex-wrap: wrap; }
+  a { color: #2F6B86; }
+  .note { margin: 12px 0 0; padding: 9px 12px; background: #FBF3E2;
+    border-left: 3px solid #E9A23B; font-size: 13px; }
+  @media print {
+    body { background: #FFF; padding: 0; font-size: 11.5pt; }
+    .feuille { border: none; border-radius: 0; padding: 0; max-width: none; }
+    h2 { break-after: avoid; }
+    tr { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="feuille">
+  <div class="marque"><span class="pastille">K</span> KONDO LABO · fiche pédagogique</div>
+  <h1>Le repas de la journée</h1>
+  <div class="repere">SVT · 6ᵉ · SA1</div>
+  <p class="quoi">SVT 6ᵉ, SA1 « Alimentation et besoins nutritionnels de l’Homme » : reconnaître les aliments par des tests, composer un repas équilibré, suivre la digestion jusqu’au sang.</p>
+
+  <h2>Le parcours — 13 missions</h2>
+  <table>
+    <thead><tr><th></th><th>Ce que l’élève fait</th><th>Ce qu’il retient</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="n">1</td>
+        <td>
+          <b>L’eau iodée et l’amidon</b>
+          <span class="but">Verse quelques gouttes d’eau iodée sur un aliment et regarde la couleur.</span>
+        </td>
+        <td class="retenir">L’eau iodée devient bleu-noir au contact de l’amidon. C’est un test : une expérience simple qui révèle la présence d’une substance qu’on ne voit pas. L’igname, le riz, le manioc et les céréales en sont riches.</td>
+      </tr>
+      <tr>
+        <td class="n">2</td>
+        <td>
+          <b>Le réactif des sucres</b>
+          <span class="but">Ce test-là ne marche qu’à chaud. Essaie d’abord sans chauffer, pour voir.</span>
+        </td>
+        <td class="retenir">Le réactif des sucres est bleu. Chauffé en présence de sucres, il vire au rouge brique. Sans chaleur, il ne se passe rien : un test qui échoue ne prouve donc pas toujours l’absence — il faut d’abord vérifier qu’on l’a bien conduit.</td>
+      </tr>
+      <tr>
+        <td class="n">3</td>
+        <td>
+          <b>L’acide nitrique et les protéines</b>
+          <span class="but">Cherche les aliments qui font grandir : ceux qui contiennent des protéines.</span>
+        </td>
+        <td class="retenir">L’acide nitrique colore les protéines en jaune. On en trouve dans la viande, le poisson et l’œuf — les meilleures sources — mais aussi dans les légumineuses comme le niébé, et dans les graines oléagineuses comme l’arachide.</td>
+      </tr>
+      <tr>
+        <td class="n">4</td>
+        <td>
+          <b>Le papier et les corps gras</b>
+          <span class="but">Un test sans réactif : il suffit d’une feuille de papier.</span>
+        </td>
+        <td class="retenir">Les corps gras — on dit aussi les lipides — laissent sur le papier une tache translucide qui ne part pas en séchant. L’huile, l’arachide et les graines oléagineuses en sont riches : ce sont les aliments qui apportent le plus d’énergie.</td>
+      </tr>
+      <tr>
+        <td class="n">5</td>
+        <td>
+          <b>Un aliment, plusieurs substances</b>
+          <span class="but">L’arachide passe les quatre tests. Vois combien elle en réussit.</span>
+        </td>
+        <td class="retenir">Un aliment n’est presque jamais fait d’une seule substance : l’arachide contient à la fois des protéines, des corps gras, un peu d’amidon et de sucres. C’est pour cela qu’on parle de la valeur nutritive d’un aliment — ce qu’il apporte, et en quelle quantité.</td>
+      </tr>
+      <tr>
+        <td class="n">6</td>
+        <td>
+          <b>Les trois groupes d’aliments</b>
+          <span class="but">Range chaque aliment selon ce qu’il apporte au corps.</span>
+        </td>
+        <td class="retenir">Les aliments se rangent en trois groupes, selon leur rôle. Les énergétiques — céréales, tubercules, corps gras — donnent l’énergie pour bouger et travailler. Les bâtisseurs — viandes, poissons, œufs, légumineuses — fournissent la matière pour grandir et se réparer. Les protecteurs — fruits et légumes — apportent les vitamines et les sels minéraux qui aident à se défendre contre les maladies.</td>
+      </tr>
+      <tr>
+        <td class="n">7</td>
+        <td>
+          <b>Le repas d’une journée</b>
+          <span class="but">Compose ce que tu manges dans une journée, et regarde si tes besoins sont couverts.</span>
+        </td>
+        <td class="retenir">Un repas est équilibré quand il apporte des aliments des trois groupes, en quantité suffisante. Pour un élève de ton âge, il faut environ 2200 kilocalories et 45 grammes de protéines par jour, plus des fruits et des légumes. Manger équilibré ne coûte pas forcément cher : le niébé et les feuilles vertes y suffisent.</td>
+      </tr>
+      <tr>
+        <td class="n">8</td>
+        <td>
+          <b>Le kwashiorkor</b>
+          <span class="but">Un enfant mange à sa faim et tombe pourtant malade. Reproduis son repas.</span>
+        </td>
+        <td class="retenir">Le kwashiorkor frappe un enfant qui reçoit assez d’énergie mais pas assez de protéines. Il mange à sa faim, son ventre est plein — mais son corps ne peut plus se construire ni se réparer. Une part de niébé, de poisson ou d’œuf par repas suffit à l’éviter.</td>
+      </tr>
+      <tr>
+        <td class="n">9</td>
+        <td>
+          <b>Le marasme</b>
+          <span class="but">Cette fois, c’est tout qui manque. Compare avec le cas précédent.</span>
+        </td>
+        <td class="retenir">Le marasme vient d’un manque de tout : ni assez d’énergie, ni assez de protéines. L’enfant maigrit sans arrêt. La différence avec le kwashiorkor est utile à retenir : dans le kwashiorkor, la quantité est là mais la qualité manque ; dans le marasme, c’est la quantité elle-même qui manque.</td>
+      </tr>
+      <tr>
+        <td class="n">10</td>
+        <td>
+          <b>Le trajet des aliments</b>
+          <span class="but">Suis un morceau d’igname depuis la bouche.</span>
+        </td>
+        <td class="retenir">Les aliments suivent toujours le même chemin : bouche → œsophage → estomac → intestin grêle → gros intestin. C’est le tube digestif. Chaque organe a son rôle : les dents broient, l’estomac brasse, l’intestin grêle fait passer dans le sang.</td>
+      </tr>
+      <tr>
+        <td class="n">11</td>
+        <td>
+          <b>Rendre soluble</b>
+          <span class="but">Regarde ce que devient l’aliment le long du trajet.</span>
+        </td>
+        <td class="retenir">Tout au long du trajet, l’aliment est transformé en substances de plus en plus petites et solubles, c’est-à-dire capables de se dissoudre. C’est la digestion. Elle commence dans la bouche, se poursuit dans l’estomac et s’achève dans l’intestin grêle.</td>
+      </tr>
+      <tr>
+        <td class="n">12</td>
+        <td>
+          <b>Le passage dans le sang</b>
+          <span class="but">C’est dans l’intestin grêle que tout se joue. Regarde ce qui traverse.</span>
+        </td>
+        <td class="retenir">Les substances devenues assez petites s’appellent les nutriments. Dans l’intestin grêle, elles traversent la paroi et passent dans le sang : c’est l’absorption intestinale. Le sang les distribue ensuite à tout l’organisme. Ce qui n’a pas pu passer continue vers le gros intestin et sera rejeté.</td>
+      </tr>
+      <tr>
+        <td class="n">13</td>
+        <td>
+          <b>La dent et l’hygiène</b>
+          <span class="but">La digestion commence par les dents. Vois ce qui les abîme.</span>
+        </td>
+        <td class="retenir">Une dent est faite d’émail très dur, d’ivoire en dessous, et d’une pulpe vivante au centre, tenue par sa racine. Les sucres qui restent collés aux dents nourrissent les microbes de la bouche, qui attaquent l’émail : c’est la carie. Se brosser les dents après les repas, et éviter de grignoter du sucre entre eux, la retarde énormément.</td>
+      </tr></tbody>
+  </table>
+
+  
+
+  <h2>Les mots à installer</h2>
+  <ul class="lex"><li><b>Aliment</b> — Tout ce que nous mangeons ou buvons pour vivre, grandir et bouger.</li><li><b>Test</b> — Une expérience simple qui révèle la présence d’une substance qu’on ne voit pas : l’eau iodée révèle l’amidon.</li><li><b>Amidon</b> — La substance des céréales et des tubercules — riz, igname, manioc. Elle donne de l’énergie. L’eau iodée la colore en bleu-noir.</li><li><b>Protéines</b> — Les substances qui servent à construire et réparer le corps. Viandes, poissons, œufs et légumineuses en sont riches. L’acide nitrique les colore en jaune.</li><li><b>Lipides</b> — Les corps gras : huile, arachide, graines oléagineuses. Ce sont les aliments les plus riches en énergie. Ils laissent une tache translucide sur le papier.</li><li><b>Valeur nutritive</b> — Ce qu’un aliment apporte au corps, et en quelle quantité.</li><li><b>Aliment énergétique</b> — Un aliment qui donne surtout de l’énergie : céréales, tubercules, corps gras.</li><li><b>Aliment bâtisseur</b> — Un aliment qui fournit la matière pour grandir et se réparer : viande, poisson, œuf, niébé, arachide.</li><li><b>Aliment protecteur</b> — Un fruit ou un légume, riche en vitamines et en sels minéraux, qui aide à se défendre contre les maladies.</li><li><b>Vitamines</b> — Des substances nécessaires en très petite quantité, mais indispensables. Les fruits et les légumes en apportent.</li><li><b>Sels minéraux</b> — Le fer, le calcium et leurs semblables : nécessaires aux os, au sang et au bon fonctionnement du corps.</li><li><b>Ration alimentaire</b> — La quantité d’aliments dont une personne a besoin dans une journée. Elle dépend de l’âge et de l’activité.</li><li><b>Kwashiorkor</b> — La maladie d’un enfant qui reçoit assez d’énergie mais pas assez de protéines.</li><li><b>Marasme</b> — La maladie d’un enfant à qui tout manque : ni assez d’énergie, ni assez de protéines.</li><li><b>Tube digestif</b> — Le chemin des aliments : bouche, œsophage, estomac, intestin grêle, gros intestin.</li><li><b>Digestion</b> — La transformation des aliments en substances assez petites et solubles pour passer dans le sang.</li><li><b>Nutriment</b> — Une substance devenue assez petite pour traverser la paroi de l’intestin et passer dans le sang.</li><li><b>Absorption intestinale</b> — Le passage des nutriments à travers la paroi de l’intestin grêle, vers le sang.</li><li><b>Émail</b> — La couche blanche et très dure qui recouvre la dent. C’est elle que la carie attaque en premier.</li><li><b>Carie</b> — Un trou creusé dans la dent par les microbes qui se nourrissent des sucres restés dessus.</li></ul>
+
+  <h2>Les erreurs que le quiz vise</h2>
+  <div class="piege"><b>Le réactif des sucres reste bleu sur de la canne à sucre. Que conclure ?</b>
+    <span>La canne à sucre en est pleine. Si le réactif ne réagit pas, c’est la condition du test qui n’est pas remplie. Un test mal conduit ne prouve rien — ni la présence, ni l’absence.</span></div><div class="piege"><b>Un enfant atteint de kwashiorkor a le ventre gonflé. Un élève en conclut qu’il a trop mangé. A-t-il raison ?</b>
+    <span>Le ventre gonflé est un signe de la maladie, pas d’un excès. L’enfant reçoit de l’énergie mais pas de protéines : son corps ne peut plus se construire.</span></div><div class="piege"><b>Un élève dit : « le poisson est un protecteur, il contient du fer ». Qu’en penses-tu ?</b>
+    <span>On range un aliment selon ce qu’il apporte principalement. Le poisson est d’abord une source de protéines. Les protecteurs sont les fruits et les légumes.</span></div><div class="piege"><b>Où les aliments passent-ils dans le sang ?</b>
+    <span>L’estomac est l’organe où l’aliment reste le plus longtemps, ce qui trompe beaucoup d’élèves. Mais rien n’y traverse la paroi : l’absorption se fait dans l’intestin grêle.</span></div><div class="piege"><b>Digérer un aliment, est-ce le faire disparaître ?</b>
+    <span>Rien ne disparaît. L’aliment est transformé en substances plus petites ; celles qui sont assez petites passent dans le sang, les autres poursuivent leur route vers le gros intestin.</span></div><div class="piege"><b>Manger beaucoup de sucre le soir sans se brosser les dents : quel est le vrai danger ?</b>
+    <span>Ce n’est pas le sucre qui perce la dent : ce sont les microbes de la bouche, qui s’en nourrissent. D’où les deux règles — se brosser les dents, et ne pas laisser du sucre dessus toute la nuit.</span></div><div class="piege"><b>Un repas très copieux de gari à l’huile est-il équilibré ?</b>
+    <span>Gari et huile sont deux énergétiques. La quantité ne fait pas l’équilibre : c’est exactement la situation qui conduit au kwashiorkor.</span></div><div class="piege"><b>L’eau iodée ne change pas sur un morceau de poisson. Que conclure ?</b>
+    <span>Un test négatif ne dit rien des autres substances : il dit seulement qu’il n’y a pas d’amidon. Le poisson est d’ailleurs très riche en protéines — l’acide nitrique le montrerait.</span></div><div class="piege"><b>« Manger équilibré coûte cher. » Vrai ou faux ?</b>
+    <span>Un plat de niébé aux feuilles vertes, avec un aliment de base, couvre les trois groupes pour un prix bien inférieur à celui de la viande. L’équilibre est une question de choix, pas de moyens.</span></div>
+
+  <div class="pied">
+    <span>Chaque mission se termine par une question ; le quiz final compte trois niveaux,
+      et les questions difficiles pèsent trois fois plus.</span>
+    <span><a href="https://edgboy.github.io/ike-simulations/simulations/alimentation/index.html">Ouvrir la simulation</a></span>
+  </div>
+</div>
+</body>
+</html>
