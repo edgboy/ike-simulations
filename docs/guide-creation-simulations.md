@@ -124,6 +124,12 @@ Règles d'or :
 
 ### Étape 7 — Publier
 ```bash
+# 1. Régénérer les fichiers téléchargeables — voir §10. À ne jamais sauter :
+#    sans cela, ce qu'on télécharge n'est plus ce qui est en ligne.
+node outils/autonomiser.js
+node outils/archiver.js
+
+# 2. Publier
 git add -A
 git commit -m "vX.Y.0 — <résumé en français>"
 git tag -a vX.Y.0 -m "<résumé>"
@@ -185,3 +191,38 @@ Le format « un fichier autonome » garde toutes les portes ouvertes :
 - [ ] Textes relus : vocabulaire du programme, virgules décimales
 - [ ] CHANGELOG + carte d'accueil + journal technique + version affichée
 - [ ] Tag git + release GitHub + site vérifié en ligne
+
+## 10. Les fichiers téléchargeables
+
+Le site sert les simulations avec une **feuille de polices partagée**
+(`assets/polices.css` et ses `.woff2`). C'est le bon choix en ligne : le navigateur ne télécharge
+les polices qu'une fois pour tout le catalogue. Mais un fichier envoyé seul par WhatsApp ou copié
+sur une clé perd ces ressources — il fonctionne encore, rien n'y est cassé, mais il réclame un
+fichier absent et retombe sur les polices du système.
+
+`outils/autonomiser.js` produit donc, dans `telechargement/`, une version **réellement autonome**
+de chaque simulation :
+
+- les polices y sont embarquées en `data:` — les quatre `@font-face` ne pointent en fait que vers
+  **deux** fichiers, `baloo2-700` et `-800` étant identiques, `inter-400` et `-600` aussi ;
+- le lien « retour au catalogue » est réécrit vers l'adresse du site, puisqu'il ne mène nulle part
+  depuis un dossier de téléchargement ;
+- l'outil **échoue** s'il reste la moindre référence `../../` : c'est le garde-fou.
+
+`outils/archiver.js` en fait une archive unique pour l'enseignant qui veut tout emporter. Le ZIP
+est écrit à la main — le dépôt n'a aucune dépendance npm et n'a pas à en gagner une — et les poids
+relevés partent dans `telechargement/tailles.json`, que le catalogue lit pour les annoncer. Recopiés
+à la main dans la page, ils auraient menti dès la version suivante.
+
+**Le piège à connaître** : ces fichiers sont des copies. S'ils ne sont pas régénérés à chaque
+publication, on télécharge une version périmée sans que rien ne le signale. Le contrôle tient en
+une ligne, à passer avant de taguer :
+
+```bash
+node outils/autonomiser.js && node outils/archiver.js && git diff --quiet telechargement/ \
+  && echo "à jour" || echo "PÉRIMÉ — les fichiers téléchargeables viennent d'être régénérés"
+```
+
+Vérification faite en v4.48.0 : chaque fichier copié **seul** dans un dossier vide, ouvert, et
+contrôlé au protocole DevTools — **aucune requête ne sort du fichier**, les polices de la charte
+sont chargées, la scène répond.

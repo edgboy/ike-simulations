@@ -1,0 +1,13 @@
+# Les fichiers de telechargement/ sont GÉNÉRÉS par outils/autonomiser.js et
+# outils/archiver.js. Git ne doit pas y toucher aux fins de ligne : sinon
+# le contrôle de fraîcheur du rituel de publication
+#
+#   node outils/autonomiser.js && node outils/archiver.js && git diff --quiet telechargement/
+#
+# signalerait une dérive à chaque changement de machine, alors que rien n'a
+# bougé — et on finirait par ne plus le regarder.
+telechargement/** -text
+
+# L'archive est binaire.
+*.zip binary
+*.woff2 binary

@@ -126,6 +126,36 @@
      honnêtement ce qui manque plutôt que de laisser croire à un oubli. */
   .sa-vide { margin: 0; font-size: .9rem; font-style: italic; color: var(--neutral); opacity: .55; }
 
+  /* ===================== Emporter les simulations ===================== */
+  .emporter p { font-size: 14.5px; line-height: 1.6; opacity: .8; margin: 0 0 var(--space-4); max-width: 62ch; }
+  .emporter-actions { display: flex; gap: var(--space-3); flex-wrap: wrap; }
+  .btn-tele {
+    display: flex; align-items: center; gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    background: var(--primary); color: var(--neutral);
+    border: 2px solid var(--primary); border-radius: var(--radius-md);
+    text-decoration: none; cursor: pointer;
+    font-family: inherit; font-size: 14px; text-align: left;
+    transition: filter var(--duration-fast) var(--ease);
+  }
+  .btn-tele:hover { filter: brightness(.95); }
+  .btn-tele > span:first-child { font-size: 22px; line-height: 1; }
+  .btn-tele b { display: block; font-family: var(--font-display); font-size: 15px; font-weight: 800; }
+  .btn-tele b + span { display: block; font-size: 12.5px; opacity: .75; }
+  .btn-tele-clair { background: var(--surface); border-color: var(--border-strong); }
+  #liste-tele { display: grid; gap: var(--space-2); margin-top: var(--space-4); }
+  #liste-tele[hidden] { display: none; }
+  .tele-ligne {
+    display: flex; align-items: center; gap: var(--space-3);
+    padding: var(--space-2) var(--space-3);
+    background: var(--surface-muted); border-radius: var(--radius-sm);
+    text-decoration: none; color: inherit; font-size: 13.5px;
+  }
+  .tele-ligne:hover { background: var(--accent-doux); }
+  .tele-ligne .ico { font-size: 18px; width: 24px; text-align: center; flex: none; }
+  .tele-ligne .nom { flex: 1; min-width: 0; font-weight: 600; }
+  .tele-ligne .poids { font-size: 12px; opacity: .6; flex: none; }
+
   .sim {
     display: flex; align-items: center; gap: var(--space-3);
     padding: var(--space-3) var(--space-4);
@@ -228,6 +258,24 @@
           <span>Chaque activité est rattachée à une situation d'apprentissage officielle.</span>
         </div>
       </div>
+
+      <div class="section-titre"><h2>Emporter les simulations</h2></div>
+      <div class="carte emporter">
+        <p>Chaque simulation est <b>un seul fichier</b>. Téléchargé, il s'ouvre en double-clic,
+           sans internet et sans rien installer — de quoi le faire essayer à un collègue, l'envoyer
+           par WhatsApp, ou le copier sur les téléphones d'une classe.</p>
+        <div class="emporter-actions">
+          <a class="btn-tele" href="telechargement/kondo-labo-toutes-les-simulations.zip" download>
+            <span aria-hidden="true">📦</span>
+            <span><b>Tout emporter</b><span id="poids-archive">l'archive complète</span></span>
+          </a>
+          <button class="btn-tele btn-tele-clair" id="btn-liste-tele" type="button">
+            <span aria-hidden="true">📄</span>
+            <span><b>Choisir une simulation</b><span>télécharger un fichier à la fois</span></span>
+          </button>
+        </div>
+        <div id="liste-tele" hidden></div>
+      </div>
     </div>
   </section>
 
@@ -253,7 +301,7 @@
 </main>
 
 <footer class="enveloppe pied">
-  <span>KONDO LABO · <span class="ver">v4.47.0</span></span>
+  <span>KONDO LABO · <span class="ver">v4.48.0</span></span>
   <span>·</span>
   <span>Programme officiel du Bénin (APC)</span>
   <span>·</span>
@@ -633,6 +681,69 @@ function rendreAccueil() {
   }).join('');
   rendreReprise();
 }
+
+/* ============================================================================
+   Emporter les simulations
+
+   Chaque simulation est un fichier unique et autonome, produit par
+   `node outils/autonomiser.js` : les polices y sont embarquées, plus aucune
+   requête n'en sort. C'est ce fichier-là qu'on télécharge, pas la page servie
+   par le site — celle-ci partage la feuille de polices avec tout le catalogue,
+   ce qui est le bon choix en ligne mais laisse un fichier isolé sans ses
+   polices.
+
+   Les poids viennent de `telechargement/tailles.json`, écrit par le même
+   outil : recopiés à la main dans cette page, ils auraient menti dès la
+   version suivante. Si le relevé manque, la liste s'affiche quand même, sans
+   les poids.
+   ========================================================================== */
+let poidsCharges = null;
+
+function toutesLesSimsLivrees() {
+  const vues = new Set(), sortie = [];
+  for (const m of CATALOGUE) for (const c of m.classes) for (const s of simsDe(c)) {
+    if (!s.dos || vues.has(s.dos)) continue;
+    vues.add(s.dos);
+    sortie.push({ dos: s.dos, ico: s.ico, nom: s.nom, matiere: m.court });
+  }
+  return sortie.sort((a, b) => a.nom.localeCompare(b.nom, 'fr'));
+}
+
+function rendreListeTelechargement() {
+  const zone = $('liste-tele');
+  zone.innerHTML = toutesLesSimsLivrees().map(s => {
+    const ko = poidsCharges && poidsCharges[s.dos];
+    return `<a class="tele-ligne" download
+               href="telechargement/kondo-labo-${encodeURIComponent(s.dos)}.html">
+        <span class="ico" aria-hidden="true">${s.ico}</span>
+        <span class="nom">${echapper(s.nom)}<span class="discret"> · ${echapper(s.matiere)}</span></span>
+        <span class="poids">${ko ? ko + ' Ko' : 'télécharger'}</span>
+      </a>`;
+  }).join('');
+}
+
+async function chargerPoids() {
+  if (poidsCharges) return;
+  try {
+    const r = await fetch('telechargement/tailles.json', { cache: 'no-cache' });
+    if (r.ok) poidsCharges = await r.json();
+  } catch (e) { /* sans relevé, la liste reste utilisable */ }
+  // On annonce le poids, pas un nombre de simulations : l'archive embarque
+  // aussi l'atelier de molécules, qui n'a pas sa carte dans le catalogue, et
+  // les deux comptes se seraient contredits sous les yeux du lecteur.
+  const a = poidsCharges && poidsCharges.__archive;
+  if (a) $('poids-archive').textContent =
+    'tout le catalogue · ' + (a / 1024).toFixed(1).replace('.', ',') + ' Mo';
+}
+
+$('btn-liste-tele').addEventListener('click', async () => {
+  const zone = $('liste-tele');
+  const ouvrir = zone.hidden;
+  if (ouvrir) { await chargerPoids(); rendreListeTelechargement(); }
+  zone.hidden = !ouvrir;
+  $('btn-liste-tele').setAttribute('aria-expanded', ouvrir ? 'true' : 'false');
+});
+chargerPoids();
 
 function rendreReprise() {
   // La simulation la plus avancée parmi celles déjà commencées

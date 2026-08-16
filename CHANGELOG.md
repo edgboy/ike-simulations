@@ -5,6 +5,49 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v4.48.0 — 2026-08-16
+
+📦 **Les simulations s'emportent : un fichier, un double-clic, aucune connexion.**
+
+La charte promet depuis le début « une simulation = un livrable autonome ». Vérification faite en
+copiant une simulation **seule** dans un dossier vide : elle fonctionne — aucune erreur, tout
+répond — mais elle réclame `../../assets/polices.css`, qui n'est pas là, et retombe sur les polices
+du système. Autonome à l'usage, pas tout à fait à la lettre.
+
+### Ce qui a été fait
+
+`outils/autonomiser.js` produit dans `telechargement/` une version réellement autonome de chacune
+des dix-sept simulations : polices embarquées en `data:`, lien « retour au catalogue » réécrit vers
+le site — il ne mène nulle part depuis un dossier de téléchargement. L'outil **échoue** s'il reste
+la moindre référence `../../` : c'est le garde-fou, pas une politesse.
+
+Au passage : les quatre `@font-face` ne pointent en fait que vers **deux** fichiers. `baloo2-700` et
+`-800` sont identiques octet pour octet, `inter-400` et `-600` aussi. On n'embarque donc que 81 Ko
+de polices, pas 163.
+
+`outils/archiver.js` en fait une archive unique — 3,4 Mo pour tout le catalogue — pour l'enseignant
+qui veut le copier sur une clé. Le ZIP est écrit à la main : le dépôt n'a aucune dépendance npm et
+n'avait pas à en gagner une pour empaqueter dix-sept fichiers. L'archive a été relue par un
+décompresseur indépendant, pas seulement par son auteur.
+
+### Sur le catalogue
+
+Une section **« Emporter les simulations »** : un bouton pour tout prendre, et la liste des
+simulations une par une avec **leur poids**. Sur un forfait béninois, savoir avant de cliquer qu'on
+va prendre 380 Ko n'est pas un détail — et ces poids viennent d'un relevé écrit par l'outil, jamais
+recopiés à la main : recopiés, ils auraient menti dès la version suivante.
+
+### Vérification
+
+Chaque fichier a été copié **seul** dans un dossier vide, ouvert, et observé au protocole DevTools :
+**aucune requête ne sort du fichier** sur les dix-sept, les polices de la charte sont chargées, la
+scène répond. Poids : de 328 à 380 Ko en 2D — sous le budget de 500 Ko de la charte — et 882 Ko
+pour la 3D, sous celui de 1,5 Mo.
+
+Un constat au passage, non corrigé : `atelier-molecules` n'utilise pas les polices de la charte mais
+celles du système. C'est l'annexe 3D jamais alignée sur le socle — la même qui n'a ni quiz ni liste
+de missions.
+
 ## v4.47.0 — 2026-08-15
 
 📱 **Le téléphone en paysage : deux simulations n'affichaient aucune scène.**
