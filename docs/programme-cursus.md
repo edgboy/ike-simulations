@@ -81,7 +81,7 @@ compréhension du monde et à l'amélioration des conditions de vie ». Pédagog
 | **4ᵉ** | SA1 **Sol, avenir de l'homme** (13 sem.) · SA2 **Terre, planète active** (11 sem.) | 2 h × 13 / 11 |
 | **3ᵉ** | SA1 **Échanges de matière et d'énergie entre l'organisme et le milieu extérieur** (respiration, digestion, circulation) · SA2 **Commande nerveuse et réactions comportementales** · SA3 **Reproduction humaine** · SA4 **Réactions immunitaires et lutte contre les agressions microbiennes** | 3 h TP/cours |
 
-**Couverture KONDO LABO — 1 simulation** :
+**Couverture KONDO LABO — 2 simulations** :
 - 🍽️ **Le repas de la journée** (v4.46.0) couvre la **SA1 de 6ᵉ**, « Alimentation et besoins
   nutritionnels de l'Homme » (9 semaines). Les quatre questions de la problématique du guide sont
   traitées dans l'ordre : composition des aliments (les quatre tests), rôle des aliments (les trois
@@ -89,7 +89,18 @@ compréhension du monde et à l'amélioration des conditions de vie ». Pédagog
   et hygiène (la dent). Reste hors simulation : le réinvestissement sur la conservation des denrées,
   que le guide veut mené comme une enquête de terrain.
 
-Prochaine candidate : **5ᵉ SA1, Besoins nutritifs des végétaux** — des expériences de plusieurs
+- 🦷 **Les outils pour manger** (v4.49.0) couvre la **SA2 de 6ᵉ**, « Diversité des régimes
+  alimentaires chez les animaux » (7 semaines). Les trois questions d'outils du guide sont traitées
+  dans l'ordre — zoophages, phytophages, aliments liquides — et débouchent sur la notion
+  d'**adaptation** que sa septième activité demande de construire. Le matériel qu'il réclame
+  (crânes de carnivores, mâchoires d'herbivores, crâne de serpent, armature buccale de criquet à
+  disséquer, microscope) n'existe dans presque aucune classe : c'est précisément ce que la
+  simulation rend.
+
+**Il reste une SA en 6ᵉ** : la SA3, « Diversité et unité des phénomènes respiratoires chez les êtres
+vivants » (9 semaines). Après elle, le niveau sera complet.
+
+Autre candidate : **5ᵉ SA1, Besoins nutritifs des végétaux** — des expériences de plusieurs
 semaines, impossibles à tenir en classe.
 
 Les intitulés ci-dessus sont ceux des guides officiels. Le catalogue en affichait d'inventés

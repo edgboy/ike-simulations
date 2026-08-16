@@ -301,7 +301,7 @@
 </main>
 
 <footer class="enveloppe pied">
-  <span>KONDO LABO · <span class="ver">v4.48.0</span></span>
+  <span>KONDO LABO · <span class="ver">v4.49.0</span></span>
   <span>·</span>
   <span>Programme officiel du Bénin (APC)</span>
   <span>·</span>
@@ -339,6 +339,7 @@ const LIVREES = {
   'transformations':    { cle: 'ike-transfo-progression',    missions: 12 },
   'triangles':          { cle: 'ike-triangles-progression',  missions: 14 },
   'alimentation':       { cle: 'ike-alimentation-progression', missions: 13 },
+  'regimes-alimentaires':{ cle: 'ike-regimes-progression',     missions: 11 },
 };
 
 const CATALOGUE = [
@@ -559,7 +560,9 @@ const CATALOGUE = [
             sims: [{ dos: 'alimentation', ico: '🍽️', nom: 'Le repas de la journée',
               quoi: "Reconnaître les aliments par des tests, composer un repas équilibré, suivre la digestion jusqu'au sang." }] },
           { n: 2, titre: 'Diversité des régimes alimentaires chez les animaux',
-            heures: '7 sem.', cd: 'CD1', sims: [] },
+            heures: '7 sem.', cd: 'CD1',
+            sims: [{ dos: 'regimes-alimentaires', ico: '🦷', nom: 'Les outils pour manger',
+              quoi: "Dents, crochets et pièces buccales : reconnaître un régime à ses outils, et comprendre l’adaptation." }] },
           { n: 3, titre: 'Diversité et unité des phénomènes respiratoires chez les êtres vivants',
             heures: '9 sem.', cd: 'CD1', sims: [] },
         ] },

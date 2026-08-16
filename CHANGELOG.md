@@ -5,6 +5,54 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v4.49.0 — 2026-08-16
+
+🦷 **« Les outils pour manger » — SVT 6ᵉ, SA2.**
+
+Onze missions sur « Diversité des régimes alimentaires chez les animaux » (7 semaines). Le guide
+construit cette SA sur **trois questions d'outils**, et c'est son mot :
+
+1. Comment et avec quels **outils** les **zoophages** capturent et consomment-ils leur proie ?
+2. Comment et avec quels outils les **phytophages** prélèvent et consomment-ils leur nourriture ?
+3. Quels outils sont utilisés pour prélever et consommer les **aliments liquides** ?
+
+Sa septième activité demande d'en tirer la notion d'**adaptation**. Les quatre parties du parcours
+suivent cet ordre.
+
+### Ce que la classe ne peut pas montrer
+
+Le guide réclame des crânes osseux de carnivores, des mâchoires d'herbivores, un crâne de serpent,
+l'armature buccale d'un criquet à disséquer, et un microscope. Presque aucune classe n'a cela. Ici,
+on touche une pièce et elle se nomme : canines et carnassières du lion, crochets et mâchoire
+déboîtable de la vipère, molaires plates et diastème du mouton, labre-mandibules-maxilles du
+criquet, stylet du moustique, trompe du papillon, éponge de la mouche, radula de l'escargot.
+
+Plutôt que douze anatomies dessinées une par une, **chaque animal décrit où sont ses pièces et de
+quelle forme elles sont** ; un seul dessinateur les rend. Ajouter un animal est une ligne de
+données, pas cinquante lignes de tracé.
+
+### Le raisonnement que la simulation installe
+
+**Les outils annoncent le régime** — sans avoir vu l'animal manger. C'est la propriété centrale, et
+elle est vérifiée sur les douze animaux par le test du modèle. Deux garde-fous pédagogiques en
+découlent, et chacun a sa mission :
+
+- **Une pièce que tout le monde possède ne conclut à rien.** Les incisives se trouvent chez le lion
+  comme chez le mouton : elles ne sont l'indice d'aucun régime.
+- **Posséder une pièce ne dit pas à quoi elle sert.** L'abeille a des mandibules comme le criquet,
+  mais elle s'en sert pour la **cire** : ce qu'elle mange, elle l'aspire avec sa trompe. Pour
+  conclure, on regarde l'outil qui sert *à manger*.
+
+La dernière mission renverse la démarche : un régime est donné, l'élève **équipe** l'animal. Un
+outil qui contredit le régime est refusé, et un assortiment sans pièce caractéristique reste
+insuffisant. C'est ainsi que se construit l'adaptation.
+
+Modèle testé là où il tourne : `simulations/regimes-alimentaires/test-modele.js` l'extrait du
+fichier livré et lui applique **66 vérifications**.
+
+**Il reste une SA pour compléter la 6ᵉ** : la SA3, « Diversité et unité des phénomènes respiratoires
+chez les êtres vivants ».
+
 ## v4.48.0 — 2026-08-16
 
 📦 **Les simulations s'emportent : un fichier, un double-clic, aucune connexion.**

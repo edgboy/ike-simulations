@@ -1,0 +1,2724 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Les outils pour manger — KONDO LABO</title>
+<meta name="description" content="SVT 6ᵉ, SA2 « Diversité des régimes alimentaires chez les animaux » : les outils des zoophages, des phytophages et des mangeurs de liquides, et la notion d’adaptation.">
+
+<meta name="theme-color" content="#F7F5F0">
+<link rel="stylesheet" href="../../assets/polices.css">
+<style>
+
+/* ===== Jetons du design system KONDO LABO (intégrés : fichier autonome) ===== */
+:root {
+  --primary:#C4D94E; --accent:#5BC5F2; --accent-doux:#D6F0FB;
+  --tertiary:#F7A430; --destructive:#E83A4B; --success:#2A9D8F;
+  --neutral:#3A3632; --background:#F7F5F0; --surface:#FFFFFF; --surface-muted:#F0EEE9;
+  --border:#D3CFC8; --border-strong:#B0ABA3; --ring:#5BC5F2;
+  --accent-texte:#0F6E93;   /* le bleu d’accent ne passe pas les 4,5 de contraste en texte */
+  --font-display:'Baloo 2','Segoe UI',system-ui,sans-serif;
+  --font-body:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;
+  --radius-sm:8px; --radius-md:12px; --radius-lg:16px; --radius-xl:24px; --radius-full:9999px;
+  --shadow-soft:0 4px 16px rgba(58,54,50,.05);
+  --shadow-raised:0 6px 20px rgba(58,54,50,.06);
+  --ease:cubic-bezier(.4,0,.2,1);
+  --metal:#B0ABA3; --cuivre:#C9885A;
+}
+body.sombre {
+  --neutral:#ECEFF1; --background:#14181C; --surface:#1C232A; --surface-muted:#232C34;
+  --border:#333E47; --border-strong:#4A5762; --accent-doux:#17323F; --accent-texte:#7FD4F5;
+  --shadow-soft:0 4px 16px rgba(0,0,0,.28); --shadow-raised:0 6px 20px rgba(0,0,0,.34);
+  --metal:#8A9299;
+}
+
+*,*::before,*::after { box-sizing:border-box; }
+body {
+  margin:0; font-family:var(--font-body); font-size:16px; color:var(--neutral);
+  background:var(--background); overflow:hidden;
+  height:100dvh; display:flex; flex-direction:column;
+  -webkit-tap-highlight-color:transparent; -webkit-text-size-adjust:100%;
+}
+h1,h2,h3,h4 { font-family:var(--font-display); margin:0; line-height:1.2; }
+p { margin:0; }
+:focus-visible { outline:2px solid var(--ring); outline-offset:2px; border-radius:var(--radius-sm); }
+
+/* ============================ En-tête ============================ */
+header {
+  display:flex; align-items:center; gap:8px; flex:none;
+  padding:6px 10px; background:var(--surface); border-bottom:1px solid var(--border);
+}
+header h1 { font-size:15px; font-weight:800; line-height:1.15; }
+header .sous { font-size:10.5px; opacity:.6; }
+.icone-btn {
+  width:40px; height:40px; flex:none; display:grid; place-items:center;
+  border:none; background:none; border-radius:var(--radius-md);
+  font-size:18px; color:inherit; cursor:pointer; text-decoration:none;
+}
+.icone-btn:hover { background:var(--surface-muted); }
+.tete-fin { margin-left:auto; display:flex; gap:2px; align-items:center; }
+
+/* ===================== Bandeau de mission (EN HAUT) ===================== */
+#mission {
+  flex:none; background:var(--surface); border-bottom:1px solid var(--border);
+  padding:8px 12px 9px;
+}
+.m-haut { display:flex; align-items:center; gap:9px; }
+.m-pastille {
+  width:30px; height:30px; flex:none; border-radius:var(--radius-sm);
+  display:grid; place-items:center; background:var(--accent-doux);
+  font-family:var(--font-display); font-weight:800; font-size:13px;
+}
+.m-titres { flex:1; min-width:0; }
+.m-titres b { display:block; font-size:14px; font-weight:600; line-height:1.2; }
+.m-titres span { font-size:11.5px; opacity:.65; line-height:1.35; display:block; }
+.m-rang {
+  font-size:10.5px !important; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--accent-texte); opacity:1 !important; margin-bottom:1px;
+}
+.m-plier {
+  width:34px; height:34px; flex:none; border:none; background:none; cursor:pointer;
+  border-radius:var(--radius-sm); font-size:14px; color:inherit;
+  transition:transform .2s var(--ease);
+}
+.m-plier:hover { background:var(--surface-muted); }
+#mission.ouvert .m-plier { transform:rotate(180deg); }
+/* Replié, on ne montre que l'étape en cours : la lampe reste visible */
+#mission:not(.ouvert) .etape:not(.a-montrer) { display:none; }
+#mission:not(.ouvert) .m-indice { display:none; }
+.m-jauge { height:5px; border-radius:var(--radius-full); background:var(--surface-muted); margin-top:8px; overflow:hidden; }
+.m-jauge i { display:block; height:100%; background:var(--accent); transition:width .4s var(--ease); }
+
+/* ---- Liste des étapes : le guidage pas à pas ---- */
+#etapes { margin-top:9px; }
+.etape {
+  display:flex; align-items:flex-start; gap:9px; padding:5px 0;
+  font-size:13px; line-height:1.4;
+}
+.etape .coche {
+  width:21px; height:21px; flex:none; margin-top:1px; border-radius:var(--radius-full);
+  display:grid; place-items:center; font-size:11px; font-weight:700;
+  border:2px solid var(--border-strong); color:transparent; background:none;
+}
+.etape.faite .coche { background:var(--success); border-color:var(--success); color:#fff; }
+.etape.faite .t { opacity:.5; text-decoration:line-through; }
+.etape.courante .coche { border-color:var(--accent-texte); animation:pulseCoche 1.5s infinite; }
+.etape.courante .t { font-weight:600; }
+@keyframes pulseCoche { 50% { box-shadow:0 0 0 5px var(--accent-doux); } }
+.etape .t { flex:1; }
+.m-indice {
+  margin-top:8px; padding:9px 11px; border-radius:var(--radius-md);
+  background:var(--accent-doux); font-size:12.5px; line-height:1.5;
+}
+.m-indice b { font-weight:600; }
+.m-indice[hidden] { display:none; }
+/* Le bouton d'indice. `display` explicite l'emporte sur l'attribut `hidden` :
+   il faut le redire, sinon le bouton reste visible une fois masqué. */
+.m-actions { display:flex; gap:8px; margin-top:10px; }
+.m-actions .btn { flex:1; min-height:40px; padding:0 12px; font-size:13px; }
+.m-actions[hidden], .m-actions .btn[hidden] { display:none; }
+#btn-indice.appelle { animation:appelleIndice 1.3s infinite; }
+@keyframes appelleIndice { 50% { box-shadow:0 0 0 6px rgba(91,197,242,.32); } }
+
+/* ============================ Atelier ============================ */
+main { flex:1; min-height:0; display:flex; flex-direction:column; }
+#atelier { flex:1; min-height:0; position:relative; display:flex; }
+#plan { flex:1; min-height:0; width:100%; display:block; touch-action:manipulation; }
+
+/* Emplacements sur la lampe */
+.slot { cursor:pointer; }
+.slot .zone {
+  fill:var(--surface); fill-opacity:.5; stroke:var(--border-strong); stroke-width:2;
+  stroke-dasharray:6 5; rx:7;
+}
+.slot:hover .zone, .slot:focus-visible .zone { stroke:var(--accent); fill:var(--accent-doux); fill-opacity:1; }
+.slot.plein .zone { display:none; }
+/* Surbrillance de l'emplacement attendu par l'étape en cours */
+.slot.vise .zone { stroke:var(--accent); stroke-width:3; stroke-dasharray:none;
+  fill:var(--accent-doux); fill-opacity:1; animation:viseur 1.5s infinite; }
+@keyframes viseur { 50% { stroke-opacity:.35; } }
+.slot.vise .etiq-slot { opacity:1; font-weight:700; }
+.etiq-slot {
+  font-family:var(--font-body); font-size:11px; font-weight:600;
+  fill:var(--neutral); opacity:.55; text-anchor:middle; pointer-events:none;
+}
+.txt-piece {
+  font-family:var(--font-body); font-size:11px; font-weight:700;
+  fill:var(--neutral); text-anchor:middle; pointer-events:none;
+}
+.retirer { cursor:pointer; }
+.retirer circle { fill:var(--border-strong); transition:fill .15s var(--ease); }
+.retirer:hover circle, .retirer:focus-visible circle { fill:var(--destructive); }
+.retirer text { fill:#fff; font-size:13px; font-weight:700; text-anchor:middle; font-family:var(--font-body); }
+
+/* ============ Bouton d'accès aux mesures, sur le plan de travail ============ */
+#btn-mesures {
+  position:absolute; right:12px; bottom:12px; z-index:5;
+  display:flex; align-items:center; gap:7px;
+  min-height:44px; padding:0 16px;
+  background:var(--surface); color:var(--neutral);
+  border:2px solid var(--border-strong); border-radius:var(--radius-full);
+  box-shadow:var(--shadow-raised);
+  font-family:var(--font-body); font-size:13.5px; font-weight:600; cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+#btn-mesures:hover { background:var(--surface-muted); border-color:var(--neutral); }
+#btn-mesures[hidden] { display:none; }
+#btn-mesures.appelle { border-color:var(--accent-texte); animation:appelleMesures 1.4s infinite; }
+@keyframes appelleMesures { 50% { box-shadow:0 0 0 8px var(--accent-doux), var(--shadow-raised); } }
+
+/* ============================ Bilan ============================ */
+#bilan {
+  position:absolute; left:8px; right:8px; bottom:8px; z-index:6;
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-raised); padding:13px 15px;
+  display:none; max-width:520px; margin:0 auto;
+}
+#bilan.visible { display:block; animation:monte .3s var(--ease); }
+#atelier.avec-bilan #plan { align-self:flex-start; max-height:48%; }
+@keyframes monte { from { opacity:0; transform:translateY(10px); } }
+#bilan .verdict { display:flex; align-items:center; gap:9px; margin-bottom:4px; }
+#bilan .verdict .em { font-size:23px; line-height:1; }
+#bilan .verdict h3 { font-size:16px; flex:1; }
+#bilan .reduire {
+  width:32px; height:32px; flex:none; margin:-4px -6px 0 0;
+  border:none; background:none; border-radius:var(--radius-sm);
+  font-size:17px; color:inherit; cursor:pointer; opacity:.6;
+}
+#bilan .reduire:hover { background:var(--surface-muted); opacity:1; }
+#bilan .objectif {
+  margin-top:10px; padding:9px 11px; border-radius:var(--radius-md);
+  background:var(--accent-doux); font-size:12.5px; line-height:1.5;
+}
+#bilan .phrase { font-size:12.5px; opacity:.78; line-height:1.5; margin:0 0 10px; }
+.jauges { display:grid; grid-template-columns:repeat(auto-fit,minmax(115px,1fr)); gap:8px 14px; }
+.jauge .haut { display:flex; justify-content:space-between; font-size:11.5px; margin-bottom:3px; }
+.jauge .haut b { font-weight:600; }
+.jauge .haut span { opacity:.65; }
+.barre { height:7px; border-radius:var(--radius-full); background:var(--surface-muted); overflow:hidden; }
+.barre i { display:block; height:100%; background:var(--accent); border-radius:inherit; transition:width .5s var(--ease); }
+.barre.faible i { background:var(--tertiary); }
+.barre.mauvais i { background:var(--destructive); }
+#bilan .actions { display:flex; gap:8px; margin-top:11px; }
+
+/* ============================ Barre d'action ============================ */
+#actions {
+  flex:none; display:flex; gap:8px; align-items:center; justify-content:flex-end;
+  padding:8px 12px calc(8px + env(safe-area-inset-bottom));
+  background:var(--surface); border-top:1px solid var(--border);
+}
+.btn {
+  display:inline-flex; align-items:center; justify-content:center; gap:7px;
+  min-height:44px; padding:0 18px; border:none; border-radius:var(--radius-lg);
+  font-family:var(--font-body); font-size:14px; font-weight:600;
+  color:var(--neutral); background:var(--primary); cursor:pointer;
+  transition:filter .15s var(--ease);
+}
+.btn:hover { filter:brightness(.94); }
+.btn:active { filter:brightness(.88); }
+.btn[disabled] { opacity:.45; cursor:not-allowed; filter:none; }
+.btn-contour { background:var(--surface); border:2px solid var(--neutral); }
+.btn-contour:hover { background:var(--surface-muted); filter:none; }
+.btn-fantome { background:transparent; }
+.btn-fantome:hover { background:var(--surface-muted); filter:none; }
+.btn-large { width:100%; }
+#btn-tester.appelle { animation:appelle 1.3s infinite; }
+@keyframes appelle { 50% { box-shadow:0 0 0 7px rgba(196,217,78,.35); } }
+
+/* ================== Feuille de choix d'un composant ================== */
+#feuille {
+  position:fixed; inset:0; z-index:35; display:none;
+  background:rgba(38,50,56,.5);
+}
+#feuille.visible { display:block; }
+.f-carte {
+  position:absolute; left:0; right:0; bottom:0;
+  max-height:82dvh; overflow-y:auto;
+  background:var(--surface); border-radius:var(--radius-xl) var(--radius-xl) 0 0;
+  padding:8px 16px calc(18px + env(safe-area-inset-bottom));
+  box-shadow:var(--shadow-raised);
+  animation:glisse .28s var(--ease);
+}
+@keyframes glisse { from { transform:translateY(100%); } }
+.f-poignee { width:40px; height:4px; border-radius:2px; background:var(--border); margin:2px auto 12px; }
+.f-tete { display:flex; align-items:center; gap:9px; margin-bottom:4px; }
+.f-tete h2 { font-size:18px; flex:1; }
+.f-role { font-size:12.5px; line-height:1.5; opacity:.75; margin-bottom:13px; }
+.f-liste { display:grid; gap:9px; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); }
+.option {
+  display:flex; flex-direction:column; gap:3px; text-align:left; position:relative;
+  padding:12px 13px; min-height:62px;
+  background:var(--surface); border:2px solid var(--border); border-radius:var(--radius-md);
+  font-family:var(--font-body); color:var(--neutral); cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+.option:hover { border-color:var(--border-strong); background:var(--surface-muted); }
+.option.pose { border-color:var(--accent-texte); background:var(--accent-doux); }
+.option.conseil { border-color:var(--primary); }
+.option.conseil::after {
+  content:'conseillé'; position:absolute; top:-9px; right:9px;
+  padding:1px 8px; border-radius:var(--radius-full);
+  background:var(--primary); color:var(--neutral);
+  font-size:9.5px; font-weight:700; letter-spacing:.04em; text-transform:uppercase;
+}
+.option b { font-size:13.5px; font-weight:600; }
+.option span { font-size:11.5px; opacity:.68; line-height:1.4; }
+.option[disabled] { opacity:.42; cursor:not-allowed; }
+.f-vide { text-align:center; padding:18px 0; font-size:13px; opacity:.6; }
+
+/* ============================ Voiles ============================ */
+.voile {
+  position:fixed; inset:0; z-index:40; display:none;
+  background:rgba(14,18,23,.93); padding:14px; overflow-y:auto;
+}
+.voile.visible { display:flex; align-items:center; justify-content:center; }
+.carte-modale {
+  position:relative; width:100%; max-width:470px; margin:auto;
+  background:var(--surface); border-radius:var(--radius-lg); padding:22px 20px;
+  box-shadow:var(--shadow-raised);
+}
+.carte-modale h2 { font-size:20px; margin-bottom:9px; padding-right:34px; }
+.carte-modale > p { font-size:13.5px; line-height:1.6; opacity:.8; margin-bottom:10px; }
+.fermer-x {
+  position:absolute; top:8px; right:10px; width:36px; height:36px;
+  border:none; background:none; font-size:20px; color:inherit; cursor:pointer;
+  border-radius:var(--radius-md);
+}
+.fermer-x:hover { background:var(--surface-muted); }
+
+/* Cartes de mission */
+.d-carte {
+  display:flex; align-items:center; gap:11px; width:100%; text-align:left;
+  padding:11px 13px; margin-bottom:8px;
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md);
+  font-family:var(--font-body); color:inherit; cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+.d-carte:hover:not([disabled]) { border-color:var(--border-strong); background:var(--surface-muted); }
+.d-carte[disabled] { opacity:.5; cursor:not-allowed; }
+.d-carte .num {
+  width:30px; height:30px; flex:none; border-radius:var(--radius-sm);
+  display:grid; place-items:center; background:var(--accent-doux);
+  font-family:var(--font-display); font-weight:800; font-size:13px;
+}
+.d-carte.fait .num { background:var(--success); color:#fff; }
+.d-carte .txt { flex:1; min-width:0; }
+.d-carte .txt b { display:block; font-size:13.5px; font-weight:600; }
+.d-carte .txt span { font-size:11.5px; opacity:.65; line-height:1.4; }
+
+/* Guide d'accueil */
+.g-etape { display:flex; gap:11px; margin-bottom:13px; }
+.g-etape .num {
+  width:26px; height:26px; flex:none; border-radius:var(--radius-full);
+  display:grid; place-items:center; background:var(--accent-doux);
+  font-family:var(--font-display); font-weight:800; font-size:12.5px;
+}
+.g-etape .t { font-size:13.5px; line-height:1.5; opacity:.85; flex:1; }
+.g-etape .t b { opacity:1; }
+
+/* Lexique */
+.lex-entree {
+  padding:11px 0; border-bottom:1px solid var(--border);
+}
+.lex-entree:last-child { border-bottom:none; }
+.lex-entree b { display:block; font-size:14px; font-weight:600; margin-bottom:2px; }
+.lex-entree span { font-size:12.5px; line-height:1.55; opacity:.78; }
+.lex-entree em { font-style:normal; color:var(--accent-texte); font-weight:600; }
+
+/* Écran de passage d'une mission à la suivante */
+.p-fanion {
+  display:flex; align-items:center; gap:10px; margin-bottom:12px;
+}
+.p-fanion .rond {
+  width:44px; height:44px; flex:none; border-radius:var(--radius-full);
+  display:grid; place-items:center; background:var(--success); font-size:22px;
+}
+.p-fanion b { display:block; font-size:17px; font-family:var(--font-display); font-weight:800; }
+.p-fanion span { font-size:12px; opacity:.65; }
+.p-acquis {
+  padding:12px 14px; border-radius:var(--radius-md); background:var(--accent-doux);
+  font-size:13px; line-height:1.55; margin-bottom:14px;
+}
+.p-acquis b { font-weight:600; }
+.p-suite {
+  border:2px dashed var(--border-strong); border-radius:var(--radius-md);
+  padding:12px 14px; margin-bottom:14px;
+}
+.p-suite .etiq {
+  font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--accent-texte); margin-bottom:3px;
+}
+.p-suite b { display:block; font-size:15px; font-family:var(--font-display); font-weight:800; }
+.p-suite span { font-size:12.5px; opacity:.7; line-height:1.45; }
+.p-neuf { font-size:12px; opacity:.6; text-align:center; margin-top:9px; line-height:1.45; }
+
+/* QCM */
+.q-question { font-size:15px; font-weight:600; line-height:1.4; margin-bottom:12px; }
+/* Le questionnaire. Ici, « q-choix » est le conteneur et « q-rep » chaque
+   proposition : le style s'appliquait au mauvais élément, si bien que les
+   réponses s'affichaient en boutons bruts du navigateur. */
+.q-choix { display:block; }
+.q-rep {
+  display:block; width:100%; text-align:left; margin-bottom:8px;
+  padding:12px 14px; min-height:46px;
+  background:var(--surface); border:2px solid var(--border); border-radius:var(--radius-md);
+  font-family:var(--font-body); font-size:13.5px; line-height:1.45; color:var(--neutral);
+  cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+.q-rep:hover:not([disabled]) { border-color:var(--border-strong); background:var(--surface-muted); }
+.q-rep.juste { border-color:var(--success); background:rgba(42,157,143,.12); font-weight:600; }
+.q-rep.faux { border-color:var(--destructive); background:rgba(232,58,75,.1); }
+.q-rep[disabled] { cursor:default; }
+.q-rep.juste::before { content:'✔️ '; }
+.q-rep.faux::before { content:'❌ '; }
+/* Le mot de la fin, après la réponse */
+.q-mot {
+  margin-top:4px; margin-bottom:12px; padding:11px 13px; border-radius:var(--radius-md);
+  font-size:12.5px; line-height:1.55; background:var(--accent-doux);
+}
+.q-mot.ok { background:rgba(42,157,143,.14); }
+.q-mot.non { background:var(--accent-doux); }
+.q-expl {
+  margin-top:4px; padding:11px 13px; border-radius:var(--radius-md);
+  background:var(--accent-doux); font-size:12.5px; line-height:1.55;
+  display:none;
+}
+.q-expl.visible { display:block; }
+.q-avance { font-size:11.5px; opacity:.55; margin-bottom:10px; letter-spacing:.04em; text-transform:uppercase; font-weight:600; }
+
+/* ============================ Toast ============================ */
+#toast {
+  position:fixed; left:50%; bottom:calc(70px + env(safe-area-inset-bottom));
+  transform:translateX(-50%);
+  max-width:calc(100vw - 28px); padding:10px 16px; z-index:45;
+  background:var(--neutral); color:var(--background);
+  border-radius:var(--radius-full); font-size:13px; font-weight:600;
+  opacity:0; pointer-events:none; transition:opacity .2s var(--ease); text-align:center;
+}
+#toast.visible { opacity:1; }
+#toast.alerte { background:var(--destructive); color:#fff; }
+
+/* ================= Adaptations d'écran ================= */
+
+/* Paysage sur téléphone : chaque pixel de hauteur compte */
+@media (orientation:landscape) and (max-height:520px) {
+  header { padding:3px 8px; }
+  header h1 { font-size:13px; }
+  header .sous { display:none; }
+  .icone-btn { width:34px; height:34px; font-size:16px; }
+  #mission { padding:5px 10px 6px; }
+  .m-pastille { width:24px; height:24px; font-size:11px; }
+  .m-titres b { font-size:12.5px; }
+  .m-titres span { display:none; }
+  #mission.ouvert .m-titres span { display:block; }
+  .m-jauge { margin-top:5px; }
+  #actions { padding:5px 10px calc(5px + env(safe-area-inset-bottom)); }
+  .btn { min-height:38px; padding:0 14px; font-size:13px; }
+  #atelier.avec-bilan #plan { max-height:none; }
+  #bilan { max-width:none; right:8px; left:auto; width:min(58%,420px); bottom:6px; }
+  .f-carte { max-height:96dvh; }
+}
+
+/* Écran large : la mission passe en colonne, l'atelier prend le reste */
+@media (min-width:880px) {
+  body { flex-direction:row; }
+  #colonne {
+    width:330px; flex:none; display:flex; flex-direction:column;
+    background:var(--surface); border-right:1px solid var(--border);
+    overflow-y:auto;
+  }
+  /* la colonne est étroite : les icônes passent sous le titre au lieu de l'écraser */
+  header { border-bottom:1px solid var(--border); flex-wrap:wrap; }
+  header h1 { font-size:16px; }
+  .tete-fin { width:100%; justify-content:flex-end; }
+  #mission { border-bottom:none; padding:12px 16px; }
+  /* la place ne manque pas : toutes les étapes restent visibles */
+  #mission:not(.ouvert) .etape:not(.a-montrer) { display:flex; }
+  #mission:not(.ouvert) .m-indice { display:block; }
+  .m-plier { display:none; }
+  main { flex:1; min-width:0; }
+  #actions { justify-content:center; }
+  #bilan { left:16px; right:16px; }
+  .f-carte {
+    position:absolute; top:50%; left:50%; right:auto; bottom:auto;
+    transform:translate(-50%,-50%); width:min(560px,92vw);
+    border-radius:var(--radius-lg); max-height:86dvh;
+    animation:apparait .2s var(--ease);
+  }
+  @keyframes apparait { from { opacity:0; } }
+  .f-poignee { display:none; }
+}
+
+/* Paysage sur téléphone : la scène passe avant tout le reste.
+   Replié, le plan de mission occupe encore une centaine de pixels, et les
+   barres de commandes autant. Sur 380 px de haut, chaque bloc doit rendre ce
+   qu'il peut — sinon il ne reste rien à regarder, ce qui était le cas.
+   Le but de la mission et le rang disparaissent : ils sont dans la modale des
+   missions, et l'étape en cours suffit à savoir quoi faire. */
+@media (orientation:landscape) and (max-height:520px) {
+  #mission { padding:4px 10px 5px; }
+  #mission:not(.ouvert) #m-but { display:none; }
+  #mission:not(.ouvert) .m-rang { font-size:9.5px; }
+  #mission .m-haut { gap:8px; }
+  .m-pastille { width:26px; height:26px; font-size:12px; }
+  .m-jauge { margin-top:4px; }
+  #etapes { margin-top:5px; }
+  .etape { padding:3px 0; font-size:12px; }
+  .m-actions { margin-top:6px; }
+  .m-actions .btn { min-height:32px; font-size:12px; }
+  #actions { padding:5px 8px; }
+  #actions .btn { min-height:36px; }
+}
+
+@media (prefers-reduced-motion:reduce) {
+  *,*::before,*::after { animation-duration:.01ms !important; transition-duration:.01ms !important; }
+}
+
+/* ===================== Propre au repas de la journée ===================== */
+
+.titre-scene {
+  font-family:var(--font-body); font-size:12.5px; font-weight:600;
+  fill:var(--neutral); text-anchor:middle; pointer-events:none; opacity:.8;
+}
+.etiq-scene {
+  font-family:var(--font-body); font-size:11.5px; font-weight:600;
+  fill:var(--neutral); text-anchor:middle; pointer-events:none;
+}
+.etiq-jauge {
+  font-family:var(--font-display); font-size:13.5px; font-weight:800;
+  fill:var(--neutral); text-anchor:middle; pointer-events:none;
+}
+.nom-test {
+  font-family:var(--font-display); font-size:12.5px; font-weight:800;
+  fill:var(--neutral); text-anchor:middle; pointer-events:none;
+}
+.em-jeton { font-size:22px; text-anchor:middle; pointer-events:none; }
+.nom-piece { font-family:var(--font-display); font-size:14px; font-weight:800;
+  fill:var(--neutral); text-anchor:middle; pointer-events:none; }
+.piece { cursor:pointer; }
+.piece.choisie path, .piece.choisie ellipse { stroke-width:3; }
+.jeton, .panier { cursor:pointer; }
+.panier.actif rect { stroke-width:3; }
+.me-outil { font-size:12px; line-height:1.55; }
+
+/* La zone d'un test : elle ne s'éclaire que si l'élève tient un aliment —
+   sinon rien n'indique qu'il faut d'abord en choisir un. */
+.zone-test { cursor:default; }
+.zone-test.active { cursor:pointer; }
+.zone-test.active:hover rect:first-child { fill:var(--accent-doux); }
+
+/* Les parties de la dent : chacune se touche pour être reconnue */
+.part-dent { cursor:pointer; }
+.part-dent path { transition:stroke-width .12s var(--ease); }
+.part-dent.vue path { stroke:var(--accent-texte); stroke-width:3.5; }
+
+/* ---- Le carnet d'observation ---- */
+#mesures {
+  position:absolute; top:8px; left:8px; width:214px; max-width:46%;
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--radius-md); box-shadow:var(--shadow-soft);
+  padding:9px 11px; pointer-events:none; z-index:3;
+}
+#mesures .me-titre {
+  font-size:10px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--accent-texte); margin-bottom:5px;
+}
+.me-ligne {
+  display:flex; align-items:baseline; justify-content:space-between; gap:8px;
+  font-size:12.5px; line-height:1.7;
+}
+.me-ligne .nom { font-weight:700; }
+.me-ligne .val { font-family:var(--font-display); font-weight:800; font-size:14px; }
+.me-sep { height:1px; background:var(--border); margin:6px 0 5px; }
+.me-egalite {
+  display:flex; align-items:center; gap:6px; flex-wrap:wrap;
+  font-size:12px; margin-top:3px; line-height:1.5;
+}
+.me-egalite .memb { font-family:var(--font-display); font-weight:800; }
+.me-egalite.juste { color:var(--success); }
+.me-egalite.faux  { color:var(--destructive); }
+#mesures .me-quoi { font-size:11.5px; line-height:1.45; opacity:.75; margin-top:6px; }
+
+/* ---- L'étal : les aliments et les commandes de la scène ---- */
+#outils {
+  flex:none; border-top:1px solid var(--border); background:var(--surface);
+  padding:8px 12px 9px; display:flex; gap:7px; align-items:center; flex-wrap:wrap;
+}
+.ot-titre { font-size:11.5px; opacity:.7; flex:none; margin-right:2px; }
+/* Les boutons sont des flex : sans conteneur flex, ils s'empilent chacun sur
+   sa ligne et la barre mange la hauteur de la scène. */
+#liste-outils { display:flex; gap:6px; flex-wrap:wrap; min-width:0; }
+.ot {
+  flex:none; display:flex; align-items:center; gap:5px; cursor:pointer;
+  padding:6px 11px 6px 9px; border-radius:var(--radius-full);
+  border:2px solid var(--border); background:var(--surface-muted);
+  font-family:inherit; font-size:12px; font-weight:600; color:var(--neutral);
+  min-height:40px;
+  transition:background .16s var(--ease), border-color .16s var(--ease);
+}
+.ot .em { font-size:15px; line-height:1; }
+.ot .compte {
+  margin-left:3px; background:var(--accent); color:var(--sur-primary);
+  border-radius:var(--radius-full); padding:0 6px; font-size:11.5px;
+}
+.ot[aria-pressed="true"] { border-color:var(--accent); background:var(--accent-doux); }
+.ot:disabled { opacity:.42; cursor:not-allowed; }
+.ot.appelle, .btn.appelle { animation:appelOutil 1.4s infinite; }
+@keyframes appelOutil {
+  0%,100% { box-shadow:0 0 0 0 rgba(91,197,242,.55); }
+  60%     { box-shadow:0 0 0 8px rgba(91,197,242,0); }
+}
+
+/* Sur téléphone, le carnet devient un bandeau au-dessus de la scène et l'étal
+   défile sur une seule ligne — même règle que dans les autres simulations. */
+@media (max-width:560px) {
+  #atelier { display:flex; flex-direction:column; }
+  #mesures {
+    position:static; width:auto; max-width:none; order:-1; flex:none;
+    border:none; border-bottom:1px solid var(--border); border-radius:0;
+    box-shadow:none; padding:6px 10px 7px;
+  }
+  #mesures .me-titre { margin-bottom:2px; font-size:9.5px; }
+  .me-ligne { display:inline-flex; margin-right:12px; font-size:11.5px; line-height:1.5; }
+  .me-ligne .val { font-size:13px; }
+  .me-sep { display:none; }
+  #mesures .me-quoi { font-size:10.5px; margin-top:2px; }
+  .me-egalite { font-size:11.5px; }
+  #outils { flex-wrap:nowrap; padding:6px 10px 7px; gap:6px; }
+  #liste-outils { flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; padding-bottom:2px; }
+  #liste-outils::-webkit-scrollbar { display:none; }
+  .ot-titre { display:none; }
+  .ot { padding:5px 10px 5px 8px; font-size:11.5px; min-height:38px; }
+  .em-jeton { font-size:19px; }
+  .nom-piece { font-size:13px; }
+}
+@media (max-height:430px) and (orientation:landscape) {
+  #mesures .me-quoi { display:none; }
+  #outils { padding:5px 10px 6px; }
+  #actions { padding:6px 8px; }
+}
+
+
+.g-titre { font-family:var(--font-display); font-weight:800; font-size:14px;
+  margin:14px 0 7px; color:var(--accent-texte); }
+
+/* ===================== L'accueil : « Que veux-tu faire ? » ===================== */
+#v-accueil .carte-modale { max-width:520px; }
+.ac-intro { font-size:13.5px; line-height:1.6; opacity:.8; margin-bottom:14px; }
+.ac-choix {
+  display:flex; align-items:center; gap:13px; width:100%; text-align:left;
+  padding:15px 16px; margin-bottom:11px;
+  background:var(--surface); border:2px solid var(--border); border-radius:var(--radius-lg);
+  font-family:var(--font-body); color:inherit; cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+.ac-choix:hover:not([disabled]) { border-color:var(--accent); background:var(--accent-doux); }
+.ac-choix[disabled] { opacity:.55; cursor:not-allowed; }
+.ac-choix .ac-em {
+  width:46px; height:46px; flex:none; border-radius:var(--radius-md);
+  display:grid; place-items:center; background:var(--surface-muted); font-size:25px;
+}
+.ac-choix .ac-txt { flex:1; min-width:0; }
+.ac-choix .ac-txt b { display:block; font-family:var(--font-display); font-size:17px; font-weight:800; }
+.ac-choix .ac-txt span { display:block; font-size:12.5px; opacity:.7; line-height:1.45; margin-top:1px; }
+.ac-choix .ac-etat { font-size:11.5px; font-weight:700; opacity:.75; flex:none; text-align:right; max-width:34%; }
+.ac-pied { font-size:12px; opacity:.6; line-height:1.5; margin-top:2px; }
+
+/* ===================== La visite guidée de l'interface =====================
+   Un halo encadre la zone dont on parle et assombrit tout le reste ; la carte
+   se pose à côté. Une liste écrite ne montrait rien : ici, on regarde. */
+#visite { position:fixed; inset:0; z-index:48; display:none; }
+#visite.visible { display:block; }
+#visite-halo {
+  position:absolute; border-radius:var(--radius-md);
+  border:3px solid var(--primary);
+  box-shadow:0 0 0 9999px rgba(12,16,20,.91);
+  transition:left .3s var(--ease), top .3s var(--ease),
+             width .3s var(--ease), height .3s var(--ease);
+  pointer-events:none;
+}
+#visite-carte {
+  position:absolute; background:var(--surface); border-radius:var(--radius-lg);
+  padding:15px 16px 13px; width:min(320px, calc(100vw - 24px));
+  box-shadow:0 12px 44px rgba(0,0,0,.34);
+  transition:left .3s var(--ease), top .3s var(--ease);
+}
+.v-titre { font-family:var(--font-display); font-size:16px; font-weight:800; margin-bottom:5px; }
+.v-texte { font-size:13px; line-height:1.55; opacity:.85; }
+.v-texte b { opacity:1; }
+.v-bas { display:flex; align-items:center; gap:8px; margin-top:13px; }
+.v-prog { flex:1; font-size:11.5px; font-weight:700; opacity:.5; letter-spacing:.04em; }
+#visite-passer {
+  background:none; border:none; color:inherit; opacity:.6;
+  font-family:var(--font-body); font-size:12.5px; text-decoration:underline;
+  cursor:pointer; padding:6px;
+}
+#visite-passer:hover { opacity:1; }
+#visite-suivant {
+  border:none; background:var(--primary); color:var(--neutral);
+  font-family:var(--font-body); font-weight:700; font-size:13.5px;
+  padding:10px 18px; border-radius:var(--radius-md); cursor:pointer; min-height:40px;
+}
+
+/* ===================== Le quiz libre : m'exercer =====================
+   Refonte : les trois niveaux se ressemblaient trait pour trait — même carte
+   blanche, même texte, et trois médailles que rien ne distingue à cette taille.
+   Rien ne disait qu'il s'agit d'une échelle de difficulté, ni qu'un niveau pèse
+   plus lourd qu'un autre. Chacun reçoit donc sa teinte (bronze, argent, or),
+   portée par un rail à gauche et par le disque de la médaille, et son poids est
+   écrit. Le score de maîtrise devient le personnage principal de l'écran. */
+#v-quiz .carte-modale { max-width:520px; }
+
+/* ---- Le bandeau de maîtrise : c'est LE chiffre qu'on vient voir ---- */
+.qz-maitrise {
+  margin:4px 0 18px; padding:15px 16px; border-radius:var(--radius-lg);
+  background:linear-gradient(135deg, var(--accent-doux), var(--surface-muted));
+  border:1px solid var(--border);
+}
+.qz-m-haut { display:flex; align-items:center; justify-content:space-between; gap:10px; font-size:12.5px; }
+.qz-m-haut span { opacity:.75; font-weight:600; }
+.qz-m-haut b {
+  font-family:var(--font-display); font-size:34px; font-weight:800; line-height:1;
+  letter-spacing:-.02em;
+}
+.qz-m-barre {
+  height:12px; border-radius:var(--radius-full); background:var(--surface);
+  overflow:hidden; margin-top:10px; border:1px solid var(--border);
+}
+.qz-m-barre i {
+  display:block; height:100%; border-radius:inherit;
+  background:linear-gradient(90deg, #B87333 0%, #8A9BA8 45%, var(--primary) 100%);
+  transition:width .6s var(--ease);
+}
+.qz-m-mot {
+  font-size:11px; font-weight:800; opacity:.7; margin-top:7px;
+  letter-spacing:.08em; text-transform:uppercase;
+}
+
+/* ---- Les trois niveaux : une échelle, pas une liste ---- */
+.qz-niveau {
+  position:relative; display:flex; align-items:center; gap:13px;
+  width:100%; text-align:left; padding:14px 15px 14px 22px; margin-bottom:10px;
+  background:var(--surface); border:2px solid var(--border); border-radius:var(--radius-lg);
+  font-family:var(--font-body); color:inherit; cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease),
+             transform .15s var(--ease);
+}
+/* le rail coloré : on lit le niveau avant même d'avoir lu son nom */
+.qz-niveau::before {
+  content:''; position:absolute; left:0; top:0; bottom:0; width:7px;
+  background:var(--qz-teinte); border-radius:var(--radius-lg) 0 0 var(--radius-lg);
+}
+.qz-niveau:hover { border-color:var(--qz-teinte); background:var(--surface-muted); }
+.qz-niveau:active { transform:scale(.99); }
+.qz-niveau[data-niveau="souviens"]  { --qz-teinte:#C08A4A; }   /* bronze */
+.qz-niveau[data-niveau="comprends"] { --qz-teinte:#8E9BA6; }   /* argent */
+.qz-niveau[data-niveau="pieges"]    { --qz-teinte:#D9A520; }   /* or     */
+body.sombre .qz-niveau[data-niveau="souviens"]  { --qz-teinte:#D19A5C; }
+body.sombre .qz-niveau[data-niveau="comprends"] { --qz-teinte:#A6B3BE; }
+body.sombre .qz-niveau[data-niveau="pieges"]    { --qz-teinte:#EBBB3A; }
+
+.qz-niveau .qz-em {
+  width:46px; height:46px; flex:none; border-radius:var(--radius-full);
+  display:grid; place-items:center; font-size:23px;
+  background:color-mix(in srgb, var(--qz-teinte) 20%, var(--surface));
+  border:2px solid var(--qz-teinte);
+}
+.qz-niveau .qz-txt { flex:1; min-width:0; }
+.qz-niveau .qz-txt b {
+  display:block; font-family:var(--font-display); font-size:16px; font-weight:800;
+}
+.qz-niveau .qz-txt span {
+  display:block; font-size:12px; opacity:.7; line-height:1.4; margin-top:2px;
+}
+/* Le poids du niveau, écrit : c'est l'information qui manquait le plus. */
+.qz-niveau .qz-txt b::after {
+  content:'×' attr(data-poids); margin-left:8px;
+  padding:2px 7px; border-radius:var(--radius-full); vertical-align:2px;
+  background:var(--qz-teinte); color:#fff;
+  font-family:var(--font-body); font-size:10px; font-weight:700; letter-spacing:.02em;
+}
+.qz-niveau .qz-note { flex:none; text-align:right; font-size:15px; line-height:1.2; }
+.qz-niveau .qz-note span {
+  display:block; font-size:10.5px; font-weight:600; opacity:.55; margin-top:3px;
+}
+.qz-pied { font-size:12px; opacity:.65; line-height:1.5; margin-top:6px; }
+
+/* ---- Le fil des questions ---- */
+.qz-jauge {
+  height:8px; border-radius:var(--radius-full); background:var(--surface-muted);
+  overflow:hidden; margin:0 0 14px; border:1px solid var(--border);
+}
+.qz-jauge i {
+  display:block; height:100%; border-radius:inherit;
+  background:var(--accent); transition:width .3s var(--ease);
+}
+
+/* ---- L'écran de résultat : le score et les étoiles font la une ---- */
+.qz-fin {
+  display:flex; align-items:center; gap:14px; margin-bottom:12px;
+  padding:14px 15px; border-radius:var(--radius-lg);
+  background:var(--surface-muted);
+}
+.qz-fin-em { font-size:40px; line-height:1; flex:none; }
+.qz-fin b { display:block; font-family:var(--font-display); font-size:19px; font-weight:800; line-height:1.15; }
+.qz-fin span { font-size:12.5px; opacity:.68; }
+.qz-fin-et { margin-left:auto; font-size:20px; letter-spacing:2px; white-space:nowrap; }
+.qz-mieux { font-size:12.5px; font-weight:600; color:var(--vert-fonce); margin:0 0 12px; }
+.qz-mieux.discret { color:inherit; opacity:.55; font-weight:400; }
+.qz-revoir {
+  padding:12px 14px; border-radius:var(--radius-md);
+  background:var(--accent-doux); font-size:12.5px; line-height:1.65; margin-bottom:14px;
+}
+.qz-revoir span { display:block; }
+.qz-boutons { display:flex; gap:8px; }
+.qz-boutons .btn { flex:1; }
+
+/* ---- Les propositions de réponse, ici comme dans le QCM de fin de mission ----
+   Elles ressemblaient à des champs de saisie : un trait fin, du texte, rien qui
+   dise « on me choisit ». Chacune reçoit sa lettre — on peut alors la désigner à
+   l'oral, « la B » — et une cible au doigt franchement plus grande. */
+#qz-choix, #q-choix { counter-reset:choix; }
+#qz-choix .q-choix, #q-choix .q-choix {
+  position:relative; display:flex; align-items:center;
+  padding:13px 14px 13px 48px; min-height:54px; line-height:1.4;
+}
+#qz-choix .q-choix::before, #q-choix .q-choix::before {
+  counter-increment:choix; content:counter(choix, upper-alpha);
+  position:absolute; left:12px; top:50%; transform:translateY(-50%);
+  width:27px; height:27px; border-radius:var(--radius-full);
+  display:grid; place-items:center;
+  background:var(--surface-muted); border:1.5px solid var(--border);
+  font-family:var(--font-display); font-size:12.5px; font-weight:800;
+}
+#qz-choix .q-choix:hover:not([disabled])::before,
+#q-choix .q-choix:hover:not([disabled])::before { border-color:var(--border-strong); }
+#qz-choix .q-choix.bon::before, #q-choix .q-choix.bon::before {
+  background:var(--success); border-color:var(--success); color:#fff;
+}
+#qz-choix .q-choix.mauvais::before, #q-choix .q-choix.mauvais::before {
+  background:var(--destructive); border-color:var(--destructive); color:#fff;
+}
+
+/* ---- La carte de la visite guidée : elle ne doit ressembler à rien d'autre ----
+   Retour d'usage : l'œil hésitait entre la zone montrée et la carte qui
+   l'explique, surtout quand la zone contient beaucoup de texte — les deux
+   avaient le même fond blanc et le même style. La carte prend donc une couleur
+   qui n'existe nulle part ailleurs dans l'interface : c'est « le guide qui
+   parle », pas un panneau de l'application. Même identité en clair et en
+   sombre, pour qu'on la reconnaisse d'un thème à l'autre.
+   Contrastes vérifiés : 5,7 (clair) et 7,7 (sombre) pour le texte plein ;
+   l'opacité des textes secondaires ne descend pas sous 0,85, plancher mesuré
+   en dessous duquel on passe sous le seuil AA. */
+:root { --visite-fond:#0F6E93; --visite-encre:#FFFFFF; }
+body.sombre { --visite-fond:#0B5674; --visite-encre:#F2FAFE; }
+
+#visite-carte {
+  background:var(--visite-fond); color:var(--visite-encre);
+  border:2px solid rgba(255,255,255,.16);
+  box-shadow:0 14px 46px rgba(0,0,0,.45);
+}
+#visite-carte .v-titre, #visite-carte .vtitre { color:var(--visite-encre); }
+#visite-carte .v-texte, #visite-carte .vtexte { color:var(--visite-encre); opacity:.92; }
+#visite-carte .v-texte b, #visite-carte .vtexte b { color:var(--visite-encre); opacity:1; }
+#visite-carte .v-prog, #visite-carte .vprog { color:var(--visite-encre); opacity:.85; }
+#visite-carte .vmarque { color:var(--visite-encre); opacity:.85; }
+#visite-passer { color:var(--visite-encre); opacity:.85; }
+#visite-passer:hover { opacity:1; }
+/* Le bouton garde le lime de la plateforme : c'est l'action, elle doit sauter aux yeux */
+#visite-suivant { background:var(--primary); color:#3A3632; }
+
+/* ---- Lisibilité des boutons lime en thème sombre ----
+   Le lime (--primary) est une couleur claire dans les DEUX thèmes : son encre
+   doit donc rester sombre dans les deux. Elle suivait le jeton --neutral, qui passe au
+   blanc en sombre : le texte tombait à 1,36 de contraste, illisible. Un jeton
+   dédié fige l'encre posée sur le lime, à 7,6 de contraste. */
+:root, body.sombre { --sur-primary:#3A3632; }
+.btn, #visite-suivant, .go, #btn-continuer, #btn-suivante, #btn-suiv2, #btn-commencer {
+  color:var(--sur-primary);
+}
+.btn-contour, .btn-fantome { color:var(--neutral); }
+</style>
+</head>
+<body>
+<div id="colonne">
+  <header>
+    <a class="icone-btn" href="../../index.html#/svt/6e" title="Retour au catalogue" aria-label="Retour">←</a>
+    <div>
+      <h1>Les outils pour manger</h1>
+      <div class="sous">SVT · 6ᵉ · SA2</div>
+    </div>
+    <div class="tete-fin">
+      <button class="icone-btn" id="btn-missions" title="Les missions" aria-label="Missions">🎯</button>
+      <button class="icone-btn" id="btn-lexique" title="Lexique" aria-label="Lexique">📖</button>
+      <button class="icone-btn" id="btn-aide" title="Comment jouer" aria-label="Aide">❓</button>
+      <button class="icone-btn" id="btn-theme" title="Thème" aria-label="Thème">🌙</button>
+    </div>
+  </header>
+  <section id="mission">
+    <div class="m-haut">
+      <span class="m-pastille" id="m-num">1</span>
+      <div class="m-titres">
+        <span class="m-rang" id="m-rang">Mission 1 sur 11</span>
+        <b id="m-titre">—</b>
+        <span id="m-but"></span>
+      </div>
+      <button class="m-plier" id="m-plier" aria-label="Afficher toutes les étapes" aria-expanded="false">▼</button>
+    </div>
+    <div class="m-jauge"><i id="m-jauge" style="width:0"></i></div>
+    <div id="etapes"></div>
+    <div class="m-actions" id="m-actions" hidden>
+      <button class="btn btn-contour btn-large" id="btn-indice">💡 Indice</button>
+    </div>
+    <div class="m-indice" id="m-indice" hidden></div>
+  </section>
+</div>
+
+<main>
+  <div id="atelier">
+    <svg id="plan" preserveAspectRatio="xMidYMid meet" role="img"
+         aria-label="La bouche d’un animal et ses pièces, un tri par régime, un atelier d’équipement"></svg>
+    <div id="mesures">
+      <div class="me-titre">Mon carnet d’observation</div>
+      <div id="me-corps"></div>
+      <div class="me-quoi" id="me-quoi">Touche une pièce pour savoir à quoi elle sert.</div>
+    </div>
+    <div id="bilan" role="status" aria-live="polite"></div>
+  </div>
+
+  <div id="outils">
+    <span class="ot-titre">Choisir :</span>
+    <div class="rg-choix" id="liste-outils"></div>
+  </div>
+
+  <div id="actions"></div>
+</main>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<div id="visite">
+  <div id="visite-halo"></div>
+  <div id="visite-carte">
+    <div class="v-titre" id="visite-titre"></div>
+    <div class="v-texte" id="visite-texte"></div>
+    <div class="v-bas">
+      <span class="v-prog" id="visite-prog"></span>
+      <button id="visite-passer" type="button">Passer</button>
+      <button id="visite-suivant" type="button">Suivant</button>
+    </div>
+  </div>
+</div>
+
+<div class="voile" id="v-quiz">
+  <div class="carte-modale" id="quiz-carte"></div>
+</div>
+
+<div class="voile" id="v-accueil">
+  <div class="carte-modale">
+    <h2>Que veux-tu faire ?</h2>
+    <p class="ac-intro">Un lion, un mouton, un moustique : leurs bouches n’ont rien en commun.
+       Tu vas comprendre <b>pourquoi</b> — et deviner ce qu’un animal mange rien qu’en regardant ses outils.</p>
+    <button class="ac-choix" id="ac-apprendre">
+      <span class="ac-em">🎓</span>
+      <span class="ac-txt"><b>Apprendre</b><span>Le parcours guidé, mission après mission.</span></span>
+      <span class="ac-etat" id="ac-etat-app"></span>
+    </button>
+    <button class="ac-choix" id="ac-experimenter">
+      <span class="ac-em">🧪</span>
+      <span class="ac-txt"><b>Expérimenter</b><span>Les douze animaux, toutes leurs pièces, aucune consigne.</span></span>
+      <span class="ac-etat" id="ac-etat-exp"></span>
+    </button>
+    <button class="ac-choix" id="ac-exercer">
+      <span class="ac-em">🏅</span>
+      <span class="ac-txt"><b>M’exercer</b><span>Trois séries de questions, et un score de maîtrise.</span></span>
+      <span class="ac-etat" id="ac-etat-ex"></span>
+    </button>
+    <p class="ac-pied" id="ac-pied"></p>
+  </div>
+</div>
+
+<div class="voile" id="v-lexique">
+  <div class="carte-modale">
+    <button class="fermer-x" data-ferme="v-lexique" aria-label="Fermer">✕</button>
+    <h2>📖 Les mots des régimes</h2>
+    <p>Le vocabulaire exact du programme, avec des exemples pris sur les animaux du parcours.</p>
+    <div id="liste-lexique"></div>
+  </div>
+</div>
+
+<div class="voile" id="v-missions">
+  <div class="carte-modale">
+    <button class="fermer-x" data-ferme="v-missions" aria-label="Fermer">✕</button>
+    <h2>🎯 Les missions</h2>
+    <p>Elles se suivent : termine l’une pour ouvrir la suivante.</p>
+    <div id="liste-missions"></div>
+    <button class="btn btn-fantome btn-large" id="btn-rezero"
+            style="margin-top:6px;color:var(--destructive)">↺ Recommencer tout le parcours</button>
+  </div>
+</div>
+
+<div class="voile" id="v-aide">
+  <div class="carte-modale">
+    <button class="fermer-x" data-ferme="v-aide" aria-label="Fermer">✕</button>
+    <h2>🦷 Les outils pour manger</h2>
+    <p>On ne voit jamais l’intérieur de la bouche d’un lion, et on ne dissèque pas un criquet
+       en classe. Ici, les pièces se touchent et se nomment.</p>
+    <div class="g-titre">Comment on s’y prend</div>
+    <div class="g-etape"><span class="num">1</span><span class="t">
+      <b>Touche une pièce</b> de la bouche : son nom et son rôle s’affichent. Change d’animal
+      avec les boutons du bas.</span></div>
+    <div class="g-etape"><span class="num">2</span><span class="t">
+      <b>Range les animaux</b> par régime. Si tu hésites, ton carnet te rappelle leurs outils —
+      c’est là qu’est la réponse.</span></div>
+    <div class="g-etape"><span class="num">3</span><span class="t">
+      <b>Équipe un animal</b> pour un régime donné : c’est ainsi qu’on comprend ce qu’est
+      une <b>adaptation</b>.</span></div>
+    <button class="btn btn-contour btn-large" id="btn-revoir-visite"
+            style="margin-bottom:8px">🔍 Revoir la visite guidée</button>
+    <button class="btn btn-large" data-ferme="v-aide">Ouvrir la bouche du lion</button>
+  </div>
+</div>
+
+<div class="voile" id="v-qcm"><div class="carte-modale" id="qcm-carte"></div></div>
+<div class="voile" id="v-passage"><div class="carte-modale" id="passage-carte"></div></div>
+
+<script>
+'use strict';
+/* =====================================================================
+   Les outils pour manger — SVT 6ᵉ, SA2
+   ===================================================================== */
+
+const $ = id => document.getElementById(id);
+const el = (nom, attrs, texte) => {
+  const n = document.createElementNS('http://www.w3.org/2000/svg', nom);
+  for (const k in attrs) n.setAttribute(k, attrs[k]);
+  if (texte != null) n.textContent = texte;
+  return n;
+};
+
+/* =====================================================================
+   Les outils pour manger — SVT 6ᵉ, SA2
+   « Diversité des régimes alimentaires chez les animaux » (7 semaines)
+
+   Le guide construit la SA sur trois questions d'OUTILS, et c'est le mot
+   qu'il emploie :
+     1. Comment et avec quels outils les zoophages capturent et consomment-ils
+        leur proie ?
+     2. Comment et avec quels outils les phytophages prélèvent et
+        consomment-ils leur nourriture ?
+     3. Quels outils sont utilisés pour prélever et consommer les aliments
+        liquides ?
+   La septième activité demande d'en tirer la notion d'ADAPTATION appliquée au
+   régime alimentaire. C'est le fil du parcours.
+
+   Le matériel que le guide réclame — crânes osseux de carnivores, mâchoires
+   d'herbivores, crâne de serpent, armature buccale de criquet à disséquer,
+   microscope — n'existe dans presque aucune classe. C'est précisément ce qu'une
+   simulation peut rendre.
+
+   Le modèle est vérifié par test-modele.js, qui l'extrait de ce fichier même
+   entre les deux marqueurs.
+   ===================================================================== */
+
+/*__DEBUT MODELE__*/
+/* ---- Les outils, c'est-à-dire les pièces qui servent à manger ----
+   `sert` dit à quoi la pièce sert ; `signe` dit de quel régime elle est
+   l'indice. Une pièce peut n'être l'indice de rien (les incisives, que tout
+   le monde possède) : c'est important, car c'est ce qui empêche de conclure
+   à partir de n'importe quel détail. */
+const OUTILS = {
+  canine:     { nom:'Canines', groupe:'dents', signe:'zoophage',
+                sert:'Percer et retenir une proie qui se débat.' },
+  carnassiere:{ nom:'Carnassières', groupe:'dents', signe:'zoophage',
+                sert:'Cisailler la chair, comme deux lames de ciseaux qui se croisent.' },
+  incisive:   { nom:'Incisives', groupe:'dents', signe:null,
+                sert:'Couper. Presque tous les mammifères en ont.' },
+  molaire:    { nom:'Molaires plates', groupe:'dents', signe:'phytophage',
+                sert:'Broyer l’herbe en la frottant, comme une meule.' },
+  diasteme:   { nom:'Diastème', groupe:'dents', signe:'phytophage',
+                sert:'L’espace vide entre les incisives et les molaires : la langue y ramène l’herbe.' },
+  machoireSouple:{ nom:'Mâchoire déboîtable', groupe:'crane', signe:'zoophage',
+                sert:'S’ouvrir démesurément pour avaler une proie entière, sans la mâcher.' },
+  crochet:    { nom:'Crochets à venin', groupe:'crane', signe:'zoophage',
+                sert:'Injecter un venin qui immobilise la proie.' },
+  mandibule:  { nom:'Mandibules', groupe:'buccal', signe:'phytophage',
+                sert:'Deux pièces dures qui coupent et broient la feuille.' },
+  maxille:    { nom:'Maxilles', groupe:'buccal', signe:null,
+                sert:'Elles tiennent l’aliment et le poussent vers la bouche.' },
+  labre:      { nom:'Labre', groupe:'buccal', signe:null,
+                sert:'La lèvre du dessus : elle ferme la bouche par-devant.' },
+  trompe:     { nom:'Trompe enroulée', groupe:'buccal', signe:'liquides',
+                sert:'Se déroule pour aspirer le nectar au fond d’une fleur.' },
+  stylet:     { nom:'Stylet piqueur', groupe:'buccal', signe:'liquides',
+                sert:'Percer la peau et aspirer le sang.' },
+  eponge:     { nom:'Trompe en éponge', groupe:'buccal', signe:'liquides',
+                sert:'Étaler de la salive sur l’aliment, puis éponger le liquide obtenu.' },
+  pedipalpe:  { nom:'Pédipalpes', groupe:'buccal', signe:null,
+                sert:'Deux pattes courtes, devant la bouche, qui tiennent la proie.' },
+  radula:     { nom:'Radula', groupe:'buccal', signe:'phytophage',
+                sert:'Une langue râpeuse couverte de dents minuscules, qui râpe la feuille.' },
+};
+
+/* ---- Les animaux, et ce qu'on trouve dans leur bouche ----
+   Tous sont visibles au Bénin ou connus de tous les élèves. */
+const ANIMAUX = {
+  lion:     { nom:'Lion', em:'🦁', regime:'zoophage', classe:'Mammifère',
+              outils:['incisive', 'canine', 'carnassiere'],
+              mange:'De la viande : il chasse et déchire sa proie.' },
+  chat:     { nom:'Chat', em:'🐈', regime:'zoophage', classe:'Mammifère',
+              outils:['incisive', 'canine', 'carnassiere'],
+              mange:'Des souris, des lézards, des oiseaux.' },
+  vipere:   { nom:'Vipère', em:'🐍', regime:'zoophage', classe:'Reptile',
+              outils:['crochet', 'machoireSouple'],
+              mange:'Un rongeur entier, avalé sans être mâché.' },
+  araignee: { nom:'Araignée', em:'🕷️', regime:'zoophage', classe:'Arachnide',
+              outils:['crochet', 'pedipalpe'],
+              mange:'Des insectes pris dans sa toile. Elle les liquéfie avant de les aspirer — mais ce qu’elle mange reste un animal.' },
+  mouton:   { nom:'Mouton', em:'🐑', regime:'phytophage', classe:'Mammifère',
+              outils:['incisive', 'diasteme', 'molaire'],
+              mange:'De l’herbe, longuement broyée.' },
+  boeuf:    { nom:'Bœuf', em:'🐄', regime:'phytophage', classe:'Mammifère',
+              outils:['incisive', 'diasteme', 'molaire'],
+              mange:'De l’herbe et des tiges.' },
+  criquet:  { nom:'Criquet', em:'🦗', regime:'phytophage', classe:'Insecte',
+              outils:['labre', 'mandibule', 'maxille'],
+              mange:'Des feuilles, coupées et broyées.' },
+  escargot: { nom:'Escargot', em:'🐌', regime:'phytophage', classe:'Mollusque',
+              outils:['radula'],
+              mange:'Des feuilles tendres, râpées.' },
+  moustique:{ nom:'Moustique', em:'🦟', regime:'liquides', classe:'Insecte',
+              outils:['stylet'],
+              mange:'Du sang, aspiré après avoir percé la peau.' },
+  papillon: { nom:'Papillon', em:'🦋', regime:'liquides', classe:'Insecte',
+              outils:['trompe'],
+              mange:'Le nectar des fleurs.' },
+  mouche:   { nom:'Mouche', em:'🪰', regime:'liquides', classe:'Insecte',
+              outils:['eponge'],
+              mange:'Des aliments qu’elle liquéfie avant de les éponger.' },
+  abeille:  { nom:'Abeille', em:'🐝', regime:'liquides', classe:'Insecte',
+              outils:['mandibule', 'trompe'],
+              mange:'Le nectar. Ses mandibules lui servent à la cire, pas à mâcher.' },
+};
+
+const REGIMES = {
+  zoophage:  { nom:'Zoophage', em:'🍖', quoi:'Il mange d’autres animaux.' },
+  phytophage:{ nom:'Phytophage', em:'🌿', quoi:'Il mange des végétaux.' },
+  liquides:  { nom:'Aliments liquides', em:'💧', quoi:'Il aspire ou éponge un liquide.' },
+};
+
+/* Le cœur de la SA : les outils suffisent à annoncer le régime, sans avoir vu
+   l'animal manger. On compte les indices — les pièces qui portent un `signe` —
+   et le régime le mieux représenté l'emporte.
+
+   L'abeille est le cas intéressant : elle possède des mandibules, indice
+   phytophage, ET une trompe, indice liquide. Le comptage seul donnerait une
+   égalité. On tranche par la pièce qui sert À MANGER : chez elle, la trompe.
+   D'où `outilPrincipal`, qui pèse double. */
+const OUTIL_PRINCIPAL = {
+  abeille:'trompe', vipere:'machoireSouple',
+};
+
+function deduireRegime(cles, animal) {
+  const points = { zoophage:0, phytophage:0, liquides:0 };
+  for (const c of cles) {
+    const o = OUTILS[c];
+    if (!o || !o.signe) continue;
+    points[o.signe] += (animal && OUTIL_PRINCIPAL[animal] === c) ? 2 : 1;
+  }
+  let meilleur = null, exaequo = false;
+  for (const r in points) {
+    if (points[r] === 0) continue;
+    if (!meilleur || points[r] > points[meilleur]) { meilleur = r; exaequo = false; }
+    else if (points[r] === points[meilleur]) exaequo = true;
+  }
+  return { regime: exaequo ? null : meilleur, points, sur: exaequo ? false : !!meilleur };
+}
+
+// Les pièces d'un animal qui sont des indices : celles sur lesquelles on peut
+// fonder une conclusion.
+const indicesDe = animal => (ANIMAUX[animal] ? ANIMAUX[animal].outils : [])
+  .filter(c => OUTILS[c] && OUTILS[c].signe);
+
+/* L'adaptation : une pièce convient-elle à un régime ? C'est la notion que la
+   septième activité du guide demande de construire. Un outil « convient » quand
+   il est l'indice de ce régime, ou qu'il ne l'est d'aucun (les incisives
+   servent à tout le monde). */
+function convient(cleOutil, regime) {
+  const o = OUTILS[cleOutil];
+  if (!o) return false;
+  return o.signe === null || o.signe === regime;
+}
+
+// Un assortiment d'outils est-il cohérent pour ce régime, et suffisant ?
+function assortimentValide(cles, regime) {
+  const tous = cles.every(c => convient(c, regime));
+  const auMoinsUnIndice = cles.some(c => OUTILS[c] && OUTILS[c].signe === regime);
+  return { coherent: tous, suffisant: auMoinsUnIndice, ok: tous && auMoinsUnIndice };
+}
+
+const animauxDuRegime = r => Object.keys(ANIMAUX).filter(a => ANIMAUX[a].regime === r);
+/*__FIN MODELE__*/
+
+/* ---- Comment chaque bouche se dessine ----
+   Plutôt que douze anatomies dessinées une par une, chaque animal décrit où
+   sont ses pièces et de quelle forme elles sont. Un seul dessinateur les
+   rend : ajouter un animal devient une ligne de données, pas cinquante lignes
+   de tracé. Les coordonnées vont de 0 à 1 dans le cadre de la bouche. */
+const FORMES = ['pointe', 'lame', 'meule', 'espace', 'crochet', 'tube', 'eponge', 'rape', 'patte'];
+
+const SCHEMAS = {
+  lion: { fond:'machoire', titre:'Crâne de lion, mâchoire ouverte', pieces:[
+    { outil:'incisive', x:.50, y:.30, forme:'pointe', taille:.5 },
+    { outil:'canine',   x:.34, y:.34, forme:'pointe', taille:1.5 },
+    { outil:'canine',   x:.66, y:.34, forme:'pointe', taille:1.5 },
+    { outil:'carnassiere', x:.20, y:.42, forme:'lame', taille:1.2 },
+    { outil:'carnassiere', x:.80, y:.42, forme:'lame', taille:1.2 } ] },
+  chat: { fond:'machoire', titre:'Crâne de chat', pieces:[
+    { outil:'incisive', x:.50, y:.30, forme:'pointe', taille:.45 },
+    { outil:'canine',   x:.35, y:.34, forme:'pointe', taille:1.3 },
+    { outil:'canine',   x:.65, y:.34, forme:'pointe', taille:1.3 },
+    { outil:'carnassiere', x:.22, y:.42, forme:'lame', taille:1 },
+    { outil:'carnassiere', x:.78, y:.42, forme:'lame', taille:1 } ] },
+  vipere: { fond:'serpent', titre:'Crâne de vipère', pieces:[
+    { outil:'crochet', x:.42, y:.42, forme:'crochet', taille:1.4 },
+    { outil:'crochet', x:.58, y:.42, forme:'crochet', taille:1.4 },
+    { outil:'machoireSouple', x:.50, y:.68, forme:'espace', taille:1.8 } ] },
+  araignee: { fond:'insecte', titre:'Bouche d’araignée', pieces:[
+    { outil:'crochet', x:.40, y:.42, forme:'crochet', taille:1.2 },
+    { outil:'crochet', x:.60, y:.42, forme:'crochet', taille:1.2 },
+    { outil:'pedipalpe', x:.26, y:.58, forme:'patte', taille:1 },
+    { outil:'pedipalpe', x:.74, y:.58, forme:'patte', taille:1 } ] },
+  mouton: { fond:'machoire', titre:'Mâchoire de mouton', pieces:[
+    { outil:'incisive', x:.50, y:.28, forme:'lame', taille:.7 },
+    { outil:'diasteme', x:.30, y:.40, forme:'espace', taille:1.1 },
+    { outil:'diasteme', x:.70, y:.40, forme:'espace', taille:1.1 },
+    { outil:'molaire',  x:.16, y:.50, forme:'meule', taille:1.2 },
+    { outil:'molaire',  x:.84, y:.50, forme:'meule', taille:1.2 } ] },
+  boeuf: { fond:'machoire', titre:'Mâchoire de bœuf', pieces:[
+    { outil:'incisive', x:.50, y:.28, forme:'lame', taille:.8 },
+    { outil:'diasteme', x:.29, y:.40, forme:'espace', taille:1.2 },
+    { outil:'diasteme', x:.71, y:.40, forme:'espace', taille:1.2 },
+    { outil:'molaire',  x:.15, y:.50, forme:'meule', taille:1.4 },
+    { outil:'molaire',  x:.85, y:.50, forme:'meule', taille:1.4 } ] },
+  criquet: { fond:'insecte', titre:'Pièces buccales du criquet', pieces:[
+    { outil:'labre',     x:.50, y:.26, forme:'lame', taille:1 },
+    { outil:'mandibule', x:.36, y:.46, forme:'meule', taille:1.3 },
+    { outil:'mandibule', x:.64, y:.46, forme:'meule', taille:1.3 },
+    { outil:'maxille',   x:.30, y:.66, forme:'patte', taille:.9 },
+    { outil:'maxille',   x:.70, y:.66, forme:'patte', taille:.9 } ] },
+  escargot: { fond:'insecte', titre:'Bouche d’escargot', pieces:[
+    { outil:'radula', x:.50, y:.50, forme:'rape', taille:1.7 } ] },
+  moustique: { fond:'insecte', titre:'Pièces buccales du moustique', pieces:[
+    { outil:'stylet', x:.50, y:.55, forme:'tube', taille:1.9 } ] },
+  papillon: { fond:'insecte', titre:'Trompe du papillon', pieces:[
+    { outil:'trompe', x:.50, y:.52, forme:'tube', taille:1.6 } ] },
+  mouche: { fond:'insecte', titre:'Trompe de la mouche', pieces:[
+    { outil:'eponge', x:.50, y:.56, forme:'eponge', taille:1.6 } ] },
+  abeille: { fond:'insecte', titre:'Pièces buccales de l’abeille', pieces:[
+    { outil:'mandibule', x:.32, y:.42, forme:'meule', taille:1 },
+    { outil:'mandibule', x:.68, y:.42, forme:'meule', taille:1 },
+    { outil:'trompe',    x:.50, y:.62, forme:'tube', taille:1.5 } ] },
+};
+
+/* ============================ Les missions ============================
+   Quatre parties : les trois questions d'outils du guide, puis l'adaptation
+   que sa septième activité demande de construire. */
+
+const vues = () => Object.keys(etat.vus.pieces);
+const aVuTout = a => (ANIMAUX[a] ? ANIMAUX[a].outils : [])
+  .every(c => etat.vus.pieces[a + '/' + c]);
+const classesJustes = () => Object.keys(etat.tri)
+  .filter(a => etat.tri[a] === ANIMAUX[a].regime).length;
+
+const MISSIONS = [
+  /* ---- 1. Avec quels outils les zoophages capturent-ils leur proie ? ---- */
+  { titre:'Le crâne du lion',
+    but:'Ouvre la mâchoire du lion et touche chaque dent pour savoir à quoi elle sert.',
+    scene:'bouche', animaux:['lion'],
+    etapes:[
+      { t:'Touche une dent du lion', ok:e => vues().length >= 1 },
+      { t:'Trouve les canines : longues et pointues', ok:e => e.vus.pieces['lion/canine'] },
+      { t:'Trouve les carnassières, au fond', ok:e => e.vus.pieces['lion/carnassiere'] },
+      { t:'Conclus', cible:'btn-tester', ok:e => e.vus.luLion },
+    ],
+    gagne:e => e.vus.luLion,
+    indice:'Les canines sont les deux longues pointes de devant. Les carnassières sont les grandes dents en lame, tout au fond de la mâchoire.',
+    retenir:'Un <b>zoophage</b> mange d’autres animaux. Le lion a des <b>canines</b> longues et pointues, qui percent et retiennent la proie, et des <b>carnassières</b> en forme de lames qui se croisent comme des ciseaux pour cisailler la chair. Ce sont ses <b>outils</b>.',
+    qcm:{ q:'À quoi servent les canines du lion ?',
+      r:['À percer et retenir une proie qui se débat',
+         'À broyer l’herbe', 'À creuser le sol'], bonne:0,
+      pourquoi:'Une proie vivante se débat : il faut d’abord la percer et la tenir. C’est le rôle des canines, longues et pointues. Le découpage vient ensuite, avec les carnassières.' } },
+
+  { titre:'La vipère avale sans mâcher',
+    but:'Un serpent n’a ni canines ni carnassières. Regarde comment il fait.',
+    scene:'bouche', animaux:['vipere'],
+    etapes:[
+      { t:'Touche les crochets de la vipère', ok:e => e.vus.pieces['vipere/crochet'] },
+      { t:'Touche sa mâchoire', ok:e => e.vus.pieces['vipere/machoireSouple'] },
+      { t:'Conclus', cible:'btn-tester', ok:e => e.vus.luVipere },
+    ],
+    gagne:e => e.vus.luVipere,
+    indice:'Les deux crochets sont en haut, repliés vers l’arrière. La mâchoire est la grande pièce du bas, qui se déboîte.',
+    retenir:'Tous les zoophages ne mangent pas de la même façon. La vipère ne mâche pas : ses <b>crochets</b> injectent un venin qui immobilise la proie, et sa <b>mâchoire déboîtable</b> lui permet d’avaler un rongeur <b>entier</b>. Des outils différents, pour le même régime.',
+    qcm:{ q:'Pourquoi la vipère peut-elle avaler une proie plus large que sa tête ?',
+      r:['Sa mâchoire se déboîte et s’ouvre démesurément',
+         'Elle découpe la proie avec ses crochets',
+         'Elle broie la proie avec ses dents'], bonne:0,
+      pourquoi:'Ses crochets servent à injecter le venin, pas à découper. C’est l’articulation de sa mâchoire, qui se déboîte, qui lui permet d’avaler une proie entière sans la mâcher.' } },
+
+  { titre:'Reconnaître un zoophage',
+    but:'Sans voir l’animal manger, ses outils te disent déjà ce qu’il mange.',
+    scene:'bouche', animaux:['chat', 'araignee'],
+    etapes:[
+      { t:'Examine complètement le chat', ok:() => aVuTout('chat') },
+      { t:'Examine complètement l’araignée', ok:() => aVuTout('araignee') },
+      { t:'Conclus', cible:'btn-tester', ok:e => e.vus.luZoophage },
+    ],
+    gagne:e => e.vus.luZoophage,
+    indice:'Change d’animal avec les boutons du bas. Touche toutes ses pièces avant de conclure.',
+    retenir:'Des <b>canines</b>, des <b>crochets</b>, des <b>carnassières</b> : ce sont les outils de la capture et du découpage. Quand on les trouve dans une bouche, on peut annoncer un régime <b>zoophage</b> sans avoir vu l’animal chasser. L’outil trahit le régime.',
+    qcm:{ q:'On trouve un crâne inconnu avec de longues canines et des dents en lame. Que peut-on en dire ?',
+      r:['C’est un zoophage : il mange d’autres animaux',
+         'C’est un phytophage', 'On ne peut rien en dire'], bonne:0,
+      pourquoi:'Canines et dents en lame sont les outils de la capture et du découpage de la chair. Un mangeur d’herbe n’en aurait aucun usage — il lui faut des surfaces plates pour broyer.' } },
+
+  /* ---- 2. Avec quels outils les phytophages prélèvent-ils leur nourriture ? ---- */
+  { titre:'La mâchoire du mouton',
+    but:'Compare avec le lion : rien n’est à la même place.',
+    scene:'bouche', animaux:['mouton'],
+    etapes:[
+      { t:'Touche les molaires du mouton', ok:e => e.vus.pieces['mouton/molaire'] },
+      { t:'Touche l’espace vide au milieu', ok:e => e.vus.pieces['mouton/diasteme'] },
+      { t:'Touche ses incisives', ok:e => e.vus.pieces['mouton/incisive'] },
+      { t:'Conclus', cible:'btn-tester', ok:e => e.vus.luMouton },
+    ],
+    gagne:e => e.vus.luMouton,
+    indice:'Les molaires sont les grosses dents plates du fond. Le diastème est le trou entre les dents de devant et celles du fond — il n’y a pas de dent du tout.',
+    retenir:'Un <b>phytophage</b> mange des végétaux. Le mouton coupe l’herbe avec ses <b>incisives</b>, puis la broie longuement entre ses <b>molaires plates</b>, qui frottent l’une sur l’autre comme une meule. Entre les deux, le <b>diastème</b> — un espace sans dents où la langue ramène l’herbe.',
+    qcm:{ q:'Pourquoi les molaires du mouton sont-elles plates et larges ?',
+      r:['Pour broyer l’herbe en la frottant', 'Pour percer une proie',
+         'Pour couper la viande'], bonne:0,
+      pourquoi:'L’herbe est dure et fibreuse : elle doit être écrasée longuement avant d’être avalée. Une surface plate et large fait office de meule. Une pointe ne servirait à rien.' } },
+
+  { titre:'Les pièces du criquet',
+    but:'Un insecte n’a pas de dents. Il a des pièces buccales — regarde-les.',
+    scene:'bouche', animaux:['criquet'],
+    etapes:[
+      { t:'Touche les mandibules', ok:e => e.vus.pieces['criquet/mandibule'] },
+      { t:'Touche les maxilles', ok:e => e.vus.pieces['criquet/maxille'] },
+      { t:'Touche le labre', ok:e => e.vus.pieces['criquet/labre'] },
+      { t:'Conclus', cible:'btn-tester', ok:e => e.vus.luCriquet },
+    ],
+    gagne:e => e.vus.luCriquet,
+    indice:'Les mandibules sont les deux grosses pièces sombres du milieu. Les maxilles sont en dessous, les palpes vers l’extérieur. Le labre est la lèvre du haut.',
+    retenir:'Le criquet a un appareil buccal <b>broyeur</b> : le <b>labre</b> ferme la bouche par-devant, les <b>mandibules</b> — deux pièces dures — coupent et broient la feuille, et les <b>maxilles</b> la tiennent et la poussent vers la bouche. Pas de dents, mais le même travail.',
+    qcm:{ q:'Quelle pièce du criquet broie réellement la feuille ?',
+      r:['Les mandibules', 'Le labre', 'Les maxilles'], bonne:0,
+      pourquoi:'Le labre n’est qu’une lèvre, et les maxilles ne font que tenir et pousser l’aliment. Ce sont les mandibules, dures et solides, qui coupent et broient.' } },
+
+  { titre:'Reconnaître un phytophage',
+    but:'Là encore, les outils suffisent à annoncer le régime.',
+    scene:'bouche', animaux:['boeuf', 'escargot'],
+    etapes:[
+      { t:'Examine complètement le bœuf', ok:() => aVuTout('boeuf') },
+      { t:'Examine complètement l’escargot', ok:() => aVuTout('escargot') },
+      { t:'Conclus', cible:'btn-tester', ok:e => e.vus.luPhyto },
+    ],
+    gagne:e => e.vus.luPhyto,
+    indice:'L’escargot n’a qu’une seule pièce : la radula, une langue râpeuse. Touche-la.',
+    retenir:'Des <b>molaires plates</b>, un <b>diastème</b>, des <b>mandibules</b> broyeuses, une <b>radula</b> râpeuse : tous ces outils servent à découper et écraser un végétal. Ils annoncent un régime <b>phytophage</b>, chez un mammifère comme chez un insecte ou un mollusque.',
+    qcm:{ q:'Qu’est-ce que la radula de l’escargot ?',
+      r:['Une langue râpeuse couverte de dents minuscules',
+         'Une dent unique et pointue', 'Un tube pour aspirer'], bonne:0,
+      pourquoi:'L’escargot n’a ni dents ni mandibules : il râpe la feuille avec sa radula, une langue couverte de milliers de petites dents, comme une lime.' } },
+
+  /* ---- 3. Quels outils pour les aliments liquides ? ---- */
+  { titre:'Le moustique pique et aspire',
+    but:'Un aliment liquide ne se mâche pas. Il faut d’autres outils.',
+    scene:'bouche', animaux:['moustique'],
+    etapes:[
+      { t:'Touche le stylet du moustique', ok:e => e.vus.pieces['moustique/stylet'] },
+      { t:'Conclus', cible:'btn-tester', ok:e => e.vus.luMoustique },
+    ],
+    gagne:e => e.vus.luMoustique,
+    indice:'Le moustique n’a qu’une seule pièce visible : le long tube pointu. Touche-le.',
+    retenir:'Le moustique a un appareil <b>piqueur-suceur</b> : un <b>stylet</b> assez fin et dur pour percer la peau, et creux pour aspirer le sang. Aucune pièce ne sert à mâcher — il n’y a rien à mâcher dans un liquide.',
+    qcm:{ q:'Pourquoi le moustique n’a-t-il aucune pièce broyeuse ?',
+      r:['Parce qu’un liquide n’a pas besoin d’être broyé',
+         'Parce qu’il est trop petit', 'Parce qu’il ne mange pas'], bonne:0,
+      pourquoi:'Broyer sert à réduire un aliment solide. Le sang est déjà liquide : il suffit de percer et d’aspirer. L’outil correspond à ce qu’il y a à manger.' } },
+
+  { titre:'La trompe et l’éponge',
+    but:'Deux insectes, deux liquides, deux outils différents.',
+    scene:'bouche', animaux:['papillon', 'mouche'],
+    etapes:[
+      { t:'Touche la trompe du papillon', ok:e => e.vus.pieces['papillon/trompe'] },
+      { t:'Touche la trompe de la mouche', ok:e => e.vus.pieces['mouche/eponge'] },
+      { t:'Conclus', cible:'btn-tester', ok:e => e.vus.luLiquides },
+    ],
+    gagne:e => e.vus.luLiquides,
+    indice:'Change d’animal avec les boutons du bas pour passer du papillon à la mouche.',
+    retenir:'Le papillon déroule une <b>trompe</b> longue et fine pour aller chercher le nectar au fond d’une fleur : c’est un <b>suceur</b>. La mouche, elle, dépose de la salive sur l’aliment puis <b>éponge</b> le liquide obtenu avec sa trompe élargie. Deux liquides différents, deux outils différents.',
+    qcm:{ q:'Pourquoi la trompe du papillon est-elle si longue et enroulée ?',
+      r:['Pour atteindre le nectar au fond des fleurs, et se ranger le reste du temps',
+         'Pour percer la peau des animaux', 'Pour broyer le pollen'], bonne:0,
+      pourquoi:'Le nectar se trouve au fond de la corolle : il faut une trompe longue pour l’atteindre. Enroulée au repos, elle ne gêne pas le vol.' } },
+
+  /* ---- 4. L'adaptation ---- */
+  { titre:'Chacun son groupe',
+    but:'Range les douze animaux selon ce qu’ils mangent.',
+    scene:'tri',
+    etapes:[
+      { t:'Range six animaux', ok:() => Object.keys(etat.tri).length >= 6 },
+      { t:'Range les douze', ok:() => Object.keys(etat.tri).length >= 12 },
+      { t:'Fais-en sorte qu’ils soient tous au bon endroit', ok:() => classesJustes() >= 12 },
+      { t:'Conclus', cible:'btn-tester', ok:e => e.vus.luTri },
+    ],
+    gagne:e => e.vus.luTri && classesJustes() >= 12,
+    indice:'Touche un animal, puis touche le groupe où tu le ranges. Si tu hésites, regarde ses outils : le carnet te les rappelle.',
+    retenir:'Les animaux se rangent selon leur <b>régime alimentaire</b> : les <b>zoophages</b> mangent d’autres animaux, les <b>phytophages</b> des végétaux, et certains ne consomment que des <b>aliments liquides</b>. Des animaux très différents — un lion et une araignée, un bœuf et un escargot — partagent le même régime, parce qu’ils ont des outils qui font le même travail.',
+    qcm:{ q:'Le lion et l’araignée sont tous deux zoophages. Qu’ont-ils en commun ?',
+      r:['Des outils qui servent à capturer et consommer un animal',
+         'Les mêmes dents', 'La même classe d’animaux'], bonne:0,
+      pourquoi:'L’un est un mammifère avec des canines, l’autre un arachnide avec des crochets : rien à voir dans le détail. Mais leurs outils font le même travail — percer, retenir, consommer une proie.' } },
+
+  { titre:'Le cas de l’abeille',
+    but:'Elle a des mandibules, comme le criquet. Mange-t-elle des feuilles ?',
+    scene:'bouche', animaux:['abeille'],
+    etapes:[
+      { t:'Touche les mandibules de l’abeille', ok:e => e.vus.pieces['abeille/mandibule'] },
+      { t:'Touche sa trompe', ok:e => e.vus.pieces['abeille/trompe'] },
+      { t:'Conclus', cible:'btn-tester', ok:e => e.vus.luAbeille },
+    ],
+    gagne:e => e.vus.luAbeille,
+    indice:'Ses deux pièces sont là : les mandibules de part et d’autre, la trompe au milieu, en dessous.',
+    retenir:'L’abeille possède des <b>mandibules</b> — mais elle s’en sert pour travailler la <b>cire</b>, pas pour manger. Ce qu’elle mange, le nectar, elle l’aspire avec sa <b>trompe</b>. La leçon est importante : pour conclure, il faut regarder l’outil qui sert <b>à manger</b>, pas tous ceux qu’on trouve dans la bouche.',
+    qcm:{ q:'L’abeille a des mandibules comme le criquet. Est-elle phytophage comme lui ?',
+      r:['Non : ses mandibules servent à la cire, elle mange du nectar avec sa trompe',
+         'Oui, puisqu’elle a les mêmes pièces',
+         'Oui, car le nectar vient des plantes'], bonne:0,
+      pourquoi:'Posséder une pièce ne dit pas à quoi elle sert. Les mandibules de l’abeille servent à modeler la cire ; c’est sa trompe qui prélève le nectar. Pour conclure, on regarde l’outil qui sert à MANGER.' } },
+
+  { titre:'Équiper un animal',
+    but:'À toi de choisir les outils. Un régime t’est donné : trouve ce qu’il faut.',
+    scene:'atelier',
+    etapes:[
+      { t:'Équipe un zoophage', ok:e => e.vus.equipe.zoophage },
+      { t:'Équipe un phytophage', ok:e => e.vus.equipe.phytophage },
+      { t:'Équipe un mangeur de liquides', ok:e => e.vus.equipe.liquides },
+      { t:'Conclus', cible:'btn-tester', ok:e => e.vus.luAdaptation },
+    ],
+    gagne:e => e.vus.luAdaptation,
+    indice:'Touche les outils pour les ajouter. Il faut au moins un outil caractéristique du régime demandé, et aucun outil qui le contredise.',
+    retenir:'On appelle <b>adaptation</b> l’accord entre les outils d’un animal et ce qu’il mange. Des canines chez un mangeur d’herbe ne serviraient à rien ; des molaires plates ne permettraient pas de découper une proie. Chaque régime va avec des outils qui lui conviennent — c’est ce qu’on observe chez tous les animaux.',
+    qcm:{ q:'Que veut dire « un animal est adapté à son régime alimentaire » ?',
+      r:['Ses outils correspondent à ce qu’il mange',
+         'Il mange tout ce qu’il trouve',
+         'Il change de nourriture selon la saison'], bonne:0,
+      pourquoi:'L’adaptation est cet accord entre l’outil et l’aliment : des canines pour percer une proie, des molaires plates pour broyer l’herbe, une trompe pour aspirer un liquide. Chaque outil convient au travail qu’il a à faire.' } },
+];
+
+const LEXIQUE = [
+  ['Régime alimentaire', 'Ce qu’un animal mange habituellement.'],
+  ['Zoophage', 'Un animal qui se nourrit d’autres animaux. On dit aussi carnivore pour les mammifères.'],
+  ['Phytophage', 'Un animal qui se nourrit de végétaux. On dit aussi herbivore pour les mammifères.'],
+  ['Prédateur', 'Un zoophage qui chasse et capture sa proie.'],
+  ['Proie', 'L’animal capturé et mangé par un prédateur.'],
+  ['Canine', 'Dent longue et pointue qui perce et retient la proie.'],
+  ['Carnassière', 'Grande dent en lame ; celles du haut et du bas se croisent comme des ciseaux pour cisailler la chair.'],
+  ['Molaire', 'Grosse dent du fond. Plate et large chez les phytophages, elle broie l’herbe comme une meule.'],
+  ['Diastème', 'L’espace sans dents entre les incisives et les molaires des phytophages. La langue y ramène l’herbe.'],
+  ['Pièces buccales', 'Les pièces qui entourent la bouche d’un insecte et remplacent les dents.'],
+  ['Mandibules', 'Deux pièces buccales dures qui coupent et broient. Le criquet en a.'],
+  ['Maxilles', 'Pièces buccales qui tiennent l’aliment et le poussent vers la bouche.'],
+  ['Labre', 'La lèvre supérieure d’un insecte, qui ferme la bouche par-devant.'],
+  ['Appareil broyeur', 'L’ensemble labre, mandibules et maxilles, qui découpe un aliment solide. Celui du criquet.'],
+  ['Appareil piqueur-suceur', 'Un stylet qui perce et aspire. Celui du moustique.'],
+  ['Trompe', 'Un tube long et souple pour aspirer un liquide. Celle du papillon s’enroule au repos.'],
+  ['Radula', 'La langue râpeuse de l’escargot, couverte de dents minuscules.'],
+  ['Adaptation', 'L’accord entre les outils d’un animal et ce qu’il mange : chaque outil convient au travail qu’il a à faire.'],
+];
+
+/* ============================ L’état du jeu ============================ */
+const CLE = 'ike-regimes-progression';
+
+const vusVierge = () => ({
+  pieces:{},              // « animal/outil » → vue
+  equipe:{},              // régimes correctement équipés à l'atelier
+  luLion:false, luVipere:false, luZoophage:false, luMouton:false, luCriquet:false,
+  luPhyto:false, luMoustique:false, luLiquides:false, luTri:false, luAbeille:false,
+  luAdaptation:false,
+});
+
+const vierge = () => ({
+  scene:'bouche', animal:'lion', piece:null,
+  tri:{}, enMain:null,
+  regimeDemande:'zoophage', panier:[],
+  vus:vusVierge(),
+});
+let etat = Object.assign({ mission:0, faits:[], libre:false }, vierge());
+let calc = {};
+
+function sauver() {
+  try { localStorage.setItem(CLE, JSON.stringify({ maitrise:etat.maitrise, mission:etat.mission,
+    faites:etat.faits, libre:etat.libre })); }
+  catch (e) {}
+}
+function charger() {
+  try {
+    const d = JSON.parse(localStorage.getItem(CLE) || '{}');
+    if (d.maitrise) etat.maitrise = d.maitrise;
+    if (typeof d.mission === 'number') etat.mission = Math.min(d.mission, MISSIONS.length - 1);
+    if (Array.isArray(d.faites || d.faits)) etat.faits = d.faites || d.faits;
+    etat.libre = !!d.libre;
+  } catch (e) {}
+}
+
+const enLibre = () => etat.libre === true;
+
+function reprendre() {
+  const n = vierge();
+  for (const k in n) etat[k] = n[k];
+  const M = enLibre() ? null : MISSIONS[etat.mission];
+  etat.scene = enLibre() ? 'bouche' : (M.scene || 'bouche');
+  etat.animal = animauxDeLaMission()[0] || 'lion';
+}
+
+function passerEnLibre() {
+  etat.libre = true;
+  reprendre(); sauver();
+  demarrerMission(); rendreListeMissions();
+}
+
+function animauxDeLaMission() {
+  if (enLibre()) return Object.keys(ANIMAUX);
+  const M = MISSIONS[etat.mission];
+  return (M && M.animaux) || Object.keys(ANIMAUX);
+}
+
+/* ======================= Le plan de travail (SVG) ======================= */
+let Wp = 660, Hp = 340;
+const refs = {};
+const nuit = () => document.body.classList.contains('sombre');
+
+function mesurerPlan() {
+  const r = refs.plan.getBoundingClientRect();
+  Wp = Math.max(260, Math.round(r.width));
+  Hp = Math.max(160, Math.round(r.height));
+  refs.plan.setAttribute('viewBox', '0 0 ' + Wp + ' ' + Hp);
+  dessiner();
+}
+
+function T() {
+  const s = getComputedStyle(document.body);
+  const v = n => s.getPropertyValue(n).trim();
+  return { trait:v('--neutral'), bord:v('--border'), bordF:v('--border-strong'),
+           surface:v('--surface'), muet:v('--surface-muted'), accent:v('--accent-texte'),
+           ok:v('--success'), non:v('--destructive'), doux:v('--accent-doux') };
+}
+
+function dessiner() {
+  refs.plan.textContent = '';
+  if (etat.scene === 'tri') dessinerTri();
+  else if (etat.scene === 'atelier') dessinerAtelier();
+  else dessinerBouche();
+}
+
+// SVG ne coupe pas les lignes : on découpe à la main
+function decouper(txt, n) {
+  const mots = String(txt).split(' '), lignes = [];
+  let l = '';
+  for (const m of mots) {
+    if ((l + ' ' + m).trim().length > n) { lignes.push(l); l = m; }
+    else l = (l + ' ' + m).trim();
+  }
+  if (l) lignes.push(l);
+  return lignes;
+}
+
+/* ---- Scène 1 : la bouche, ses pièces, et leur rôle ---- */
+function formePiece(f, cx, cy, r, couleur, trait) {
+  const g = el('g');
+  const p = (d, remp) => g.appendChild(el('path', { d, fill:remp === undefined ? couleur : remp,
+    stroke:trait, 'stroke-width':2, 'stroke-linejoin':'round', 'stroke-linecap':'round' }));
+  if (f === 'pointe')
+    p('M ' + (cx - r * .5) + ' ' + (cy - r) + ' L ' + (cx + r * .5) + ' ' + (cy - r) +
+      ' L ' + cx + ' ' + (cy + r * 1.3) + ' Z');
+  else if (f === 'lame') {
+    // une lame, pas un carré : dos épais en haut, tranchant dentelé en bas —
+    // c'est ce tranchant qui explique le cisaillement
+    p('M ' + (cx - r * .95) + ' ' + (cy - r * .75) + ' L ' + (cx + r * .95) + ' ' + (cy - r * .75) +
+      ' L ' + (cx + r * .8) + ' ' + (cy + r * .1) +
+      ' L ' + (cx + r * .4) + ' ' + (cy + r * .75) + ' L ' + cx + ' ' + (cy + r * .15) +
+      ' L ' + (cx - r * .4) + ' ' + (cy + r * .75) + ' L ' + (cx - r * .8) + ' ' + (cy + r * .1) + ' Z');
+  }
+  else if (f === 'meule') {
+    p('M ' + (cx - r) + ' ' + (cy - r * .6) + ' L ' + (cx + r) + ' ' + (cy - r * .6) +
+      ' L ' + (cx + r * .85) + ' ' + (cy + r * .8) + ' L ' + (cx - r * .85) + ' ' + (cy + r * .8) + ' Z');
+    for (let i = -1; i <= 1; i++)
+      g.appendChild(el('line', { x1:cx + i * r * .5, y1:cy - r * .6, x2:cx + i * r * .5, y2:cy - r * .1,
+        stroke:trait, 'stroke-width':1.5, opacity:.6 }));
+  } else if (f === 'espace')
+    p('M ' + (cx - r) + ' ' + (cy - r * .55) + ' L ' + (cx + r) + ' ' + (cy - r * .55) +
+      ' L ' + (cx + r) + ' ' + (cy + r * .55) + ' L ' + (cx - r) + ' ' + (cy + r * .55) + ' Z',
+      'none'), g.lastChild.setAttribute('stroke-dasharray', '5 4');
+  else if (f === 'crochet')
+    p('M ' + (cx - r * .35) + ' ' + (cy - r) + ' Q ' + (cx + r * .6) + ' ' + cy + ' ' +
+      (cx - r * .1) + ' ' + (cy + r * 1.2) + ' Q ' + (cx - r * .2) + ' ' + cy + ' ' +
+      (cx - r * .75) + ' ' + (cy - r * .9) + ' Z');
+  else if (f === 'tube') {
+    p('M ' + (cx - r * .22) + ' ' + (cy - r) + ' L ' + (cx + r * .22) + ' ' + (cy - r) +
+      ' L ' + (cx + r * .1) + ' ' + (cy + r * 1.25) + ' L ' + (cx - r * .1) + ' ' + (cy + r * 1.25) + ' Z');
+  } else if (f === 'eponge') {
+    p('M ' + (cx - r * .2) + ' ' + (cy - r) + ' L ' + (cx + r * .2) + ' ' + (cy - r) +
+      ' L ' + (cx + r * .25) + ' ' + (cy + r * .3) + ' L ' + (cx - r * .25) + ' ' + (cy + r * .3) + ' Z');
+    g.appendChild(el('ellipse', { cx, cy:cy + r * .6, rx:r * .8, ry:r * .45,
+      fill:couleur, stroke:trait, 'stroke-width':2 }));
+  } else if (f === 'rape') {
+    p('M ' + (cx - r) + ' ' + (cy - r * .35) + ' L ' + (cx + r) + ' ' + (cy - r * .35) +
+      ' L ' + (cx + r * .8) + ' ' + (cy + r * .5) + ' L ' + (cx - r * .8) + ' ' + (cy + r * .5) + ' Z');
+    for (let i = -3; i <= 3; i++)
+      g.appendChild(el('circle', { cx:cx + i * r * .26, cy:cy - r * .1, r:Math.max(1.4, r * .09),
+        fill:trait, opacity:.65 }));
+  } else if (f === 'patte')
+    p('M ' + (cx - r * .18) + ' ' + (cy - r * .9) + ' L ' + (cx + r * .18) + ' ' + (cy - r * .9) +
+      ' L ' + (cx + r * .5) + ' ' + (cy + r * .9) + ' L ' + (cx + r * .12) + ' ' + (cy + r * 1) +
+      ' L ' + (cx - r * .3) + ' ' + (cy - r * .2) + ' Z');
+  return g;
+}
+
+function dessinerBouche() {
+  const t = T(), plan = refs.plan;
+  const a = etat.animal, S = SCHEMAS[a];
+  if (!S) return;
+  const large = Wp > 620;                       // le rôle de la pièce se lit à côté
+  const L = large ? Wp * .52 : Wp;
+  const cadre = { x:L * .08, y:Hp * .12, w:L * .84, h:Hp * .66 };
+
+  plan.appendChild(el('text', { x:cadre.x + cadre.w / 2, y:Hp * .075, class:'titre-scene' }, S.titre));
+
+  // le fond : la silhouette de la bouche
+  if (S.fond === 'machoire') {
+    plan.appendChild(el('path', {
+      d:'M ' + cadre.x + ' ' + (cadre.y + cadre.h * .25) +
+        ' Q ' + (cadre.x + cadre.w / 2) + ' ' + (cadre.y - cadre.h * .18) + ' ' +
+        (cadre.x + cadre.w) + ' ' + (cadre.y + cadre.h * .25) +
+        ' L ' + (cadre.x + cadre.w * .9) + ' ' + (cadre.y + cadre.h) +
+        ' Q ' + (cadre.x + cadre.w / 2) + ' ' + (cadre.y + cadre.h * 1.2) + ' ' +
+        (cadre.x + cadre.w * .1) + ' ' + (cadre.y + cadre.h) + ' Z',
+      fill:t.muet, stroke:t.bordF, 'stroke-width':2 }));
+  } else if (S.fond === 'serpent') {
+    plan.appendChild(el('path', {
+      d:'M ' + (cadre.x + cadre.w * .12) + ' ' + (cadre.y + cadre.h * .2) +
+        ' Q ' + (cadre.x + cadre.w / 2) + ' ' + cadre.y + ' ' +
+        (cadre.x + cadre.w * .92) + ' ' + (cadre.y + cadre.h * .32) +
+        ' L ' + (cadre.x + cadre.w * .88) + ' ' + (cadre.y + cadre.h * .5) +
+        ' Q ' + (cadre.x + cadre.w / 2) + ' ' + (cadre.y + cadre.h * 1.15) + ' ' +
+        (cadre.x + cadre.w * .1) + ' ' + (cadre.y + cadre.h * .55) + ' Z',
+      fill:t.muet, stroke:t.bordF, 'stroke-width':2 }));
+  } else {
+    plan.appendChild(el('ellipse', { cx:cadre.x + cadre.w / 2, cy:cadre.y + cadre.h * .5,
+      rx:cadre.w * .46, ry:cadre.h * .48, fill:t.muet, stroke:t.bordF, 'stroke-width':2 }));
+  }
+
+  // les pièces, saisissables
+  const base = Math.min(cadre.w, cadre.h) * .11;
+  for (const p of S.pieces) {
+    const cx = cadre.x + p.x * cadre.w, cy = cadre.y + p.y * cadre.h;
+    const r = base * (p.taille || 1);
+    const vue = etat.vus.pieces[a + '/' + p.outil];
+    const choisie = etat.piece === p.outil;
+    const g = el('g', { class:'piece' + (choisie ? ' choisie' : '') + (vue ? ' vue' : ''),
+      'data-piece':p.outil, role:'button', tabindex:'0',
+      'aria-label':OUTILS[p.outil].nom });
+    g.appendChild(el('circle', { cx, cy, r:Math.max(24, r * 1.7), fill:'transparent' }));
+    g.appendChild(formePiece(p.forme, cx, cy, r,
+      choisie ? t.accent : vue ? t.doux : t.surface, t.trait));
+    plan.appendChild(g);
+  }
+
+  // le rôle de la pièce choisie
+  const o = etat.piece && OUTILS[etat.piece];
+  const zx = large ? Wp * .56 : cadre.x;
+  const zy = large ? Hp * .22 : cadre.y + cadre.h + Hp * .07;
+  if (o) {
+    plan.appendChild(el('text', { x:zx, y:zy, class:'nom-piece', style:'text-anchor:start' }, o.nom));
+    decouper(o.sert, large ? 34 : Math.max(24, Math.round(Wp / 8.5))).forEach((ligne, i) =>
+      plan.appendChild(el('text', { x:zx, y:zy + 20 + i * 15, class:'etiq-scene',
+        style:'text-anchor:start' }, ligne)));
+  } else {
+    plan.appendChild(el('text', { x:large ? zx : cadre.x + cadre.w / 2, y:zy,
+      class:'etiq-scene', style:large ? 'text-anchor:start' : '' },
+      'Touche une pièce pour savoir à quoi elle sert.'));
+  }
+}
+
+/* ---- Scène 2 : ranger les animaux par régime ---- */
+function dessinerTri() {
+  const t = T(), plan = refs.plan;
+  const cles = Object.keys(ANIMAUX);
+  const aRanger = cles.filter(a => !etat.tri[a]);
+
+  plan.appendChild(el('text', { x:Wp / 2, y:Hp * .07, class:'titre-scene' },
+    etat.enMain ? 'Touche le groupe où ranger ' + ANIMAUX[etat.enMain].nom.toLowerCase()
+                : 'Touche un animal, puis son groupe'));
+
+  // la réserve d'animaux à ranger
+  const parLigne = Math.max(4, Math.floor(Wp / 62));
+  aRanger.forEach((a, i) => {
+    const x = Wp * .06 + (i % parLigne + .5) * ((Wp * .88) / parLigne);
+    const y = Hp * .17 + Math.floor(i / parLigne) * 40;
+    const g = el('g', { class:'jeton' + (etat.enMain === a ? ' choisi' : ''), 'data-animal':a,
+      role:'button', tabindex:'0', 'aria-label':ANIMAUX[a].nom });
+    g.appendChild(el('circle', { cx:x, cy:y, r:19,
+      fill:etat.enMain === a ? t.doux : t.surface, stroke:etat.enMain === a ? t.accent : t.bord,
+      'stroke-width':etat.enMain === a ? 3 : 1.5 }));
+    g.appendChild(el('text', { x, y:y + 7, class:'em-jeton' }, ANIMAUX[a].em));
+    plan.appendChild(g);
+  });
+
+  // les trois paniers
+  const hautPaniers = Hp * .46;
+  const larg = (Wp * .92) / 3;
+  Object.keys(REGIMES).forEach((r, i) => {
+    const x = Wp * .04 + i * larg;
+    const dedans = cles.filter(a => etat.tri[a] === r);
+    const faux = dedans.filter(a => ANIMAUX[a].regime !== r).length;
+    const g = el('g', { class:'panier' + (etat.enMain ? ' actif' : ''), 'data-panier':r,
+      role:'button', tabindex:'0', 'aria-label':'Groupe ' + REGIMES[r].nom });
+    g.appendChild(el('rect', { x:x + 4, y:hautPaniers, width:larg - 8, height:Hp * .48 - 4,
+      rx:12, fill:etat.enMain ? t.doux : 'transparent',
+      stroke:faux ? t.non : dedans.length ? t.ok : t.bord,
+      'stroke-width':2, 'stroke-dasharray':dedans.length ? '' : '5 4' }));
+    g.appendChild(el('text', { x:x + larg / 2, y:hautPaniers + 20, class:'nom-piece' },
+      REGIMES[r].em + ' ' + REGIMES[r].nom));
+    dedans.forEach((a, k) => {
+      const cx = x + 22 + (k % 4) * ((larg - 40) / 3.4);
+      const cy = hautPaniers + 46 + Math.floor(k / 4) * 34;
+      g.appendChild(el('text', { x:cx, y:cy, class:'em-jeton',
+        opacity:ANIMAUX[a].regime === r ? 1 : .45 }, ANIMAUX[a].em));
+      if (ANIMAUX[a].regime !== r)
+        g.appendChild(el('text', { x:cx + 12, y:cy - 8, class:'etiq-scene', fill:t.non }, '?'));
+    });
+    plan.appendChild(g);
+  });
+}
+
+/* ---- Scène 3 : équiper un animal pour un régime ---- */
+function dessinerAtelier() {
+  const t = T(), plan = refs.plan;
+  const r = etat.regimeDemande;
+  plan.appendChild(el('text', { x:Wp / 2, y:Hp * .09, class:'titre-scene' },
+    'Équipe un animal qui mange : ' + REGIMES[r].em + ' ' + REGIMES[r].quoi.toLowerCase()));
+
+  // le panier de l'élève
+  const cadre = { x:Wp * .06, y:Hp * .18, w:Wp * .88, h:Hp * .34 };
+  plan.appendChild(el('rect', { x:cadre.x, y:cadre.y, width:cadre.w, height:cadre.h, rx:12,
+    fill:'transparent', stroke:t.bord, 'stroke-width':2, 'stroke-dasharray':'5 4' }));
+  if (!etat.panier.length)
+    plan.appendChild(el('text', { x:Wp / 2, y:cadre.y + cadre.h / 2 + 5, class:'etiq-scene' },
+      'Choisis des outils dans la barre du bas'));
+  const base = Math.min(cadre.w / 5, cadre.h) * .3;
+  etat.panier.forEach((c, i) => {
+    const cx = cadre.x + (i + .5) * (cadre.w / Math.max(4, etat.panier.length));
+    const cy = cadre.y + cadre.h * .42;
+    const bon = convient(c, r);
+    plan.appendChild(formePiece(OUTILS[c].groupe === 'dents' ? 'pointe' : 'tube',
+      cx, cy, base, bon ? t.doux : '#F5C3C3', t.trait));
+    decouper(OUTILS[c].nom, 12).forEach((ligne, k) =>
+      plan.appendChild(el('text', { x:cx, y:cy + base * 1.8 + k * 13, class:'etiq-scene',
+        fill:bon ? t.trait : t.non }, ligne)));
+  });
+
+  // le verdict
+  const v = assortimentValide(etat.panier, r);
+  const y = cadre.y + cadre.h + Hp * .12;
+  const mot = !etat.panier.length ? ''
+    : !v.coherent ? 'Un de ces outils ne convient pas à ce régime.'
+    : !v.suffisant ? 'Ces outils conviennent, mais aucun n’est caractéristique du régime.'
+    : 'Cet animal est adapté à son régime.';
+  if (mot) {
+    plan.appendChild(el('text', { x:Wp / 2, y, class:'nom-piece',
+      fill:v.ok ? t.ok : t.non }, v.ok ? '✅ Adapté' : '⚠️ Pas encore'));
+    decouper(mot, Math.max(26, Math.round(Wp / 8))).forEach((ligne, i) =>
+      plan.appendChild(el('text', { x:Wp / 2, y:y + 20 + i * 15, class:'etiq-scene' }, ligne)));
+  }
+}
+
+/* ==================== Ce que la scène permet de calculer ==================== */
+function resoudre() {
+  calc = {};
+  if (etat.scene === 'bouche' && etat.animal)
+    calc.deduit = deduireRegime(ANIMAUX[etat.animal].outils, etat.animal);
+  if (etat.scene === 'atelier')
+    calc.assort = assortimentValide(etat.panier, etat.regimeDemande);
+  memoriser();
+  mesurerPlan(); majCarnet(); rendreEtapes(); rendreActions(); verifierProgres();
+}
+
+function memoriser() {
+  if (etat.scene === 'atelier' && calc.assort && calc.assort.ok)
+    etat.vus.equipe[etat.regimeDemande] = true;
+}
+
+/* ========================= Le carnet d’observation ========================= */
+const ligne = (n, v) => '<div class="me-ligne"><span class="nom">' + n +
+  '</span><span class="val">' + v + '</span></div>';
+
+function majCarnet() {
+  const z = $('me-corps');
+  let h = '';
+  if (etat.scene === 'bouche') {
+    const a = ANIMAUX[etat.animal];
+    h += ligne(a.nom, a.classe);
+    const vues = a.outils.filter(c => etat.vus.pieces[etat.animal + '/' + c]);
+    h += ligne('Pièces examinées', vues.length + ' / ' + a.outils.length);
+    if (vues.length) {
+      h += '<div class="me-sep"></div>';
+      for (const c of vues) h += '<div class="me-outil">' + OUTILS[c].nom +
+        (OUTILS[c].signe ? ' <b>· indice</b>' : ' · commun') + '</div>';
+    }
+    $('me-quoi').textContent = vues.length === a.outils.length
+      ? 'Tu as tout examiné : que mange-t-il ?'
+      : 'Touche les pièces pour les reconnaître.';
+  } else if (etat.scene === 'tri') {
+    const n = Object.keys(etat.tri).length;
+    h += ligne('Animaux rangés', n + ' / ' + Object.keys(ANIMAUX).length);
+    h += ligne('Au bon endroit', classesJustes());
+    if (etat.enMain) {
+      h += '<div class="me-sep"></div>';
+      h += '<div class="me-outil"><b>' + ANIMAUX[etat.enMain].nom + '</b></div>';
+      for (const c of ANIMAUX[etat.enMain].outils)
+        h += '<div class="me-outil">' + OUTILS[c].nom + '</div>';
+    }
+    $('me-quoi').textContent = etat.enMain
+      ? 'Ses outils sont rappelés ci-dessus.'
+      : 'Touche un animal pour voir ses outils.';
+  } else {
+    h += ligne('Régime demandé', REGIMES[etat.regimeDemande].nom);
+    h += ligne('Outils choisis', etat.panier.length);
+    const v = calc.assort || { coherent:true, suffisant:false };
+    h += '<div class="me-sep"></div>';
+    h += '<div class="me-egalite ' + (v.ok ? 'juste' : 'faux') + '"><span class="memb">' +
+      (v.ok ? 'adapté' : !v.coherent ? 'un outil ne convient pas' : 'il manque un outil caractéristique') +
+      '</span></div>';
+    $('me-quoi').textContent = REGIMES[etat.regimeDemande].quoi;
+  }
+  z.innerHTML = h;
+}
+
+/* ============================== La barre du bas ============================== */
+function rendreOutils() {
+  const z = $('liste-outils');
+  z.innerHTML = '';
+  const bouton = (id, txt, actif, act) => {
+    const b = document.createElement('button');
+    b.className = 'ot'; b.id = id; b.type = 'button';
+    b.setAttribute('aria-pressed', actif ? 'true' : 'false');
+    b.innerHTML = txt; b.onclick = act;
+    z.appendChild(b); return b;
+  };
+  if (etat.scene === 'bouche') {
+    for (const a of animauxDeLaMission())
+      bouton('an-' + a, '<span class="em">' + ANIMAUX[a].em + '</span>' + ANIMAUX[a].nom,
+        etat.animal === a,
+        () => { etat.animal = a; etat.piece = null; rendreOutils(); resoudre(); });
+  } else if (etat.scene === 'atelier') {
+    for (const r in REGIMES)
+      bouton('rg-' + r, '<span class="em">' + REGIMES[r].em + '</span>' + REGIMES[r].nom,
+        etat.regimeDemande === r,
+        () => { etat.regimeDemande = r; etat.panier = []; rendreOutils(); resoudre(); });
+    for (const c in OUTILS)
+      bouton('ou-' + c, OUTILS[c].nom, etat.panier.indexOf(c) >= 0, () => {
+        const i = etat.panier.indexOf(c);
+        if (i >= 0) etat.panier.splice(i, 1); else etat.panier.push(c);
+        rendreOutils(); resoudre();
+      });
+  }
+  $('outils').hidden = z.children.length === 0;
+}
+
+/* ====================== Les boutons du bas de l’écran ====================== */
+function rendreActions() {
+  const z = $('actions');
+  z.innerHTML = '';
+  const bouton = (id, txt, cls, act) => {
+    const b = document.createElement('button');
+    b.className = 'btn ' + (cls || ''); b.id = id; b.textContent = txt; b.onclick = act;
+    z.appendChild(b); return b;
+  };
+  if (etat.scene === 'tri')
+    bouton('btn-vider', '↺ Tout ressortir', 'btn-fantome', () => {
+      etat.tri = {}; etat.enMain = null; resoudre();
+    });
+  if (etat.scene === 'atelier')
+    bouton('btn-vider', '↺ Vider', 'btn-fantome', () => {
+      etat.panier = []; rendreOutils(); resoudre();
+    });
+  if (!enLibre()) bouton('btn-tester', '✅ Conclure', '', conclure);
+  surbrillerCible();
+}
+
+/* ============================== Le geste ============================== */
+function brancherGestes() {
+  refs.plan.addEventListener('click', ev => {
+    const p = ev.target.closest('[data-piece]');
+    if (p) {
+      etat.piece = p.dataset.piece;
+      etat.vus.pieces[etat.animal + '/' + p.dataset.piece] = 1;
+      resoudre(); return;
+    }
+    const a = ev.target.closest('[data-animal]');
+    if (a) { etat.enMain = etat.enMain === a.dataset.animal ? null : a.dataset.animal; resoudre(); return; }
+    const b = ev.target.closest('[data-panier]');
+    if (b) {
+      if (!etat.enMain) { toast('Choisis d’abord un animal.'); return; }
+      etat.tri[etat.enMain] = b.dataset.panier;
+      etat.enMain = null;
+      resoudre();
+    }
+  });
+  refs.plan.addEventListener('keydown', ev => {
+    if (ev.key !== 'Enter' && ev.key !== ' ') return;
+    const c = ev.target.closest('[data-piece], [data-animal], [data-panier]');
+    if (!c) return;
+    ev.preventDefault();
+    c.dispatchEvent(new MouseEvent('click', { bubbles:true }));
+  });
+}
+
+function montrerIndice() {
+  const M = enLibre() ? null : MISSIONS[etat.mission];
+  if (!M || !M.indice) return;
+  $('mission').classList.add('ouvert');
+  $('m-plier').setAttribute('aria-expanded', 'true');
+  $('m-indice').innerHTML = '<b>💡 Indice :</b> ' + M.indice;
+  $('m-indice').hidden = false;
+  $('btn-indice').classList.remove('appelle');
+  mesurerPlan();
+}
+
+function demarrerMission() {
+  cacherBilan();
+  reprendre();
+  $('m-indice').hidden = true;
+  $('m-indice').innerHTML = '';
+  const M = enLibre() ? null : MISSIONS[etat.mission];
+  $('m-actions').hidden = !(M && M.indice);
+  rendreMission(); rendreOutils(); resoudre();
+}
+
+/* ====================== Le bilan : « que conclure ? » ====================== */
+const toutVu = a => aVuTout(a);
+
+const BILANS = [
+  () => { if (!toutVu('lion')) return ['🦁', 'Regarde encore', '',
+      'Touche <b>toutes</b> les dents du lion avant de conclure : les incisives, les canines et les carnassières.'];
+    etat.vus.luLion = true;
+    return ['🦁', 'Les outils d’un chasseur', 'Canines pour percer, carnassières pour cisailler',
+      'Le lion est un <b>zoophage</b> : il mange d’autres animaux. Ses <b>canines</b> percent et retiennent la proie ; ses <b>carnassières</b>, qui se croisent comme des lames de ciseaux, cisaillent la chair.']; },
+
+  () => { if (!toutVu('vipere')) return ['🐍', 'Il te manque une pièce', '',
+      'Touche les <b>crochets</b> et la <b>mâchoire</b> de la vipère.'];
+    etat.vus.luVipere = true;
+    return ['🐍', 'Avaler sans mâcher', '',
+      'La vipère est zoophage elle aussi, mais ses outils n’ont rien à voir avec ceux du lion. Ses <b>crochets</b> injectent un venin qui immobilise la proie, et sa <b>mâchoire déboîtable</b> lui permet de l’avaler <b>entière</b>. Même régime, outils différents.']; },
+
+  () => { if (!(toutVu('chat') && toutVu('araignee'))) return ['🔍', 'Examine les deux', '',
+      'Le chat et l’araignée : touche toutes leurs pièces avant de conclure.'];
+    etat.vus.luZoophage = true;
+    return ['🍖', 'L’outil trahit le régime', '',
+      'Un mammifère et un arachnide, rien de commun dans le détail — et pourtant les mêmes fonctions : <b>percer</b>, <b>retenir</b>, <b>consommer</b> un animal. Quand on trouve ces outils dans une bouche, on peut annoncer un régime <b>zoophage</b> sans avoir vu l’animal chasser.']; },
+
+  () => { if (!toutVu('mouton')) return ['🐑', 'Regarde toute la mâchoire', '',
+      'Touche les <b>incisives</b>, le <b>diastème</b> et les <b>molaires</b>.'];
+    etat.vus.luMouton = true;
+    return ['🐑', 'Une meule à broyer l’herbe', 'Ni canine ni carnassière : rien à percer, rien à cisailler',
+      'Le mouton est <b>phytophage</b>. Ses <b>incisives</b> coupent l’herbe, ses <b>molaires plates</b> la broient en frottant, et le <b>diastème</b> — l’espace sans dents — laisse la langue ramener l’herbe vers le fond.']; },
+
+  () => { if (!toutVu('criquet')) return ['🦗', 'Il te manque une pièce', '',
+      'Touche le <b>labre</b>, les <b>mandibules</b> et les <b>maxilles</b>.'];
+    etat.vus.luCriquet = true;
+    return ['🦗', 'Un appareil broyeur', '',
+      'Le criquet n’a pas de dents, mais des <b>pièces buccales</b> : le <b>labre</b> ferme la bouche, les <b>mandibules</b> coupent et broient la feuille, les <b>maxilles</b> la tiennent et la poussent. C’est un appareil <b>broyeur</b> — le même travail que les molaires du mouton.']; },
+
+  () => { if (!(toutVu('boeuf') && toutVu('escargot'))) return ['🔍', 'Examine les deux', '',
+      'Le bœuf et l’escargot : touche toutes leurs pièces.'];
+    etat.vus.luPhyto = true;
+    return ['🌿', 'Découper, écraser, râper', '',
+      'Molaires plates, mandibules broyeuses, <b>radula</b> râpeuse : trois outils très différents pour un même travail — réduire un végétal. Ils annoncent tous un régime <b>phytophage</b>.']; },
+
+  () => { if (!toutVu('moustique')) return ['🦟', 'Touche son stylet', '',
+      'Le moustique n’a qu’une pièce visible : le long tube pointu.'];
+    etat.vus.luMoustique = true;
+    return ['🦟', 'Piquer, puis aspirer', '',
+      'Le moustique a un appareil <b>piqueur-suceur</b> : son <b>stylet</b> est assez dur pour percer la peau et creux pour aspirer le sang. Aucune pièce ne sert à mâcher — il n’y a rien à mâcher dans un liquide.']; },
+
+  () => { if (!(toutVu('papillon') && toutVu('mouche'))) return ['🔍', 'Regarde les deux', '',
+      'Touche la trompe du <b>papillon</b>, puis celle de la <b>mouche</b>.'];
+    etat.vus.luLiquides = true;
+    return ['💧', 'Deux liquides, deux outils', '',
+      'Le papillon <b>aspire</b> le nectar au fond des fleurs avec une trompe longue et fine, enroulée au repos. La mouche <b>éponge</b> : elle dépose de la salive sur l’aliment, puis récupère le liquide obtenu avec sa trompe élargie.']; },
+
+  () => { const n = Object.keys(etat.tri).length, j = classesJustes();
+    if (n < 12) return ['🧺', 'Continue de ranger', n + ' animaux rangés sur 12', ''];
+    if (j < 12) return ['🤔', 'Certains ne sont pas au bon endroit',
+      j + ' animaux bien rangés sur 12',
+      'Les paniers qui contiennent une erreur sont bordés de rouge, et l’animal mal rangé porte un <b>?</b>. Reprends-le et regarde ses outils.'];
+    etat.vus.luTri = true;
+    return ['🧺', 'Trois régimes, douze animaux', '',
+      'Un lion et une araignée dans le même groupe, un bœuf et un escargot dans un autre : ce qui les rassemble n’est ni leur taille ni leur famille, mais <b>ce qu’ils mangent</b> — et donc les outils qu’il leur faut pour le manger.']; },
+
+  () => { if (!toutVu('abeille')) return ['🐝', 'Regarde ses deux pièces', '',
+      'Touche les <b>mandibules</b>, puis la <b>trompe</b>.'];
+    etat.vus.luAbeille = true;
+    return ['🐝', 'Une pièce ne dit pas toujours ce qu’on croit', '',
+      'L’abeille a des <b>mandibules</b> comme le criquet — mais elle s’en sert pour modeler la <b>cire</b>, pas pour manger. Ce qu’elle mange, le nectar, elle l’aspire avec sa <b>trompe</b>. Pour conclure sur un régime, il faut regarder l’outil qui sert <b>à manger</b>.']; },
+
+  () => { const n = Object.keys(etat.vus.equipe).length;
+    if (n < 3) return ['🔧', 'Il reste des régimes à équiper', n + ' régime(s) réussi(s) sur 3',
+      'Change de régime avec les trois premiers boutons, puis choisis les outils qui lui conviennent.'];
+    etat.vus.luAdaptation = true;
+    return ['🔧', 'L’adaptation', '',
+      'Tu viens de le faire trois fois : à chaque régime correspondent des outils qui lui <b>conviennent</b>. Des canines chez un mangeur d’herbe ne serviraient à rien ; des molaires plates ne découperaient aucune proie. Cet accord entre l’outil et l’aliment s’appelle l’<b>adaptation</b>.']; },
+];
+
+function conclure() {
+  const b = $('btn-tester'); if (b) b.classList.remove('appelle');
+  const f = BILANS[etat.mission];
+  if (!f) return;
+  const [em, titre, objectif, phrase] = f();
+  montrerBilan(em, titre, objectif, phrase);
+  resoudre();
+}
+
+/* ====================== Le bilan : « que conclure ? » ====================== */
+function cacherBilan() {
+  $('bilan').classList.remove('visible');
+  $('atelier').classList.remove('avec-bilan');
+}
+let qcmEnAttente = false;
+// Referme le bilan, et enchaîne sur le questionnaire s'il attendait son tour
+function fermerBilan() {
+  cacherBilan();
+  if (qcmEnAttente) { qcmEnAttente = false; setTimeout(ouvrirQcm, 180); }
+}
+function montrerBilan(em, titre, objectif, phrase, suite) {
+  const b = $('bilan');
+  b.innerHTML =
+    '<div class="verdict"><span class="em">' + em + '</span><h3>' + titre + '</h3>' +
+    '<button class="reduire" id="bilan-x" aria-label="Réduire">✕</button></div>' +
+    (objectif ? '<div class="objectif">' + objectif + '</div>' : '') +
+    '<p class="phrase">' + phrase + '</p>' +
+    // C'est la seule action de la modale : elle doit ressembler à un bouton.
+    // En `btn-fantome`, fond transparent sur le fond du bilan, elle passait
+    // pour du texte cliquable — pas pour un appel à agir.
+    '<div class="actions"><button class="btn" id="bilan-ok">' +
+      (suite || 'Continuer') + '</button></div>';
+  b.classList.add('visible');
+  $('atelier').classList.add('avec-bilan');
+  $('bilan-x').onclick = fermerBilan;
+  $('bilan-ok').onclick = fermerBilan;
+}
+
+/* ============================== Les missions ============================== */
+function rendreMission() {
+  if (enLibre()) {
+    $('m-num').textContent = '∞';
+    $('m-rang').textContent = 'Exploration libre';
+    $('m-titre').textContent = 'Fabrique ce que tu veux';
+    $('m-but').textContent = 'Tout le sel, tous les isolants, aucune consigne : essaie et compare.';
+    $('etapes').innerHTML = '';
+    $('m-jauge').style.width = '100%';
+    surbrillerCible();
+    return;
+  }
+  const M = MISSIONS[etat.mission];
+  $('m-num').textContent = etat.mission + 1;
+  $('m-rang').textContent = 'Mission ' + (etat.mission + 1) + ' sur ' + MISSIONS.length;
+  $('m-titre').textContent = M.titre;
+  $('m-but').textContent = M.but;
+  rendreEtapes();
+}
+function rendreEtapes() {
+  // en exploration libre il n'y a pas d'étapes : le panneau reste vide
+  if (enLibre()) { $('etapes').innerHTML = ''; $('m-jauge').style.width = '100%'; surbrillerCible(); return; }
+  const M = MISSIONS[etat.mission], z = $('etapes');
+  z.innerHTML = '';
+  let courante = -1;
+  const faites = M.etapes.map(e => !!e.ok(etat));
+  for (let i = 0; i < faites.length; i++) if (!faites[i]) { courante = i; break; }
+  // Panneau replié, seule l'étape en cours s'affiche : le chevron déploie le reste.
+  const iMontrer = courante >= 0 ? courante : faites.length - 1;
+  M.etapes.forEach((e, i) => {
+    const d = document.createElement('div');
+    d.className = 'etape' + (faites[i] ? ' faite' : '') + (i === courante ? ' courante' : '')
+      + (i === iMontrer ? ' a-montrer' : '');
+    d.innerHTML = '<span class="coche">' + (faites[i] ? '✓' : i + 1) +
+      '</span><span class="t">' + e.t + '</span>';
+    z.appendChild(d);
+  });
+  const n = faites.filter(Boolean).length;
+  $('m-jauge').style.width = Math.round(n / M.etapes.length * 100) + '%';
+  surbrillerCible();
+}
+// L’élément à montrer du doigt : celui de la première étape non franchie
+function cibleEffective() {
+  if (enLibre()) return null;              // rien à montrer du doigt : l'élève explore
+  const M = MISSIONS[etat.mission];
+  for (const e of M.etapes) if (!e.ok(etat)) return e.cible || null;
+  return null;
+}
+function surbrillerCible() {
+  document.querySelectorAll('.appelle').forEach(n => n.classList.remove('appelle'));
+  const c = cibleEffective();
+  if (c && $(c)) $(c).classList.add('appelle');
+}
+
+function verifierProgres() {
+  if (enLibre()) return;                   // aucune mission à gagner ici
+  const M = MISSIONS[etat.mission];
+  if (!M.gagne(etat)) { rendreEtapes(); return; }
+  if (etat.faits.includes(etat.mission)) { rendreEtapes(); return; }
+  etat.faits.push(etat.mission); sauver(); rendreEtapes();
+  // Si un bilan est ouvert, on ne le recouvre pas : c'est le bouton du bilan
+  // qui enchaîne sur le questionnaire, quand l'élève a fini de lire.
+  if ($('bilan').classList.contains('visible')) {
+    qcmEnAttente = true;
+    const ok = $('bilan-ok'); if (ok) ok.textContent = '🎓 Mission réussie — continuer';
+  } else setTimeout(ouvrirQcm, 620);
+}
+
+/* ================================ Le QCM ================================ */
+
+// Mélange les propositions : sans cela, la bonne réponse resterait toujours en
+// tête de liste et l'élève finirait par cliquer sans lire.
+function melangerQuestion(q) {
+  const ordre = q.r.map((_, i) => i);
+  for (let i = ordre.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = ordre[i]; ordre[i] = ordre[j]; ordre[j] = t;
+  }
+  return Object.assign({}, q, {
+    r: ordre.map(k => q.r[k]),
+    bonne: ordre.indexOf(q.bonne),
+  });
+}
+function ouvrirQcm() {
+  const M = MISSIONS[etat.mission], q = melangerQuestion(M.qcm);
+  qcmCourant = q;
+  const c = $('qcm-carte');
+  c.innerHTML = '<h2>🎓 Mission réussie !</h2><p class="q-question">' + q.q + '</p>' +
+    '<div class="q-choix" id="q-choix"></div><div id="q-retour"></div>';
+  const zc = $('q-choix');
+  q.r.forEach((txt, i) => {
+    const b = document.createElement('button');
+    b.className = 'q-rep'; b.type = 'button'; b.textContent = txt;
+    b.onclick = () => repondre(i, b);
+    zc.appendChild(b);
+  });
+  ouvrir('v-qcm');
+}
+let qcmCourant = null;
+function repondre(i, bouton) {
+  const q = qcmCourant;
+  const juste = i === q.bonne;
+  bouton.classList.add(juste ? 'juste' : 'faux');
+  document.querySelectorAll('.q-rep').forEach(b => b.disabled = true);
+  if (!juste) document.querySelectorAll('.q-rep')[q.bonne].classList.add('juste');
+  $('q-retour').innerHTML =
+    '<div class="q-mot ' + (juste ? 'ok' : 'non') + '">' +
+      (juste ? '✅ Bien vu.' : '💡 Regarde plutôt la bonne réponse.') + ' ' + q.pourquoi + '</div>' +
+    '<button class="btn btn-large" id="q-suite">Continuer</button>';
+  $('q-suite').onclick = () => { fermer('v-qcm'); ouvrirPassage(); };
+}
+
+/* ===================== L’écran de passage entre missions ===================== */
+function ouvrirPassage() {
+  const M = MISSIONS[etat.mission], suivante = MISSIONS[etat.mission + 1];
+  const c = $('passage-carte');
+  c.innerHTML =
+    '<div class="p-fanion"><span class="rond">🏅</span><div>' +
+      '<b>Mission ' + (etat.mission + 1) + ' terminée</b>' +
+      '<span>' + M.titre + '</span></div></div>' +
+    '<div class="p-acquis"><b>Ce que tu retiens :</b><br>' + M.retenir + '</div>' +
+    (suivante
+      ? '<div class="p-suite"><div class="etiq">Mission suivante</div><b>' + suivante.titre +
+        '</b><span>' + suivante.but + '</span></div>' +
+        '<button class="btn btn-large" id="p-go">Commencer la mission ' + (etat.mission + 2) + '</button>' +
+        '<p class="p-neuf">La scène est remise en ordre pour la nouvelle mission.</p>'
+      : '<div class="p-suite"><div class="etiq">Parcours terminé</div><b>Tu sais fabriquer de la glace</b>' +
+        '<span>Le mélange réfrigérant, le rôle de l’isolant, le palier de solidification et l’origine du givre.</span></div>' +
+        '<button class="btn btn-large" id="p-go">Explorer librement →</button>' +
+        '<p class="p-neuf">Le sel et les quatre isolants s’ouvrent : essaie les mélanges que tu veux.</p>');
+  $('p-go').onclick = () => {
+    fermer('v-passage');
+    if (suivante) { etat.mission++; sauver(); reprendre(); demarrerMission(); }
+    else passerEnLibre();
+  };
+  ouvrir('v-passage');
+}
+
+/* ============================== Les fenêtres ============================== */
+function ouvrir(id) { $(id).classList.add('visible'); }
+function fermer(id) { $(id).classList.remove('visible'); }
+
+let minuteurToast = null;
+function toast(txt, alerte) {
+  const t = $('toast');
+  t.textContent = txt;
+  t.classList.toggle('alerte', !!alerte);
+  t.classList.add('visible');
+  clearTimeout(minuteurToast);
+  minuteurToast = setTimeout(() => t.classList.remove('visible'), 2600);
+}
+
+function rendreLexique() {
+  $('liste-lexique').innerHTML = LEXIQUE.map(([m, d]) =>
+    // le mot et sa définition sur deux lignes : « em » les collait l'un à l'autre
+    '<div class="lex-entree"><b>' + m + '</b><span>' + d + '</span></div>').join('');
+}
+
+/* Le quiz doit rester atteignable SANS quitter la simulation : il n'apparaissait
+   que sur l'écran d'accueil, au lancement. Une fois le parcours terminé, l'élève
+   devait sortir de la simulation et y revenir pour le retrouver. */
+function carteExercer() {
+  // etat.faits, pas etat.faites : ici le champ mémoire s'appelle « faits ».
+  // C'est « faites » qu'on ÉCRIT dans localStorage, pas ce qu'on lit en mémoire.
+  const ouvert = etat.faits.length >= MISSIONS.length;
+  return '<button class="d-carte" data-mission="exercer"' + (ouvert ? '' : ' disabled') + '>' +
+    '<span class="num">' + (ouvert ? '🏅' : '🔒') + '</span>' +
+    '<span class="txt"><b>M’exercer</b><span>' + (ouvert
+      ? 'Trois séries de questions, et un score de maîtrise.'
+      : 'Termine le parcours pour l’ouvrir.') + '</span></span></button>';
+}
+
+function rendreListeMissions() {
+  $('liste-missions').innerHTML = MISSIONS.map((m, i) => {
+    const fait = etat.faits.includes(i), ouverte = i <= etat.mission || fait;
+    return '<button class="d-carte' + (fait ? ' fait' : '') + '" data-mission="' + i + '"' +
+      (ouverte ? '' : ' disabled') + '>' +
+      '<span class="num">' + (fait ? '✓' : ouverte ? i + 1 : '🔒') + '</span>' +
+      '<div class="txt"><b>' + m.titre + '</b><span>' +
+      (ouverte ? m.but : 'Termine la mission précédente pour l’ouvrir.') +
+      '</span></div></button>';
+  }).join('') + carteLibre();
+  $('liste-missions').insertAdjacentHTML('beforeend', carteExercer());
+  // une mission déjà ouverte se rejoue d'un clic, comme dans les autres simulations
+  $('liste-missions').querySelectorAll('[data-mission]').forEach(b => {
+    if (b.disabled) return;
+    b.onclick = () => {
+      if (b.dataset.mission === 'exercer') { fermer('v-missions'); ouvrirQuiz(); return; }
+      fermer('v-missions');
+      etat.libre = false; etat.mission = +b.dataset.mission;
+      sauver(); reprendre(); demarrerMission(); rendreListeMissions();
+    };
+  });
+  const c = $('carte-libre');
+  if (c && !c.disabled) c.onclick = () => { fermer('v-missions'); passerEnLibre(); };
+}
+
+// La carte d'exploration libre, en bas de la liste des missions
+function carteLibre() {
+  const tout = etat.faits.length >= MISSIONS.length;
+  return '<button class="d-carte' + (tout ? '' : ' verrou') + '" id="carte-libre"' +
+    (tout ? '' : ' disabled') + '><span class="num">' + (tout ? '∞' : '🔒') + '</span>' +
+    '<div class="txt"><b>Exploration libre</b><span>' + (tout
+      ? 'Tout le sel, les quatre isolants, aucune consigne.'
+      : 'Termine les ' + MISSIONS.length + ' missions pour l’ouvrir.') +
+    '</span></div></button>';
+}
+
+/* ================================ Le thème ================================ */
+function appliquerTheme(t) {
+  document.body.classList.toggle('sombre', t === 'sombre');
+  $('btn-theme').textContent = t === 'sombre' ? '☀️' : '🌙';
+  try { localStorage.setItem('ike-theme', t); } catch (e) {}
+}
+
+/* ================== Repli du panneau sur les petits écrans ================== */
+function replierSiPetitEcran() {
+  const petit = window.innerHeight < 620 || window.innerWidth < 560;
+  $('mission').classList.toggle('ouvert', !petit);
+  $('m-plier').setAttribute('aria-expanded', petit ? 'false' : 'true');
+}
+
+/* Ici, rien ne se passe tout seul : la figure ne change que si l'élève déplace
+   un point. Il n'y a donc pas de boucle d'animation — resoudre() recalcule et
+   redessine après chaque geste, ce qui suffit et coûte bien moins cher sur les
+   appareils du terrain. */
+
+/* ============================== Le démarrage ============================== */
+function init() {
+  refs.plan = $('plan');
+  charger();
+  mesurerPlan();
+
+  let th = 'clair';
+  try { th = localStorage.getItem('ike-theme') || 'clair'; } catch (e) {}
+  appliquerTheme(th);
+  $('btn-theme').onclick = () =>
+    appliquerTheme(document.body.classList.contains('sombre') ? 'clair' : 'sombre');
+
+  $('btn-lexique').onclick = () => { rendreLexique(); ouvrir('v-lexique'); };
+  $('btn-missions').onclick = () => { rendreListeMissions(); ouvrir('v-missions'); };
+  $('btn-aide').onclick = () => ouvrir('v-aide');
+  document.querySelectorAll('[data-ferme]').forEach(b =>
+    b.onclick = () => fermer(b.getAttribute('data-ferme')));
+  document.querySelectorAll('.voile').forEach(v =>
+    v.addEventListener('click', ev => { if (ev.target === v) v.classList.remove('visible'); }));
+  document.addEventListener('keydown', ev => {
+    if (ev.key === 'Escape') document.querySelectorAll('.voile.visible')
+      .forEach(v => v.classList.remove('visible'));
+  });
+
+  $('btn-rezero').onclick = () => {
+    try { localStorage.removeItem(CLE); } catch (e) {}
+    etat.mission = 0; etat.faits = []; reprendre();
+    fermer('v-missions'); demarrerMission();
+    toast('Parcours remis à zéro.');
+  };
+
+  $('m-plier').onclick = () => {
+    const o = $('mission').classList.toggle('ouvert');
+    $('m-plier').setAttribute('aria-expanded', o ? 'true' : 'false');
+    mesurerPlan();
+  };
+
+  $('btn-indice').onclick = montrerIndice;
+  brancherGestes();
+  replierSiPetitEcran();
+  window.addEventListener('resize', () => { replierSiPetitEcran(); mesurerPlan(); });
+  window.addEventListener('orientationchange', () => { replierSiPetitEcran(); mesurerPlan(); });
+
+  demarrerMission();
+  /* ============================================================================
+   L'accueil — « Que veux-tu faire ? »
+   Deux portes d'entrée : le parcours guidé, et le plan de travail libre. La
+   seconde reste fermée tant que le parcours n'est pas terminé. L'écran se
+   présente à chaque ouverture de la simulation, et indique où l'on en est.
+   ========================================================================== */
+function accueilFaites() { return (etat.faits || []).length; }
+function accueilOuvert() { return accueilFaites() >= MISSIONS.length; }
+
+function rendreAccueil() {
+  const n = accueilFaites(), total = MISSIONS.length;
+  $('ac-etat-app').textContent = n === 0 ? 'Commencer'
+    : n >= total ? 'Terminé ✓' : 'Reprendre · ' + n + '/' + total;
+  const ouvert = accueilOuvert();
+  $('ac-experimenter').disabled = !ouvert;
+  $('ac-etat-exp').textContent = ouvert ? 'Ouvert' : '🔒 Verrouillé';
+  $('ac-exercer').disabled = !ouvert;
+  $('ac-etat-ex').textContent = ouvert ? (scoreMaitrise() + ' %') : '🔒 Verrouillé';
+  $('ac-pied').innerHTML = ouvert
+    ? 'Tu as terminé le parcours : les deux portes sont ouvertes.'
+    : 'Termine les <b>' + total + ' missions</b> d’Apprendre pour ouvrir Expérimenter.';
+}
+
+function ouvrirAccueil() {
+  rendreAccueil();
+  ouvrir('v-accueil');
+}
+
+$('ac-apprendre').addEventListener('click', () => {
+  fermer('v-accueil');
+  etat.libre = false; sauver(); reprendre(); demarrerMission();
+  // le repérage de l'interface reste proposé tant que la première mission n'est pas gagnée
+  if (accueilFaites() === 0) lancerVisite();
+});
+$('ac-experimenter').addEventListener('click', () => {
+  if (!accueilOuvert()) return;
+  fermer('v-accueil');
+  passerEnLibre();
+});
+
+/* ============================================================================
+   La visite guidée — on montre l'écran au lieu de le décrire
+   ========================================================================== */
+const VISITE = [
+  { cible:'#mission', titre:'🎯 Le plan de mission', texte:"Ton but du moment et les étapes à cocher. Le chevron <b>▼</b> le replie quand tu veux de la place pour travailler." },
+  { cible:'#mesures', titre:'📒 Ton carnet d’observation', texte:"Les pièces que tu as déjà reconnues, et lesquelles sont des <b>indices</b> du régime." },
+  { cible:'#plan', titre:'🔬 La scène', texte:"Ici, la bouche d'un animal. Elle changera au fil du parcours : le tri par régime, puis l'atelier d'équipement." },
+  { cible:'#outils', titre:'🐾 Les animaux', texte:"Touche un animal pour examiner sa bouche. Selon la mission, ces boutons changent de rôle." },
+  { cible:'#actions', titre:'✅ Conclure', texte:"« Conclure » te dit ce que ton essai démontre — ou ce qu'il manque pour y arriver." },
+  { cible:'.tete-fin', titre:'🎓 Les boutons du haut', texte:"Les missions, le lexique des mots difficiles, ce guide, et le thème clair ou sombre." },
+];
+let visiteIdx = -1, visiteEtapes = [];
+
+function cibleVisible(sel) {
+  const e = document.querySelector(sel);
+  if (!e) return null;
+  const r = e.getBoundingClientRect();
+  return (r.width > 4 && r.height > 4) ? r : null;
+}
+
+function lancerVisite() {
+  for (const v of document.querySelectorAll('.voile.visible')) v.classList.remove('visible');
+  // on ne montre que ce qui est réellement à l'écran en ce moment
+  visiteEtapes = VISITE.filter(e => !e.cible || cibleVisible(e.cible));
+  if (!visiteEtapes.length) return;
+  visiteIdx = 0;
+  $('visite').classList.add('visible');
+  montrerVisite();
+}
+
+function montrerVisite() {
+  const et = visiteEtapes[visiteIdx];
+  const halo = $('visite-halo');
+  const r = et.cible ? cibleVisible(et.cible) : null;
+  if (r) {
+    halo.style.display = 'block';
+    halo.style.left = (r.left - 5) + 'px';
+    halo.style.top = (r.top - 5) + 'px';
+    halo.style.width = (r.width + 10) + 'px';
+    halo.style.height = (r.height + 10) + 'px';
+  } else halo.style.display = 'none';
+  $('visite-titre').textContent = et.titre;
+  $('visite-texte').innerHTML = et.texte;
+  $('visite-prog').textContent = (visiteIdx + 1) + ' / ' + visiteEtapes.length;
+  $('visite-suivant').textContent =
+    visiteIdx === visiteEtapes.length - 1 ? 'C’est parti !' : 'Suivant';
+  placerCarteVisite(r);
+}
+
+// La carte cherche une place libre autour de la zone montrée : dessous, dessus,
+// à droite, à gauche. Quand la zone occupe presque tout l'écran — le plan de
+// travail, par exemple — aucune place n'est libre : elle se pose alors dans un
+// coin, en couvrant le moins possible.
+function placerCarteVisite(r) {
+  const c = $('visite-carte');
+  c.style.visibility = 'hidden';
+  const cw = c.offsetWidth, ch = c.offsetHeight;
+  const W = window.innerWidth, H = window.innerHeight;
+  const poser = (x, y) => {
+    c.style.left = Math.round(Math.max(8, Math.min(W - cw - 8, x))) + 'px';
+    c.style.top = Math.round(Math.max(8, Math.min(H - ch - 8, y))) + 'px';
+    c.style.visibility = 'visible';
+  };
+  if (!r) { poser((W - cw) / 2, (H - ch) / 2); return; }
+  const m = 14, cx = r.left + r.width / 2 - cw / 2, cy = r.top + r.height / 2 - ch / 2;
+  const essais = [[cx, r.bottom + m], [cx, r.top - ch - m],
+                  [r.right + m, cy], [r.left - cw - m, cy]];
+  for (const [ex, ey] of essais) {
+    const x = Math.max(8, Math.min(W - cw - 8, ex));
+    const y = Math.max(8, Math.min(H - ch - 8, ey));
+    // retenue seulement si la carte ne recouvre pas ce qu'on montre
+    if (x + cw < r.left || x > r.right || y + ch < r.top || y > r.bottom) { poser(x, y); return; }
+  }
+  // dernier recours : le coin bas droit, loin du centre de la zone
+  poser(W - cw - 12, H - ch - 12);
+}
+
+function fermerVisite() {
+  visiteIdx = -1;
+  $('visite').classList.remove('visible');
+}
+
+$('visite-suivant').addEventListener('click', () => {
+  if (visiteIdx >= visiteEtapes.length - 1) { fermerVisite(); return; }
+  visiteIdx++; montrerVisite();
+});
+$('visite-passer').addEventListener('click', fermerVisite);
+window.addEventListener('resize', () => { if (visiteIdx >= 0) montrerVisite(); });
+document.addEventListener('keydown', e => {
+  if (visiteIdx >= 0 && e.key === 'Escape') fermerVisite();
+});
+const btnRevoir = $('btn-revoir-visite');
+if (btnRevoir) btnRevoir.addEventListener('click', () => { fermer('v-aide'); lancerVisite(); });
+
+const NIVEAUX_QUIZ = [
+  { cle:'souviens', em:'🥉', nom:'Je me souviens', poids:1,
+    quoi:'Les pièces, leurs noms, et les trois régimes.' },
+  { cle:'jutilise', em:'🥈', nom:'Je m’en sers', poids:2,
+    quoi:'Déduire un régime à partir des outils, et l’inverse.' },
+  { cle:'pieges', em:'🥇', nom:'On ne me piège plus', poids:3,
+    quoi:'Les erreurs que presque tout le monde fait. C’est là que tout se joue.' },
+];
+const PAR_SERIE = 6;
+
+const BANQUE = {
+  souviens: [
+    { q:'Que mange un animal <b>zoophage</b> ?',
+      choix:['D’autres animaux', 'Des végétaux', 'Uniquement des liquides'], bonne:0, mission:0,
+      expl:"« Zoo- » vient du grec et désigne l’animal. Un zoophage mange d’autres animaux : on dit aussi carnivore pour les mammifères." },
+    { q:'À quoi servent les carnassières du lion ?',
+      choix:['À cisailler la chair comme des ciseaux', 'À broyer l’herbe',
+             'À aspirer un liquide'], bonne:0, mission:0,
+      expl:"Les carnassières du haut et du bas se croisent comme deux lames de ciseaux : elles découpent la chair une fois la proie immobilisée par les canines." },
+    { q:'Qu’est-ce que le diastème d’un mouton ?',
+      choix:['L’espace sans dents entre les incisives et les molaires',
+             'Une dent très pointue', 'La langue'], bonne:0, mission:3,
+      expl:"C’est un espace vide, sans aucune dent, où la langue ramène l’herbe coupée vers les molaires du fond." },
+    { q:'Quelles pièces buccales du criquet broient la feuille ?',
+      choix:['Les mandibules', 'Le labre', 'Les antennes'], bonne:0, mission:4,
+      expl:"Le labre n’est qu’une lèvre, les maxilles tiennent et poussent l’aliment. Ce sont les mandibules, dures, qui coupent et broient." },
+    { q:'Comment le moustique se nourrit-il ?',
+      choix:['Il perce la peau avec un stylet et aspire le sang',
+             'Il broie la peau avec ses mandibules', 'Il éponge la sueur'], bonne:0, mission:6,
+      expl:"Son appareil est dit <b>piqueur-suceur</b> : le stylet est assez dur pour percer et creux pour aspirer." },
+    { q:'Qu’est-ce que la radula de l’escargot ?',
+      choix:['Une langue râpeuse couverte de dents minuscules',
+             'Une mâchoire déboîtable', 'Une trompe'], bonne:0, mission:5,
+      expl:"L’escargot n’a ni dents ni mandibules : il râpe la feuille avec sa radula, comme avec une lime." },
+    { q:'Comment appelle-t-on un animal qui mange des végétaux ?',
+      choix:['Un phytophage', 'Un zoophage', 'Un prédateur'], bonne:0, mission:3,
+      expl:"« Phyto- » désigne la plante. On dit aussi herbivore pour les mammifères qui broutent." },
+    { q:'Que veut dire « adaptation » à propos du régime alimentaire ?',
+      choix:['Les outils d’un animal correspondent à ce qu’il mange',
+             'L’animal change de nourriture selon la saison',
+             'L’animal mange de tout'], bonne:0, mission:11,
+      expl:"C’est l’accord entre l’outil et l’aliment : des canines pour percer une proie, des molaires plates pour broyer l’herbe." },
+    { q:'Pourquoi la vipère peut-elle avaler une proie entière ?',
+      choix:['Sa mâchoire se déboîte', 'Ses crochets découpent la proie',
+             'Elle la broie d’abord'], bonne:0, mission:1,
+      expl:"Les crochets injectent le venin, ils ne découpent pas. C’est l’articulation de la mâchoire, qui se déboîte, qui permet d’avaler la proie entière." },
+  ],
+
+  jutilise: [
+    { q:'Un crâne inconnu porte de longues canines et des dents en lame. Que mange cet animal ?',
+      choix:['D’autres animaux', 'De l’herbe', 'Du nectar'], bonne:0, mission:2,
+      expl:"Canines pour percer et retenir, dents en lame pour cisailler : ce sont les outils de la capture et du découpage. Un mangeur d’herbe n’en aurait aucun usage." },
+    { q:'Une mâchoire présente des molaires larges et plates, et un grand espace sans dents. Quel régime ?',
+      choix:['Phytophage', 'Zoophage', 'Aliments liquides'], bonne:0, mission:5,
+      expl:"Les molaires plates broient l’herbe comme une meule, et l’espace sans dents est le diastème. Deux indices concordants d’un régime phytophage." },
+    { q:'Un insecte n’a qu’une longue trompe enroulée. De quoi se nourrit-il ?',
+      choix:['De nectar, un aliment liquide', 'De feuilles', 'D’autres insectes'], bonne:0, mission:7,
+      expl:"Une trompe ne coupe ni ne broie : elle aspire. Un aliment solide serait impossible à consommer avec cet outil." },
+    { q:'Le lion et l’araignée ont-ils le même régime ?',
+      choix:['Oui, tous deux zoophages', 'Non, l’araignée est phytophage',
+             'Non, l’araignée mange des liquides'], bonne:0, mission:8,
+      expl:"L’araignée liquéfie sa proie avant de l’aspirer, mais ce qu’elle mange est bien un animal : elle est zoophage, comme le lion. Leurs outils diffèrent, leur régime non." },
+    { q:'On veut équiper un animal qui broute. Quel outil lui donner ?',
+      choix:['Des molaires plates', 'Des carnassières', 'Un stylet piqueur'], bonne:0, mission:11,
+      expl:"Brouter, c’est prélever puis écraser un végétal fibreux : il faut des surfaces plates et larges. Carnassières et stylet ne serviraient à rien." },
+    { q:'Un animal possède des incisives. Que peut-on en conclure sur son régime ?',
+      choix:['Rien : presque tous les mammifères en ont',
+             'Qu’il est zoophage', 'Qu’il est phytophage'], bonne:0, mission:2,
+      expl:"Les incisives servent à couper et se retrouvent chez le lion comme chez le mouton. Une pièce commune à tous ne permet aucune conclusion." },
+    { q:'La mouche dépose de la salive sur son aliment. Pourquoi ?',
+      choix:['Pour le liquéfier avant de l’éponger', 'Pour le refroidir',
+             'Pour le désinfecter'], bonne:0, mission:7,
+      expl:"Sa trompe ne sait qu’éponger un liquide. Elle transforme donc l’aliment en liquide avant de pouvoir le consommer." },
+    { q:'Deux animaux ont des outils très différents mais le même régime. Est-ce possible ?',
+      choix:['Oui : le lion et la vipère sont tous deux zoophages',
+             'Non, un régime va toujours avec les mêmes outils',
+             'Oui, mais seulement chez les insectes'], bonne:0, mission:1,
+      expl:"Le lion découpe, la vipère avale entier. Les outils diffèrent, mais tous deux consomment un animal : c’est le même régime." },
+    { q:'Où se trouvent les carnassières dans la mâchoire ?',
+      choix:['Au fond', 'Tout devant', 'Il n’y en a pas chez les mammifères'], bonne:0, mission:0,
+      expl:"Ce sont de grandes dents situées au fond, là où la mâchoire exerce le plus de force — nécessaire pour cisailler la chair." },
+  ],
+
+  pieges: [
+    { q:'L’abeille a des mandibules, comme le criquet. Est-elle phytophage ?',
+      choix:['Non : ses mandibules servent à la cire, elle aspire le nectar avec sa trompe',
+             'Oui, puisqu’elle a les mêmes pièces',
+             'Oui, car le nectar vient des plantes'], bonne:0, mission:9,
+      expl:"Posséder une pièce ne dit pas à quoi elle sert. Pour conclure sur un régime, on regarde l’outil qui sert <b>à manger</b> — chez l’abeille, la trompe." },
+    { q:'L’araignée liquéfie sa proie avant de l’aspirer. Est-elle donc dans le groupe des liquides ?',
+      choix:['Non : ce qu’elle mange est un animal, elle est zoophage',
+             'Oui, puisqu’elle aspire un liquide',
+             'Elle est phytophage'], bonne:0, mission:2,
+      expl:"Le régime se définit par <b>ce qu’on mange</b>, pas par l’état où on l’avale. L’araignée mange un animal : elle est zoophage." },
+    { q:'Un élève voit des incisives sur un crâne et conclut « c’est un phytophage ». A-t-il raison ?',
+      choix:['Non : les incisives ne sont l’indice d’aucun régime',
+             'Oui, seuls les phytophages en ont',
+             'Oui, car elles coupent l’herbe'], bonne:0, mission:2,
+      expl:"Le lion a lui aussi des incisives. Une pièce partagée par tous ne permet de conclure à rien : il faut chercher les pièces caractéristiques." },
+    { q:'Peut-on connaître le régime d’un animal sans jamais l’avoir vu manger ?',
+      choix:['Oui, en examinant ses outils', 'Non, il faut l’observer',
+             'Seulement pour les mammifères'], bonne:0, mission:2,
+      expl:"C’est tout l’intérêt de la démarche : les outils sont adaptés à l’aliment. Un crâne fossile, dont personne n’a vu le propriétaire manger, livre ainsi son régime." },
+    { q:'Le criquet et le mouton mangent tous deux des végétaux. Ont-ils les mêmes outils ?',
+      choix:['Non : mandibules pour l’un, molaires pour l’autre — même travail, pièces différentes',
+             'Oui, exactement les mêmes',
+             'Non, et leurs régimes diffèrent aussi'], bonne:0, mission:5,
+      expl:"Un insecte n’a pas de dents. Mais mandibules et molaires font le même travail — couper et broyer un végétal. Même fonction, pièces sans rapport." },
+    { q:'Une trompe conviendrait-elle à un animal qui mange de la viande ?',
+      choix:['Non : elle ne peut ni percer ni découper une chair solide',
+             'Oui, elle aspirerait la viande',
+             'Oui, si elle est assez longue'], bonne:0, mission:11,
+      expl:"C’est le principe même de l’adaptation : l’outil doit convenir au travail. Une trompe aspire un liquide, elle ne découpe rien." },
+    { q:'Un animal a des canines ET des molaires plates. Que peut-on en penser ?',
+      choix:['Les deux indices se contredisent : il faut regarder lequel sert à manger',
+             'Il est forcément phytophage', 'Il est forcément zoophage'], bonne:0, mission:9,
+      expl:"C’est la situation de l’abeille, avec ses mandibules et sa trompe. Quand deux indices se contredisent, on cherche l’outil qui sert réellement à se nourrir." },
+    { q:'« Le régime alimentaire dépend de la taille de l’animal. » Vrai ou faux ?',
+      choix:['Faux : le lion et l’araignée sont zoophages, le bœuf et l’escargot phytophages',
+             'Vrai : les gros animaux mangent de la viande',
+             'Vrai : les petits mangent des liquides'], bonne:0, mission:8,
+      expl:"Rien à voir avec la taille ni avec la famille. Ce qui rassemble les animaux d’un même groupe, c’est ce qu’ils mangent — et les outils qu’il leur faut pour cela." },
+    { q:'Les crochets de la vipère servent-ils à découper la proie ?',
+      choix:['Non : ils injectent un venin qui l’immobilise',
+             'Oui, comme des carnassières', 'Oui, ils la broient'], bonne:0, mission:1,
+      expl:"La vipère n’a aucune pièce pour découper : elle avale sa proie entière. Ses crochets ne servent qu’à injecter le venin." },
+  ],
+};
+/* ---- L'état de maîtrise : le meilleur résultat obtenu à chaque niveau ---- */
+function maitriseDe(cle) { return (etat.maitrise && etat.maitrise[cle]) || 0; }
+
+// Les niveaux difficiles pèsent plus lourd : réussir le premier seul plafonne
+// à 17 %, il faut affronter les pièges pour dépasser 80 %.
+function scoreMaitrise() {
+  // chaque niveau porte son poids : les simulations n'en ont pas toutes trois
+  let p = 0, total = 0;
+  for (const n of NIVEAUX_QUIZ) { p += maitriseDe(n.cle) * n.poids; total += n.poids; }
+  return total ? Math.round(p / total * 100) : 0;
+}
+function motMaitrise(p) {
+  return p >= 85 ? 'Maîtrisée' : p >= 60 ? 'Solide' : p >= 30 ? 'En bonne voie' : 'Découverte';
+}
+function etoiles(r) {
+  return r >= 1 ? '⭐⭐⭐' : r >= .8 ? '⭐⭐' : r >= .5 ? '⭐' : '';
+}
+
+// Le quiz mélange ses propres propositions : les simulations n'ont pas toutes
+// la même structure de question, et emprunter la leur cassait ici.
+function melangerQuiz(q) {
+  const ordre = q.choix.map((_, i) => i);
+  for (let i = ordre.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = ordre[i]; ordre[i] = ordre[j]; ordre[j] = t;
+  }
+  return Object.assign({}, q, { choix:ordre.map(k => q.choix[k]), bonne:ordre.indexOf(q.bonne) });
+}
+
+let quiz = null;
+
+/* Le quiz vit dans le périmètre de init() ; la liste des missions, elle, est
+   dessinée par une fonction globale. On expose donc l’ouverture du quiz pour
+   que la carte « M’exercer » puisse l’appeler. */
+function ouvrirQuiz() {
+  if (!accueilOuvert()) { toast('Termine les ' + MISSIONS.length + ' missions pour t’exercer.'); return; }
+  quiz = null;
+  rendreAccueilQuiz();
+  ouvrir('v-quiz');
+}
+window.ouvrirQuiz = ouvrirQuiz;
+
+function rendreAccueilQuiz() {
+  const p = scoreMaitrise();
+  $('quiz-carte').innerHTML = `
+    <button class="fermer-x" data-ferme="v-quiz" aria-label="Fermer">✕</button>
+    <h2>🏅 M’exercer</h2>
+    <p>Trois séries de ${PAR_SERIE} questions. Tu peux les refaire autant de fois que tu veux :
+       c’est ton <b>meilleur</b> résultat qui compte.</p>
+    <div class="qz-maitrise">
+      <div class="qz-m-haut"><span>Ma maîtrise de la notion</span><b>${p} %</b></div>
+      <div class="qz-m-barre"><i style="width:${p}%"></i></div>
+      <div class="qz-m-mot">${motMaitrise(p)}</div>
+    </div>
+    ${NIVEAUX_QUIZ.map(n => {
+      const r = maitriseDe(n.cle), et = etoiles(r);
+      return `<button class="qz-niveau" data-niveau="${n.cle}">
+        <span class="qz-em">${n.em}</span>
+        <span class="qz-txt"><b data-poids="${n.poids}">${n.nom}</b><span>${n.quoi}</span></span>
+        <span class="qz-note">${et || '—'}<span>${r ? Math.round(r * 100) + ' %' : 'jamais fait'}</span></span>
+      </button>`;
+    }).join('')}
+    <p class="qz-pied">Les questions difficiles comptent <b>trois fois plus</b> que les faciles :
+       c’est en les affrontant qu’on prouve qu’on a compris.</p>`;
+}
+
+function lancerSerie(cle) {
+  const banque = BANQUE[cle].slice();
+  for (let i = banque.length - 1; i > 0; i--) {           // tirage sans remise
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = banque[i]; banque[i] = banque[j]; banque[j] = t;
+  }
+  quiz = { niveau:cle, liste:banque.slice(0, PAR_SERIE).map(melangerQuiz),
+           n:0, justes:0, ratees:[] };
+  rendreQuestionQuiz();
+}
+
+function rendreQuestionQuiz() {
+  const q = quiz.liste[quiz.n];
+  const niv = NIVEAUX_QUIZ.find(n => n.cle === quiz.niveau);
+  $('quiz-carte').innerHTML = `
+    <button class="fermer-x" data-ferme="v-quiz" aria-label="Fermer">✕</button>
+    <div class="q-avance">${niv.em} ${niv.nom} · question ${quiz.n + 1} sur ${quiz.liste.length}</div>
+    <div class="qz-jauge"><i style="width:${quiz.n / quiz.liste.length * 100}%"></i></div>
+    <div class="q-question">${q.q}</div>
+    <div id="qz-choix">${q.choix.map((c, i) =>
+      `<button class="q-choix" data-qz="${i}">${c}</button>`).join('')}</div>
+    <div class="q-expl" id="qz-expl"></div><div id="qz-suite"></div>`;
+}
+
+function repondreQuiz(i) {
+  const q = quiz.liste[quiz.n];
+  const juste = i === q.bonne;
+  if (juste) quiz.justes++; else quiz.ratees.push(q);
+  $('qz-choix').querySelectorAll('.q-choix').forEach((b, k) => {
+    b.disabled = true;
+    if (k === q.bonne) { b.classList.add('bon'); b.textContent = '✔️ ' + b.textContent; }
+    else if (k === i) { b.classList.add('mauvais'); b.textContent = '❌ ' + b.textContent; }
+  });
+  const e = $('qz-expl');
+  e.innerHTML = q.expl;
+  e.classList.add('visible');
+  const dernier = quiz.n === quiz.liste.length - 1;
+  $('qz-suite').innerHTML = `<button class="btn btn-large" style="margin-top:12px" id="qz-continuer">${
+    dernier ? 'Voir mon résultat →' : 'Question suivante →'}</button>`;
+  $('qz-continuer').addEventListener('click', () => {
+    if (dernier) finirSerie(); else { quiz.n++; rendreQuestionQuiz(); }
+  });
+}
+
+function finirSerie() {
+  const r = quiz.justes / quiz.liste.length;
+  const niv = NIVEAUX_QUIZ.find(n => n.cle === quiz.niveau);
+  const avant = maitriseDe(quiz.niveau);
+  etat.maitrise = etat.maitrise || {};
+  etat.maitrise[quiz.niveau] = Math.max(avant, r);
+  sauver();
+  // Les questions ratées renvoient à leur mission : le quiz ramène au parcours.
+  const revoir = [];
+  for (const q of quiz.ratees) if (revoir.indexOf(q.mission) === -1) revoir.push(q.mission);
+  revoir.sort((a, b) => a - b);
+  const p = scoreMaitrise();
+  $('quiz-carte').innerHTML = `
+    <button class="fermer-x" data-ferme="v-quiz" aria-label="Fermer">✕</button>
+    <div class="qz-fin">
+      <div class="qz-fin-em">${r >= 1 ? '🎉' : r >= .5 ? '👏' : '💪'}</div>
+      <div><b>${quiz.justes} bonnes réponses sur ${quiz.liste.length}</b>
+        <span>${niv.em} ${niv.nom}</span></div>
+      <div class="qz-fin-et">${etoiles(r) || '—'}</div>
+    </div>
+    ${r > avant
+      ? `<p class="qz-mieux">✨ C’est ton meilleur résultat à ce niveau.</p>`
+      : `<p class="qz-mieux discret">Ton meilleur reste ${Math.round(avant * 100)} %.</p>`}
+    <div class="qz-maitrise">
+      <div class="qz-m-haut"><span>Ma maîtrise de la notion</span><b>${p} %</b></div>
+      <div class="qz-m-barre"><i style="width:${p}%"></i></div>
+      <div class="qz-m-mot">${motMaitrise(p)}</div>
+    </div>
+    ${revoir.length ? `<div class="qz-revoir"><b>📘 À revoir :</b>${revoir.map(i =>
+        `<span>Mission ${i + 1} — ${MISSIONS[i].titre}</span>`).join('')}</div>` : ''}
+    <div class="qz-boutons">
+      <button class="btn btn-contour" id="qz-refaire">↻ Refaire cette série</button>
+      <button class="btn" id="qz-retour">Les niveaux →</button>
+    </div>`;
+  $('qz-refaire').addEventListener('click', () => lancerSerie(quiz.niveau));
+  $('qz-retour').addEventListener('click', rendreAccueilQuiz);
+}
+
+$('v-quiz').addEventListener('click', e => {
+  const n = e.target.closest('[data-niveau]');
+  if (n) { lancerSerie(n.dataset.niveau); return; }
+  const b = e.target.closest('[data-qz]');
+  if (b && !b.disabled) repondreQuiz(+b.dataset.qz);
+});
+$('ac-exercer').addEventListener('click', () => {
+  if (!accueilOuvert()) return;
+  fermer('v-accueil');
+  ouvrirQuiz();
+});
+
+ouvrirAccueil();
+}
+init();
+
+</script>
+</body>
+</html>
