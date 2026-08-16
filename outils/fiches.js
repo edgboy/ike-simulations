@@ -222,10 +222,34 @@ function fiche(s) {
 `;
 }
 
+/* ---- Ce qu'on distribue, et pourquoi pas tout ----
+   On ne rend téléchargeable que ce que le CATALOGUE annonce. Une simulation
+   sans carte à l'accueil n'est pas un oubli : c'est le cas de l'atelier de
+   molécules, qui n'a jamais été aligné sur le socle — ni quiz, ni liste de
+   missions, ni polices de la charte — et qui existe pour être intégré par
+   iframe dans une plateforme extérieure (voir docs/integration-atelier-molecules.md).
+   Il reste servi en ligne à son adresse, qui ne doit pas bouger ; il n'a
+   simplement rien à faire dans une archive destinée à un enseignant.
+
+   La règle vaut mieux qu'une liste d'exceptions : ce qui n'est pas au
+   catalogue ne part pas dans l'archive, aujourd'hui comme demain. */
+function auCatalogue() {
+  const cat = fs.readFileSync(path.join(RACINE, 'index.html'), 'utf8');
+  const vus = new Set();
+  const re = /dos:\s*'([a-z0-9-]+)'/g;
+  let m;
+  while ((m = re.exec(cat))) vus.add(m[1]);
+  return vus;
+}
+
 const demande = process.argv[2];
+const publiees = auCatalogue();
 const dossiers = fs.readdirSync(SIMS)
   .filter(d => fs.existsSync(path.join(SIMS, d, 'index.html')))
+  .filter(d => publiees.has(d))
   .filter(d => !demande || d === demande);
+const ecartees = fs.readdirSync(SIMS)
+  .filter(d => fs.existsSync(path.join(SIMS, d, 'index.html')) && !publiees.has(d));
 
 fs.mkdirSync(SORTIE, { recursive: true });
 let sansMission = [];
@@ -241,4 +265,7 @@ for (const d of dossiers) {
 }
 if (sansMission.length)
   console.log('\nsans parcours lisible, donc sans fiche : ' + sansMission.join(', '));
+// On annonce ce qui est écarté : un silence passerait pour un oubli.
+if (ecartees.length)
+  console.log('\nhors distribution, absente(s) du catalogue : ' + ecartees.join(', '));
 console.log('\n' + (dossiers.length - sansMission.length) + ' fiche(s)');
