@@ -81,7 +81,7 @@ compréhension du monde et à l'amélioration des conditions de vie ». Pédagog
 | **4ᵉ** | SA1 **Sol, avenir de l'homme** (13 sem.) · SA2 **Terre, planète active** (11 sem.) | 2 h × 13 / 11 |
 | **3ᵉ** | SA1 **Échanges de matière et d'énergie entre l'organisme et le milieu extérieur** (respiration, digestion, circulation) · SA2 **Commande nerveuse et réactions comportementales** · SA3 **Reproduction humaine** · SA4 **Réactions immunitaires et lutte contre les agressions microbiennes** | 3 h TP/cours |
 
-**Couverture KONDO LABO — 2 simulations** :
+**Couverture KONDO LABO — 3 simulations, et la classe de 6ᵉ est complète** :
 - 🍽️ **Le repas de la journée** (v4.46.0) couvre la **SA1 de 6ᵉ**, « Alimentation et besoins
   nutritionnels de l'Homme » (9 semaines). Les quatre questions de la problématique du guide sont
   traitées dans l'ordre : composition des aliments (les quatre tests), rôle des aliments (les trois
@@ -97,10 +97,14 @@ compréhension du monde et à l'amélioration des conditions de vie ». Pédagog
   disséquer, microscope) n'existe dans presque aucune classe : c'est précisément ce que la
   simulation rend.
 
-**Il reste une SA en 6ᵉ** : la SA3, « Diversité et unité des phénomènes respiratoires chez les êtres
-vivants » (9 semaines). Après elle, le niveau sera complet.
+- 🫁 **Tous respirent** (v4.50.0) couvre la **SA3 de 6ᵉ**, « Unité et diversité des phénomènes
+  respiratoires chez les êtres vivants » (9 semaines). Le guide y impose une armature par **aspects
+  de la fonction** et non par exemples : organes extérieurs des animaux terrestres, signes
+  extérieurs des aquatiques, organes et leurs caractéristiques, échanges gazeux. Il pose aussi deux
+  bornes — pas d'idée d'énergie, pas de mécanismes de transport des gaz — que le test du modèle
+  vérifie.
 
-Autre candidate : **5ᵉ SA1, Besoins nutritifs des végétaux** — des expériences de plusieurs
+**La 6ᵉ SVT est entièrement couverte.** Prochaine candidate : **5ᵉ SA1, Besoins nutritifs des végétaux** — des expériences de plusieurs
 semaines, impossibles à tenir en classe.
 
 Les intitulés ci-dessus sont ceux des guides officiels. Le catalogue en affichait d'inventés

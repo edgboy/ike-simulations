@@ -1,0 +1,2579 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tous respirent — KONDO LABO</title>
+<meta name="description" content="SVT 6ᵉ, SA3 « Unité et diversité des phénomènes respiratoires chez les êtres vivants » : mouvements respiratoires, organes extérieurs, surfaces respiratoires et échanges gazeux.">
+
+<meta name="theme-color" content="#F7F5F0">
+<link rel="stylesheet" href="../../assets/polices.css">
+<style>
+
+/* ===== Jetons du design system KONDO LABO (intégrés : fichier autonome) ===== */
+:root {
+  --primary:#C4D94E; --accent:#5BC5F2; --accent-doux:#D6F0FB;
+  --tertiary:#F7A430; --destructive:#E83A4B; --success:#2A9D8F;
+  --neutral:#3A3632; --background:#F7F5F0; --surface:#FFFFFF; --surface-muted:#F0EEE9;
+  --border:#D3CFC8; --border-strong:#B0ABA3; --ring:#5BC5F2;
+  --accent-texte:#0F6E93;   /* le bleu d’accent ne passe pas les 4,5 de contraste en texte */
+  --font-display:'Baloo 2','Segoe UI',system-ui,sans-serif;
+  --font-body:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;
+  --radius-sm:8px; --radius-md:12px; --radius-lg:16px; --radius-xl:24px; --radius-full:9999px;
+  --shadow-soft:0 4px 16px rgba(58,54,50,.05);
+  --shadow-raised:0 6px 20px rgba(58,54,50,.06);
+  --ease:cubic-bezier(.4,0,.2,1);
+  --metal:#B0ABA3; --cuivre:#C9885A;
+}
+body.sombre {
+  --neutral:#ECEFF1; --background:#14181C; --surface:#1C232A; --surface-muted:#232C34;
+  --border:#333E47; --border-strong:#4A5762; --accent-doux:#17323F; --accent-texte:#7FD4F5;
+  --shadow-soft:0 4px 16px rgba(0,0,0,.28); --shadow-raised:0 6px 20px rgba(0,0,0,.34);
+  --metal:#8A9299;
+}
+
+*,*::before,*::after { box-sizing:border-box; }
+body {
+  margin:0; font-family:var(--font-body); font-size:16px; color:var(--neutral);
+  background:var(--background); overflow:hidden;
+  height:100dvh; display:flex; flex-direction:column;
+  -webkit-tap-highlight-color:transparent; -webkit-text-size-adjust:100%;
+}
+h1,h2,h3,h4 { font-family:var(--font-display); margin:0; line-height:1.2; }
+p { margin:0; }
+:focus-visible { outline:2px solid var(--ring); outline-offset:2px; border-radius:var(--radius-sm); }
+
+/* ============================ En-tête ============================ */
+header {
+  display:flex; align-items:center; gap:8px; flex:none;
+  padding:6px 10px; background:var(--surface); border-bottom:1px solid var(--border);
+}
+header h1 { font-size:15px; font-weight:800; line-height:1.15; }
+header .sous { font-size:10.5px; opacity:.6; }
+.icone-btn {
+  width:40px; height:40px; flex:none; display:grid; place-items:center;
+  border:none; background:none; border-radius:var(--radius-md);
+  font-size:18px; color:inherit; cursor:pointer; text-decoration:none;
+}
+.icone-btn:hover { background:var(--surface-muted); }
+.tete-fin { margin-left:auto; display:flex; gap:2px; align-items:center; }
+
+/* ===================== Bandeau de mission (EN HAUT) ===================== */
+#mission {
+  flex:none; background:var(--surface); border-bottom:1px solid var(--border);
+  padding:8px 12px 9px;
+}
+.m-haut { display:flex; align-items:center; gap:9px; }
+.m-pastille {
+  width:30px; height:30px; flex:none; border-radius:var(--radius-sm);
+  display:grid; place-items:center; background:var(--accent-doux);
+  font-family:var(--font-display); font-weight:800; font-size:13px;
+}
+.m-titres { flex:1; min-width:0; }
+.m-titres b { display:block; font-size:14px; font-weight:600; line-height:1.2; }
+.m-titres span { font-size:11.5px; opacity:.65; line-height:1.35; display:block; }
+.m-rang {
+  font-size:10.5px !important; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--accent-texte); opacity:1 !important; margin-bottom:1px;
+}
+.m-plier {
+  width:34px; height:34px; flex:none; border:none; background:none; cursor:pointer;
+  border-radius:var(--radius-sm); font-size:14px; color:inherit;
+  transition:transform .2s var(--ease);
+}
+.m-plier:hover { background:var(--surface-muted); }
+#mission.ouvert .m-plier { transform:rotate(180deg); }
+/* Replié, on ne montre que l'étape en cours : la lampe reste visible */
+#mission:not(.ouvert) .etape:not(.a-montrer) { display:none; }
+#mission:not(.ouvert) .m-indice { display:none; }
+.m-jauge { height:5px; border-radius:var(--radius-full); background:var(--surface-muted); margin-top:8px; overflow:hidden; }
+.m-jauge i { display:block; height:100%; background:var(--accent); transition:width .4s var(--ease); }
+
+/* ---- Liste des étapes : le guidage pas à pas ---- */
+#etapes { margin-top:9px; }
+.etape {
+  display:flex; align-items:flex-start; gap:9px; padding:5px 0;
+  font-size:13px; line-height:1.4;
+}
+.etape .coche {
+  width:21px; height:21px; flex:none; margin-top:1px; border-radius:var(--radius-full);
+  display:grid; place-items:center; font-size:11px; font-weight:700;
+  border:2px solid var(--border-strong); color:transparent; background:none;
+}
+.etape.faite .coche { background:var(--success); border-color:var(--success); color:#fff; }
+.etape.faite .t { opacity:.5; text-decoration:line-through; }
+.etape.courante .coche { border-color:var(--accent-texte); animation:pulseCoche 1.5s infinite; }
+.etape.courante .t { font-weight:600; }
+@keyframes pulseCoche { 50% { box-shadow:0 0 0 5px var(--accent-doux); } }
+.etape .t { flex:1; }
+.m-indice {
+  margin-top:8px; padding:9px 11px; border-radius:var(--radius-md);
+  background:var(--accent-doux); font-size:12.5px; line-height:1.5;
+}
+.m-indice b { font-weight:600; }
+.m-indice[hidden] { display:none; }
+/* Le bouton d'indice. `display` explicite l'emporte sur l'attribut `hidden` :
+   il faut le redire, sinon le bouton reste visible une fois masqué. */
+.m-actions { display:flex; gap:8px; margin-top:10px; }
+.m-actions .btn { flex:1; min-height:40px; padding:0 12px; font-size:13px; }
+.m-actions[hidden], .m-actions .btn[hidden] { display:none; }
+#btn-indice.appelle { animation:appelleIndice 1.3s infinite; }
+@keyframes appelleIndice { 50% { box-shadow:0 0 0 6px rgba(91,197,242,.32); } }
+
+/* ============================ Atelier ============================ */
+main { flex:1; min-height:0; display:flex; flex-direction:column; }
+#atelier { flex:1; min-height:0; position:relative; display:flex; }
+#plan { flex:1; min-height:0; width:100%; display:block; touch-action:manipulation; }
+
+/* Emplacements sur la lampe */
+.slot { cursor:pointer; }
+.slot .zone {
+  fill:var(--surface); fill-opacity:.5; stroke:var(--border-strong); stroke-width:2;
+  stroke-dasharray:6 5; rx:7;
+}
+.slot:hover .zone, .slot:focus-visible .zone { stroke:var(--accent); fill:var(--accent-doux); fill-opacity:1; }
+.slot.plein .zone { display:none; }
+/* Surbrillance de l'emplacement attendu par l'étape en cours */
+.slot.vise .zone { stroke:var(--accent); stroke-width:3; stroke-dasharray:none;
+  fill:var(--accent-doux); fill-opacity:1; animation:viseur 1.5s infinite; }
+@keyframes viseur { 50% { stroke-opacity:.35; } }
+.slot.vise .etiq-slot { opacity:1; font-weight:700; }
+.etiq-slot {
+  font-family:var(--font-body); font-size:11px; font-weight:600;
+  fill:var(--neutral); opacity:.55; text-anchor:middle; pointer-events:none;
+}
+.txt-piece {
+  font-family:var(--font-body); font-size:11px; font-weight:700;
+  fill:var(--neutral); text-anchor:middle; pointer-events:none;
+}
+.retirer { cursor:pointer; }
+.retirer circle { fill:var(--border-strong); transition:fill .15s var(--ease); }
+.retirer:hover circle, .retirer:focus-visible circle { fill:var(--destructive); }
+.retirer text { fill:#fff; font-size:13px; font-weight:700; text-anchor:middle; font-family:var(--font-body); }
+
+/* ============ Bouton d'accès aux mesures, sur le plan de travail ============ */
+#btn-mesures {
+  position:absolute; right:12px; bottom:12px; z-index:5;
+  display:flex; align-items:center; gap:7px;
+  min-height:44px; padding:0 16px;
+  background:var(--surface); color:var(--neutral);
+  border:2px solid var(--border-strong); border-radius:var(--radius-full);
+  box-shadow:var(--shadow-raised);
+  font-family:var(--font-body); font-size:13.5px; font-weight:600; cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+#btn-mesures:hover { background:var(--surface-muted); border-color:var(--neutral); }
+#btn-mesures[hidden] { display:none; }
+#btn-mesures.appelle { border-color:var(--accent-texte); animation:appelleMesures 1.4s infinite; }
+@keyframes appelleMesures { 50% { box-shadow:0 0 0 8px var(--accent-doux), var(--shadow-raised); } }
+
+/* ============================ Bilan ============================ */
+#bilan {
+  position:absolute; left:8px; right:8px; bottom:8px; z-index:6;
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-raised); padding:13px 15px;
+  display:none; max-width:520px; margin:0 auto;
+}
+#bilan.visible { display:block; animation:monte .3s var(--ease); }
+#atelier.avec-bilan #plan { align-self:flex-start; max-height:48%; }
+@keyframes monte { from { opacity:0; transform:translateY(10px); } }
+#bilan .verdict { display:flex; align-items:center; gap:9px; margin-bottom:4px; }
+#bilan .verdict .em { font-size:23px; line-height:1; }
+#bilan .verdict h3 { font-size:16px; flex:1; }
+#bilan .reduire {
+  width:32px; height:32px; flex:none; margin:-4px -6px 0 0;
+  border:none; background:none; border-radius:var(--radius-sm);
+  font-size:17px; color:inherit; cursor:pointer; opacity:.6;
+}
+#bilan .reduire:hover { background:var(--surface-muted); opacity:1; }
+#bilan .objectif {
+  margin-top:10px; padding:9px 11px; border-radius:var(--radius-md);
+  background:var(--accent-doux); font-size:12.5px; line-height:1.5;
+}
+#bilan .phrase { font-size:12.5px; opacity:.78; line-height:1.5; margin:0 0 10px; }
+.jauges { display:grid; grid-template-columns:repeat(auto-fit,minmax(115px,1fr)); gap:8px 14px; }
+.jauge .haut { display:flex; justify-content:space-between; font-size:11.5px; margin-bottom:3px; }
+.jauge .haut b { font-weight:600; }
+.jauge .haut span { opacity:.65; }
+.barre { height:7px; border-radius:var(--radius-full); background:var(--surface-muted); overflow:hidden; }
+.barre i { display:block; height:100%; background:var(--accent); border-radius:inherit; transition:width .5s var(--ease); }
+.barre.faible i { background:var(--tertiary); }
+.barre.mauvais i { background:var(--destructive); }
+#bilan .actions { display:flex; gap:8px; margin-top:11px; }
+
+/* ============================ Barre d'action ============================ */
+#actions {
+  flex:none; display:flex; gap:8px; align-items:center; justify-content:flex-end;
+  padding:8px 12px calc(8px + env(safe-area-inset-bottom));
+  background:var(--surface); border-top:1px solid var(--border);
+}
+.btn {
+  display:inline-flex; align-items:center; justify-content:center; gap:7px;
+  min-height:44px; padding:0 18px; border:none; border-radius:var(--radius-lg);
+  font-family:var(--font-body); font-size:14px; font-weight:600;
+  color:var(--neutral); background:var(--primary); cursor:pointer;
+  transition:filter .15s var(--ease);
+}
+.btn:hover { filter:brightness(.94); }
+.btn:active { filter:brightness(.88); }
+.btn[disabled] { opacity:.45; cursor:not-allowed; filter:none; }
+.btn-contour { background:var(--surface); border:2px solid var(--neutral); }
+.btn-contour:hover { background:var(--surface-muted); filter:none; }
+.btn-fantome { background:transparent; }
+.btn-fantome:hover { background:var(--surface-muted); filter:none; }
+.btn-large { width:100%; }
+#btn-tester.appelle { animation:appelle 1.3s infinite; }
+@keyframes appelle { 50% { box-shadow:0 0 0 7px rgba(196,217,78,.35); } }
+
+/* ================== Feuille de choix d'un composant ================== */
+#feuille {
+  position:fixed; inset:0; z-index:35; display:none;
+  background:rgba(38,50,56,.5);
+}
+#feuille.visible { display:block; }
+.f-carte {
+  position:absolute; left:0; right:0; bottom:0;
+  max-height:82dvh; overflow-y:auto;
+  background:var(--surface); border-radius:var(--radius-xl) var(--radius-xl) 0 0;
+  padding:8px 16px calc(18px + env(safe-area-inset-bottom));
+  box-shadow:var(--shadow-raised);
+  animation:glisse .28s var(--ease);
+}
+@keyframes glisse { from { transform:translateY(100%); } }
+.f-poignee { width:40px; height:4px; border-radius:2px; background:var(--border); margin:2px auto 12px; }
+.f-tete { display:flex; align-items:center; gap:9px; margin-bottom:4px; }
+.f-tete h2 { font-size:18px; flex:1; }
+.f-role { font-size:12.5px; line-height:1.5; opacity:.75; margin-bottom:13px; }
+.f-liste { display:grid; gap:9px; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); }
+.option {
+  display:flex; flex-direction:column; gap:3px; text-align:left; position:relative;
+  padding:12px 13px; min-height:62px;
+  background:var(--surface); border:2px solid var(--border); border-radius:var(--radius-md);
+  font-family:var(--font-body); color:var(--neutral); cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+.option:hover { border-color:var(--border-strong); background:var(--surface-muted); }
+.option.pose { border-color:var(--accent-texte); background:var(--accent-doux); }
+.option.conseil { border-color:var(--primary); }
+.option.conseil::after {
+  content:'conseillé'; position:absolute; top:-9px; right:9px;
+  padding:1px 8px; border-radius:var(--radius-full);
+  background:var(--primary); color:var(--neutral);
+  font-size:9.5px; font-weight:700; letter-spacing:.04em; text-transform:uppercase;
+}
+.option b { font-size:13.5px; font-weight:600; }
+.option span { font-size:11.5px; opacity:.68; line-height:1.4; }
+.option[disabled] { opacity:.42; cursor:not-allowed; }
+.f-vide { text-align:center; padding:18px 0; font-size:13px; opacity:.6; }
+
+/* ============================ Voiles ============================ */
+.voile {
+  position:fixed; inset:0; z-index:40; display:none;
+  background:rgba(14,18,23,.93); padding:14px; overflow-y:auto;
+}
+.voile.visible { display:flex; align-items:center; justify-content:center; }
+.carte-modale {
+  position:relative; width:100%; max-width:470px; margin:auto;
+  background:var(--surface); border-radius:var(--radius-lg); padding:22px 20px;
+  box-shadow:var(--shadow-raised);
+}
+.carte-modale h2 { font-size:20px; margin-bottom:9px; padding-right:34px; }
+.carte-modale > p { font-size:13.5px; line-height:1.6; opacity:.8; margin-bottom:10px; }
+.fermer-x {
+  position:absolute; top:8px; right:10px; width:36px; height:36px;
+  border:none; background:none; font-size:20px; color:inherit; cursor:pointer;
+  border-radius:var(--radius-md);
+}
+.fermer-x:hover { background:var(--surface-muted); }
+
+/* Cartes de mission */
+.d-carte {
+  display:flex; align-items:center; gap:11px; width:100%; text-align:left;
+  padding:11px 13px; margin-bottom:8px;
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md);
+  font-family:var(--font-body); color:inherit; cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+.d-carte:hover:not([disabled]) { border-color:var(--border-strong); background:var(--surface-muted); }
+.d-carte[disabled] { opacity:.5; cursor:not-allowed; }
+.d-carte .num {
+  width:30px; height:30px; flex:none; border-radius:var(--radius-sm);
+  display:grid; place-items:center; background:var(--accent-doux);
+  font-family:var(--font-display); font-weight:800; font-size:13px;
+}
+.d-carte.fait .num { background:var(--success); color:#fff; }
+.d-carte .txt { flex:1; min-width:0; }
+.d-carte .txt b { display:block; font-size:13.5px; font-weight:600; }
+.d-carte .txt span { font-size:11.5px; opacity:.65; line-height:1.4; }
+
+/* Guide d'accueil */
+.g-etape { display:flex; gap:11px; margin-bottom:13px; }
+.g-etape .num {
+  width:26px; height:26px; flex:none; border-radius:var(--radius-full);
+  display:grid; place-items:center; background:var(--accent-doux);
+  font-family:var(--font-display); font-weight:800; font-size:12.5px;
+}
+.g-etape .t { font-size:13.5px; line-height:1.5; opacity:.85; flex:1; }
+.g-etape .t b { opacity:1; }
+
+/* Lexique */
+.lex-entree {
+  padding:11px 0; border-bottom:1px solid var(--border);
+}
+.lex-entree:last-child { border-bottom:none; }
+.lex-entree b { display:block; font-size:14px; font-weight:600; margin-bottom:2px; }
+.lex-entree span { font-size:12.5px; line-height:1.55; opacity:.78; }
+.lex-entree em { font-style:normal; color:var(--accent-texte); font-weight:600; }
+
+/* Écran de passage d'une mission à la suivante */
+.p-fanion {
+  display:flex; align-items:center; gap:10px; margin-bottom:12px;
+}
+.p-fanion .rond {
+  width:44px; height:44px; flex:none; border-radius:var(--radius-full);
+  display:grid; place-items:center; background:var(--success); font-size:22px;
+}
+.p-fanion b { display:block; font-size:17px; font-family:var(--font-display); font-weight:800; }
+.p-fanion span { font-size:12px; opacity:.65; }
+.p-acquis {
+  padding:12px 14px; border-radius:var(--radius-md); background:var(--accent-doux);
+  font-size:13px; line-height:1.55; margin-bottom:14px;
+}
+.p-acquis b { font-weight:600; }
+.p-suite {
+  border:2px dashed var(--border-strong); border-radius:var(--radius-md);
+  padding:12px 14px; margin-bottom:14px;
+}
+.p-suite .etiq {
+  font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--accent-texte); margin-bottom:3px;
+}
+.p-suite b { display:block; font-size:15px; font-family:var(--font-display); font-weight:800; }
+.p-suite span { font-size:12.5px; opacity:.7; line-height:1.45; }
+.p-neuf { font-size:12px; opacity:.6; text-align:center; margin-top:9px; line-height:1.45; }
+
+/* QCM */
+.q-question { font-size:15px; font-weight:600; line-height:1.4; margin-bottom:12px; }
+/* Le questionnaire. Ici, « q-choix » est le conteneur et « q-rep » chaque
+   proposition : le style s'appliquait au mauvais élément, si bien que les
+   réponses s'affichaient en boutons bruts du navigateur. */
+.q-choix { display:block; }
+.q-rep {
+  display:block; width:100%; text-align:left; margin-bottom:8px;
+  padding:12px 14px; min-height:46px;
+  background:var(--surface); border:2px solid var(--border); border-radius:var(--radius-md);
+  font-family:var(--font-body); font-size:13.5px; line-height:1.45; color:var(--neutral);
+  cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+.q-rep:hover:not([disabled]) { border-color:var(--border-strong); background:var(--surface-muted); }
+.q-rep.juste { border-color:var(--success); background:rgba(42,157,143,.12); font-weight:600; }
+.q-rep.faux { border-color:var(--destructive); background:rgba(232,58,75,.1); }
+.q-rep[disabled] { cursor:default; }
+.q-rep.juste::before { content:'✔️ '; }
+.q-rep.faux::before { content:'❌ '; }
+/* Le mot de la fin, après la réponse */
+.q-mot {
+  margin-top:4px; margin-bottom:12px; padding:11px 13px; border-radius:var(--radius-md);
+  font-size:12.5px; line-height:1.55; background:var(--accent-doux);
+}
+.q-mot.ok { background:rgba(42,157,143,.14); }
+.q-mot.non { background:var(--accent-doux); }
+.q-expl {
+  margin-top:4px; padding:11px 13px; border-radius:var(--radius-md);
+  background:var(--accent-doux); font-size:12.5px; line-height:1.55;
+  display:none;
+}
+.q-expl.visible { display:block; }
+.q-avance { font-size:11.5px; opacity:.55; margin-bottom:10px; letter-spacing:.04em; text-transform:uppercase; font-weight:600; }
+
+/* ============================ Toast ============================ */
+#toast {
+  position:fixed; left:50%; bottom:calc(70px + env(safe-area-inset-bottom));
+  transform:translateX(-50%);
+  max-width:calc(100vw - 28px); padding:10px 16px; z-index:45;
+  background:var(--neutral); color:var(--background);
+  border-radius:var(--radius-full); font-size:13px; font-weight:600;
+  opacity:0; pointer-events:none; transition:opacity .2s var(--ease); text-align:center;
+}
+#toast.visible { opacity:1; }
+#toast.alerte { background:var(--destructive); color:#fff; }
+
+/* ================= Adaptations d'écran ================= */
+
+/* Paysage sur téléphone : chaque pixel de hauteur compte */
+@media (orientation:landscape) and (max-height:520px) {
+  header { padding:3px 8px; }
+  header h1 { font-size:13px; }
+  header .sous { display:none; }
+  .icone-btn { width:34px; height:34px; font-size:16px; }
+  #mission { padding:5px 10px 6px; }
+  .m-pastille { width:24px; height:24px; font-size:11px; }
+  .m-titres b { font-size:12.5px; }
+  .m-titres span { display:none; }
+  #mission.ouvert .m-titres span { display:block; }
+  .m-jauge { margin-top:5px; }
+  #actions { padding:5px 10px calc(5px + env(safe-area-inset-bottom)); }
+  .btn { min-height:38px; padding:0 14px; font-size:13px; }
+  #atelier.avec-bilan #plan { max-height:none; }
+  #bilan { max-width:none; right:8px; left:auto; width:min(58%,420px); bottom:6px; }
+  .f-carte { max-height:96dvh; }
+}
+
+/* Écran large : la mission passe en colonne, l'atelier prend le reste */
+@media (min-width:880px) {
+  body { flex-direction:row; }
+  #colonne {
+    width:330px; flex:none; display:flex; flex-direction:column;
+    background:var(--surface); border-right:1px solid var(--border);
+    overflow-y:auto;
+  }
+  /* la colonne est étroite : les icônes passent sous le titre au lieu de l'écraser */
+  header { border-bottom:1px solid var(--border); flex-wrap:wrap; }
+  header h1 { font-size:16px; }
+  .tete-fin { width:100%; justify-content:flex-end; }
+  #mission { border-bottom:none; padding:12px 16px; }
+  /* la place ne manque pas : toutes les étapes restent visibles */
+  #mission:not(.ouvert) .etape:not(.a-montrer) { display:flex; }
+  #mission:not(.ouvert) .m-indice { display:block; }
+  .m-plier { display:none; }
+  main { flex:1; min-width:0; }
+  #actions { justify-content:center; }
+  #bilan { left:16px; right:16px; }
+  .f-carte {
+    position:absolute; top:50%; left:50%; right:auto; bottom:auto;
+    transform:translate(-50%,-50%); width:min(560px,92vw);
+    border-radius:var(--radius-lg); max-height:86dvh;
+    animation:apparait .2s var(--ease);
+  }
+  @keyframes apparait { from { opacity:0; } }
+  .f-poignee { display:none; }
+}
+
+/* Paysage sur téléphone : la scène passe avant tout le reste.
+   Replié, le plan de mission occupe encore une centaine de pixels, et les
+   barres de commandes autant. Sur 380 px de haut, chaque bloc doit rendre ce
+   qu'il peut — sinon il ne reste rien à regarder, ce qui était le cas.
+   Le but de la mission et le rang disparaissent : ils sont dans la modale des
+   missions, et l'étape en cours suffit à savoir quoi faire. */
+@media (orientation:landscape) and (max-height:520px) {
+  #mission { padding:4px 10px 5px; }
+  #mission:not(.ouvert) #m-but { display:none; }
+  #mission:not(.ouvert) .m-rang { font-size:9.5px; }
+  #mission .m-haut { gap:8px; }
+  .m-pastille { width:26px; height:26px; font-size:12px; }
+  .m-jauge { margin-top:4px; }
+  #etapes { margin-top:5px; }
+  .etape { padding:3px 0; font-size:12px; }
+  .m-actions { margin-top:6px; }
+  .m-actions .btn { min-height:32px; font-size:12px; }
+  #actions { padding:5px 8px; }
+  #actions .btn { min-height:36px; }
+}
+
+@media (prefers-reduced-motion:reduce) {
+  *,*::before,*::after { animation-duration:.01ms !important; transition-duration:.01ms !important; }
+}
+
+/* ===================== Propre au repas de la journée ===================== */
+
+.titre-scene {
+  font-family:var(--font-body); font-size:12.5px; font-weight:600;
+  fill:var(--neutral); text-anchor:middle; pointer-events:none; opacity:.8;
+}
+.etiq-scene {
+  font-family:var(--font-body); font-size:11.5px; font-weight:600;
+  fill:var(--neutral); text-anchor:middle; pointer-events:none;
+}
+.etiq-jauge {
+  font-family:var(--font-display); font-size:13.5px; font-weight:800;
+  fill:var(--neutral); text-anchor:middle; pointer-events:none;
+}
+.nom-test {
+  font-family:var(--font-display); font-size:12.5px; font-weight:800;
+  fill:var(--neutral); text-anchor:middle; pointer-events:none;
+}
+.em-jeton { font-size:22px; text-anchor:middle; pointer-events:none; }
+.em-bocal { font-size:34px; text-anchor:middle; pointer-events:none; }
+.zone-org, .surf { cursor:pointer; }
+.surf.choisie rect { stroke-width:3; }
+.nom-piece { font-family:var(--font-display); font-size:14px; font-weight:800;
+  fill:var(--neutral); text-anchor:middle; pointer-events:none; }
+.piece { cursor:pointer; }
+.piece.choisie path, .piece.choisie ellipse { stroke-width:3; }
+.jeton, .panier { cursor:pointer; }
+.panier.actif rect { stroke-width:3; }
+.me-outil { font-size:12px; line-height:1.55; }
+
+/* La zone d'un test : elle ne s'éclaire que si l'élève tient un aliment —
+   sinon rien n'indique qu'il faut d'abord en choisir un. */
+.zone-test { cursor:default; }
+.zone-test.active { cursor:pointer; }
+.zone-test.active:hover rect:first-child { fill:var(--accent-doux); }
+
+/* Les parties de la dent : chacune se touche pour être reconnue */
+.part-dent { cursor:pointer; }
+.part-dent path { transition:stroke-width .12s var(--ease); }
+.part-dent.vue path { stroke:var(--accent-texte); stroke-width:3.5; }
+
+/* ---- Le carnet d'observation ---- */
+#mesures {
+  position:absolute; top:8px; left:8px; width:214px; max-width:46%;
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--radius-md); box-shadow:var(--shadow-soft);
+  padding:9px 11px; pointer-events:none; z-index:3;
+}
+#mesures .me-titre {
+  font-size:10px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--accent-texte); margin-bottom:5px;
+}
+.me-ligne {
+  display:flex; align-items:baseline; justify-content:space-between; gap:8px;
+  font-size:12.5px; line-height:1.7;
+}
+.me-ligne .nom { font-weight:700; }
+.me-ligne .val { font-family:var(--font-display); font-weight:800; font-size:14px; }
+.me-sep { height:1px; background:var(--border); margin:6px 0 5px; }
+.me-egalite {
+  display:flex; align-items:center; gap:6px; flex-wrap:wrap;
+  font-size:12px; margin-top:3px; line-height:1.5;
+}
+.me-egalite .memb { font-family:var(--font-display); font-weight:800; }
+.me-egalite.juste { color:var(--success); }
+.me-egalite.faux  { color:var(--destructive); }
+#mesures .me-quoi { font-size:11.5px; line-height:1.45; opacity:.75; margin-top:6px; }
+
+/* ---- L'étal : les aliments et les commandes de la scène ---- */
+#outils {
+  flex:none; border-top:1px solid var(--border); background:var(--surface);
+  padding:8px 12px 9px; display:flex; gap:7px; align-items:center; flex-wrap:wrap;
+}
+.ot-titre { font-size:11.5px; opacity:.7; flex:none; margin-right:2px; }
+/* Les boutons sont des flex : sans conteneur flex, ils s'empilent chacun sur
+   sa ligne et la barre mange la hauteur de la scène. */
+#liste-outils { display:flex; gap:6px; flex-wrap:wrap; min-width:0; }
+.ot {
+  flex:none; display:flex; align-items:center; gap:5px; cursor:pointer;
+  padding:6px 11px 6px 9px; border-radius:var(--radius-full);
+  border:2px solid var(--border); background:var(--surface-muted);
+  font-family:inherit; font-size:12px; font-weight:600; color:var(--neutral);
+  min-height:40px;
+  transition:background .16s var(--ease), border-color .16s var(--ease);
+}
+.ot .em { font-size:15px; line-height:1; }
+.ot .compte {
+  margin-left:3px; background:var(--accent); color:var(--sur-primary);
+  border-radius:var(--radius-full); padding:0 6px; font-size:11.5px;
+}
+.ot[aria-pressed="true"] { border-color:var(--accent); background:var(--accent-doux); }
+.ot:disabled { opacity:.42; cursor:not-allowed; }
+.ot.appelle, .btn.appelle { animation:appelOutil 1.4s infinite; }
+@keyframes appelOutil {
+  0%,100% { box-shadow:0 0 0 0 rgba(91,197,242,.55); }
+  60%     { box-shadow:0 0 0 8px rgba(91,197,242,0); }
+}
+
+/* Sur téléphone, le carnet devient un bandeau au-dessus de la scène et l'étal
+   défile sur une seule ligne — même règle que dans les autres simulations. */
+@media (max-width:560px) {
+  #atelier { display:flex; flex-direction:column; }
+  #mesures {
+    position:static; width:auto; max-width:none; order:-1; flex:none;
+    border:none; border-bottom:1px solid var(--border); border-radius:0;
+    box-shadow:none; padding:6px 10px 7px;
+  }
+  #mesures .me-titre { margin-bottom:2px; font-size:9.5px; }
+  .me-ligne { display:inline-flex; margin-right:12px; font-size:11.5px; line-height:1.5; }
+  .me-ligne .val { font-size:13px; }
+  .me-sep { display:none; }
+  #mesures .me-quoi { font-size:10.5px; margin-top:2px; }
+  .me-egalite { font-size:11.5px; }
+  #outils { flex-wrap:nowrap; padding:6px 10px 7px; gap:6px; }
+  #liste-outils { flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; padding-bottom:2px; }
+  #liste-outils::-webkit-scrollbar { display:none; }
+  .ot-titre { display:none; }
+  .ot { padding:5px 10px 5px 8px; font-size:11.5px; min-height:38px; }
+  .em-jeton { font-size:19px; }
+  .em-bocal { font-size:28px; }
+  .nom-piece { font-size:13px; }
+}
+@media (max-height:430px) and (orientation:landscape) {
+  #mesures .me-quoi { display:none; }
+  #outils { padding:5px 10px 6px; }
+  #actions { padding:6px 8px; }
+}
+
+
+.g-titre { font-family:var(--font-display); font-weight:800; font-size:14px;
+  margin:14px 0 7px; color:var(--accent-texte); }
+
+/* ===================== L'accueil : « Que veux-tu faire ? » ===================== */
+#v-accueil .carte-modale { max-width:520px; }
+.ac-intro { font-size:13.5px; line-height:1.6; opacity:.8; margin-bottom:14px; }
+.ac-choix {
+  display:flex; align-items:center; gap:13px; width:100%; text-align:left;
+  padding:15px 16px; margin-bottom:11px;
+  background:var(--surface); border:2px solid var(--border); border-radius:var(--radius-lg);
+  font-family:var(--font-body); color:inherit; cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease);
+}
+.ac-choix:hover:not([disabled]) { border-color:var(--accent); background:var(--accent-doux); }
+.ac-choix[disabled] { opacity:.55; cursor:not-allowed; }
+.ac-choix .ac-em {
+  width:46px; height:46px; flex:none; border-radius:var(--radius-md);
+  display:grid; place-items:center; background:var(--surface-muted); font-size:25px;
+}
+.ac-choix .ac-txt { flex:1; min-width:0; }
+.ac-choix .ac-txt b { display:block; font-family:var(--font-display); font-size:17px; font-weight:800; }
+.ac-choix .ac-txt span { display:block; font-size:12.5px; opacity:.7; line-height:1.45; margin-top:1px; }
+.ac-choix .ac-etat { font-size:11.5px; font-weight:700; opacity:.75; flex:none; text-align:right; max-width:34%; }
+.ac-pied { font-size:12px; opacity:.6; line-height:1.5; margin-top:2px; }
+
+/* ===================== La visite guidée de l'interface =====================
+   Un halo encadre la zone dont on parle et assombrit tout le reste ; la carte
+   se pose à côté. Une liste écrite ne montrait rien : ici, on regarde. */
+#visite { position:fixed; inset:0; z-index:48; display:none; }
+#visite.visible { display:block; }
+#visite-halo {
+  position:absolute; border-radius:var(--radius-md);
+  border:3px solid var(--primary);
+  box-shadow:0 0 0 9999px rgba(12,16,20,.91);
+  transition:left .3s var(--ease), top .3s var(--ease),
+             width .3s var(--ease), height .3s var(--ease);
+  pointer-events:none;
+}
+#visite-carte {
+  position:absolute; background:var(--surface); border-radius:var(--radius-lg);
+  padding:15px 16px 13px; width:min(320px, calc(100vw - 24px));
+  box-shadow:0 12px 44px rgba(0,0,0,.34);
+  transition:left .3s var(--ease), top .3s var(--ease);
+}
+.v-titre { font-family:var(--font-display); font-size:16px; font-weight:800; margin-bottom:5px; }
+.v-texte { font-size:13px; line-height:1.55; opacity:.85; }
+.v-texte b { opacity:1; }
+.v-bas { display:flex; align-items:center; gap:8px; margin-top:13px; }
+.v-prog { flex:1; font-size:11.5px; font-weight:700; opacity:.5; letter-spacing:.04em; }
+#visite-passer {
+  background:none; border:none; color:inherit; opacity:.6;
+  font-family:var(--font-body); font-size:12.5px; text-decoration:underline;
+  cursor:pointer; padding:6px;
+}
+#visite-passer:hover { opacity:1; }
+#visite-suivant {
+  border:none; background:var(--primary); color:var(--neutral);
+  font-family:var(--font-body); font-weight:700; font-size:13.5px;
+  padding:10px 18px; border-radius:var(--radius-md); cursor:pointer; min-height:40px;
+}
+
+/* ===================== Le quiz libre : m'exercer =====================
+   Refonte : les trois niveaux se ressemblaient trait pour trait — même carte
+   blanche, même texte, et trois médailles que rien ne distingue à cette taille.
+   Rien ne disait qu'il s'agit d'une échelle de difficulté, ni qu'un niveau pèse
+   plus lourd qu'un autre. Chacun reçoit donc sa teinte (bronze, argent, or),
+   portée par un rail à gauche et par le disque de la médaille, et son poids est
+   écrit. Le score de maîtrise devient le personnage principal de l'écran. */
+#v-quiz .carte-modale { max-width:520px; }
+
+/* ---- Le bandeau de maîtrise : c'est LE chiffre qu'on vient voir ---- */
+.qz-maitrise {
+  margin:4px 0 18px; padding:15px 16px; border-radius:var(--radius-lg);
+  background:linear-gradient(135deg, var(--accent-doux), var(--surface-muted));
+  border:1px solid var(--border);
+}
+.qz-m-haut { display:flex; align-items:center; justify-content:space-between; gap:10px; font-size:12.5px; }
+.qz-m-haut span { opacity:.75; font-weight:600; }
+.qz-m-haut b {
+  font-family:var(--font-display); font-size:34px; font-weight:800; line-height:1;
+  letter-spacing:-.02em;
+}
+.qz-m-barre {
+  height:12px; border-radius:var(--radius-full); background:var(--surface);
+  overflow:hidden; margin-top:10px; border:1px solid var(--border);
+}
+.qz-m-barre i {
+  display:block; height:100%; border-radius:inherit;
+  background:linear-gradient(90deg, #B87333 0%, #8A9BA8 45%, var(--primary) 100%);
+  transition:width .6s var(--ease);
+}
+.qz-m-mot {
+  font-size:11px; font-weight:800; opacity:.7; margin-top:7px;
+  letter-spacing:.08em; text-transform:uppercase;
+}
+
+/* ---- Les trois niveaux : une échelle, pas une liste ---- */
+.qz-niveau {
+  position:relative; display:flex; align-items:center; gap:13px;
+  width:100%; text-align:left; padding:14px 15px 14px 22px; margin-bottom:10px;
+  background:var(--surface); border:2px solid var(--border); border-radius:var(--radius-lg);
+  font-family:var(--font-body); color:inherit; cursor:pointer;
+  transition:border-color .15s var(--ease), background .15s var(--ease),
+             transform .15s var(--ease);
+}
+/* le rail coloré : on lit le niveau avant même d'avoir lu son nom */
+.qz-niveau::before {
+  content:''; position:absolute; left:0; top:0; bottom:0; width:7px;
+  background:var(--qz-teinte); border-radius:var(--radius-lg) 0 0 var(--radius-lg);
+}
+.qz-niveau:hover { border-color:var(--qz-teinte); background:var(--surface-muted); }
+.qz-niveau:active { transform:scale(.99); }
+.qz-niveau[data-niveau="souviens"]  { --qz-teinte:#C08A4A; }   /* bronze */
+.qz-niveau[data-niveau="comprends"] { --qz-teinte:#8E9BA6; }   /* argent */
+.qz-niveau[data-niveau="pieges"]    { --qz-teinte:#D9A520; }   /* or     */
+body.sombre .qz-niveau[data-niveau="souviens"]  { --qz-teinte:#D19A5C; }
+body.sombre .qz-niveau[data-niveau="comprends"] { --qz-teinte:#A6B3BE; }
+body.sombre .qz-niveau[data-niveau="pieges"]    { --qz-teinte:#EBBB3A; }
+
+.qz-niveau .qz-em {
+  width:46px; height:46px; flex:none; border-radius:var(--radius-full);
+  display:grid; place-items:center; font-size:23px;
+  background:color-mix(in srgb, var(--qz-teinte) 20%, var(--surface));
+  border:2px solid var(--qz-teinte);
+}
+.qz-niveau .qz-txt { flex:1; min-width:0; }
+.qz-niveau .qz-txt b {
+  display:block; font-family:var(--font-display); font-size:16px; font-weight:800;
+}
+.qz-niveau .qz-txt span {
+  display:block; font-size:12px; opacity:.7; line-height:1.4; margin-top:2px;
+}
+/* Le poids du niveau, écrit : c'est l'information qui manquait le plus. */
+.qz-niveau .qz-txt b::after {
+  content:'×' attr(data-poids); margin-left:8px;
+  padding:2px 7px; border-radius:var(--radius-full); vertical-align:2px;
+  background:var(--qz-teinte); color:#fff;
+  font-family:var(--font-body); font-size:10px; font-weight:700; letter-spacing:.02em;
+}
+.qz-niveau .qz-note { flex:none; text-align:right; font-size:15px; line-height:1.2; }
+.qz-niveau .qz-note span {
+  display:block; font-size:10.5px; font-weight:600; opacity:.55; margin-top:3px;
+}
+.qz-pied { font-size:12px; opacity:.65; line-height:1.5; margin-top:6px; }
+
+/* ---- Le fil des questions ---- */
+.qz-jauge {
+  height:8px; border-radius:var(--radius-full); background:var(--surface-muted);
+  overflow:hidden; margin:0 0 14px; border:1px solid var(--border);
+}
+.qz-jauge i {
+  display:block; height:100%; border-radius:inherit;
+  background:var(--accent); transition:width .3s var(--ease);
+}
+
+/* ---- L'écran de résultat : le score et les étoiles font la une ---- */
+.qz-fin {
+  display:flex; align-items:center; gap:14px; margin-bottom:12px;
+  padding:14px 15px; border-radius:var(--radius-lg);
+  background:var(--surface-muted);
+}
+.qz-fin-em { font-size:40px; line-height:1; flex:none; }
+.qz-fin b { display:block; font-family:var(--font-display); font-size:19px; font-weight:800; line-height:1.15; }
+.qz-fin span { font-size:12.5px; opacity:.68; }
+.qz-fin-et { margin-left:auto; font-size:20px; letter-spacing:2px; white-space:nowrap; }
+.qz-mieux { font-size:12.5px; font-weight:600; color:var(--vert-fonce); margin:0 0 12px; }
+.qz-mieux.discret { color:inherit; opacity:.55; font-weight:400; }
+.qz-revoir {
+  padding:12px 14px; border-radius:var(--radius-md);
+  background:var(--accent-doux); font-size:12.5px; line-height:1.65; margin-bottom:14px;
+}
+.qz-revoir span { display:block; }
+.qz-boutons { display:flex; gap:8px; }
+.qz-boutons .btn { flex:1; }
+
+/* ---- Les propositions de réponse, ici comme dans le QCM de fin de mission ----
+   Elles ressemblaient à des champs de saisie : un trait fin, du texte, rien qui
+   dise « on me choisit ». Chacune reçoit sa lettre — on peut alors la désigner à
+   l'oral, « la B » — et une cible au doigt franchement plus grande. */
+#qz-choix, #q-choix { counter-reset:choix; }
+#qz-choix .q-choix, #q-choix .q-choix {
+  position:relative; display:flex; align-items:center;
+  padding:13px 14px 13px 48px; min-height:54px; line-height:1.4;
+}
+#qz-choix .q-choix::before, #q-choix .q-choix::before {
+  counter-increment:choix; content:counter(choix, upper-alpha);
+  position:absolute; left:12px; top:50%; transform:translateY(-50%);
+  width:27px; height:27px; border-radius:var(--radius-full);
+  display:grid; place-items:center;
+  background:var(--surface-muted); border:1.5px solid var(--border);
+  font-family:var(--font-display); font-size:12.5px; font-weight:800;
+}
+#qz-choix .q-choix:hover:not([disabled])::before,
+#q-choix .q-choix:hover:not([disabled])::before { border-color:var(--border-strong); }
+#qz-choix .q-choix.bon::before, #q-choix .q-choix.bon::before {
+  background:var(--success); border-color:var(--success); color:#fff;
+}
+#qz-choix .q-choix.mauvais::before, #q-choix .q-choix.mauvais::before {
+  background:var(--destructive); border-color:var(--destructive); color:#fff;
+}
+
+/* ---- La carte de la visite guidée : elle ne doit ressembler à rien d'autre ----
+   Retour d'usage : l'œil hésitait entre la zone montrée et la carte qui
+   l'explique, surtout quand la zone contient beaucoup de texte — les deux
+   avaient le même fond blanc et le même style. La carte prend donc une couleur
+   qui n'existe nulle part ailleurs dans l'interface : c'est « le guide qui
+   parle », pas un panneau de l'application. Même identité en clair et en
+   sombre, pour qu'on la reconnaisse d'un thème à l'autre.
+   Contrastes vérifiés : 5,7 (clair) et 7,7 (sombre) pour le texte plein ;
+   l'opacité des textes secondaires ne descend pas sous 0,85, plancher mesuré
+   en dessous duquel on passe sous le seuil AA. */
+:root { --visite-fond:#0F6E93; --visite-encre:#FFFFFF; }
+body.sombre { --visite-fond:#0B5674; --visite-encre:#F2FAFE; }
+
+#visite-carte {
+  background:var(--visite-fond); color:var(--visite-encre);
+  border:2px solid rgba(255,255,255,.16);
+  box-shadow:0 14px 46px rgba(0,0,0,.45);
+}
+#visite-carte .v-titre, #visite-carte .vtitre { color:var(--visite-encre); }
+#visite-carte .v-texte, #visite-carte .vtexte { color:var(--visite-encre); opacity:.92; }
+#visite-carte .v-texte b, #visite-carte .vtexte b { color:var(--visite-encre); opacity:1; }
+#visite-carte .v-prog, #visite-carte .vprog { color:var(--visite-encre); opacity:.85; }
+#visite-carte .vmarque { color:var(--visite-encre); opacity:.85; }
+#visite-passer { color:var(--visite-encre); opacity:.85; }
+#visite-passer:hover { opacity:1; }
+/* Le bouton garde le lime de la plateforme : c'est l'action, elle doit sauter aux yeux */
+#visite-suivant { background:var(--primary); color:#3A3632; }
+
+/* ---- Lisibilité des boutons lime en thème sombre ----
+   Le lime (--primary) est une couleur claire dans les DEUX thèmes : son encre
+   doit donc rester sombre dans les deux. Elle suivait le jeton --neutral, qui passe au
+   blanc en sombre : le texte tombait à 1,36 de contraste, illisible. Un jeton
+   dédié fige l'encre posée sur le lime, à 7,6 de contraste. */
+:root, body.sombre { --sur-primary:#3A3632; }
+.btn, #visite-suivant, .go, #btn-continuer, #btn-suivante, #btn-suiv2, #btn-commencer {
+  color:var(--sur-primary);
+}
+.btn-contour, .btn-fantome { color:var(--neutral); }
+</style>
+</head>
+<body>
+<div id="colonne">
+  <header>
+    <a class="icone-btn" href="../../index.html#/svt/6e" title="Retour au catalogue" aria-label="Retour">←</a>
+    <div>
+      <h1>Tous respirent</h1>
+      <div class="sous">SVT · 6ᵉ · SA3</div>
+    </div>
+    <div class="tete-fin">
+      <button class="icone-btn" id="btn-missions" title="Les missions" aria-label="Missions">🎯</button>
+      <button class="icone-btn" id="btn-lexique" title="Lexique" aria-label="Lexique">📖</button>
+      <button class="icone-btn" id="btn-aide" title="Comment jouer" aria-label="Aide">❓</button>
+      <button class="icone-btn" id="btn-theme" title="Thème" aria-label="Thème">🌙</button>
+    </div>
+  </header>
+  <section id="mission">
+    <div class="m-haut">
+      <span class="m-pastille" id="m-num">1</span>
+      <div class="m-titres">
+        <span class="m-rang" id="m-rang">Mission 1 sur 10</span>
+        <b id="m-titre">—</b>
+        <span id="m-but"></span>
+      </div>
+      <button class="m-plier" id="m-plier" aria-label="Afficher toutes les étapes" aria-expanded="false">▼</button>
+    </div>
+    <div class="m-jauge"><i id="m-jauge" style="width:0"></i></div>
+    <div id="etapes"></div>
+    <div class="m-actions" id="m-actions" hidden>
+      <button class="btn btn-contour btn-large" id="btn-indice">💡 Indice</button>
+    </div>
+    <div class="m-indice" id="m-indice" hidden></div>
+  </section>
+</div>
+
+<main>
+  <div id="atelier">
+    <svg id="plan" preserveAspectRatio="xMidYMid meet" role="img"
+         aria-label="Un bocal d’expérience, les organes respiratoires extérieurs, et les surfaces respiratoires"></svg>
+    <div id="mesures">
+      <div class="me-titre">Mon carnet d’observation</div>
+      <div id="me-corps"></div>
+      <div class="me-quoi" id="me-quoi">Choisis un occupant, puis fais avancer le temps.</div>
+    </div>
+    <div id="bilan" role="status" aria-live="polite"></div>
+  </div>
+
+  <div id="outils">
+    <span class="ot-titre">Le montage :</span>
+    <div class="rg-choix" id="liste-outils"></div>
+  </div>
+
+  <div id="actions"></div>
+</main>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<div id="visite">
+  <div id="visite-halo"></div>
+  <div id="visite-carte">
+    <div class="v-titre" id="visite-titre"></div>
+    <div class="v-texte" id="visite-texte"></div>
+    <div class="v-bas">
+      <span class="v-prog" id="visite-prog"></span>
+      <button id="visite-passer" type="button">Passer</button>
+      <button id="visite-suivant" type="button">Suivant</button>
+    </div>
+  </div>
+</div>
+
+<div class="voile" id="v-quiz">
+  <div class="carte-modale" id="quiz-carte"></div>
+</div>
+
+<div class="voile" id="v-accueil">
+  <div class="carte-modale">
+    <h2>Que veux-tu faire ?</h2>
+    <p class="ac-intro">Un homme, un poisson, un criquet, une graine : rien de commun dans leurs organes.
+       Tu vas montrer qu’ils font pourtant tous <b>exactement la même chose</b>.</p>
+    <button class="ac-choix" id="ac-apprendre">
+      <span class="ac-em">🎓</span>
+      <span class="ac-txt"><b>Apprendre</b><span>Le parcours guidé, mission après mission.</span></span>
+      <span class="ac-etat" id="ac-etat-app"></span>
+    </button>
+    <button class="ac-choix" id="ac-experimenter">
+      <span class="ac-em">🧪</span>
+      <span class="ac-txt"><b>Expérimenter</b><span>Le bocal, tous les êtres vivants, les deux tests.</span></span>
+      <span class="ac-etat" id="ac-etat-exp"></span>
+    </button>
+    <button class="ac-choix" id="ac-exercer">
+      <span class="ac-em">🏅</span>
+      <span class="ac-txt"><b>M’exercer</b><span>Trois séries de questions, et un score de maîtrise.</span></span>
+      <span class="ac-etat" id="ac-etat-ex"></span>
+    </button>
+    <p class="ac-pied" id="ac-pied"></p>
+  </div>
+</div>
+
+<div class="voile" id="v-lexique">
+  <div class="carte-modale">
+    <button class="fermer-x" data-ferme="v-lexique" aria-label="Fermer">✕</button>
+    <h2>📖 Les mots de la respiration</h2>
+    <p>Le vocabulaire exact du programme, avec des exemples pris dans les expériences.</p>
+    <div id="liste-lexique"></div>
+  </div>
+</div>
+
+<div class="voile" id="v-missions">
+  <div class="carte-modale">
+    <button class="fermer-x" data-ferme="v-missions" aria-label="Fermer">✕</button>
+    <h2>🎯 Les missions</h2>
+    <p>Elles se suivent : termine l’une pour ouvrir la suivante.</p>
+    <div id="liste-missions"></div>
+    <button class="btn btn-fantome btn-large" id="btn-rezero"
+            style="margin-top:6px;color:var(--destructive)">↺ Recommencer tout le parcours</button>
+  </div>
+</div>
+
+<div class="voile" id="v-aide">
+  <div class="carte-modale">
+    <button class="fermer-x" data-ferme="v-aide" aria-label="Fermer">✕</button>
+    <h2>🫁 Comment on montre qu’un être respire</h2>
+    <p>On ne voit pas un gaz. Mais on peut le faire parler : l’eau de chaux dénonce le dioxyde
+       de carbone, la bougie dénonce le manque de dioxygène.</p>
+    <div class="g-titre">Comment on s’y prend</div>
+    <div class="g-etape"><span class="num">1</span><span class="t">
+      <b>Choisis l’occupant</b> du bocal, puis fais avancer le temps de deux minutes en deux
+      minutes. Les animaux sont relâchés dès la mesure prise.</span></div>
+    <div class="g-etape"><span class="num">2</span><span class="t">
+      <b>Change d’outil</b> : l’eau de chaux répond vite, la bougie demande plus de patience.
+      Les deux jauges montrent où en sont les gaz.</span></div>
+    <div class="g-etape"><span class="num">3</span><span class="t">
+      <b>N’oublie jamais le témoin.</b> Sans le bocal de cailloux, rien ne prouve que c’est
+      l’être vivant qui a modifié l’air.</span></div>
+    <button class="btn btn-contour btn-large" id="btn-revoir-visite"
+            style="margin-bottom:8px">🔍 Revoir la visite guidée</button>
+    <button class="btn btn-large" data-ferme="v-aide">Ouvrir le bocal</button>
+  </div>
+</div>
+
+<div class="voile" id="v-qcm"><div class="carte-modale" id="qcm-carte"></div></div>
+<div class="voile" id="v-passage"><div class="carte-modale" id="passage-carte"></div></div>
+
+<script>
+'use strict';
+/* =====================================================================
+   Tous respirent — SVT 6ᵉ, SA3
+   ===================================================================== */
+
+const $ = id => document.getElementById(id);
+const el = (nom, attrs, texte) => {
+  const n = document.createElementNS('http://www.w3.org/2000/svg', nom);
+  for (const k in attrs) n.setAttribute(k, attrs[k]);
+  if (texte != null) n.textContent = texte;
+  return n;
+};
+
+/* =====================================================================
+   Tous respirent — SVT 6ᵉ, SA3
+   « Unité et diversité des phénomènes respiratoires chez les êtres vivants »
+   (9 semaines)
+
+   Le guide donne une instruction de structure, et elle est inhabituelle :
+   « L'armature de la progression sera construite NON PAS autour des exemples
+   étudiés l'un après l'autre et en totalité, mais autour des divers aspects
+   biologiques de la fonction :
+       - les organes extérieurs de la respiration chez divers animaux terrestres ;
+       - les signes extérieurs de la respiration chez quelques animaux aquatiques ;
+       - les organes respiratoires et leurs caractéristiques ;
+       - les échanges gazeux respiratoires. »
+   Le parcours suit cette armature, et non la liste des animaux.
+
+   BORNES DU PROGRAMME, posées explicitement par le guide :
+   — « La formulation du concept de respiration à ce niveau n'intègrera PAS
+     l'idée d'énergie. » Aucune mention d'énergie, de combustion cellulaire ni
+     d'ATP.
+   — Le devenir du dioxygène et l'origine du dioxyde de carbone s'abordent
+     « sans que soient étudiés les mécanismes de transport des gaz aux
+     organes ». On se limite aux caractéristiques communes des surfaces
+     respiratoires, qui suffisent à établir le rôle du sang.
+
+   Les animaux sont mis dans le bocal le temps d'une mesure, puis relâchés :
+   la simulation le dit et le montre.
+
+   Le modèle est vérifié par test-modele.js, qui l'extrait de ce fichier même.
+   ===================================================================== */
+
+/*__DEBUT MODELE__*/
+/* ---- L'air ordinaire, en pourcentages arrondis ----
+   Le programme de 6ᵉ retient ces ordres de grandeur, pas la troisième décimale. */
+const AIR_NORMAL = { o2:21, co2:0.04 };
+
+/* ---- Les quatre modes de respiration, et leurs organes ---- */
+const MODES = {
+  pulmonaire: { nom:'Respiration pulmonaire', organe:'Poumons', em:'🫁',
+    ou:'À l’intérieur du corps, au bout des voies respiratoires.',
+    signe:'La poitrine se soulève et s’abaisse.' },
+  branchiale: { nom:'Respiration branchiale', organe:'Branchies', em:'🐟',
+    ou:'De part et d’autre de la tête, protégées par les opercules.',
+    signe:'La bouche et les opercules s’ouvrent et se ferment sans arrêt.' },
+  tracheenne: { nom:'Respiration trachéenne', organe:'Trachées', em:'🦗',
+    ou:'Des tubes très fins qui partent des stigmates et parcourent tout le corps.',
+    signe:'L’abdomen se dilate et se contracte.' },
+  cutanee:    { nom:'Respiration cutanée', organe:'Peau', em:'🪱',
+    ou:'Toute la surface du corps, qui doit rester humide.',
+    signe:'Aucun mouvement visible : la peau échange directement.' },
+};
+
+/* ---- Les êtres vivants du bocal ----
+   `intensite` : ce que l'être consomme en dioxygène, par minute et pour la
+   taille du bocal. Ce sont des valeurs de SIMULATION, pas des mesures : elles
+   sont réglées pour que l'eau de chaux réponde en deux à quatre minutes et la
+   bougie en dix à vingt. Assez pour qu'on voie l'expérience avancer, assez peu
+   pour qu'on ne s'ennuie pas à attendre. */
+const ETRES = {
+  homme:    { nom:'Air expiré', em:'😮‍💨', mode:'pulmonaire', regne:'animal', milieu:'air',
+              orgExt:'Narines et bouche', intensite:0.9,
+              quoi:'On souffle directement dans le montage : pas besoin de bocal.' },
+  souris:   { nom:'Souris', em:'🐭', mode:'pulmonaire', regne:'animal', milieu:'air',
+              orgExt:'Narines', intensite:0.60,
+              quoi:'On la remet dans sa cage dès la mesure prise.' },
+  lezard:   { nom:'Lézard', em:'🦎', mode:'pulmonaire', regne:'animal', milieu:'air',
+              orgExt:'Narines', intensite:0.45,
+              quoi:'On le relâche dès la mesure prise.' },
+  criquet:  { nom:'Criquet', em:'🦗', mode:'tracheenne', regne:'animal', milieu:'air',
+              orgExt:'Stigmates, sur les côtés de l’abdomen', intensite:0.34,
+              quoi:'On le relâche dès la mesure prise.' },
+  verTerre: { nom:'Ver de terre', em:'🪱', mode:'cutanee', regne:'animal', milieu:'air',
+              orgExt:'Aucun : toute la peau', intensite:0.30,
+              quoi:'Sa peau doit rester humide, sinon il ne peut plus respirer.' },
+  poisson:  { nom:'Poisson', em:'🐟', mode:'branchiale', regne:'animal', milieu:'eau',
+              orgExt:'Opercules, derrière la tête', intensite:0.45,
+              quoi:'Dans un bocal d’eau. On le remet à l’eau courante ensuite.' },
+  tetard:   { nom:'Têtard', em:'🐸', mode:'branchiale', regne:'animal', milieu:'eau',
+              orgExt:'Branchies, sur les côtés de la tête', intensite:0.34,
+              quoi:'Il respire par des branchies tant qu’il vit dans l’eau.' },
+  graines:  { nom:'Graines germées', em:'🌱', mode:null, regne:'vegetal', milieu:'air',
+              orgExt:'Aucun organe visible', intensite:0.40,
+              quoi:'Des graines de niébé mises à germer sur du coton humide.' },
+  feuilles: { nom:'Feuilles fraîches', em:'🍃', mode:null, regne:'vegetal', milieu:'air',
+              orgExt:'Aucun organe visible', intensite:0.32,
+              quoi:'À l’obscurité, pour ne voir que la respiration.' },
+  champignon:{ nom:'Champignons frais', em:'🍄', mode:null, regne:'autre', milieu:'air',
+              orgExt:'Aucun organe visible', intensite:0.36,
+              quoi:'Ni animal ni végétal — et pourtant, il respire.' },
+  cailloux: { nom:'Cailloux', em:'🪨', mode:null, regne:'inerte', milieu:'air',
+              orgExt:'—', intensite:0,
+              quoi:'Le témoin : rien de vivant dans le bocal.' },
+};
+
+/* ---- Ce que devient l'air du bocal ----
+   Un être vivant prélève du dioxygène et rejette du dioxyde de carbone. On
+   fait l'échange volume pour volume : c'est faux dans le détail, mais c'est
+   ce que le programme de 6ᵉ retient, et cela suffit aux deux tests. */
+function airApres(cle, minutes) {
+  const e = ETRES[cle];
+  if (!e) return { o2:AIR_NORMAL.o2, co2:AIR_NORMAL.co2, pris:0 };
+  const pris = Math.max(0, Math.min(AIR_NORMAL.o2 - 2, e.intensite * Math.max(0, minutes)));
+  return { o2:AIR_NORMAL.o2 - pris, co2:AIR_NORMAL.co2 + pris, pris };
+}
+
+/* ---- Le test de l'eau de chaux ----
+   Elle se trouble en présence de dioxyde de carbone. C'est le même réactif que
+   dans « Combustions vives » : l'élève le retrouve, et le reconnaît. */
+const SEUIL_CHAUX = 1.2;              // en % de CO2 : en dessous, rien ne se voit
+function eauDeChaux(co2) {
+  const t = Math.max(0, Math.min(1, (co2 - AIR_NORMAL.co2) / (SEUIL_CHAUX * 4)));
+  return {
+    trouble: t,
+    positif: co2 >= SEUIL_CHAUX,
+    dit: co2 >= SEUIL_CHAUX * 2.5 ? 'très troublée'
+       : co2 >= SEUIL_CHAUX ? 'troublée'
+       : 'limpide',
+  };
+}
+
+/* ---- Le test de la bougie ----
+   Elle a besoin de dioxygène pour brûler ; elle s'éteint quand il en manque.
+   Même seuil que dans « Combustions vives ». */
+const SEUIL_BOUGIE = 15;
+function bougie(o2) {
+  return {
+    brule: o2 >= SEUIL_BOUGIE,
+    dit: o2 >= 19 ? 'brûle normalement'
+       : o2 >= SEUIL_BOUGIE ? 'faiblit'
+       : 's’éteint',
+  };
+}
+
+/* ---- Les caractéristiques communes des surfaces respiratoires ----
+   Le guide s'y arrête : c'est en les comparant qu'on établit l'unité de la
+   fonction, et le rôle du sang, sans étudier le transport des gaz. */
+const CARACTERES = {
+  fine:    { nom:'Une paroi très fine', quoi:'Les gaz la traversent facilement.' },
+  humide:  { nom:'Toujours humide', quoi:'Les gaz ne traversent que dissous dans un liquide.' },
+  etendue: { nom:'Très étendue', quoi:'Repliée, plissée ou ramifiée, pour offrir une grande surface.' },
+  irriguee:{ nom:'Richement irriguée', quoi:'Parcourue de sang, qui emporte le dioxygène et rapporte le dioxyde de carbone.' },
+};
+
+/* Les surfaces des trois modes irrigués par le sang. Les trachées du criquet
+   font exception, et c'est justement ce qui les rend intéressantes : l'air y
+   arrive directement aux organes, sans passer par le sang. */
+const SURFACES = {
+  pulmonaire: { nom:'Alvéoles des poumons', caracteres:['fine', 'humide', 'etendue', 'irriguee'],
+                image:'Des centaines de millions de minuscules sacs.' },
+  branchiale: { nom:'Lamelles des branchies', caracteres:['fine', 'humide', 'etendue', 'irriguee'],
+                image:'Des lamelles serrées comme les pages d’un livre.' },
+  cutanee:    { nom:'Peau du ver de terre', caracteres:['fine', 'humide', 'etendue', 'irriguee'],
+                image:'Toute la surface du corps, gardée humide.' },
+  tracheenne: { nom:'Trachées du criquet', caracteres:['fine', 'humide', 'etendue'],
+                image:'Des tubes qui se ramifient jusqu’aux organes. L’air y arrive directement : le sang ne transporte pas les gaz.' },
+};
+
+// Les caractères partagés par TOUTES les surfaces : le cœur de l'unité.
+function caracteresCommuns() {
+  const listes = Object.keys(SURFACES).map(k => SURFACES[k].caracteres);
+  return Object.keys(CARACTERES).filter(c => listes.every(l => l.indexOf(c) >= 0));
+}
+
+const etresQuiRespirent = () => Object.keys(ETRES).filter(k => ETRES[k].intensite > 0);
+const etresDuMode = m => Object.keys(ETRES).filter(k => ETRES[k].mode === m);
+/*__FIN MODELE__*/
+
+/* ============================ Les missions ============================
+   L'armature est celle que le guide impose : par ASPECT de la fonction, et
+   non animal par animal. */
+
+const testeAvec = (etre, outil) => !!etat.vus.essais[etre + '/' + outil];
+const etresTestes = outil => Object.keys(etat.vus.essais)
+  .filter(k => k.split('/')[1] === outil).map(k => k.split('/')[0]);
+
+const MISSIONS = [
+  /* ---- 1. Comment respirent les Mammifères ? (cas de l'homme) ---- */
+  { titre:'Inspirer, expirer',
+    but:'Regarde ce qui bouge quand on respire, et compte.',
+    scene:'bocal', etres:['homme'],
+    etapes:[
+      { t:'Fais entrer l’air expiré dans le montage', cible:'btn-souffler', ok:e => e.minutes > 0 },
+      { t:'Laisse passer trois minutes', ok:e => e.minutes >= 3 },
+      { t:'Conclus', cible:'btn-tester', ok:e => e.vus.luMouvements },
+    ],
+    gagne:e => e.vus.luMouvements,
+    indice:'Touche « Souffler dedans », puis fais avancer le temps avec le bouton des minutes.',
+    retenir:'Respirer, c’est faire entrer de l’air dans le corps puis l’en faire sortir : c’est l’<b>inspiration</b> et l’<b>expiration</b>. Chez l’homme, la poitrine se soulève puis s’abaisse — ce sont les <b>mouvements respiratoires</b>. Ils se répètent sans arrêt, jour et nuit.',
+    qcm:{ q:'Que se passe-t-il pendant l’inspiration ?',
+      r:['De l’air entre dans le corps et la poitrine se soulève',
+         'De l’air sort du corps', 'Rien ne bouge'], bonne:0,
+      pourquoi:'Inspirer, c’est faire entrer l’air : la poitrine se soulève pour lui faire de la place. Expirer, c’est le mouvement inverse — l’air sort et la poitrine s’abaisse.' } },
+
+  { titre:'L’air expiré a changé',
+    but:'L’air qui sort est-il le même que celui qui entre ? L’eau de chaux répond.',
+    scene:'bocal', etres:['homme'],
+    etapes:[
+      { t:'Souffle dans le montage', cible:'btn-souffler', ok:e => e.minutes > 0 },
+      { t:'Attends que l’eau de chaux se trouble', ok:() => calc.chaux && calc.chaux.positif },
+      { t:'Conclus', cible:'btn-tester', ok:e => e.vus.luChaux },
+    ],
+    gagne:e => e.vus.luChaux,
+    indice:'L’eau de chaux met deux à trois minutes à réagir. Fais avancer le temps.',
+    retenir:'L’<b>eau de chaux</b> se trouble en présence de <b>dioxyde de carbone</b> — tu l’avais déjà rencontrée avec les combustions. Elle reste limpide dans l’air ordinaire, mais se trouble avec l’air expiré : l’air qui sort du corps contient <b>plus de dioxyde de carbone</b> que celui qui entre.',
+    qcm:{ q:'L’eau de chaux se trouble au contact de l’air expiré. Que prouve-t-elle ?',
+      r:['Que l’air expiré contient du dioxyde de carbone',
+         'Que l’air expiré est chaud', 'Que l’air expiré est humide'], bonne:0,
+      pourquoi:'L’eau de chaux ne réagit qu’au dioxyde de carbone. Elle ne dit rien de la température ni de l’humidité — c’est un test précis, qui ne répond qu’à une seule question.' } },
+
+  { titre:'Il manque du dioxygène',
+    but:'L’autre moitié de l’échange : qu’est-ce qui a disparu de l’air ?',
+    scene:'bocal', etres:['homme'],
+    etapes:[
+      { t:'Souffle, puis laisse le temps passer', ok:e => e.minutes >= 12 },
+      { t:'Approche la bougie', cible:'ou-bougie', ok:() => etat.outil === 'bougie' },
+      { t:'Constate qu’elle s’éteint', ok:() => calc.bougie && !calc.bougie.brule },
+      { t:'Conclus', cible:'btn-tester', ok:e => e.vus.luBougie },
+    ],
+    gagne:e => e.vus.luBougie,
+    indice:'La bougie a besoin de beaucoup de dioxygène : il faut attendre plus longtemps que pour l’eau de chaux.',
+    retenir:'Une bougie ne brûle que s’il y a assez de <b>dioxygène</b>. Dans l’air expiré, elle faiblit puis s’éteint : il en reste <b>moins</b> que dans l’air ordinaire. Respirer, c’est donc <b>prendre du dioxygène</b> dans l’air et y <b>rejeter du dioxyde de carbone</b>. C’est l’<b>échange gazeux respiratoire</b>.',
+    qcm:{ q:'Que prend l’organisme dans l’air qu’il respire ?',
+      r:['Du dioxygène', 'Du dioxyde de carbone', 'De la vapeur d’eau'], bonne:0,
+      pourquoi:'L’échange va dans les deux sens : le dioxygène entre dans l’organisme, le dioxyde de carbone en sort. C’est pour cela que l’air expiré éteint une bougie et trouble l’eau de chaux.' } },
+
+  /* ---- 2. Les organes extérieurs et les signes ---- */
+  { titre:'Par où l’air entre-t-il ?',
+    but:'Chez les animaux terrestres, cherche l’ouverture par où l’air passe.',
+    scene:'organes', etres:['souris', 'criquet', 'verTerre'],
+    etapes:[
+      { t:'Trouve les narines de la souris', ok:e => e.vus.organes['souris'] },
+      { t:'Trouve les stigmates du criquet', ok:e => e.vus.organes['criquet'] },
+      { t:'Cherche chez le ver de terre', ok:e => e.vus.organes['verTerre'] },
+      { t:'Conclus', cible:'btn-tester', ok:e => e.vus.luOrganesExt },
+    ],
+    gagne:e => e.vus.luOrganesExt,
+    indice:'Les stigmates du criquet sont de petits trous alignés sur les côtés de son abdomen. Le ver de terre, lui, n’a aucune ouverture — touche sa peau.',
+    retenir:'L’air n’entre pas partout de la même façon. La souris a des <b>narines</b>, le criquet des <b>stigmates</b> — de petits trous alignés sur ses flancs. Le ver de terre n’a <b>aucune ouverture</b> : l’air traverse directement sa <b>peau</b>, qui doit rester humide pour cela.',
+    qcm:{ q:'Par où l’air entre-t-il chez le criquet ?',
+      r:['Par les stigmates, de petits trous sur les côtés de l’abdomen',
+         'Par la bouche', 'Par les antennes'], bonne:0,
+      pourquoi:'Un insecte ne respire pas par la bouche. L’air entre par les stigmates et se répartit dans tout le corps par un réseau de tubes très fins, les trachées.' } },
+
+  { titre:'Les signes dans l’eau',
+    but:'Un animal aquatique respire aussi. Repère ce qui bouge sans arrêt.',
+    scene:'organes', etres:['poisson', 'tetard'],
+    etapes:[
+      { t:'Trouve les opercules du poisson', ok:e => e.vus.organes['poisson'] },
+      { t:'Regarde le têtard', ok:e => e.vus.organes['tetard'] },
+      { t:'Conclus', cible:'btn-tester', ok:e => e.vus.luAquatiques },
+    ],
+    gagne:e => e.vus.luAquatiques,
+    indice:'Les opercules sont les deux volets qui couvrent les côtés de la tête du poisson, juste derrière l’œil.',
+    retenir:'Le poisson ouvre la bouche et referme ses <b>opercules</b> sans arrêt : il fait ainsi passer un <b>courant d’eau</b> sur ses <b>branchies</b>. Ce mouvement continu est le <b>signe extérieur</b> de sa respiration. Il ne respire pas l’eau : il prélève le <b>dioxygène dissous</b> dedans.',
+    qcm:{ q:'Que prélève le poisson dans l’eau qui traverse ses branchies ?',
+      r:['Le dioxygène dissous dans l’eau', 'L’eau elle-même',
+         'Le dioxyde de carbone'], bonne:0,
+      pourquoi:'L’eau contient du dioxygène dissous, en bien plus petite quantité que l’air. C’est lui que les branchies prélèvent — et elles y rejettent le dioxyde de carbone.' } },
+
+  /* ---- 3. Les organes respiratoires et leurs caractéristiques ---- */
+  { titre:'Quatre organes, un seul travail',
+    but:'Poumons, branchies, trachées, peau : regarde-les de près.',
+    scene:'surfaces',
+    etapes:[
+      { t:'Examine les quatre surfaces', ok:e => Object.keys(e.vus.surfaces).length >= 4 },
+      { t:'Conclus', cible:'btn-tester', ok:e => e.vus.luOrganes },
+    ],
+    gagne:e => e.vus.luOrganes,
+    indice:'Touche chaque surface pour voir sa forme et ses caractéristiques.',
+    retenir:'Quatre organes très différents : les <b>poumons</b> et leurs alvéoles, les <b>branchies</b> et leurs lamelles, les <b>trachées</b> qui se ramifient dans tout le corps, et la <b>peau</b> du ver de terre. Chacun est la <b>surface respiratoire</b> de son propriétaire : l’endroit où les gaz passent.',
+    qcm:{ q:'Qu’appelle-t-on la surface respiratoire d’un animal ?',
+      r:['L’endroit de son corps où les gaz passent',
+         'La surface totale de sa peau', 'Sa bouche'], bonne:0,
+      pourquoi:'C’est le lieu de l’échange : les alvéoles pour les poumons, les lamelles pour les branchies, la peau elle-même chez le ver de terre. Ailleurs, aucun gaz ne traverse.' } },
+
+  { titre:'Ce qu’elles ont toutes en commun',
+    but:'Compare les quatre surfaces : trois caractères reviennent partout.',
+    scene:'surfaces',
+    etapes:[
+      { t:'Examine les quatre surfaces', ok:e => Object.keys(e.vus.surfaces).length >= 4 },
+      { t:'Trouve les caractères communs aux quatre', ok:e => e.vus.communsTrouves },
+      { t:'Conclus', cible:'btn-tester', ok:e => e.vus.luCommuns },
+    ],
+    gagne:e => e.vus.luCommuns,
+    indice:'Touche un caractère pour le mettre en évidence sur les quatre surfaces : celles qui l’ont s’allument. Cherche ceux que les quatre possèdent.',
+    retenir:'Toutes les surfaces respiratoires sont <b>très fines</b>, <b>toujours humides</b> et <b>très étendues</b> — repliées, plissées ou ramifiées. Trois d’entre elles sont en plus <b>richement irriguées</b> de sang, qui emporte le dioxygène vers tout le corps. Les <b>trachées</b> du criquet font exception : l’air y arrive directement aux organes, sans passer par le sang.',
+    qcm:{ q:'Pourquoi une surface respiratoire doit-elle rester humide ?',
+      r:['Parce que les gaz ne la traversent que dissous dans un liquide',
+         'Pour rafraîchir l’animal', 'Pour empêcher les microbes d’entrer'], bonne:0,
+      pourquoi:'C’est pour cela que le ver de terre meurt sur un sol sec, et que les branchies d’un poisson sorti de l’eau se collent et ne fonctionnent plus, alors que l’air en contient pourtant beaucoup plus.' } },
+
+  /* ---- 4. Les échanges gazeux, et la généralisation ---- */
+  { titre:'Le témoin',
+    but:'Avant d’accuser un être vivant, vérifie que le bocal seul ne fait rien.',
+    scene:'bocal', etres:['cailloux', 'souris'],
+    etapes:[
+      { t:'Mets les cailloux dans le bocal', ok:e => e.vus.temoinPose },
+      { t:'Laisse passer vingt minutes', ok:e => e.vus.temoinFait },
+      { t:'Refais l’essai avec la souris', ok:() => testeAvec('souris', 'chaux') },
+      { t:'Conclus', cible:'btn-tester', ok:e => e.vus.luTemoin },
+    ],
+    gagne:e => e.vus.luTemoin,
+    indice:'Change d’occupant avec les boutons du bas. Le bocal est rincé à chaque changement.',
+    retenir:'Avec des cailloux, l’eau de chaux reste limpide et la bougie brûle : le bocal <b>ne fait rien tout seul</b>. C’est le <b>témoin</b>, et il est indispensable — sans lui, on ne pourrait pas affirmer que c’est bien l’être vivant qui a modifié l’air.',
+    qcm:{ q:'À quoi sert le bocal de cailloux dans cette expérience ?',
+      r:['À vérifier que le bocal seul ne modifie pas l’air',
+         'À comparer le poids des cailloux', 'À rien du tout'], bonne:0,
+      pourquoi:'C’est un <b>témoin</b> : il subit tout sauf ce qu’on veut étudier. S’il ne change rien, alors la différence observée avec l’animal vient bien de l’animal.' } },
+
+  { titre:'Les végétaux aussi',
+    but:'Une plante ne bouge pas, n’a ni narines ni branchies. Respire-t-elle ?',
+    scene:'bocal', etres:['graines', 'feuilles', 'cailloux'],
+    etapes:[
+      { t:'Mets des graines germées dans le bocal', ok:() => testeAvec('graines', 'chaux') },
+      { t:'Attends que l’eau de chaux se trouble', ok:() => testeAvec('graines', 'chaux') },
+      { t:'Vérifie aussi avec des feuilles', ok:() => testeAvec('feuilles', 'chaux') },
+      { t:'Conclus', cible:'btn-tester', ok:e => e.vus.luVegetaux },
+    ],
+    gagne:e => e.vus.luVegetaux,
+    indice:'Les graines germées sont très actives : l’eau de chaux réagit en trois ou quatre minutes.',
+    retenir:'Les graines germées et les feuilles troublent l’eau de chaux, et finissent par éteindre la bougie : elles <b>prennent du dioxygène</b> et <b>rejettent du dioxyde de carbone</b>, exactement comme un animal. Les <b>végétaux respirent</b>, sans aucun organe visible, de jour comme de nuit.',
+    qcm:{ q:'Les végétaux respirent-ils ?',
+      r:['Oui : ils prennent du dioxygène et rejettent du dioxyde de carbone',
+         'Non, ils ne font que produire du dioxygène',
+         'Seulement la nuit'], bonne:0,
+      pourquoi:'C’est une idée fausse très répandue. Les végétaux respirent en permanence, de jour comme de nuit, comme tous les êtres vivants — l’expérience à l’eau de chaux le montre.' } },
+
+  { titre:'Tous respirent',
+    but:'Un dernier être t’attend dans le bocal. Ni animal, ni végétal.',
+    scene:'bocal', etres:['champignon', 'cailloux'],
+    etapes:[
+      { t:'Mets les champignons dans le bocal', ok:() => testeAvec('champignon', 'chaux') },
+      { t:'Montre qu’ils rejettent du dioxyde de carbone', ok:() => testeAvec('champignon', 'chaux') },
+      { t:'Conclus', cible:'btn-tester', ok:e => e.vus.luTous },
+    ],
+    gagne:e => e.vus.luTous,
+    indice:'Comme pour les autres : laisse passer quelques minutes, puis regarde l’eau de chaux.',
+    retenir:'Un champignon n’est ni un animal ni un végétal — et il respire lui aussi. C’est l’<b>unité</b> de la fonction : <b>tous les êtres vivants respirent</b>, ils prennent du <b>dioxygène</b> et rejettent du <b>dioxyde de carbone</b>. Ce qui change d’un être à l’autre, ce sont les <b>organes</b> — poumons, branchies, trachées, peau, ou rien de visible : c’est la <b>diversité</b>.',
+    qcm:{ q:'Qu’ont en commun un homme, un poisson, un criquet et une graine germée ?',
+      r:['Tous prennent du dioxygène et rejettent du dioxyde de carbone',
+         'Tous ont des poumons', 'Tous vivent dans l’eau'], bonne:0,
+      pourquoi:'Leurs organes n’ont rien à voir — poumons, branchies, trachées, aucun organe visible. Mais l’échange est le même partout : c’est l’unité de la respiration chez les êtres vivants.' } },
+];
+
+const LEXIQUE = [
+  ['Respiration', 'La fonction par laquelle un être vivant prend du dioxygène et rejette du dioxyde de carbone.'],
+  ['Inspiration', 'Le mouvement par lequel l’air entre dans le corps.'],
+  ['Expiration', 'Le mouvement par lequel l’air sort du corps.'],
+  ['Mouvements respiratoires', 'L’inspiration et l’expiration, qui se répètent sans arrêt.'],
+  ['Dioxygène', 'Le gaz de l’air que les êtres vivants prélèvent. Il représente environ 21 % de l’air.'],
+  ['Dioxyde de carbone', 'Le gaz que les êtres vivants rejettent. Il trouble l’eau de chaux.'],
+  ['Eau de chaux', 'Un liquide limpide qui se trouble en présence de dioxyde de carbone. C’est un test.'],
+  ['Échange gazeux respiratoire', 'Le double passage : le dioxygène entre, le dioxyde de carbone sort.'],
+  ['Surface respiratoire', 'L’endroit du corps où les gaz passent : alvéoles, lamelles, trachées ou peau.'],
+  ['Poumons', 'Les organes respiratoires des mammifères, des oiseaux et des reptiles.'],
+  ['Alvéoles', 'Les minuscules sacs qui forment la surface respiratoire des poumons.'],
+  ['Branchies', 'Les organes respiratoires des poissons, faits de lamelles serrées.'],
+  ['Opercule', 'Le volet qui couvre les branchies d’un poisson. Son mouvement est le signe de la respiration.'],
+  ['Trachées', 'Le réseau de tubes fins qui conduit l’air dans tout le corps d’un insecte.'],
+  ['Stigmate', 'Un des petits trous, sur les flancs d’un insecte, par où l’air entre dans les trachées.'],
+  ['Respiration cutanée', 'La respiration à travers la peau, comme chez le ver de terre. La peau doit rester humide.'],
+  ['Témoin', 'Un montage identique, sans ce qu’on veut étudier. Il montre que le reste ne fait rien tout seul.'],
+];
+
+/* ============================ L’état du jeu ============================ */
+const CLE = 'ike-respiration-progression';
+
+const vusVierge = () => ({
+  essais:{}, organes:{}, surfaces:{}, communsTrouves:false,
+  temoinPose:false, temoinFait:false,
+  luMouvements:false, luChaux:false, luBougie:false, luOrganesExt:false,
+  luAquatiques:false, luOrganes:false, luCommuns:false, luTemoin:false,
+  luVegetaux:false, luTous:false,
+});
+
+const vierge = () => ({
+  scene:'bocal', etre:'homme', minutes:0, outil:'chaux',
+  organeVu:null, surfaceVue:null, caractereVu:null,
+  vus:vusVierge(),
+});
+let etat = Object.assign({ mission:0, faits:[], libre:false }, vierge());
+let calc = {};
+
+function sauver() {
+  try { localStorage.setItem(CLE, JSON.stringify({ maitrise:etat.maitrise, mission:etat.mission,
+    faites:etat.faits, libre:etat.libre })); } catch (e) {}
+}
+function charger() {
+  try {
+    const d = JSON.parse(localStorage.getItem(CLE) || '{}');
+    if (d.maitrise) etat.maitrise = d.maitrise;
+    if (typeof d.mission === 'number') etat.mission = Math.min(d.mission, MISSIONS.length - 1);
+    if (Array.isArray(d.faites || d.faits)) etat.faits = d.faites || d.faits;
+    etat.libre = !!d.libre;
+  } catch (e) {}
+}
+
+const enLibre = () => etat.libre === true;
+
+function reprendre() {
+  const n = vierge();
+  for (const k in n) etat[k] = n[k];
+  const M = enLibre() ? null : MISSIONS[etat.mission];
+  etat.scene = enLibre() ? 'bocal' : (M.scene || 'bocal');
+  etat.etre = etresDeLaMission()[0] || 'homme';
+  if (etat.scene === 'organes') etat.organeVu = null;
+}
+
+function passerEnLibre() {
+  etat.libre = true; reprendre(); sauver();
+  demarrerMission(); rendreListeMissions();
+}
+
+function etresDeLaMission() {
+  if (enLibre()) return Object.keys(ETRES);
+  const M = MISSIONS[etat.mission];
+  return (M && M.etres) || Object.keys(ETRES);
+}
+
+/* ======================= Le plan de travail (SVG) ======================= */
+let Wp = 660, Hp = 340;
+const refs = {};
+const nuit = () => document.body.classList.contains('sombre');
+
+function mesurerPlan() {
+  const r = refs.plan.getBoundingClientRect();
+  Wp = Math.max(260, Math.round(r.width));
+  Hp = Math.max(160, Math.round(r.height));
+  refs.plan.setAttribute('viewBox', '0 0 ' + Wp + ' ' + Hp);
+  dessiner();
+}
+
+function T() {
+  const s = getComputedStyle(document.body);
+  const v = n => s.getPropertyValue(n).trim();
+  return { trait:v('--neutral'), bord:v('--border'), bordF:v('--border-strong'),
+           surface:v('--surface'), muet:v('--surface-muted'), accent:v('--accent-texte'),
+           ok:v('--success'), non:v('--destructive'), doux:v('--accent-doux') };
+}
+
+function decouper(txt, n) {
+  const mots = String(txt).split(' '), lignes = [];
+  let l = '';
+  for (const m of mots) {
+    if ((l + ' ' + m).trim().length > n) { lignes.push(l); l = m; }
+    else l = (l + ' ' + m).trim();
+  }
+  if (l) lignes.push(l);
+  return lignes;
+}
+
+function dessiner() {
+  refs.plan.textContent = '';
+  if (etat.scene === 'organes') dessinerOrganes();
+  else if (etat.scene === 'surfaces') dessinerSurfaces();
+  else dessinerBocal();
+}
+
+/* ---- Scène 1 : le bocal, l'eau de chaux et la bougie ---- */
+function dessinerBocal() {
+  const t = T(), plan = refs.plan, e = ETRES[etat.etre];
+  const cx = Wp * .29, cy = Hp * .52;
+  const bl = Math.min(Wp * .34, Hp * .62), bh = bl * 1.05;
+
+  plan.appendChild(el('text', { x:Wp / 2, y:Hp * .08, class:'titre-scene' },
+    etat.minutes ? 'Après ' + etat.minutes + ' minutes' : 'Le bocal est fermé, l’air y est ordinaire'));
+
+  // le bocal
+  plan.appendChild(el('rect', { x:cx - bl / 2, y:cy - bh / 2, width:bl, height:bh, rx:8,
+    fill:e.milieu === 'eau' ? (nuit() ? '#1B3A4B' : '#CDE9F5') : (nuit() ? '#1A2027' : '#F2F6F8'),
+    stroke:t.bordF, 'stroke-width':2.5 }));
+  plan.appendChild(el('rect', { x:cx - bl / 2 - 4, y:cy - bh / 2 - 8, width:bl + 8, height:12, rx:4,
+    fill:t.muet, stroke:t.bordF, 'stroke-width':2 }));
+  // son occupant
+  plan.appendChild(el('text', { x:cx, y:cy + bl * .1, class:'em-bocal' }, e.em));
+  decouper(e.nom, 16).forEach((l, i) =>
+    plan.appendChild(el('text', { x:cx, y:cy + bh / 2 + 18 + i * 14, class:'etiq-scene' }, l)));
+
+  // les deux jauges de gaz
+  const jx = Wp * .55, jl = Wp * .38, jh = 14;
+  const jauge = (nom, part, texte, y, couleur) => {
+    plan.appendChild(el('text', { x:jx, y:y - 6, class:'etiq-jauge', style:'text-anchor:start' }, nom));
+    plan.appendChild(el('rect', { x:jx, y, width:jl, height:jh, rx:jh / 2, fill:t.muet }));
+    plan.appendChild(el('rect', { x:jx, y, width:Math.max(0, Math.min(1, part)) * jl, height:jh,
+      rx:jh / 2, fill:couleur }));
+    plan.appendChild(el('text', { x:jx, y:y + jh + 15, class:'etiq-scene', style:'text-anchor:start' }, texte));
+  };
+  const a = calc.air || { o2:AIR_NORMAL.o2, co2:AIR_NORMAL.co2 };
+  jauge('Dioxygène', a.o2 / 21, nb(a.o2) + ' % — départ 21 %', Hp * .2,
+    a.o2 >= SEUIL_BOUGIE ? t.ok : t.non);
+  jauge('Dioxyde de carbone', Math.min(1, a.co2 / 6),
+    nb(a.co2) + ' % — départ 0,04 %', Hp * .46, a.co2 >= SEUIL_CHAUX ? '#B34A2A' : t.bord);
+
+  // l'outil de mesure
+  const oy = Hp * .74;
+  if (etat.outil === 'chaux') {
+    const c = calc.chaux || eauDeChaux(AIR_NORMAL.co2);
+    const tx = jx + 26;
+    plan.appendChild(el('path', {
+      d:'M ' + (tx - 13) + ' ' + oy + ' L ' + (tx - 13) + ' ' + (oy + 34) +
+        ' A 13 13 0 0 0 ' + (tx + 13) + ' ' + (oy + 34) + ' L ' + (tx + 13) + ' ' + oy,
+      fill:nuit() ? '#3B4A52' : '#EDF3F5', stroke:t.trait, 'stroke-width':2 }));
+    plan.appendChild(el('path', {
+      d:'M ' + (tx - 11) + ' ' + (oy + 12) + ' L ' + (tx - 11) + ' ' + (oy + 33) +
+        ' A 11 11 0 0 0 ' + (tx + 11) + ' ' + (oy + 33) + ' L ' + (tx + 11) + ' ' + (oy + 12) + ' Z',
+      fill:'#E9EEF0', 'fill-opacity':(.25 + c.trouble * .75).toFixed(2) }));
+    decouper('Eau de chaux ' + c.dit, Wp > 620 ? 26 : 15).forEach((l, i) =>
+      plan.appendChild(el('text', { x:tx + 28, y:oy + 14 + i * 16, class:'etiq-jauge',
+        style:'text-anchor:start', fill:c.positif ? '#B34A2A' : t.trait }, l)));
+  } else {
+    const b = calc.bougie || bougie(AIR_NORMAL.o2);
+    const tx = jx + 26;
+    plan.appendChild(el('rect', { x:tx - 7, y:oy + 8, width:14, height:28, rx:3,
+      fill:'#EFE3C6', stroke:t.trait, 'stroke-width':2 }));
+    if (b.brule)
+      plan.appendChild(el('ellipse', { cx:tx, cy:oy - 2, rx:6, ry:11,
+        fill:'#F7A430', opacity:b.dit === 'faiblit' ? .55 : 1 }));
+    else
+      plan.appendChild(el('path', { d:'M ' + tx + ' ' + (oy + 6) + ' q 6 -10 0 -18',
+        fill:'none', stroke:t.bord, 'stroke-width':2 }));
+    decouper('La bougie ' + b.dit, Wp > 620 ? 26 : 15).forEach((l, i) =>
+      plan.appendChild(el('text', { x:tx + 28, y:oy + 14 + i * 16, class:'etiq-jauge',
+        style:'text-anchor:start', fill:b.brule ? t.trait : t.non }, l)));
+  }
+}
+
+/* ---- Scène 2 : les organes extérieurs ---- */
+const ZONES = {
+  souris:  { titre:'Une souris', zones:[{ x:.30, y:.36, r:.07, nom:'Narines' }] },
+  criquet: { titre:'Un criquet', zones:[{ x:.58, y:.58, r:.06, nom:'Stigmates' },
+                                        { x:.70, y:.58, r:.06, nom:'Stigmates' }] },
+  verTerre:{ titre:'Un ver de terre', zones:[{ x:.50, y:.50, r:.16, nom:'Toute la peau' }] },
+  poisson: { titre:'Un poisson', zones:[{ x:.38, y:.48, r:.09, nom:'Opercule' }] },
+  tetard:  { titre:'Un têtard', zones:[{ x:.42, y:.44, r:.08, nom:'Branchies' }] },
+};
+function dessinerOrganes() {
+  const t = T(), plan = refs.plan, e = ETRES[etat.etre], Z = ZONES[etat.etre];
+  if (!Z) return;
+  plan.appendChild(el('text', { x:Wp / 2, y:Hp * .09, class:'titre-scene' }, Z.titre));
+  const cx = Wp * .34, cy = Hp * .48, R = Math.min(Wp * .3, Hp * .34);
+  plan.appendChild(el('circle', { cx, cy, r:R, fill:t.muet, stroke:t.bord, 'stroke-width':2 }));
+  plan.appendChild(el('text', { x:cx, y:cy + R * .28, class:'em-bocal' }, e.em));
+  for (const z of Z.zones) {
+    const zx = cx + (z.x - .5) * R * 2, zy = cy + (z.y - .5) * R * 2;
+    const vue = etat.vus.organes[etat.etre];
+    const g = el('g', { class:'zone-org' + (vue ? ' vue' : ''), 'data-organe':etat.etre,
+      role:'button', tabindex:'0', 'aria-label':z.nom });
+    g.appendChild(el('circle', { cx:zx, cy:zy, r:Math.max(22, z.r * R * 2), fill:'transparent' }));
+    g.appendChild(el('circle', { cx:zx, cy:zy, r:z.r * R * 1.6,
+      fill:vue ? t.doux : 'transparent', stroke:vue ? t.accent : t.bordF,
+      'stroke-width':2.5, 'stroke-dasharray':vue ? '' : '5 4' }));
+    plan.appendChild(g);
+  }
+  const zx = Wp > 620 ? Wp * .66 : Wp * .06, zy = Wp > 620 ? Hp * .3 : Hp * .84;
+  if (etat.vus.organes[etat.etre]) {
+    plan.appendChild(el('text', { x:zx, y:zy, class:'nom-piece', style:'text-anchor:start' },
+      e.orgExt));
+    decouper(MODES[e.mode] ? MODES[e.mode].signe : '', Wp > 620 ? 30 : 40).forEach((l, i) =>
+      plan.appendChild(el('text', { x:zx, y:zy + 20 + i * 15, class:'etiq-scene',
+        style:'text-anchor:start' }, l)));
+  } else {
+    plan.appendChild(el('text', { x:zx, y:zy, class:'etiq-scene', style:'text-anchor:start' },
+      'Touche la zone en pointillés.'));
+  }
+}
+
+/* ---- Scène 3 : les surfaces respiratoires et leurs caractères ---- */
+function dessinerSurfaces() {
+  const t = T(), plan = refs.plan;
+  const cles = Object.keys(SURFACES);
+  plan.appendChild(el('text', { x:Wp / 2, y:Hp * .08, class:'titre-scene' },
+    etat.caractereVu ? CARACTERES[etat.caractereVu].nom + ' : qui la possède ?'
+                     : 'Touche une surface, puis un caractère'));
+  const larg = (Wp * .94) / cles.length;
+  cles.forEach((k, i) => {
+    const S = SURFACES[k], x = Wp * .03 + i * larg;
+    const a = etat.caractereVu ? (S.caracteres.indexOf(etat.caractereVu) >= 0) : null;
+    const choisie = etat.surfaceVue === k, vue = etat.vus.surfaces[k];
+    const g = el('g', { class:'surf' + (choisie ? ' choisie' : ''), 'data-surface':k,
+      role:'button', tabindex:'0', 'aria-label':S.nom });
+    g.appendChild(el('rect', { x:x + 3, y:Hp * .16, width:larg - 6, height:Hp * .46, rx:10,
+      fill:a === true ? t.doux : a === false ? 'transparent' : (vue ? t.muet : 'transparent'),
+      stroke:choisie ? t.accent : a === true ? t.ok : a === false ? t.bord : t.bordF,
+      'stroke-width':choisie || a === true ? 3 : 1.5,
+      opacity:a === false ? .45 : 1 }));
+    g.appendChild(el('text', { x:x + larg / 2, y:Hp * .3, class:'em-bocal' }, MODES[k].em));
+    decouper(S.nom, Math.max(10, Math.round(larg / 6.5))).forEach((l, j) =>
+      plan.appendChild(el('text', { x:x + larg / 2, y:Hp * .42 + j * 13, class:'etiq-scene' }, l)));
+    plan.appendChild(g);
+  });
+  // le détail de la surface choisie
+  const S = etat.surfaceVue && SURFACES[etat.surfaceVue];
+  const y = Hp * .72;
+  if (S) {
+    plan.appendChild(el('text', { x:Wp / 2, y, class:'nom-piece' }, S.nom));
+    decouper(S.image, Math.max(30, Math.round(Wp / 7.5))).forEach((l, i) =>
+      plan.appendChild(el('text', { x:Wp / 2, y:y + 19 + i * 15, class:'etiq-scene' }, l)));
+  } else if (etat.caractereVu) {
+    const n = cles.filter(k => SURFACES[k].caracteres.indexOf(etat.caractereVu) >= 0).length;
+    plan.appendChild(el('text', { x:Wp / 2, y, class:'nom-piece',
+      fill:n === cles.length ? t.ok : t.trait },
+      n === cles.length ? 'Les quatre le possèdent' : n + ' surfaces sur ' + cles.length));
+    decouper(CARACTERES[etat.caractereVu].quoi, Math.max(30, Math.round(Wp / 7.5))).forEach((l, i) =>
+      plan.appendChild(el('text', { x:Wp / 2, y:y + 19 + i * 15, class:'etiq-scene' }, l)));
+  }
+}
+
+/* ==================== Ce que la scène permet de calculer ==================== */
+const nb = v => (Math.abs(v) < 0.5 ? v.toFixed(2) : v.toFixed(1)).replace('.', ',').replace(/,0$/, '');
+
+function resoudre() {
+  calc = {};
+  if (etat.scene === 'bocal') {
+    calc.air = airApres(etat.etre, etat.minutes);
+    calc.chaux = eauDeChaux(calc.air.co2);
+    calc.bougie = bougie(calc.air.o2);
+  }
+  memoriser();
+  mesurerPlan(); majCarnet(); rendreEtapes(); rendreActions(); verifierProgres();
+}
+
+function memoriser() {
+  if (etat.scene !== 'bocal') return;
+  if (etat.etre === 'cailloux') {
+    etat.vus.temoinPose = true;
+    if (etat.minutes >= 20) etat.vus.temoinFait = true;
+  }
+  // un essai ne compte que lorsqu'il a quelque chose à montrer
+  if (etat.outil === 'chaux' && calc.chaux && calc.chaux.positif)
+    etat.vus.essais[etat.etre + '/chaux'] = 1;
+  if (etat.outil === 'bougie' && calc.bougie && !calc.bougie.brule)
+    etat.vus.essais[etat.etre + '/bougie'] = 1;
+}
+
+/* ========================= Le carnet d’observation ========================= */
+const ligne = (n, v) => '<div class="me-ligne"><span class="nom">' + n +
+  '</span><span class="val">' + v + '</span></div>';
+
+function majCarnet() {
+  const z = $('me-corps');
+  let h = '';
+  if (etat.scene === 'bocal') {
+    const a = calc.air;
+    h += ligne('Dans le bocal', ETRES[etat.etre].nom);
+    h += ligne('Temps écoulé', etat.minutes + ' min');
+    h += ligne('Dioxygène', nb(a.o2) + ' %');
+    h += ligne('Dioxyde de carbone', nb(a.co2) + ' %');
+    h += '<div class="me-sep"></div>';
+    h += '<div class="me-egalite ' + (calc.chaux.positif ? 'faux' : 'juste') + '"><span class="memb">Eau de chaux ' +
+      calc.chaux.dit + '</span></div>';
+    h += '<div class="me-egalite ' + (calc.bougie.brule ? 'juste' : 'faux') + '"><span class="memb">La bougie ' +
+      calc.bougie.dit + '</span></div>';
+    $('me-quoi').textContent = ETRES[etat.etre].quoi;
+  } else if (etat.scene === 'organes') {
+    const e = ETRES[etat.etre];
+    h += ligne(e.nom, e.milieu === 'eau' ? 'dans l’eau' : 'à l’air');
+    if (etat.vus.organes[etat.etre]) {
+      h += ligne('Organe extérieur', '');
+      h += '<div class="me-outil">' + e.orgExt + '</div>';
+      h += ligne('Mode', MODES[e.mode].nom);
+    }
+    $('me-quoi').textContent = etat.vus.organes[etat.etre]
+      ? MODES[e.mode].ou : 'Touche la zone en pointillés.';
+  } else {
+    h += ligne('Surfaces examinées', Object.keys(etat.vus.surfaces).length + ' / 4');
+    const c = caracteresCommuns();
+    h += '<div class="me-sep"></div>';
+    for (const k in CARACTERES) {
+      const commun = c.indexOf(k) >= 0;
+      h += '<div class="me-outil">' + CARACTERES[k].nom +
+        (commun ? ' <b>· les quatre</b>' : ' · trois sur quatre') + '</div>';
+    }
+    $('me-quoi').textContent = 'Les trachées du criquet ne sont pas irriguées de sang.';
+  }
+  z.innerHTML = h;
+}
+
+/* ============================== La barre du bas ============================== */
+function rendreOutils() {
+  const z = $('liste-outils');
+  z.innerHTML = '';
+  const bouton = (id, txt, actif, act) => {
+    const b = document.createElement('button');
+    b.className = 'ot'; b.id = id; b.type = 'button';
+    b.setAttribute('aria-pressed', actif ? 'true' : 'false');
+    b.innerHTML = txt; b.onclick = act;
+    z.appendChild(b); return b;
+  };
+  if (etat.scene === 'bocal') {
+    for (const c of etresDeLaMission())
+      bouton('et-' + c, '<span class="em">' + ETRES[c].em + '</span>' + ETRES[c].nom,
+        etat.etre === c,
+        () => { etat.etre = c; etat.minutes = 0; rendreOutils(); resoudre(); });
+    bouton('btn-souffler', '⏱ + 2 minutes', false,
+      () => { etat.minutes += 2; resoudre(); });
+    bouton('ou-chaux', '💧 Eau de chaux', etat.outil === 'chaux',
+      () => { etat.outil = 'chaux'; rendreOutils(); resoudre(); });
+    bouton('ou-bougie', '🕯️ Bougie', etat.outil === 'bougie',
+      () => { etat.outil = 'bougie'; rendreOutils(); resoudre(); });
+  } else if (etat.scene === 'organes') {
+    for (const c of etresDeLaMission())
+      bouton('et-' + c, '<span class="em">' + ETRES[c].em + '</span>' + ETRES[c].nom,
+        etat.etre === c, () => { etat.etre = c; rendreOutils(); resoudre(); });
+  } else {
+    for (const k in CARACTERES)
+      bouton('ca-' + k, CARACTERES[k].nom, etat.caractereVu === k, () => {
+        etat.caractereVu = etat.caractereVu === k ? null : k;
+        etat.surfaceVue = null;
+        if (etat.caractereVu && caracteresCommuns().indexOf(etat.caractereVu) >= 0)
+          etat.vus.communsTrouves = true;
+        rendreOutils(); resoudre();
+      });
+  }
+  $('outils').hidden = z.children.length === 0;
+}
+
+/* ====================== Les boutons du bas de l’écran ====================== */
+function rendreActions() {
+  const z = $('actions');
+  z.innerHTML = '';
+  const bouton = (id, txt, cls, act) => {
+    const b = document.createElement('button');
+    b.className = 'btn ' + (cls || ''); b.id = id; b.textContent = txt; b.onclick = act;
+    z.appendChild(b); return b;
+  };
+  if (etat.scene === 'bocal')
+    bouton('btn-rincer', '↺ Rincer le bocal', 'btn-fantome', () => {
+      etat.minutes = 0; resoudre();
+    });
+  if (!enLibre()) bouton('btn-tester', '✅ Conclure', '', conclure);
+  surbrillerCible();
+}
+
+/* ============================== Le geste ============================== */
+function brancherGestes() {
+  refs.plan.addEventListener('click', ev => {
+    const o = ev.target.closest('[data-organe]');
+    if (o) { etat.vus.organes[o.dataset.organe] = 1; resoudre(); return; }
+    const s = ev.target.closest('[data-surface]');
+    if (s) {
+      etat.surfaceVue = etat.surfaceVue === s.dataset.surface ? null : s.dataset.surface;
+      etat.vus.surfaces[s.dataset.surface] = 1;
+      etat.caractereVu = null;
+      rendreOutils(); resoudre();
+    }
+  });
+  refs.plan.addEventListener('keydown', ev => {
+    if (ev.key !== 'Enter' && ev.key !== ' ') return;
+    const c = ev.target.closest('[data-organe], [data-surface]');
+    if (!c) return;
+    ev.preventDefault();
+    c.dispatchEvent(new MouseEvent('click', { bubbles:true }));
+  });
+}
+
+function montrerIndice() {
+  const M = enLibre() ? null : MISSIONS[etat.mission];
+  if (!M || !M.indice) return;
+  $('mission').classList.add('ouvert');
+  $('m-plier').setAttribute('aria-expanded', 'true');
+  $('m-indice').innerHTML = '<b>💡 Indice :</b> ' + M.indice;
+  $('m-indice').hidden = false;
+  $('btn-indice').classList.remove('appelle');
+  mesurerPlan();
+}
+
+function demarrerMission() {
+  cacherBilan();
+  reprendre();
+  $('m-indice').hidden = true;
+  $('m-indice').innerHTML = '';
+  const M = enLibre() ? null : MISSIONS[etat.mission];
+  $('m-actions').hidden = !(M && M.indice);
+  rendreMission(); rendreOutils(); resoudre();
+}
+
+/* ====================== Le bilan : « que conclure ? » ====================== */
+const BILANS = [
+  () => { if (etat.minutes < 3) return ['🫁', 'Laisse le temps passer', '',
+      'Fais avancer le temps jusqu’à trois minutes au moins.'];
+    etat.vus.luMouvements = true;
+    return ['🫁', 'Les mouvements respiratoires', '',
+      'Respirer, c’est faire entrer de l’air puis le faire sortir : l’<b>inspiration</b> et l’<b>expiration</b>. Chez l’homme, la poitrine se soulève puis s’abaisse, sans arrêt, jour et nuit.']; },
+
+  () => { if (!calc.chaux.positif) return ['💧', 'L’eau de chaux est encore limpide',
+      nb(calc.air.co2) + ' % de dioxyde de carbone',
+      'Il en faut un peu plus pour qu’elle se trouble. Laisse passer encore une ou deux minutes.'];
+    etat.vus.luChaux = true;
+    return ['💧', 'L’air expiré contient du dioxyde de carbone',
+      'Eau de chaux ' + calc.chaux.dit + ' · ' + nb(calc.air.co2) + ' % de CO₂',
+      'L’<b>eau de chaux</b> ne se trouble qu’en présence de <b>dioxyde de carbone</b> — tu l’avais rencontrée avec les combustions. L’air qui sort du corps en contient donc bien plus que celui qui entre.']; },
+
+  () => { if (calc.bougie.brule) return ['🕯️', 'La bougie brûle encore',
+      nb(calc.air.o2) + ' % de dioxygène',
+      'Il reste trop de dioxygène. Laisse passer plus de temps — la bougie demande plus de patience que l’eau de chaux.'];
+    etat.vus.luBougie = true;
+    return ['🕯️', 'Il manque du dioxygène',
+      'Le dioxygène est tombé à ' + nb(calc.air.o2) + ' %, contre 21 % au départ',
+      'Une bougie ne brûle que s’il y a assez de <b>dioxygène</b>. Elle s’éteint ici : il en reste moins. Respirer, c’est donc <b>prendre du dioxygène</b> et <b>rejeter du dioxyde de carbone</b> — l’<b>échange gazeux respiratoire</b>.']; },
+
+  () => { const n = ['souris', 'criquet', 'verTerre'].filter(a => etat.vus.organes[a]).length;
+    if (n < 3) return ['🔍', 'Il te reste des animaux à observer', n + ' sur 3',
+      'Change d’animal avec les boutons du bas et touche la zone en pointillés.'];
+    etat.vus.luOrganesExt = true;
+    return ['🔍', 'Trois façons de faire entrer l’air', '',
+      'La souris a des <b>narines</b>, le criquet des <b>stigmates</b> — de petits trous sur ses flancs — et le ver de terre <b>aucune ouverture</b> : l’air traverse directement sa <b>peau</b>, qui doit rester humide pour cela.']; },
+
+  () => { const n = ['poisson', 'tetard'].filter(a => etat.vus.organes[a]).length;
+    if (n < 2) return ['🐟', 'Observe les deux', n + ' sur 2', 'Le poisson, puis le têtard.'];
+    etat.vus.luAquatiques = true;
+    return ['🐟', 'Le signe, c’est le mouvement', '',
+      'Le poisson ouvre la bouche et referme ses <b>opercules</b> sans arrêt : il fait passer un <b>courant d’eau</b> sur ses <b>branchies</b>. Il ne respire pas l’eau — il y prélève le <b>dioxygène dissous</b>.']; },
+
+  () => { const n = Object.keys(etat.vus.surfaces).length;
+    if (n < 4) return ['🔬', 'Regarde les quatre', n + ' surfaces sur 4', 'Touche chacune d’elles.'];
+    etat.vus.luOrganes = true;
+    return ['🔬', 'Quatre organes très différents', '',
+      'Les <b>alvéoles</b> des poumons, les <b>lamelles</b> des branchies, les <b>trachées</b> ramifiées du criquet, la <b>peau</b> du ver de terre. Chacun est la <b>surface respiratoire</b> de son propriétaire : le seul endroit où les gaz passent.']; },
+
+  () => { if (!etat.vus.communsTrouves) return ['🔬', 'Cherche encore', '',
+      'Touche un caractère dans la barre du bas : les surfaces qui le possèdent s’allument. Trouves-en un que les <b>quatre</b> possèdent.'];
+    etat.vus.luCommuns = true;
+    return ['🔬', 'Trois caractères pour les quatre', 'Fine · humide · très étendue',
+      'Toutes les surfaces respiratoires sont <b>très fines</b>, <b>toujours humides</b> et <b>très étendues</b>. Trois d’entre elles sont en plus <b>irriguées de sang</b>, qui emporte le dioxygène dans tout le corps. Les <b>trachées</b> du criquet font exception : l’air y arrive directement aux organes.']; },
+
+  () => { if (!etat.vus.temoinFait) return ['🪨', 'Fais d’abord tourner le témoin', '',
+      'Mets les <b>cailloux</b> dans le bocal et laisse passer vingt minutes : rien ne doit changer.'];
+    etat.vus.luTemoin = true;
+    return ['🪨', 'Le bocal ne fait rien tout seul', '',
+      'Avec des cailloux, l’eau de chaux reste limpide et la bougie brûle. C’est le <b>témoin</b> : il subit tout, sauf ce qu’on veut étudier. Sans lui, on ne pourrait pas affirmer que c’est bien l’être vivant qui a modifié l’air.']; },
+
+  () => { const n = ['graines', 'feuilles'].filter(a => etat.vus.essais[a + '/chaux']).length;
+    if (n < 2) return ['🌱', 'Il te manque un essai', n + ' végétal sur 2',
+      'Mets les <b>graines germées</b>, puis les <b>feuilles</b>, et attends que l’eau de chaux se trouble.'];
+    etat.vus.luVegetaux = true;
+    return ['🌱', 'Les végétaux respirent', '',
+      'Ni narines, ni branchies, ni mouvement visible — et pourtant l’eau de chaux se trouble. Les végétaux <b>prennent du dioxygène</b> et <b>rejettent du dioxyde de carbone</b>, de jour comme de nuit, exactement comme un animal.']; },
+
+  () => { if (!etat.vus.essais['champignon/chaux']) return ['🍄', 'Essaie les champignons', '',
+      'Mets-les dans le bocal et attends que l’eau de chaux réponde.'];
+    etat.vus.luTous = true;
+    return ['🍄', 'Unité et diversité', '',
+      'Un champignon n’est ni animal ni végétal, et il respire aussi. C’est l’<b>unité</b> : <b>tous les êtres vivants respirent</b>, le même échange partout. Ce qui change, ce sont les <b>organes</b> — poumons, branchies, trachées, peau, ou rien de visible : c’est la <b>diversité</b>.']; },
+];
+
+function conclure() {
+  const b = $('btn-tester'); if (b) b.classList.remove('appelle');
+  const f = BILANS[etat.mission];
+  if (!f) return;
+  const [em, titre, objectif, phrase] = f();
+  montrerBilan(em, titre, objectif, phrase);
+  resoudre();
+}
+
+/* ====================== Le bilan : « que conclure ? » ====================== */
+function cacherBilan() {
+  $('bilan').classList.remove('visible');
+  $('atelier').classList.remove('avec-bilan');
+}
+let qcmEnAttente = false;
+// Referme le bilan, et enchaîne sur le questionnaire s'il attendait son tour
+function fermerBilan() {
+  cacherBilan();
+  if (qcmEnAttente) { qcmEnAttente = false; setTimeout(ouvrirQcm, 180); }
+}
+function montrerBilan(em, titre, objectif, phrase, suite) {
+  const b = $('bilan');
+  b.innerHTML =
+    '<div class="verdict"><span class="em">' + em + '</span><h3>' + titre + '</h3>' +
+    '<button class="reduire" id="bilan-x" aria-label="Réduire">✕</button></div>' +
+    (objectif ? '<div class="objectif">' + objectif + '</div>' : '') +
+    '<p class="phrase">' + phrase + '</p>' +
+    // C'est la seule action de la modale : elle doit ressembler à un bouton.
+    // En `btn-fantome`, fond transparent sur le fond du bilan, elle passait
+    // pour du texte cliquable — pas pour un appel à agir.
+    '<div class="actions"><button class="btn" id="bilan-ok">' +
+      (suite || 'Continuer') + '</button></div>';
+  b.classList.add('visible');
+  $('atelier').classList.add('avec-bilan');
+  $('bilan-x').onclick = fermerBilan;
+  $('bilan-ok').onclick = fermerBilan;
+}
+
+/* ============================== Les missions ============================== */
+function rendreMission() {
+  if (enLibre()) {
+    $('m-num').textContent = '∞';
+    $('m-rang').textContent = 'Exploration libre';
+    $('m-titre').textContent = 'Fabrique ce que tu veux';
+    $('m-but').textContent = 'Tout le sel, tous les isolants, aucune consigne : essaie et compare.';
+    $('etapes').innerHTML = '';
+    $('m-jauge').style.width = '100%';
+    surbrillerCible();
+    return;
+  }
+  const M = MISSIONS[etat.mission];
+  $('m-num').textContent = etat.mission + 1;
+  $('m-rang').textContent = 'Mission ' + (etat.mission + 1) + ' sur ' + MISSIONS.length;
+  $('m-titre').textContent = M.titre;
+  $('m-but').textContent = M.but;
+  rendreEtapes();
+}
+function rendreEtapes() {
+  // en exploration libre il n'y a pas d'étapes : le panneau reste vide
+  if (enLibre()) { $('etapes').innerHTML = ''; $('m-jauge').style.width = '100%'; surbrillerCible(); return; }
+  const M = MISSIONS[etat.mission], z = $('etapes');
+  z.innerHTML = '';
+  let courante = -1;
+  const faites = M.etapes.map(e => !!e.ok(etat));
+  for (let i = 0; i < faites.length; i++) if (!faites[i]) { courante = i; break; }
+  // Panneau replié, seule l'étape en cours s'affiche : le chevron déploie le reste.
+  const iMontrer = courante >= 0 ? courante : faites.length - 1;
+  M.etapes.forEach((e, i) => {
+    const d = document.createElement('div');
+    d.className = 'etape' + (faites[i] ? ' faite' : '') + (i === courante ? ' courante' : '')
+      + (i === iMontrer ? ' a-montrer' : '');
+    d.innerHTML = '<span class="coche">' + (faites[i] ? '✓' : i + 1) +
+      '</span><span class="t">' + e.t + '</span>';
+    z.appendChild(d);
+  });
+  const n = faites.filter(Boolean).length;
+  $('m-jauge').style.width = Math.round(n / M.etapes.length * 100) + '%';
+  surbrillerCible();
+}
+// L’élément à montrer du doigt : celui de la première étape non franchie
+function cibleEffective() {
+  if (enLibre()) return null;              // rien à montrer du doigt : l'élève explore
+  const M = MISSIONS[etat.mission];
+  for (const e of M.etapes) if (!e.ok(etat)) return e.cible || null;
+  return null;
+}
+function surbrillerCible() {
+  document.querySelectorAll('.appelle').forEach(n => n.classList.remove('appelle'));
+  const c = cibleEffective();
+  if (c && $(c)) $(c).classList.add('appelle');
+}
+
+function verifierProgres() {
+  if (enLibre()) return;                   // aucune mission à gagner ici
+  const M = MISSIONS[etat.mission];
+  if (!M.gagne(etat)) { rendreEtapes(); return; }
+  if (etat.faits.includes(etat.mission)) { rendreEtapes(); return; }
+  etat.faits.push(etat.mission); sauver(); rendreEtapes();
+  // Si un bilan est ouvert, on ne le recouvre pas : c'est le bouton du bilan
+  // qui enchaîne sur le questionnaire, quand l'élève a fini de lire.
+  if ($('bilan').classList.contains('visible')) {
+    qcmEnAttente = true;
+    const ok = $('bilan-ok'); if (ok) ok.textContent = '🎓 Mission réussie — continuer';
+  } else setTimeout(ouvrirQcm, 620);
+}
+
+/* ================================ Le QCM ================================ */
+
+// Mélange les propositions : sans cela, la bonne réponse resterait toujours en
+// tête de liste et l'élève finirait par cliquer sans lire.
+function melangerQuestion(q) {
+  const ordre = q.r.map((_, i) => i);
+  for (let i = ordre.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = ordre[i]; ordre[i] = ordre[j]; ordre[j] = t;
+  }
+  return Object.assign({}, q, {
+    r: ordre.map(k => q.r[k]),
+    bonne: ordre.indexOf(q.bonne),
+  });
+}
+function ouvrirQcm() {
+  const M = MISSIONS[etat.mission], q = melangerQuestion(M.qcm);
+  qcmCourant = q;
+  const c = $('qcm-carte');
+  c.innerHTML = '<h2>🎓 Mission réussie !</h2><p class="q-question">' + q.q + '</p>' +
+    '<div class="q-choix" id="q-choix"></div><div id="q-retour"></div>';
+  const zc = $('q-choix');
+  q.r.forEach((txt, i) => {
+    const b = document.createElement('button');
+    b.className = 'q-rep'; b.type = 'button'; b.textContent = txt;
+    b.onclick = () => repondre(i, b);
+    zc.appendChild(b);
+  });
+  ouvrir('v-qcm');
+}
+let qcmCourant = null;
+function repondre(i, bouton) {
+  const q = qcmCourant;
+  const juste = i === q.bonne;
+  bouton.classList.add(juste ? 'juste' : 'faux');
+  document.querySelectorAll('.q-rep').forEach(b => b.disabled = true);
+  if (!juste) document.querySelectorAll('.q-rep')[q.bonne].classList.add('juste');
+  $('q-retour').innerHTML =
+    '<div class="q-mot ' + (juste ? 'ok' : 'non') + '">' +
+      (juste ? '✅ Bien vu.' : '💡 Regarde plutôt la bonne réponse.') + ' ' + q.pourquoi + '</div>' +
+    '<button class="btn btn-large" id="q-suite">Continuer</button>';
+  $('q-suite').onclick = () => { fermer('v-qcm'); ouvrirPassage(); };
+}
+
+/* ===================== L’écran de passage entre missions ===================== */
+function ouvrirPassage() {
+  const M = MISSIONS[etat.mission], suivante = MISSIONS[etat.mission + 1];
+  const c = $('passage-carte');
+  c.innerHTML =
+    '<div class="p-fanion"><span class="rond">🏅</span><div>' +
+      '<b>Mission ' + (etat.mission + 1) + ' terminée</b>' +
+      '<span>' + M.titre + '</span></div></div>' +
+    '<div class="p-acquis"><b>Ce que tu retiens :</b><br>' + M.retenir + '</div>' +
+    (suivante
+      ? '<div class="p-suite"><div class="etiq">Mission suivante</div><b>' + suivante.titre +
+        '</b><span>' + suivante.but + '</span></div>' +
+        '<button class="btn btn-large" id="p-go">Commencer la mission ' + (etat.mission + 2) + '</button>' +
+        '<p class="p-neuf">La scène est remise en ordre pour la nouvelle mission.</p>'
+      : '<div class="p-suite"><div class="etiq">Parcours terminé</div><b>Tu sais fabriquer de la glace</b>' +
+        '<span>Le mélange réfrigérant, le rôle de l’isolant, le palier de solidification et l’origine du givre.</span></div>' +
+        '<button class="btn btn-large" id="p-go">Explorer librement →</button>' +
+        '<p class="p-neuf">Le sel et les quatre isolants s’ouvrent : essaie les mélanges que tu veux.</p>');
+  $('p-go').onclick = () => {
+    fermer('v-passage');
+    if (suivante) { etat.mission++; sauver(); reprendre(); demarrerMission(); }
+    else passerEnLibre();
+  };
+  ouvrir('v-passage');
+}
+
+/* ============================== Les fenêtres ============================== */
+function ouvrir(id) { $(id).classList.add('visible'); }
+function fermer(id) { $(id).classList.remove('visible'); }
+
+let minuteurToast = null;
+function toast(txt, alerte) {
+  const t = $('toast');
+  t.textContent = txt;
+  t.classList.toggle('alerte', !!alerte);
+  t.classList.add('visible');
+  clearTimeout(minuteurToast);
+  minuteurToast = setTimeout(() => t.classList.remove('visible'), 2600);
+}
+
+function rendreLexique() {
+  $('liste-lexique').innerHTML = LEXIQUE.map(([m, d]) =>
+    // le mot et sa définition sur deux lignes : « em » les collait l'un à l'autre
+    '<div class="lex-entree"><b>' + m + '</b><span>' + d + '</span></div>').join('');
+}
+
+/* Le quiz doit rester atteignable SANS quitter la simulation : il n'apparaissait
+   que sur l'écran d'accueil, au lancement. Une fois le parcours terminé, l'élève
+   devait sortir de la simulation et y revenir pour le retrouver. */
+function carteExercer() {
+  // etat.faits, pas etat.faites : ici le champ mémoire s'appelle « faits ».
+  // C'est « faites » qu'on ÉCRIT dans localStorage, pas ce qu'on lit en mémoire.
+  const ouvert = etat.faits.length >= MISSIONS.length;
+  return '<button class="d-carte" data-mission="exercer"' + (ouvert ? '' : ' disabled') + '>' +
+    '<span class="num">' + (ouvert ? '🏅' : '🔒') + '</span>' +
+    '<span class="txt"><b>M’exercer</b><span>' + (ouvert
+      ? 'Trois séries de questions, et un score de maîtrise.'
+      : 'Termine le parcours pour l’ouvrir.') + '</span></span></button>';
+}
+
+function rendreListeMissions() {
+  $('liste-missions').innerHTML = MISSIONS.map((m, i) => {
+    const fait = etat.faits.includes(i), ouverte = i <= etat.mission || fait;
+    return '<button class="d-carte' + (fait ? ' fait' : '') + '" data-mission="' + i + '"' +
+      (ouverte ? '' : ' disabled') + '>' +
+      '<span class="num">' + (fait ? '✓' : ouverte ? i + 1 : '🔒') + '</span>' +
+      '<div class="txt"><b>' + m.titre + '</b><span>' +
+      (ouverte ? m.but : 'Termine la mission précédente pour l’ouvrir.') +
+      '</span></div></button>';
+  }).join('') + carteLibre();
+  $('liste-missions').insertAdjacentHTML('beforeend', carteExercer());
+  // une mission déjà ouverte se rejoue d'un clic, comme dans les autres simulations
+  $('liste-missions').querySelectorAll('[data-mission]').forEach(b => {
+    if (b.disabled) return;
+    b.onclick = () => {
+      if (b.dataset.mission === 'exercer') { fermer('v-missions'); ouvrirQuiz(); return; }
+      fermer('v-missions');
+      etat.libre = false; etat.mission = +b.dataset.mission;
+      sauver(); reprendre(); demarrerMission(); rendreListeMissions();
+    };
+  });
+  const c = $('carte-libre');
+  if (c && !c.disabled) c.onclick = () => { fermer('v-missions'); passerEnLibre(); };
+}
+
+// La carte d'exploration libre, en bas de la liste des missions
+function carteLibre() {
+  const tout = etat.faits.length >= MISSIONS.length;
+  return '<button class="d-carte' + (tout ? '' : ' verrou') + '" id="carte-libre"' +
+    (tout ? '' : ' disabled') + '><span class="num">' + (tout ? '∞' : '🔒') + '</span>' +
+    '<div class="txt"><b>Exploration libre</b><span>' + (tout
+      ? 'Tout le sel, les quatre isolants, aucune consigne.'
+      : 'Termine les ' + MISSIONS.length + ' missions pour l’ouvrir.') +
+    '</span></div></button>';
+}
+
+/* ================================ Le thème ================================ */
+function appliquerTheme(t) {
+  document.body.classList.toggle('sombre', t === 'sombre');
+  $('btn-theme').textContent = t === 'sombre' ? '☀️' : '🌙';
+  try { localStorage.setItem('ike-theme', t); } catch (e) {}
+}
+
+/* ================== Repli du panneau sur les petits écrans ================== */
+function replierSiPetitEcran() {
+  const petit = window.innerHeight < 620 || window.innerWidth < 560;
+  $('mission').classList.toggle('ouvert', !petit);
+  $('m-plier').setAttribute('aria-expanded', petit ? 'false' : 'true');
+}
+
+/* Ici, rien ne se passe tout seul : la figure ne change que si l'élève déplace
+   un point. Il n'y a donc pas de boucle d'animation — resoudre() recalcule et
+   redessine après chaque geste, ce qui suffit et coûte bien moins cher sur les
+   appareils du terrain. */
+
+/* ============================== Le démarrage ============================== */
+function init() {
+  refs.plan = $('plan');
+  charger();
+  mesurerPlan();
+
+  let th = 'clair';
+  try { th = localStorage.getItem('ike-theme') || 'clair'; } catch (e) {}
+  appliquerTheme(th);
+  $('btn-theme').onclick = () =>
+    appliquerTheme(document.body.classList.contains('sombre') ? 'clair' : 'sombre');
+
+  $('btn-lexique').onclick = () => { rendreLexique(); ouvrir('v-lexique'); };
+  $('btn-missions').onclick = () => { rendreListeMissions(); ouvrir('v-missions'); };
+  $('btn-aide').onclick = () => ouvrir('v-aide');
+  document.querySelectorAll('[data-ferme]').forEach(b =>
+    b.onclick = () => fermer(b.getAttribute('data-ferme')));
+  document.querySelectorAll('.voile').forEach(v =>
+    v.addEventListener('click', ev => { if (ev.target === v) v.classList.remove('visible'); }));
+  document.addEventListener('keydown', ev => {
+    if (ev.key === 'Escape') document.querySelectorAll('.voile.visible')
+      .forEach(v => v.classList.remove('visible'));
+  });
+
+  $('btn-rezero').onclick = () => {
+    try { localStorage.removeItem(CLE); } catch (e) {}
+    etat.mission = 0; etat.faits = []; reprendre();
+    fermer('v-missions'); demarrerMission();
+    toast('Parcours remis à zéro.');
+  };
+
+  $('m-plier').onclick = () => {
+    const o = $('mission').classList.toggle('ouvert');
+    $('m-plier').setAttribute('aria-expanded', o ? 'true' : 'false');
+    mesurerPlan();
+  };
+
+  $('btn-indice').onclick = montrerIndice;
+  brancherGestes();
+  replierSiPetitEcran();
+  window.addEventListener('resize', () => { replierSiPetitEcran(); mesurerPlan(); });
+  window.addEventListener('orientationchange', () => { replierSiPetitEcran(); mesurerPlan(); });
+
+  demarrerMission();
+  /* ============================================================================
+   L'accueil — « Que veux-tu faire ? »
+   Deux portes d'entrée : le parcours guidé, et le plan de travail libre. La
+   seconde reste fermée tant que le parcours n'est pas terminé. L'écran se
+   présente à chaque ouverture de la simulation, et indique où l'on en est.
+   ========================================================================== */
+function accueilFaites() { return (etat.faits || []).length; }
+function accueilOuvert() { return accueilFaites() >= MISSIONS.length; }
+
+function rendreAccueil() {
+  const n = accueilFaites(), total = MISSIONS.length;
+  $('ac-etat-app').textContent = n === 0 ? 'Commencer'
+    : n >= total ? 'Terminé ✓' : 'Reprendre · ' + n + '/' + total;
+  const ouvert = accueilOuvert();
+  $('ac-experimenter').disabled = !ouvert;
+  $('ac-etat-exp').textContent = ouvert ? 'Ouvert' : '🔒 Verrouillé';
+  $('ac-exercer').disabled = !ouvert;
+  $('ac-etat-ex').textContent = ouvert ? (scoreMaitrise() + ' %') : '🔒 Verrouillé';
+  $('ac-pied').innerHTML = ouvert
+    ? 'Tu as terminé le parcours : les deux portes sont ouvertes.'
+    : 'Termine les <b>' + total + ' missions</b> d’Apprendre pour ouvrir Expérimenter.';
+}
+
+function ouvrirAccueil() {
+  rendreAccueil();
+  ouvrir('v-accueil');
+}
+
+$('ac-apprendre').addEventListener('click', () => {
+  fermer('v-accueil');
+  etat.libre = false; sauver(); reprendre(); demarrerMission();
+  // le repérage de l'interface reste proposé tant que la première mission n'est pas gagnée
+  if (accueilFaites() === 0) lancerVisite();
+});
+$('ac-experimenter').addEventListener('click', () => {
+  if (!accueilOuvert()) return;
+  fermer('v-accueil');
+  passerEnLibre();
+});
+
+/* ============================================================================
+   La visite guidée — on montre l'écran au lieu de le décrire
+   ========================================================================== */
+const VISITE = [
+  { cible:'#mission', titre:'🎯 Le plan de mission', texte:"Ton but du moment et les étapes à cocher. Le chevron <b>▼</b> le replie quand tu veux de la place pour travailler." },
+  { cible:'#mesures', titre:'📒 Ton carnet d’observation', texte:"L'état des deux gaz dans le bocal, et ce que disent les deux tests." },
+  { cible:'#plan', titre:'🔬 La scène', texte:"Ici, le bocal d'expérience. Elle changera au fil du parcours : les organes extérieurs, puis les surfaces respiratoires." },
+  { cible:'#outils', titre:'🧪 Le montage', texte:"L'occupant du bocal, le temps qui passe, et l'outil de mesure. Selon la mission, ces boutons changent de rôle." },
+  { cible:'#actions', titre:'✅ Conclure', texte:"« Conclure » te dit ce que ton essai démontre — ou ce qu'il manque pour y arriver." },
+  { cible:'.tete-fin', titre:'🎓 Les boutons du haut', texte:"Les missions, le lexique des mots difficiles, ce guide, et le thème clair ou sombre." },
+];
+let visiteIdx = -1, visiteEtapes = [];
+
+function cibleVisible(sel) {
+  const e = document.querySelector(sel);
+  if (!e) return null;
+  const r = e.getBoundingClientRect();
+  return (r.width > 4 && r.height > 4) ? r : null;
+}
+
+function lancerVisite() {
+  for (const v of document.querySelectorAll('.voile.visible')) v.classList.remove('visible');
+  // on ne montre que ce qui est réellement à l'écran en ce moment
+  visiteEtapes = VISITE.filter(e => !e.cible || cibleVisible(e.cible));
+  if (!visiteEtapes.length) return;
+  visiteIdx = 0;
+  $('visite').classList.add('visible');
+  montrerVisite();
+}
+
+function montrerVisite() {
+  const et = visiteEtapes[visiteIdx];
+  const halo = $('visite-halo');
+  const r = et.cible ? cibleVisible(et.cible) : null;
+  if (r) {
+    halo.style.display = 'block';
+    halo.style.left = (r.left - 5) + 'px';
+    halo.style.top = (r.top - 5) + 'px';
+    halo.style.width = (r.width + 10) + 'px';
+    halo.style.height = (r.height + 10) + 'px';
+  } else halo.style.display = 'none';
+  $('visite-titre').textContent = et.titre;
+  $('visite-texte').innerHTML = et.texte;
+  $('visite-prog').textContent = (visiteIdx + 1) + ' / ' + visiteEtapes.length;
+  $('visite-suivant').textContent =
+    visiteIdx === visiteEtapes.length - 1 ? 'C’est parti !' : 'Suivant';
+  placerCarteVisite(r);
+}
+
+// La carte cherche une place libre autour de la zone montrée : dessous, dessus,
+// à droite, à gauche. Quand la zone occupe presque tout l'écran — le plan de
+// travail, par exemple — aucune place n'est libre : elle se pose alors dans un
+// coin, en couvrant le moins possible.
+function placerCarteVisite(r) {
+  const c = $('visite-carte');
+  c.style.visibility = 'hidden';
+  const cw = c.offsetWidth, ch = c.offsetHeight;
+  const W = window.innerWidth, H = window.innerHeight;
+  const poser = (x, y) => {
+    c.style.left = Math.round(Math.max(8, Math.min(W - cw - 8, x))) + 'px';
+    c.style.top = Math.round(Math.max(8, Math.min(H - ch - 8, y))) + 'px';
+    c.style.visibility = 'visible';
+  };
+  if (!r) { poser((W - cw) / 2, (H - ch) / 2); return; }
+  const m = 14, cx = r.left + r.width / 2 - cw / 2, cy = r.top + r.height / 2 - ch / 2;
+  const essais = [[cx, r.bottom + m], [cx, r.top - ch - m],
+                  [r.right + m, cy], [r.left - cw - m, cy]];
+  for (const [ex, ey] of essais) {
+    const x = Math.max(8, Math.min(W - cw - 8, ex));
+    const y = Math.max(8, Math.min(H - ch - 8, ey));
+    // retenue seulement si la carte ne recouvre pas ce qu'on montre
+    if (x + cw < r.left || x > r.right || y + ch < r.top || y > r.bottom) { poser(x, y); return; }
+  }
+  // dernier recours : le coin bas droit, loin du centre de la zone
+  poser(W - cw - 12, H - ch - 12);
+}
+
+function fermerVisite() {
+  visiteIdx = -1;
+  $('visite').classList.remove('visible');
+}
+
+$('visite-suivant').addEventListener('click', () => {
+  if (visiteIdx >= visiteEtapes.length - 1) { fermerVisite(); return; }
+  visiteIdx++; montrerVisite();
+});
+$('visite-passer').addEventListener('click', fermerVisite);
+window.addEventListener('resize', () => { if (visiteIdx >= 0) montrerVisite(); });
+document.addEventListener('keydown', e => {
+  if (visiteIdx >= 0 && e.key === 'Escape') fermerVisite();
+});
+const btnRevoir = $('btn-revoir-visite');
+if (btnRevoir) btnRevoir.addEventListener('click', () => { fermer('v-aide'); lancerVisite(); });
+
+const NIVEAUX_QUIZ = [
+  { cle:'souviens', em:'🥉', nom:'Je me souviens', poids:1,
+    quoi:'Les mots, les gaz, les organes et les tests.' },
+  { cle:'jutilise', em:'🥈', nom:'Je m’en sers', poids:2,
+    quoi:'Lire un résultat d’expérience et en tirer une conclusion.' },
+  { cle:'pieges', em:'🥇', nom:'On ne me piège plus', poids:3,
+    quoi:'Les erreurs que presque tout le monde fait. C’est là que tout se joue.' },
+];
+const PAR_SERIE = 6;
+
+const BANQUE = {
+  souviens: [
+    { q:'Que prend un être vivant dans l’air quand il respire ?',
+      choix:['Du dioxygène', 'Du dioxyde de carbone', 'De l’azote'], bonne:0, mission:2,
+      expl:"L’échange va dans les deux sens : le <b>dioxygène</b> entre, le <b>dioxyde de carbone</b> sort." },
+    { q:'Que devient l’eau de chaux en présence de dioxyde de carbone ?',
+      choix:['Elle se trouble', 'Elle devient bleue', 'Elle bout'], bonne:0, mission:1,
+      expl:"C’est le test du dioxyde de carbone, le même que dans les combustions : l’eau de chaux limpide devient blanchâtre." },
+    { q:'Comment appelle-t-on les organes respiratoires d’un poisson ?',
+      choix:['Les branchies', 'Les poumons', 'Les trachées'], bonne:0, mission:4,
+      expl:"Les branchies sont faites de lamelles serrées, protégées par les opercules, et prélèvent le dioxygène dissous dans l’eau." },
+    { q:'Par où l’air entre-t-il dans le corps d’un criquet ?',
+      choix:['Par les stigmates', 'Par la bouche', 'Par les yeux'], bonne:0, mission:3,
+      expl:"Les stigmates sont de petits trous alignés sur les flancs de l’abdomen. Ils ouvrent sur les trachées, qui conduisent l’air dans tout le corps." },
+    { q:'Comment respire un ver de terre ?',
+      choix:['Par toute sa peau', 'Par des poumons', 'Par des branchies'], bonne:0, mission:3,
+      expl:"Il n’a aucune ouverture respiratoire : les gaz traversent directement sa peau, qui doit pour cela rester humide." },
+    { q:'Qu’est-ce qu’une surface respiratoire ?',
+      choix:['L’endroit du corps où les gaz passent', 'La peau entière d’un animal',
+             'La surface de l’eau'], bonne:0, mission:5,
+      expl:"C’est le lieu de l’échange : les alvéoles pour les poumons, les lamelles pour les branchies, la peau chez le ver de terre." },
+    { q:'Quels sont les deux mouvements de la respiration ?',
+      choix:['L’inspiration et l’expiration', 'La montée et la descente',
+             'L’absorption et la digestion'], bonne:0, mission:0,
+      expl:"Inspirer fait entrer l’air, expirer le fait sortir. Ces deux mouvements se répètent sans arrêt." },
+    { q:'Que montre une bougie qui s’éteint dans un bocal ?',
+      choix:['Qu’il manque du dioxygène', 'Qu’il fait trop froid',
+             'Qu’il y a trop d’eau'], bonne:0, mission:2,
+      expl:"Une flamme a besoin de dioxygène pour brûler. Si elle s’éteint alors que rien d’autre n’a changé, c’est qu’il en reste trop peu." },
+    { q:'Combien y a-t-il de dioxygène dans l’air ordinaire ?',
+      choix:['Environ 21 %', 'Environ 78 %', 'Environ 50 %'], bonne:0, mission:2,
+      expl:"C’est l’ordre de grandeur à retenir. Le dioxyde de carbone, lui, n’y est présent qu’en très petite quantité." },
+  ],
+
+  jutilise: [
+    { q:'Dans un bocal fermé contenant une souris, l’eau de chaux se trouble. Qu’en conclure ?',
+      choix:['La souris a rejeté du dioxyde de carbone',
+             'La souris a bu l’eau de chaux', 'Le bocal était sale'], bonne:0, mission:7,
+      expl:"L’eau de chaux ne réagit qu’au dioxyde de carbone. Comme le bocal témoin ne trouble rien, c’est bien la souris qui l’a produit." },
+    { q:'Un bocal de graines germées trouble l’eau de chaux. Que montre l’expérience ?',
+      choix:['Que les végétaux respirent', 'Que les graines pourrissent',
+             'Que les graines produisent du dioxygène'], bonne:0, mission:8,
+      expl:"Rejeter du dioxyde de carbone et prélever du dioxygène, c’est respirer. Les végétaux le font, sans aucun organe visible." },
+    { q:'Pourquoi faut-il un bocal de cailloux à côté de celui de la souris ?',
+      choix:['Pour vérifier que le bocal seul ne modifie pas l’air',
+             'Pour comparer les poids', 'Pour tenir le montage'], bonne:0, mission:7,
+      expl:"C’est le <b>témoin</b> : il subit tout sauf ce qu’on veut étudier. S’il ne change rien, la différence observée vient bien de l’être vivant." },
+    { q:'Un poisson ouvre la bouche et referme ses opercules sans arrêt. Que fait-il ?',
+      choix:['Il fait passer un courant d’eau sur ses branchies',
+             'Il boit', 'Il mange'], bonne:0, mission:4,
+      expl:"C’est le signe extérieur de sa respiration : l’eau entre par la bouche, passe sur les branchies et ressort sous les opercules." },
+    { q:'Pourquoi un ver de terre meurt-il sur un sol sec ?',
+      choix:['Sa peau desséchée ne laisse plus passer les gaz',
+             'Il a trop chaud', 'Il ne trouve plus de nourriture'], bonne:0, mission:6,
+      expl:"Les gaz ne traversent une surface respiratoire que dissous dans un liquide. Une peau sèche cesse de fonctionner comme surface respiratoire." },
+    { q:'Dans un bocal, le dioxygène est passé de 21 % à 12 %. Que fera la bougie ?',
+      choix:['Elle s’éteindra', 'Elle brûlera plus fort', 'Rien ne changera'], bonne:0, mission:2,
+      expl:"En dessous d’environ 15 % de dioxygène, une flamme ne se maintient plus. À 12 %, elle s’éteint." },
+    { q:'Deux bocaux : l’un avec des feuilles, l’autre vide. Seul le premier trouble l’eau de chaux. Conclusion ?',
+      choix:['Les feuilles ont rejeté du dioxyde de carbone',
+             'L’air du laboratoire en contenait',
+             'On ne peut rien conclure'], bonne:0, mission:8,
+      expl:"Le bocal vide sert de témoin : il montre que l’air de départ n’en contenait pas assez pour troubler. La différence vient donc des feuilles." },
+    { q:'Un champignon trouble l’eau de chaux. Qu’est-ce que cela prouve ?',
+      choix:['Qu’il respire, comme tous les êtres vivants',
+             'Qu’il est un végétal', 'Qu’il est en train de pourrir'], bonne:0, mission:9,
+      expl:"Un champignon n’est ni animal ni végétal, et il respire. C’est l’unité de la fonction chez tous les êtres vivants." },
+  ],
+
+  pieges: [
+    { q:'« Les plantes ne respirent pas, elles produisent du dioxygène. » Vrai ou faux ?',
+      choix:['Faux : elles respirent en permanence, jour et nuit',
+             'Vrai : elles ne font que produire du dioxygène',
+             'Vrai, sauf la nuit'], bonne:0, mission:8,
+      expl:"C’est l’erreur la plus répandue de tout le programme. Les végétaux respirent sans arrêt, comme tous les êtres vivants — l’eau de chaux le montre. Ils font <b>en plus</b> autre chose à la lumière, mais cela ne remplace pas la respiration." },
+    { q:'Un poisson respire-t-il l’eau ?',
+      choix:['Non : il prélève le dioxygène dissous dans l’eau',
+             'Oui, il respire l’eau elle-même',
+             'Non, il remonte respirer à la surface'], bonne:0, mission:4,
+      expl:"L’eau n’est pas un gaz respirable. Ce que les branchies prélèvent, c’est le <b>dioxygène dissous</b> dedans — bien moins abondant que dans l’air." },
+    { q:'Un élève conclut qu’une souris respire, sans avoir fait tourner de bocal témoin. Que lui manque-t-il ?',
+      choix:['La preuve que le bocal seul ne modifie pas l’air',
+             'Rien, sa conclusion suffit',
+             'Une deuxième souris'], bonne:0, mission:7,
+      expl:"Sans témoin, on ne peut pas exclure que le bocal, l’humidité ou le montage soient responsables. Le témoin est ce qui transforme une observation en preuve." },
+    { q:'Un poisson sorti de l’eau étouffe, alors que l’air contient bien plus de dioxygène. Pourquoi ?',
+      choix:['Ses lamelles branchiales se collent et s’assèchent',
+             'L’air est trop froid pour lui',
+             'Il n’a pas de narines'], bonne:0, mission:6,
+      expl:"Hors de l’eau, les lamelles s’effondrent les unes sur les autres : la surface d’échange s’effondre, et elle sèche. Une surface respiratoire doit rester <b>étendue et humide</b>." },
+    { q:'Le criquet a-t-il besoin de sang pour transporter le dioxygène jusqu’à ses organes ?',
+      choix:['Non : ses trachées le conduisent directement aux organes',
+             'Oui, comme tous les animaux',
+             'Non, il n’a pas d’organes'], bonne:0, mission:6,
+      expl:"C’est l’exception de la simulation : les trachées se ramifient jusqu’aux organes eux-mêmes. Chez les trois autres surfaces, c’est le sang qui emporte les gaz." },
+    { q:'« Respirer, c’est faire des mouvements avec sa poitrine. » Est-ce suffisant ?',
+      choix:['Non : le ver de terre respire sans aucun mouvement visible',
+             'Oui, c’est la définition',
+             'Oui, sauf pour les poissons'], bonne:0, mission:9,
+      expl:"Les mouvements ne sont qu’un <b>signe</b> chez certains animaux. Respirer, c’est l’échange lui-même : prendre du dioxygène et rejeter du dioxyde de carbone." },
+    { q:'L’eau de chaux reste limpide après deux minutes avec un ver de terre. Que conclure ?',
+      choix:['Rien encore : il faut laisser plus de temps',
+             'Le ver de terre ne respire pas',
+             'L’eau de chaux est périmée'], bonne:0, mission:7,
+      expl:"Un ver de terre respire lentement. Le test n’a pas eu le temps de répondre : un résultat négatif trop tôt ne prouve rien du tout." },
+    { q:'Deux animaux aux organes totalement différents peuvent-ils faire la même chose ?',
+      choix:['Oui : poumons et branchies réalisent le même échange gazeux',
+             'Non, des organes différents font des choses différentes',
+             'Seulement s’ils vivent au même endroit'], bonne:0, mission:9,
+      expl:"C’est tout le sens du titre de la situation d’apprentissage : <b>unité</b> de la fonction, <b>diversité</b> des organes." },
+  ],
+};
+/* ---- L'état de maîtrise : le meilleur résultat obtenu à chaque niveau ---- */
+function maitriseDe(cle) { return (etat.maitrise && etat.maitrise[cle]) || 0; }
+
+// Les niveaux difficiles pèsent plus lourd : réussir le premier seul plafonne
+// à 17 %, il faut affronter les pièges pour dépasser 80 %.
+function scoreMaitrise() {
+  // chaque niveau porte son poids : les simulations n'en ont pas toutes trois
+  let p = 0, total = 0;
+  for (const n of NIVEAUX_QUIZ) { p += maitriseDe(n.cle) * n.poids; total += n.poids; }
+  return total ? Math.round(p / total * 100) : 0;
+}
+function motMaitrise(p) {
+  return p >= 85 ? 'Maîtrisée' : p >= 60 ? 'Solide' : p >= 30 ? 'En bonne voie' : 'Découverte';
+}
+function etoiles(r) {
+  return r >= 1 ? '⭐⭐⭐' : r >= .8 ? '⭐⭐' : r >= .5 ? '⭐' : '';
+}
+
+// Le quiz mélange ses propres propositions : les simulations n'ont pas toutes
+// la même structure de question, et emprunter la leur cassait ici.
+function melangerQuiz(q) {
+  const ordre = q.choix.map((_, i) => i);
+  for (let i = ordre.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = ordre[i]; ordre[i] = ordre[j]; ordre[j] = t;
+  }
+  return Object.assign({}, q, { choix:ordre.map(k => q.choix[k]), bonne:ordre.indexOf(q.bonne) });
+}
+
+let quiz = null;
+
+/* Le quiz vit dans le périmètre de init() ; la liste des missions, elle, est
+   dessinée par une fonction globale. On expose donc l’ouverture du quiz pour
+   que la carte « M’exercer » puisse l’appeler. */
+function ouvrirQuiz() {
+  if (!accueilOuvert()) { toast('Termine les ' + MISSIONS.length + ' missions pour t’exercer.'); return; }
+  quiz = null;
+  rendreAccueilQuiz();
+  ouvrir('v-quiz');
+}
+window.ouvrirQuiz = ouvrirQuiz;
+
+function rendreAccueilQuiz() {
+  const p = scoreMaitrise();
+  $('quiz-carte').innerHTML = `
+    <button class="fermer-x" data-ferme="v-quiz" aria-label="Fermer">✕</button>
+    <h2>🏅 M’exercer</h2>
+    <p>Trois séries de ${PAR_SERIE} questions. Tu peux les refaire autant de fois que tu veux :
+       c’est ton <b>meilleur</b> résultat qui compte.</p>
+    <div class="qz-maitrise">
+      <div class="qz-m-haut"><span>Ma maîtrise de la notion</span><b>${p} %</b></div>
+      <div class="qz-m-barre"><i style="width:${p}%"></i></div>
+      <div class="qz-m-mot">${motMaitrise(p)}</div>
+    </div>
+    ${NIVEAUX_QUIZ.map(n => {
+      const r = maitriseDe(n.cle), et = etoiles(r);
+      return `<button class="qz-niveau" data-niveau="${n.cle}">
+        <span class="qz-em">${n.em}</span>
+        <span class="qz-txt"><b data-poids="${n.poids}">${n.nom}</b><span>${n.quoi}</span></span>
+        <span class="qz-note">${et || '—'}<span>${r ? Math.round(r * 100) + ' %' : 'jamais fait'}</span></span>
+      </button>`;
+    }).join('')}
+    <p class="qz-pied">Les questions difficiles comptent <b>trois fois plus</b> que les faciles :
+       c’est en les affrontant qu’on prouve qu’on a compris.</p>`;
+}
+
+function lancerSerie(cle) {
+  const banque = BANQUE[cle].slice();
+  for (let i = banque.length - 1; i > 0; i--) {           // tirage sans remise
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = banque[i]; banque[i] = banque[j]; banque[j] = t;
+  }
+  quiz = { niveau:cle, liste:banque.slice(0, PAR_SERIE).map(melangerQuiz),
+           n:0, justes:0, ratees:[] };
+  rendreQuestionQuiz();
+}
+
+function rendreQuestionQuiz() {
+  const q = quiz.liste[quiz.n];
+  const niv = NIVEAUX_QUIZ.find(n => n.cle === quiz.niveau);
+  $('quiz-carte').innerHTML = `
+    <button class="fermer-x" data-ferme="v-quiz" aria-label="Fermer">✕</button>
+    <div class="q-avance">${niv.em} ${niv.nom} · question ${quiz.n + 1} sur ${quiz.liste.length}</div>
+    <div class="qz-jauge"><i style="width:${quiz.n / quiz.liste.length * 100}%"></i></div>
+    <div class="q-question">${q.q}</div>
+    <div id="qz-choix">${q.choix.map((c, i) =>
+      `<button class="q-choix" data-qz="${i}">${c}</button>`).join('')}</div>
+    <div class="q-expl" id="qz-expl"></div><div id="qz-suite"></div>`;
+}
+
+function repondreQuiz(i) {
+  const q = quiz.liste[quiz.n];
+  const juste = i === q.bonne;
+  if (juste) quiz.justes++; else quiz.ratees.push(q);
+  $('qz-choix').querySelectorAll('.q-choix').forEach((b, k) => {
+    b.disabled = true;
+    if (k === q.bonne) { b.classList.add('bon'); b.textContent = '✔️ ' + b.textContent; }
+    else if (k === i) { b.classList.add('mauvais'); b.textContent = '❌ ' + b.textContent; }
+  });
+  const e = $('qz-expl');
+  e.innerHTML = q.expl;
+  e.classList.add('visible');
+  const dernier = quiz.n === quiz.liste.length - 1;
+  $('qz-suite').innerHTML = `<button class="btn btn-large" style="margin-top:12px" id="qz-continuer">${
+    dernier ? 'Voir mon résultat →' : 'Question suivante →'}</button>`;
+  $('qz-continuer').addEventListener('click', () => {
+    if (dernier) finirSerie(); else { quiz.n++; rendreQuestionQuiz(); }
+  });
+}
+
+function finirSerie() {
+  const r = quiz.justes / quiz.liste.length;
+  const niv = NIVEAUX_QUIZ.find(n => n.cle === quiz.niveau);
+  const avant = maitriseDe(quiz.niveau);
+  etat.maitrise = etat.maitrise || {};
+  etat.maitrise[quiz.niveau] = Math.max(avant, r);
+  sauver();
+  // Les questions ratées renvoient à leur mission : le quiz ramène au parcours.
+  const revoir = [];
+  for (const q of quiz.ratees) if (revoir.indexOf(q.mission) === -1) revoir.push(q.mission);
+  revoir.sort((a, b) => a - b);
+  const p = scoreMaitrise();
+  $('quiz-carte').innerHTML = `
+    <button class="fermer-x" data-ferme="v-quiz" aria-label="Fermer">✕</button>
+    <div class="qz-fin">
+      <div class="qz-fin-em">${r >= 1 ? '🎉' : r >= .5 ? '👏' : '💪'}</div>
+      <div><b>${quiz.justes} bonnes réponses sur ${quiz.liste.length}</b>
+        <span>${niv.em} ${niv.nom}</span></div>
+      <div class="qz-fin-et">${etoiles(r) || '—'}</div>
+    </div>
+    ${r > avant
+      ? `<p class="qz-mieux">✨ C’est ton meilleur résultat à ce niveau.</p>`
+      : `<p class="qz-mieux discret">Ton meilleur reste ${Math.round(avant * 100)} %.</p>`}
+    <div class="qz-maitrise">
+      <div class="qz-m-haut"><span>Ma maîtrise de la notion</span><b>${p} %</b></div>
+      <div class="qz-m-barre"><i style="width:${p}%"></i></div>
+      <div class="qz-m-mot">${motMaitrise(p)}</div>
+    </div>
+    ${revoir.length ? `<div class="qz-revoir"><b>📘 À revoir :</b>${revoir.map(i =>
+        `<span>Mission ${i + 1} — ${MISSIONS[i].titre}</span>`).join('')}</div>` : ''}
+    <div class="qz-boutons">
+      <button class="btn btn-contour" id="qz-refaire">↻ Refaire cette série</button>
+      <button class="btn" id="qz-retour">Les niveaux →</button>
+    </div>`;
+  $('qz-refaire').addEventListener('click', () => lancerSerie(quiz.niveau));
+  $('qz-retour').addEventListener('click', rendreAccueilQuiz);
+}
+
+$('v-quiz').addEventListener('click', e => {
+  const n = e.target.closest('[data-niveau]');
+  if (n) { lancerSerie(n.dataset.niveau); return; }
+  const b = e.target.closest('[data-qz]');
+  if (b && !b.disabled) repondreQuiz(+b.dataset.qz);
+});
+$('ac-exercer').addEventListener('click', () => {
+  if (!accueilOuvert()) return;
+  fermer('v-accueil');
+  ouvrirQuiz();
+});
+
+ouvrirAccueil();
+}
+init();
+
+</script>
+</body>
+</html>

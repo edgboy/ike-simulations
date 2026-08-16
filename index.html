@@ -301,7 +301,7 @@
 </main>
 
 <footer class="enveloppe pied">
-  <span>KONDO LABO · <span class="ver">v4.49.0</span></span>
+  <span>KONDO LABO · <span class="ver">v4.50.0</span></span>
   <span>·</span>
   <span>Programme officiel du Bénin (APC)</span>
   <span>·</span>
@@ -340,6 +340,7 @@ const LIVREES = {
   'triangles':          { cle: 'ike-triangles-progression',  missions: 14 },
   'alimentation':       { cle: 'ike-alimentation-progression', missions: 13 },
   'regimes-alimentaires':{ cle: 'ike-regimes-progression',     missions: 11 },
+  'respiration':        { cle: 'ike-respiration-progression', missions: 10 },
 };
 
 const CATALOGUE = [
@@ -564,7 +565,9 @@ const CATALOGUE = [
             sims: [{ dos: 'regimes-alimentaires', ico: '🦷', nom: 'Les outils pour manger',
               quoi: "Dents, crochets et pièces buccales : reconnaître un régime à ses outils, et comprendre l’adaptation." }] },
           { n: 3, titre: 'Diversité et unité des phénomènes respiratoires chez les êtres vivants',
-            heures: '9 sem.', cd: 'CD1', sims: [] },
+            heures: '9 sem.', cd: 'CD1',
+            sims: [{ dos: 'respiration', ico: '🫁', nom: 'Tous respirent',
+              quoi: "Mouvements respiratoires, organes extérieurs, surfaces respiratoires et échanges gazeux — de l’homme au champignon." }] },
         ] },
       { id: '5e', nom: '5ᵉ', desc: "Nutrition des plantes, milieux de vie, reproduction.",
         sa: [

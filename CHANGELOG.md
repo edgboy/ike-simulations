@@ -5,6 +5,55 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v4.50.0 — 2026-08-16
+
+🫁 **« Tous respirent » — SVT 6ᵉ, SA3. La classe de 6ᵉ est complète.**
+
+Dix missions sur « Unité et diversité des phénomènes respiratoires chez les êtres vivants »
+(9 semaines). Avec elle, les **trois** situations d'apprentissage de SVT 6ᵉ sont couvertes.
+
+### Le guide impose une structure, et elle est inhabituelle
+
+« L'armature de la progression sera construite **non pas autour des exemples étudiés l'un après
+l'autre**, mais autour des divers aspects biologiques de la fonction. » Le parcours suit donc les
+quatre aspects qu'il énumère — les organes extérieurs chez les animaux terrestres, les signes
+extérieurs chez les aquatiques, les organes et leurs caractéristiques, les échanges gazeux — et non
+la liste des animaux.
+
+### Deux bornes explicites, respectées
+
+- « La formulation du concept de respiration à ce niveau **n'intègrera pas l'idée d'énergie**. » Le
+  test du modèle vérifie que ni « énergie » ni « combustion » n'apparaissent nulle part.
+- Les échanges s'abordent « **sans que soient étudiés les mécanismes de transport des gaz aux
+  organes** ». On s'en tient aux caractéristiques communes des surfaces.
+
+### Le bocal, l'eau de chaux et la bougie
+
+Le matériel est celui que le guide liste : bocaux, eau de chaux, bougie, et des êtres vivants —
+souris, lézard, criquet, ver de terre, poisson, têtard, graines germées, feuilles, champignons. On
+choisit l'occupant, on fait avancer le temps, et les deux tests répondent : l'eau de chaux en deux
+à quatre minutes, la bougie en dix à vingt. **Les animaux sont relâchés dès la mesure prise, et la
+simulation le dit.**
+
+Une mission entière est consacrée au **témoin** — le bocal de cailloux. Sans lui, rien ne prouve
+que c'est l'être vivant qui a modifié l'air : c'est ce qui sépare une observation d'une preuve.
+
+### Ce que le modèle établit, et une exception qui compte
+
+Les quatre surfaces respiratoires — alvéoles, lamelles, trachées, peau — sont **fines, humides et
+très étendues**. Trois d'entre elles sont en plus **irriguées de sang**. Les **trachées** du criquet
+font exception : l'air y arrive directement aux organes. Le test du modèle vérifie qu'il y a bien
+**trois** caractères communs et non quatre — l'exception fait partie de ce qui est enseigné.
+
+Modèle testé là où il tourne : `simulations/respiration/test-modele.js`, **51 vérifications**.
+
+### Un risque signalé, non traité
+
+Plusieurs simulations du catalogue utilisent des emoji récents (🫁 2020, 🪰 2020, 🫘 2021). Dans mon
+environnement de contrôle, certains s'affichent en carré vide. Je ne peux pas en conclure qu'un
+téléphone béninois échoue — sa police d'emoji n'est pas la mienne. **À vérifier sur un appareil
+réel** ; si le défaut existe, il concerne tout le catalogue, pas cette simulation.
+
 ## v4.49.0 — 2026-08-16
 
 🦷 **« Les outils pour manger » — SVT 6ᵉ, SA2.**
