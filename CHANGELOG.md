@@ -5,6 +5,47 @@ https://github.com/edgboy/ike-simulations/releases
 
 Revenir à une version pour la consulter : `git checkout v1.5.0` (puis `git checkout main` pour revenir au présent).
 
+## v4.52.0 — 2026-08-16
+
+📊 **« La station de KOMO » — Mathématiques 6ᵉ, SA4.**
+
+Onze missions sur « Organisation des données » (16 heures). La simulation reprend la **situation de
+départ du guide** : un commerçant veut ouvrir une station d'essence à KOMO, et reçoit le relevé
+d'une journée dans une station de la région.
+
+**Les 78 opérations sont celles du guide**, extraites du PDF et non retapées — une coquille dans un
+relevé fausserait tous les calculs. Le test du modèle vérifie l'extraction contre la source :
+78 opérations, première `R20`, dernière `T30`, effectifs Audi 17, Toyota 15, Mercedes 13, Opel 11,
+Peugeot 9, Renault 7, Volkswagen 6, et 2 170 litres au total.
+
+### Les deux blocs de la SA
+
+**Statistiques** : population, caractère qualitatif ou quantitatif, modalité, effectif, fréquence,
+moyenne, diagramme en bâtons, diagramme semi-circulaire — et la lecture **dans les deux sens**, que
+le guide demande explicitement : « dresser un tableau statistique **à partir d'un** diagramme ».
+Une mission entière est consacrée à ce sens inverse.
+
+**Proportionnalité** : tableau, coefficient, pourcentage et échelle. Ces deux derniers sont
+« présentés comme **opérateurs** » — le mot est du guide — et une mission montre que prendre 25 %
+et appliquer une échelle de 1/200 sont **le même geste** : une multiplication.
+
+### La particularité béninoise
+
+Le diagramme **semi**-circulaire répartit les angles sur **180°**, pas sur 360. Mercedes y tombe
+pile sur 30°. C'est l'erreur que le niveau « pièges » du quiz vise en premier, et le test du modèle
+vérifie que la somme des angles fait bien 180.
+
+### Le dépouillement au doigt
+
+L'élève touche la ligne de la marque affichée ; les bâtonnets s'accumulent par paquets de cinq,
+comme sur une feuille de comptage. Un bouton termine le comptage une fois le geste compris — imposer
+78 touchers n'aurait rien appris de plus.
+
+Modèle testé là où il tourne : **38 vérifications** extraites du fichier livré.
+
+La SA4 existe aux **quatre classes** ; seule la 6ᵉ est couverte, le contenu des niveaux suivants
+étant plus large.
+
 ## v4.51.0 — 2026-08-16
 
 📄 **Une fiche pédagogique par simulation.**
